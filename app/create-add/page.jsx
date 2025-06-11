@@ -28,6 +28,7 @@ export default function CreateCarPost() {
   const [category, setCategory] = useState("");
   const [baseCategory, subCatgory] = category.split(" - ")
   const [location, setLocation] = useState("Choose location");
+  const [state, setState] = useState("");
   const [link, setLink] = useState("");
   const [uploadedImages, setUploadedImages] = useState([]);
   const [showLocationModal, setShowLocationModal] = useState(false);
@@ -182,7 +183,8 @@ export default function CreateCarPost() {
     
     
   // when a state/LGA is picked in the modal, this fires:
-  const handleLocationSelect = (lga) => {
+  const handleLocationSelect = ({ state: selectedState, lga }) => {
+    setState(selectedState);
     setLocation(lga);
     setShowLocationModal(false);
   };

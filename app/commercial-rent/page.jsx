@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, Car } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Sidebar from "../components/navbar/sidebar";
@@ -8,6 +8,7 @@ import { propertyTypeOptions, furnishingOptions, parkingSpaceOptions, ownershipS
 import PostDropdown from "../components/dropdowns/car-post-dropdown";
 import ServiceChargeSection from "../components/UI/serviceCharge";
 import InputField from "../components/input";
+import api from "@/services/api";
 
 
 export default function MorePropertyPost() {
@@ -26,8 +27,43 @@ export default function MorePropertyPost() {
   const [propertyDuration, setPropertyDuration] = useState("");
   const [amount, setAmount] = useState("");
   const [negotiation, setNegotiation] = useState("");
+  const [businessOptions, setBusinessOptions] = useState([]);
+  const [business, setBusiness] = useState("");
   const [businessCategory, setBusinessCategory] = useState("");
   const [description, setDescription] = useState("");
+
+  useEffect(() => {
+    const fetchBusinesses = async () => {
+       try {
+         const res = await api.get("/business/my-businesses");
+         const options = res.data.map((b) => ({
+          label: b.businessName,
+          value: b._id,
+         }));
+         setBusinessOptions(options);
+       } catch (error) {
+         console.error("Failed to fetch businesses", error);
+       }
+    };
+
+    fetchBusinesses();
+  }, []);
+
+ const BusinessPostDropdown = ({ label, value, onChange, options }) => (
+  <div className="relative w-full mt-5">
+    <label className="block text-left mb-1 text-[#525252] md:text-[12px] font-inter font-[500]">{label}</label>
+    <select 
+     className="border-[1px] border-[#CDCDD7] md:h-[52px] rounded-[4px] mb-2 focus:outline-none  px-3 py-2 text-[#525252] flex justify-between items-center bg-white"
+      value={value} onChange={(e) => onChange(e.target.value)}>
+      <option value="">Select a business</option>
+      {options.map((opt) => (
+        <option key={opt.value} value={opt.value}>
+          {opt.label}
+        </option>
+      ))}
+    </select>
+  </div>
+);
 
   const handleAdd = () => {
     setServiceFees((prev) => [...prev, { name: "", amount: "" }]);
@@ -137,12 +173,12 @@ export default function MorePropertyPost() {
                       onChange={setNegotiation}
                       options={negotiationOptions}
                     />
-                  <PostDropdown
-                   label="Enter business category"
-                   value={businessCategory}
-                   onChange={setBusinessCategory}
-                   options={businessCategoryOptions}
-                  />
+                    <BusinessPostDropdown
+                      label="Enter business category"
+                      value={business}
+                      onChange={setBusiness}
+                      options={businessOptions}
+                    />
                   </div>
                   <div className="mt-2">
                   <label className="block text-left mb-1 text-[#525252] font-[500] font-inter">Description</label>

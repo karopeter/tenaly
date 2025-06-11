@@ -14,8 +14,8 @@ export default function LocationSearch() {
     setSearchQuery("");
   };
 
-  const handleLGASelect = (lga) => {
-    setSelectedLocation(lga);
+  const handleLGASelect = ({ state, lga }) => {
+    setSelectedLocation(`${state}, ${lga}`);
     setIsModalOpen(false);
     setSelectedState(null);
   };

@@ -9,14 +9,22 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+    const storedUser = localStorage.getItem("user");
+
+     if (token && storedUser) {
+      setIsLoggedIn(true);
+      setUser(JSON.parse(storedUser));
+    }
     setIsLoggedIn(!!token);
   }, []);
 
-  const login = (token) => {
+  const login = (token, userData) => {
     localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(userData));
     setIsLoggedIn(true);
   };
 
@@ -27,7 +35,7 @@ export const AuthProvider = ({ children }) => {
    
     setTimeout(() => {
       router.push("/");
-    }, 1500); //logout 1.5seconds 
+    }, 1500); 
   };
 
   return (

@@ -93,11 +93,11 @@ export default function SignInForm({ onClose }) {
                 localStorage.setItem("token", data.token);
                 toast.success("Login successful!");
                 onClose();
-                // router.push("/Add"); 
+                router.push("/Add"); 
     
-                setTimeout(() => {
-                   window.location.reload();
-                }, 300);
+                // setTimeout(() => {
+                //    window.location.reload();
+                // }, 300);
              } else {
                 toast.error(data.message || "Login failed:");
              }
@@ -126,11 +126,8 @@ export default function SignInForm({ onClose }) {
               if (res.ok) {
                 localStorage.setItem("token", data.token);
                 toast.success("Google authentication successful!", data.token);
-                onClose();
-                // router.push("/Add")
-                setTimeout(() => {
-                 window.location.reload(); 
-                }, 300);
+                 router.push("/Add");
+                 onClose();
               } else {
                 toast.error(data.message || "Google authentication failed");
               }

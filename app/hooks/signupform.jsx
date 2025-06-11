@@ -5,6 +5,8 @@ import { useAuth } from "../context/AuthContext";
 import Button from "../components/Button";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline"; 
 import Img from "../components/Image";
+// import { useSession } from "next-auth/react";
+// import { signIn } from "next-auth/react";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import { useRouter } from "next/navigation";
 import SignInModal from "./signin-modal";
@@ -27,6 +29,8 @@ export default function SignUpForm({ onClose }) {
         const [formErrors, setFormErrors] = useState({});
     
         const isFormValid = Object.values(form).every((val) => val.trim() !== "");
+
+      
     
         const handleChange = (e) => {
             setForm({ ...form, [e.target.name]: e.target.value});
@@ -241,6 +245,16 @@ const handleGoogleSuccess = async (googleResponse) => {
             </div>
       
            {/* Social Buttons */}
+           {/* <div className="flex gap-4 justify-center mt-4">
+  <Button
+    onClick={() => signIn("google", { callbackUrl: "/Add" })}
+    className="flex items-center gap-2 w-[184px] h-[52px] rounded-[8px] border font-inter font-[500] text-[#525252] text-[16px] border-[#CDCDD7]"
+    type="button"
+  >
+    <Img src="/google.svg" alt="Google" width={24} height={24} />
+    Google
+  </Button>
+</div> */}
          <div className="flex gap-4 justify-center mt-4">
          <GoogleOAuthProvider clientId={googleClientId}>
             <GoogleLogin

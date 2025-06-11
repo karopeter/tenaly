@@ -10,8 +10,26 @@ import Img from "../components/Image";
 import AddBusiness from "../components/addBusiness/add.business";
 import BusinessForm from "../components/BusinessForm/business-form";
 import AddBusinessHours from "../components/addBusinessHours/add-busi-hours";
+import BusinessHoursForm from "../components/BusinessForm/business-hours-form";
+import EditBusinessForm from "../components/BusinessForm/edit-business-hour";
+import EditBussinessPage from "../components/BusinessForm/editBusiness";
+import AddBusinessDetails from "../components/addBusinessDetails/add-business-details";
+import AddBusinessDetailsForm from "../components/BusinessForm/business-details-form";
+import BusinessDeliveryForm from "../components/BusinessForm/business-delivery-form";
+import EditDeliveryForm from "../components/BusinessForm/edit-delivery-form";
 
-export default function Profile({ createBusinessPage, addBusiness, businessHours }) {
+export default function Profile({ 
+  createBusinessPage, 
+  addBusiness,
+   businessHours, 
+   addBusinessHours, 
+  editBusinessHour,
+  editBusinessDetails,
+  addBusinessDetails,
+  addBusinessDetailsForm,
+  addBussinessDelivery,
+  editDeliveryForm
+}) {
   const [mode, setMode] = useState("personal");
   const [fetchedImage, setFetchedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
@@ -24,8 +42,11 @@ export default function Profile({ createBusinessPage, addBusiness, businessHours
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isProfileVisible, setIsProfileVisible] = useState(false);
+  const [activeSection, setActiveSection] = useState(null);
+  const [isMobile, setIsMobile] = useState(false)
   
 
   const renderContent = () => {
@@ -33,9 +54,43 @@ export default function Profile({ createBusinessPage, addBusiness, businessHours
     if (createBusinessPage) return <BusinessForm />;
     if (addBusiness) return <AddBusiness />;
     if (businessHours) return <AddBusinessHours />;
+    if (addBusinessHours) return <BusinessHoursForm />;
+    if (editBusinessHour) return <EditBusinessForm />;
+    if (editBusinessDetails) return <EditBussinessPage />;
+    if (addBusinessDetails) return <AddBusinessDetails />;
+    if (addBusinessDetailsForm) return <AddBusinessDetailsForm />;
+    if (addBussinessDelivery) return <BusinessDeliveryForm />;
+    if (editDeliveryForm)  return <EditDeliveryForm />;
     return <AddBusiness />;
   };
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // useEffect(() => {
+  //  const checkMobile = () => {
+  //    const mobile = window.innerWidth < 768;
+  //    setIsMobile(mobile);
+  //    if (mobile) {
+  //     setIsProfileVisible(true);
+  //    }
+  //  };
+  //  checkMobile();
+  //  window.addEventListener("resize", checkMobile);
+  //  return () => window.removeEventListener("resize", checkMobile);
+  // }, []);
   
+
+  useEffect(() => {
+    console.log('isMobile:', isMobile);
+    console.log('isProfileVisible:', isProfileVisible);
+  }, [isMobile, isProfileVisible]);
+
+
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -75,7 +130,7 @@ export default function Profile({ createBusinessPage, addBusiness, businessHours
       });
       toast.success("Profile updated successfully!");
       setIsEditable(false);
-      setIsImageFromUpload(false); // reset
+      setIsImageFromUpload(false); 
     } catch (error) {
       toast.error("Failed to update profile. Please try again.");
     } finally {
@@ -87,7 +142,7 @@ export default function Profile({ createBusinessPage, addBusiness, businessHours
     const file = e.target.files?.[0];
     if (file) {
       setImageFile(file);
-      setIsImageFromUpload(true); // mark as uploaded
+      setIsImageFromUpload(true); 
       const reader = new FileReader();
       reader.onload = () => {
         setImagePreview(reader.result);
@@ -165,102 +220,108 @@ export default function Profile({ createBusinessPage, addBusiness, businessHours
     <div className="md:px-[104px] px-4 md:ml-10 mt-20 md:mt-40">
       <div className="flex flex-col md:flex-row gap-10">
         {/* <Sidebar /> */}
-        <Sidebar />
-        <main className="flex-1">
-          <form 
-            onSubmit={handleSubmit}
-            className="bg-white shadow-phenom md:rounded-[12px] p-8 text-center">
-            <div className="flex justify-between items-start mb-6">
-              <div className="flex-1 flex justify-center">
-                <div className="relative w-32 h-32">
-                  <img
-                    src={imagePreview || fetchedImage ||  "/profile-circles.svg"}
-                    alt="Profile"
-                    className="w-full h-full object-cover rounded-full"
-                  />
-                  {imagePreview && isImageFromUpload ? (
-                    <button
-                      type="button"
-                      onClick={handleRemoveImage}
-                      className="absolute top-0 right-0 bg-white rounded-full p-2 shadow hover:bg-gray-100"
-                    >
-                      <XCircle className="w-5 h-5 text-gray-600" />
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="absolute bottom-0 right-0 bg-white rounded-full p-2 shadow hover:bg-gray-100"
-                    >
-                      <Camera className="w-5 h-5 text-gray-600" />
-                    </button>
-                  )}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    ref={fileInputRef}
-                    onChange={handleImageChange}
-                    className="hidden"
-                  />
-                </div>
-              </div>
-
-             {mode === "personal" && (
-              <div className="mt-2">
-                <Button
-                  type="button"
-                  onClick={() => setIsEditable(!isEditable)}
-                  className="flex items-center gap-1 border-[1px] border-[#EDEDED] md:h-[36px] md:rounded-[28px] text-[#232323] text-sm font-medium bg-[#F1F1F1]"
-                >
-                  <Pencil className="w-4 h-4 text-[#3C3C3C]" />
-                  {isEditable ? "Done" : "Edit"}
-                </Button>
-              </div>
+        <Sidebar 
+          isOpen={isSidebarOpen} 
+          onClose={() => setIsSidebarOpen(false)} 
+          onProfileClick={() => setIsProfileVisible(true)}
+         />
+         {(!isMobile || isProfileVisible) && (
+            <main className="flex-1 mt-6">
+           <form 
+             onSubmit={handleSubmit}
+             className="bg-white shadow-phenom md:rounded-[12px] p-8 text-center">
+             <div className="flex justify-between items-start mb-6">
+               <div className="flex-1 flex justify-center">
+                 <div className="relative w-32 h-32">
+                   <img
+                     src={imagePreview || fetchedImage ||  "/profile-circles.svg"}
+                     alt="Profile"
+                     className="w-full h-full object-cover rounded-full"
+                   />
+                   {imagePreview && isImageFromUpload ? (
+                     <button
+                       type="button"
+                       onClick={handleRemoveImage}
+                       className="absolute top-0 right-0 bg-white rounded-full p-2 shadow hover:bg-gray-100"
+                     >
+                       <XCircle className="w-5 h-5 text-gray-600" />
+                     </button>
+                   ) : (
+                     <button
+                       type="button"
+                       onClick={() => fileInputRef.current?.click()}
+                       className="absolute bottom-0 right-0 bg-white rounded-full p-2 shadow hover:bg-gray-100"
+                     >
+                       <Camera className="w-5 h-5 text-gray-600" />
+                     </button>
+                   )}
+                   <input
+                     type="file"
+                     accept="image/*"
+                     ref={fileInputRef}
+                     onChange={handleImageChange}
+                     className="hidden"
+                   />
+                 </div>
+               </div>
+ 
+              {mode === "personal" && (
+               <div className="mt-2">
+                 <Button
+                   type="button"
+                   onClick={() => setIsEditable(!isEditable)}
+                   className="flex items-center gap-1 border-[1px] border-[#EDEDED] md:h-[36px] md:rounded-[28px] text-[#232323] text-sm font-medium bg-[#F1F1F1]"
+                 >
+                   <Pencil className="w-4 h-4 text-[#3C3C3C]" />
+                   {isEditable ? "Done" : "Edit"}
+                 </Button>
+               </div>
+              )}
+             </div>
+ 
+             {/* SWITCH ONLY VISIBLE WHEN NOT EDITING */}
+             {!isEditable && (
+               <div className="bg-[#FAFAFA] md:rounded-[4px] p-2 md:w-[400px] md:h-[52px] inline-flex gap-2">
+                 <div className="flex justify-center gap-4 w-full">
+                   <Button
+                     type="button"
+                     onClick={() => setMode("personal")}
+                     className={`px-6 py-1 rounded-[4px] md:w-[169px] ${mode === "personal" ? "bg-[#DFDFF9] text-[#000087]" : "bg-transparent text-[#232323]"}`}
+                   >
+                     Personal
+                   </Button>
+                   <Button
+                     type="button"
+                     onClick={() => setMode("business")}
+                     className={`px-6 py-1 rounded-[4px] md:w-[169px] ${mode === "business" ? "bg-[#DFDFF9] text-[#000087]" : "bg-transparent text-[#232323]"}`}
+                   >
+                     Business
+                   </Button>
+                 </div>
+               </div>
              )}
+            <div>
+             {renderContent()}
             </div>
-
-            {/* SWITCH ONLY VISIBLE WHEN NOT EDITING */}
-            {!isEditable && (
-              <div className="bg-[#FAFAFA] md:rounded-[4px] p-2 md:w-[400px] md:h-[52px] inline-flex gap-2">
-                <div className="flex justify-center gap-4 w-full">
-                  <Button
-                    type="button"
-                    onClick={() => setMode("personal")}
-                    className={`px-6 py-1 rounded-[4px] md:w-[169px] ${mode === "personal" ? "bg-[#DFDFF9] text-[#000087]" : "bg-transparent text-[#232323]"}`}
-                  >
-                    Personal
-                  </Button>
-                  <Button
-                    type="button"
-                    onClick={() => setMode("business")}
-                    className={`px-6 py-1 rounded-[4px] md:w-[169px] ${mode === "business" ? "bg-[#DFDFF9] text-[#000087]" : "bg-transparent text-[#232323]"}`}
-                  >
-                    Business
-                  </Button>
-                </div>
-              </div>
-            )}
-           <div>
-            {renderContent()}
-           </div>
-            {isEditable && (
-              <div className="mt-6 flex justify-center">
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  className="flex items-center justify-center gap-2 md:w-[262px] md:h-[44px] md:rounded-[8px] font-[500] md:text-[14px] bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white"
-                >
-                  {loading ? "Saving..." : (
-                    <>
-                      <Img src="/tick-circles.svg" alt="Save" width={24} height={24} />
-                      Save Changes
-                    </>
-                  )}
-                </Button>
-              </div>
-            )}
-          </form>
-        </main>
+             {isEditable && (
+               <div className="mt-6 flex justify-center">
+                 <Button
+                   type="submit"
+                   disabled={loading}
+                   className="flex items-center justify-center gap-2 md:w-[262px] md:h-[44px] md:rounded-[8px] font-[500] md:text-[14px] bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white"
+                 >
+                   {loading ? "Saving..." : (
+                     <>
+                       <Img src="/tick-circles.svg" alt="Save" width={24} height={24} />
+                       Save Changes
+                     </>
+                   )}
+                 </Button>
+               </div>
+             )}
+           </form>
+         </main>
+         )}
       </div>
     </div>
   );
