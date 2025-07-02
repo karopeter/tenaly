@@ -29,9 +29,9 @@ export default function Footer() {
                 {section.title}
               </h4>
               <ul className="flex flex-col gap-2 text-[14px] text-[#EDEDED] font-[400] font-inter">
-                {section.links.map((link, i) => (
+                {section.links.map((linkObj, i) => (
                   <li key={i}>
-                    <Link href="#">{link}</Link>
+                    <Link href={linkObj.href}>{linkObj.label.replace(/-/g, " ")}</Link>
                   </li>
                 ))}
               </ul>
@@ -45,9 +45,9 @@ export default function Footer() {
             {footerData[0].title}
           </h4>
           <ul className="flex flex-col gap-2 text-[14px] text-[#EDEDED] font-[400] font-inter">
-            {footerData[0].links.map((link, i) => (
+            {footerData[0].links.map((linkObj, i) => (
               <li key={i}>
-                <Link href="#">{link}</Link>
+                <Link href={linkObj.href}>{linkObj.label.replace(/-/g, " ")}</Link>
               </li>
             ))}
           </ul>
@@ -59,9 +59,9 @@ export default function Footer() {
             {footerData[1].title}
           </h4>
           <ul className="flex flex-col gap-2 text-[14px] text-[#EDEDED] font-[400] font-inter">
-            {footerData[1].links.map((link, i) => (
+            {footerData[1].links.map((linkObj, i) => (
               <li key={i}>
-                <Link href="#">{link}</Link>
+                <Link href={linkObj.href}>{linkObj.label.replace(/-/g, " ")}</Link>
               </li>
             ))}
           </ul>

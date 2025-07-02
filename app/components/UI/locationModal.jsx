@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import api from "@/services/api";
 import Img from "../Image";
 
 export default function LocationModal({ isOpen, onClose, onSelectLocation }) {
@@ -7,14 +8,11 @@ export default function LocationModal({ isOpen, onClose, onSelectLocation }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedState, setSelectedState] = useState(null);
 
-  const baseURI = process.env.NEXT_PUBLIC_BASE_URL;
-
   useEffect(() => {
     const getLocations = async () => {
       try {
-        const response = await fetch(`${baseURI}/locations/getLocation`);
-        const data = await response.json();
-        setLocations(data);
+        const response = await api.get("/locations/getLocation");
+        setLocations(response.data);
       } catch (error) {
         console.error("Error fetching locations:", error);
       }
@@ -26,8 +24,8 @@ export default function LocationModal({ isOpen, onClose, onSelectLocation }) {
     ? selectedState.lgas.filter((lga) =>
         lga.toLowerCase().includes(searchQuery.toLowerCase())
       )
-    : locations.filter((state) =>
-        state.state.toLowerCase().includes(searchQuery.toLowerCase())
+    : locations.filter((item) =>
+        item.state.toLowerCase().includes(searchQuery.toLowerCase())
       );
 
   const handleStateSelect = (state) => {
@@ -36,10 +34,14 @@ export default function LocationModal({ isOpen, onClose, onSelectLocation }) {
   };
 
   const handleLGASelect = (lga) => {
-    onSelectLocation(lga);
+    onSelectLocation({
+      state: selectedState?.state,
+      lga: lga
+    });
     setSelectedState(null);
     setSearchQuery("");
     onClose();
+    console.log("Selected Location" , selectedState);
   };
 
   const handleBack = () => {

@@ -31,7 +31,7 @@ export default function VehicleDropdown({ value, onChange = () => {} }) {
                 key={opt}
                 className="px-3 py-2 hover:bg-[#EDEDED] cursor-pointer capitalize text-[#525252] text-[14px] font-[400] font-inter text-left border-b border-[#EDEDED] last:border-b-0"
                 onClick={() => {
-                  onChange(opt);
+                  onChange(`Vehicle - ${opt}`);
                   setIsOpen(false);
                 }}
               >

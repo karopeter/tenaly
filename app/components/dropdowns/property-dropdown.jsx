@@ -8,15 +8,16 @@ export default function PropertyDropdown({ value, onChange = () => {} }) {
   const [searchTerm, setSearchTerm] = useState("");
 
   const options = [
-    "Commercial Property for rent",
-    "Commercial Property for sale",
-    "House and Apartment Property for rent",
-    "House and Apartment Property for sale",
-    "Lands and Plot for rent",
-    "Lands and Plot for sale",
-    "Short let Property",
-    "Event center and Venues",
-  ];
+  "Commercial Property For Rent",
+  "Commercial Property For Sale",
+  "House and Apartment Property For Rent",
+  "House and Apartment Property For Sale",
+  "Land and Plot For Rent",
+  "Land and Plot For Sale",
+  "Short Let Property",
+  "Event Center And Venues"
+];
+
 
   const handleSelect = (opt) => {
     onChange(opt);

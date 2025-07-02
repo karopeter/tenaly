@@ -6,7 +6,7 @@ export default function ReviewsDetailsPage({ specs }) {
         <div className="flex flex-col items-center justify-center mt-5">
           {specs.reviewImg && (
             <Img 
-               src={specs.reviewImg}
+               src="/reviews.svg"
                alt="Review Image"
                width={158}
                height={158}

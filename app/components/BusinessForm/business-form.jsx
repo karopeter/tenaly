@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import BusinessLink from "../navbar/business.link";
 import { ArrowLeftIcon } from '@heroicons/react/24/solid';
 import Button from "../Button";
@@ -36,18 +36,31 @@ const AddressFields = ({ addresses, setAddresses }) => (
 );
 
 
-export default function BusinessForm() {
+export default function BusinessForm({ initialData, isEditMode, businessId, mode}) {
     const router = useRouter();
     const [showLocationModal, setShowLocationModal] = useState(false);
     const [businessName, setBusinessName] = useState("");
     const [aboutBusiness, setAboutBusiness] = useState("");
+    const [state, setState] = useState("");
     const [location, setLocation] = useState("Choose location");
     const [addresses, setAddresses] = useState([""]);
+    const [businessHours, setBusinessHours] = useState(initialData?.businessHours || []);
+
+    useEffect(() => {
+      if (initialData) {
+        setBusinessName(initialData.businessName || "");
+        setAboutBusiness(initialData.aboutBusiness || "");
+        setLocation(initialData.location || "");
+        setAddresses(initialData.addresses || [""]);
+        setBusinessHours(initialData.businessHours || []);
+      }
+    }, [initialData]);
  
-    const handleLocationSelect = (lga) => {
+     const handleLocationSelect = ({ state: selectedState, lga }) => {
+        setState(selectedState);
         setLocation(lga);
         setShowLocationModal(false);
-      };
+    };
 
       const handleSubmit = async () => {
         if (!businessName || !aboutBusiness || location === "Choose location" || addresses.some(addr => !addr.trim())) {

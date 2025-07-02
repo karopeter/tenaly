@@ -1,40 +1,55 @@
-// app/context/AuthContext.js
 "use client";
-import { toast } from "react-toastify";
 import { createContext, useContext, useEffect, useState } from "react";
-import { useRouter  } from "next/navigation";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 const AuthContext = createContext();
 
-export const AuthProvider = ({ children }) => {
+export function AuthProvider({ children }) {
   const router = useRouter();
+  const [profile, setProfile] = useState(null);
+  const [token, setToken]       = useState(null);
+  const [loading, setLoading]   = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    setIsLoggedIn(!!token);
+    const storedProfile = localStorage.getItem("profile");
+    const storedToken   = localStorage.getItem("token");
+
+    if (storedToken && storedProfile) {
+      setToken(storedToken);
+      setProfile(JSON.parse(storedProfile));
+      setIsLoggedIn(true);
+    }
+
+    setLoading(false);
   }, []);
 
-  const login = (token) => {
-    localStorage.setItem("token", token);
+  const login = (profileData, authToken) => {
+    localStorage.setItem("token", authToken);
+    localStorage.setItem("profile", JSON.stringify(profileData));
+    setToken(authToken);
+    setProfile(profileData);
     setIsLoggedIn(true);
   };
 
   const logout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("profile");
+    setToken(null);
+    setProfile(null);
     setIsLoggedIn(false);
     toast.success("You've logged out successfully!");
-   
-    setTimeout(() => {
-      router.push("/");
-    }, 1500); //logout 1.5seconds 
+    router.push("/");
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, login, logout }}>
+    <AuthContext.Provider
+      value={{ profile, token, isLoggedIn, loading, login, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );
-};
+}
 
 export const useAuth = () => useContext(AuthContext);

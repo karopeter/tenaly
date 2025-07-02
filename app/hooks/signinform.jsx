@@ -9,6 +9,7 @@ import Img from "../components/Image";
 import ForgotPassword from "./forgot-password-model";
 import SignUpModal from "./signup-modal";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
+import { useAuth } from "../context/AuthContext";
 
 export default function SignInForm({ onClose }) {
      const baseURI = process.env.NEXT_PUBLIC_BASE_URL;
@@ -17,6 +18,7 @@ export default function SignInForm({ onClose }) {
         const [showForgotPasswordModal, setShowForgotPaswordModal] = useState(false)
         const [showSignUpModal] = useState(false);
         const [showPassword, setShowPassword] = useState(false);
+        const {login } = useAuth();
         const [isPhoneSignIn, setIsPhoneSignIn] = useState(false);
         const [form, setForm] = useState({
             email: "",
@@ -76,28 +78,34 @@ export default function SignInForm({ onClose }) {
             if (!validateForm()) return;
     
             try {
-             const login = isPhoneSignIn ? form.phone : form.email;
+             const loginValue = isPhoneSignIn ? form.phone : form.email;
+
+             const payload = {
+               login: loginValue,
+               password: form.password
+             };
+
+             console.log('Sending login request', payload);
     
              const response = await fetch(`${baseURI}/auth/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    login, // Either email or phone 
-                    password: form.password
-                }),
+                body: JSON.stringify(payload),
              });
     
              const data = await response.json();
+
+             console.log("📥 Login Response:", data);
     
              if (response.ok) {
-                localStorage.setItem("token", data.token);
+                login(data, data.token);
                 toast.success("Login successful!");
                 onClose();
-                // router.push("/Add"); 
+                router.push("/Add"); 
     
-                setTimeout(() => {
-                   window.location.reload();
-                }, 300);
+                // setTimeout(() => {
+                //    window.location.reload();
+                // }, 300);
              } else {
                 toast.error(data.message || "Login failed:");
              }
@@ -124,13 +132,10 @@ export default function SignInForm({ onClose }) {
               const data = await res.json();
           
               if (res.ok) {
-                localStorage.setItem("token", data.token);
+                login(data, data.token);
                 toast.success("Google authentication successful!", data.token);
-                onClose();
-                // router.push("/Add")
-                setTimeout(() => {
-                 window.location.reload(); 
-                }, 300);
+                 router.push("/Add");
+                 onClose();
               } else {
                 toast.error(data.message || "Google authentication failed");
               }

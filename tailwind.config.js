@@ -12,6 +12,9 @@ module.exports = {
        'custom-header': '0 2px 8px 0 #140C2929',
        'phenom': '0 4px 6px rgba(20, 12, 41, 0.1)'
       },
+      blur: {
+        377: '377px',
+      },
       fontFamily: {
         roboto: ["var(--font-roboto)", ...fontFamily.sans],
         shadows: "var(--font-shadows)",
