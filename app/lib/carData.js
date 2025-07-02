@@ -6,6 +6,7 @@ export const carMakes = [
     { id: 3, name: 'Ford' },
     { id: 4, name: 'BMW' },
     { id: 5, name: 'Mercedes' },
+    {id: 6, name: 'Tricycle'}
   ];
   
   export const carModels = {
@@ -34,6 +35,10 @@ export const carMakes = [
       { id: 2, name: 'E-Class' },
       { id: 3, name: 'GLC' },
     ],
+    Tricycle: [
+      { id: 1, name: 'Keke Napep'},
+      { id: 2, name: 'Bajaj'}
+    ]
   };
   
 
@@ -44,13 +49,16 @@ export const carYears = {
     Highlander: [2019, 2020, 2021],
     Civic: [2017, 2018, 2019],
     Accord: [2016, 2017, 2018],
+    "C-Class": [2007, 2009, 2024, 2026],
+    "E-Class": [2010, 2011, 2012],
     "CR-V": [2018, 2019, 2020],
     Focus: [2015, 2016, 2017],
     "F-150": [2018, 2019, 2020],
     Mustang: [2017, 2018, 2019],
     X5: [2019, 2020, 2021],
     X3: [2018, 2019, 2020],
-    "3 Series": [2017, 2018, 2019]
+    "3 Series": [2017, 2018, 2019],
+    "Keke Napep": [206, 2012, 2013]
   };
   
   // Trim levels for each model
@@ -60,13 +68,15 @@ export const carYears = {
     Highlander: ["LE", "XLE", "Limited"],
     Civic: ["LX", "EX", "Touring"],
     Accord: ["Sport", "EX-L", "Touring"],
+  "C-Class": ["C 300", "AMG C 43", "AMG C 63"],
     "CR-V": ["LX", "EX", "Touring"],
     Focus: ["S", "SE", "Titanium"],
     "F-150": ["XL", "XLT", "Lariat"],
     Mustang: ["EcoBoost", "GT", "Bullitt"],
     X5: ["xDrive40i", "xDrive50i", "M"],
     X3: ["sDrive30i", "xDrive30i", "M40i"],
-    "3 Series": ["330i", "M340i", "330e"]
+    "3 Series": ["330i", "M340i", "330e"],
+    "Keke Napep": ["Standard", "Deluxe", "Luxury"],
   };
 
   // Car colors

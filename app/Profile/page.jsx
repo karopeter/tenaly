@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, act } from "react";
 import Sidebar from "../components/navbar/sidebar";
 import Button from "../components/Button";
 import { Camera, Pencil, XCircle } from "lucide-react";
@@ -65,11 +65,11 @@ export default function Profile({
   };
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  const handleResize = () => setIsMobile(window.innerWidth < 768);
+  handleResize();
+  window.addEventListener("resize", handleResize);
+  return () => window.removeEventListener("resize", handleResize);
+}, []);
 
   // useEffect(() => {
   //  const checkMobile = () => {
@@ -83,12 +83,6 @@ export default function Profile({
   //  window.addEventListener("resize", checkMobile);
   //  return () => window.removeEventListener("resize", checkMobile);
   // }, []);
-  
-
-  useEffect(() => {
-    console.log('isMobile:', isMobile);
-    console.log('isProfileVisible:', isProfileVisible);
-  }, [isMobile, isProfileVisible]);
 
 
 
@@ -219,14 +213,121 @@ export default function Profile({
   return (
     <div className="md:px-[104px] px-4 md:ml-10 mt-20 md:mt-40">
       <div className="flex flex-col md:flex-row gap-10">
-        {/* <Sidebar /> */}
-        <Sidebar 
-          isOpen={isSidebarOpen} 
-          onClose={() => setIsSidebarOpen(false)} 
-          onProfileClick={() => setIsProfileVisible(true)}
-         />
-         {(!isMobile || isProfileVisible) && (
-            <main className="flex-1 mt-6">
+        {isMobile ? (
+          !activeSection || activeSection === "Profile" ? (
+            !activeSection ? (
+              <Sidebar 
+                isMobile={isMobile}
+                activeSection={activeSection}
+                setActiveSection={setActiveSection}
+              />
+            ): (
+              <main className="flex-1 mt-6">
+           <form 
+             onSubmit={handleSubmit}
+             className="bg-white shadow-phenom md:rounded-[12px] p-8 text-center">
+             <div className="flex justify-between items-start mb-6">
+               <div className="flex-1 flex justify-center">
+                 <div className="relative w-32 h-32">
+                   <img
+                     src={imagePreview || fetchedImage ||  "/profile-circles.svg"}
+                     alt="Profile"
+                     className="w-full h-full object-cover rounded-full"
+                   />
+                   {imagePreview && isImageFromUpload ? (
+                     <button
+                       type="button"
+                       onClick={handleRemoveImage}
+                       className="absolute top-0 right-0 bg-white rounded-full p-2 shadow hover:bg-gray-100"
+                     >
+                       <XCircle className="w-5 h-5 text-gray-600" />
+                     </button>
+                   ) : (
+                     <button
+                       type="button"
+                       onClick={() => fileInputRef.current?.click()}
+                       className="absolute bottom-0 right-0 bg-white rounded-full p-2 shadow hover:bg-gray-100"
+                     >
+                       <Camera className="w-5 h-5 text-gray-600" />
+                     </button>
+                   )}
+                   <input
+                     type="file"
+                     accept="image/*"
+                     ref={fileInputRef}
+                     onChange={handleImageChange}
+                     className="hidden"
+                   />
+                 </div>
+               </div>
+ 
+              {mode === "personal" && (
+               <div className="mt-2">
+                 <Button
+                   type="button"
+                   onClick={() => setIsEditable(!isEditable)}
+                   className="flex items-center gap-1 border-[1px] border-[#EDEDED] md:h-[36px] md:rounded-[28px] text-[#232323] text-sm font-medium bg-[#F1F1F1]"
+                 >
+                   <Pencil className="w-4 h-4 text-[#3C3C3C]" />
+                   {isEditable ? "Done" : "Edit"}
+                 </Button>
+               </div>
+              )}
+             </div>
+ 
+             {/* SWITCH ONLY VISIBLE WHEN NOT EDITING */}
+             {!isEditable && (
+               <div className="bg-[#FAFAFA] md:rounded-[4px] p-2 md:w-[400px] md:h-[52px] inline-flex gap-2">
+                 <div className="flex justify-center gap-4 w-full">
+                   <Button
+                     type="button"
+                     onClick={() => setMode("personal")}
+                     className={`px-6 py-1 rounded-[4px] md:w-[169px] ${mode === "personal" ? "bg-[#DFDFF9] text-[#000087]" : "bg-transparent text-[#232323]"}`}
+                   >
+                     Personal
+                   </Button>
+                   <Button
+                     type="button"
+                     onClick={() => setMode("business")}
+                     className={`px-6 py-1 rounded-[4px] md:w-[169px] ${mode === "business" ? "bg-[#DFDFF9] text-[#000087]" : "bg-transparent text-[#232323]"}`}
+                   >
+                     Business
+                   </Button>
+                 </div>
+               </div>
+             )}
+            <div>
+             {renderContent()}
+            </div>
+             {isEditable && (
+               <div className="mt-6 flex justify-center">
+                 <Button
+                   type="submit"
+                   disabled={loading}
+                   className="flex items-center justify-center gap-2 md:w-[262px] md:h-[44px] md:rounded-[8px] font-[500] md:text-[14px] bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white"
+                 >
+                   {loading ? "Saving..." : (
+                     <>
+                       <Img src="/tick-circles.svg" alt="Save" width={24} height={24} />
+                       Save Changes
+                     </>
+                   )}
+                 </Button>
+               </div>
+             )}
+           </form>
+           </main>
+            )
+          ) : null
+        ): (
+          // Desktop Sidebar and content side by side 
+          <>
+            <Sidebar
+               isMobile={isMobile}
+               activeSection={activeSection}
+               setActiveSection={setActiveSection}
+            />
+             <main className="flex-1 mt-6">
            <form 
              onSubmit={handleSubmit}
              className="bg-white shadow-phenom md:rounded-[12px] p-8 text-center">
@@ -321,8 +422,11 @@ export default function Profile({
              )}
            </form>
          </main>
-         )}
+          </>
+        )}
+        
       </div>
     </div>
   );
 }
+

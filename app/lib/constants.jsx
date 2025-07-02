@@ -1345,11 +1345,21 @@ export const trends = {
 export const footerData = [
    {
     title: "Company",
-    links: ["About Us", "Terms & Conditions", "Privacy Policy", "Billing Policy"]
+    links: [
+      { label: "About Us", href: "/About-Us"},
+      { label: "Terms & Conditions", href: "/Terms" },
+      { label: "Privacy Policy", href: "/privacy-policy" },
+      { label: "Billing Policy", href: "/billings" },
+    ]
    },
    {
     title: "Support",
-    links: ["Contact Us", "FAQ", "Safety Tip", "support@tenaly.com"]
+    links: [
+      { label: "Contact-Us", href: "/contact" },
+      { label: "FAQ", href: "/Faq" },
+      { label: "Safety Tip", href: "/safety-tip"},
+      { label: "support@tenaly.com", href: "/support" },
+    ]
    },
    {
     title: "Social Link",

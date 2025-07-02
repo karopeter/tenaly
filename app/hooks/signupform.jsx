@@ -1,24 +1,22 @@
 "use client"
 import { toast } from "react-toastify";
-import { useState } from "react";
-import { useAuth } from "../context/AuthContext";
+import { useState, useEffect } from "react";
 import Button from "../components/Button";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline"; 
 import Img from "../components/Image";
-// import { useSession } from "next-auth/react";
-// import { signIn } from "next-auth/react";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import { useRouter } from "next/navigation";
 import SignInModal from "./signin-modal";
 import api from "@/services/api";
+import { useAuth } from "../context/AuthContext";
 
 export default function SignUpForm({ onClose }) {
       const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-      const router = useRouter(); // Initialize router
+      const router = useRouter();
       const [showPassword, setShowPassword] = useState(false);
       const [showConfirm, setShowConfirm] = useState(false);
       const [showSignInModal, setShowSignInModal] = useState(false);
-      const { login } = useAuth(); 
+      const { login, isLoggedIn } = useAuth(); 
        const [form, setForm] = useState({
             email: "",
             fullName: "",
@@ -29,6 +27,13 @@ export default function SignUpForm({ onClose }) {
         const [formErrors, setFormErrors] = useState({});
     
         const isFormValid = Object.values(form).every((val) => val.trim() !== "");
+
+      useEffect(() => {
+        if (isLoggedIn) {
+          router.push("/Add");
+         onClose();
+       }
+      }, [isLoggedIn, router, onClose]);
 
       
     
@@ -77,7 +82,7 @@ export default function SignUpForm({ onClose }) {
           if (!validateForm()) return;
         
           try {
-            const response = await api.post("/auth/signup", {
+            const signupResponse = await api.post("/auth/signup", {
               fullName: form.fullName,
               email: form.email,
               phoneNumber: form.phone,
@@ -85,16 +90,24 @@ export default function SignUpForm({ onClose }) {
               passwordConfirm: form.passwordConfirm,
             });
         
-            const data = response.data;
+            const authToken = signupResponse.data.token;
         
-            localStorage.setItem("token", data.token);
-            toast.success("Signup successful! 🎉");
+            login({}, authToken); // Temporarily update context with token to enable authenticated calls 
+
+            // Step 2 Fetch the full user profile  using the new token 
+            const profileResponse = await api.get("/profile");
+            const userProfileData = profileResponse.data; // This now contains paidPlans
+
+            // Step 3: Call login again with full profile data and token
+            login(userProfileData, authToken);
+            toast.success("Signup successful! 🎉 Welcome to Tenaly!");
             setShowSignInModal(true);
           } catch (error) {
+            console.error("Signup error:", error.response?.data || error.message);
             if (error.response && error.response.status === 400) {
               toast.error(error.response.data.message || "Email or phone number already exists");
             } else {
-              toast.error("Invalid Authentication. Please try again");
+              toast.error("Signup failed. Please try again");
             }
           }
         };              
@@ -112,19 +125,25 @@ const handleGoogleSuccess = async (googleResponse) => {
       return;
     }
 
-    const response = await api.post("/auth/google-auth", { token: credential });
+    const authResponse = await api.post("/auth/google-auth", { token: credential });
 
-    const data = response.data;
+    const authToken = authResponse.data.token;
 
     // ✅ call login to update isLoggedIn immediately
-    login(data.token);
+    login({}, authToken);
 
-    toast.success("Google authentication successful! 🎉");
+    const profileResponse = await api.get("/profile");
+    const userProfileData = profileResponse.data;
+
+    login(userProfileData, authToken);
+
+    toast.success("Google authentication successful! 🎉 Welcome to Tenaly!");
     router.push("/Add");
     onClose();
   } catch (error) {
+     console.error("Google authentication error:", error.response?.data || error.message);
     if (error.response) {
-      toast.error(error.response.data.message || "Google authentication failed.");
+      toast.error(error.response.data.message || "Google authentication failed. Please try again.");
     } else {
       toast.error("Error during Google authentication. Please try again.");
     }

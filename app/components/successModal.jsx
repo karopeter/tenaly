@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Img from "./Image";
 import Button from "./Button";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import api from "@/services/api";
 import { toast } from "react-toastify";
@@ -37,7 +38,7 @@ export default function SuccessModal({ onClose }) {
   }, [onClose]);
 
   const redirect = () => {
-    router.push("/view-add")
+    router.push("/view-vehicle-add");
   }
 
   return (
@@ -53,16 +54,19 @@ export default function SuccessModal({ onClose }) {
          />
         </div>
         <h2 className="text-[18px] font-[500] mb-2 text-[#525252] font-inter">
-           Congratulation {profileData.firstName} {profileData.lastName} on your 
+           Congratulation  on boosting  
            <br className="hidden-xs" />
-            add listing
+            your ad
          </h2>
         <p className="text-[#868686] font-[400] font-inter text-[14px] mb-4">
-          Your journey as a seller has offically begun, and we're 
+          Your ad is now promoted and will enjoy premium
           <br className="hidden-xs" />
-          here to support you every step of the way
+          visibility across Tenaly.
           <br className="hidden-xs" />
-          Happy selling, and thank you to choosing Tenaly! 🚀
+          You are officially a <Link href="/PremiumService" className="underline text-[#000087] text-[14px] \font-[400] font-inter">
+            premium subscriber</Link>
+          <br className="hidden-xs" />
+          We'll keep you updated on your ad's performance.
         </p>
 
         <div className="flex justify-center">
