@@ -1,39 +1,25 @@
-"use client";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/app/context/AuthContext";
-import Button from "../Button";
-import Img from "../Image";
+import { useRouter } from 'next/navigation';
 
-
-const MessageSellerButton = ({sellerId, openAuthModal }) => {
+export default function MessageSellerButton({ sellerId, productId, openAuthModal }) {
   const router = useRouter();
-  const { isLoggedIn } = useAuth();
+  
 
-   const handleClick = () => {
-     if (isLoggedIn) {
-       router.push(`/Message`);
-     } else {
-        localStorage.setItem("redirectAfterLogin", `/message/${sellerId}`);
+  const handleClick = () => {
+    if (!sellerId || !productId) {
+      alert("Missing seller or product info");
+      return;
+    }
 
-        // Open the auth model 
-        openAuthModal();
-     }
-   };
+    // Navigate to the messaging page with both sellerId and productId as query params
+    router.push(`/Message?sellerId=${sellerId}&productId=${productId}`);
+  };
+
   return (
-    <Button
-        onClick={handleClick}
-        className="flex items-center justify-center gap-2 border-[1px] border-[#EDEDED] w-full h-[40px] rounded-[8px] text-[#525252] text-[12px] font-inter font-[500]"
-      >
-        <Img
-          src="/message.svg"
-          alt="Message Icon"
-          width={20}
-          height={20}
-          className="w-[20px] h-[20px]"
-        />
-        Message Seller
-      </Button>
-  )
+    <button
+      onClick={handleClick}
+      className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+    >
+      Message Seller
+    </button>
+  );
 }
-
-export default MessageSellerButton;

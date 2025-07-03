@@ -9,9 +9,12 @@ import Button from '@/app/components/Button';
 import MessageSellerButton from '@/app/components/UI/messageSeller';
 import ReviewsDetailsPage from '@/app/components/features/reviews-details';
 import SignUpModal from '@/app/hooks/signup-modal';
+import { toast } from 'react-toastify';
 
 export default function CarAdDetails({ specs, sellerId }) {
   const [activeTab, setActiveTab] = useState("car");
+  const [showInput, setShowInput] = useState(false);
+  const [offerAmount, setOfferAmount] = useState("");
     const { businessId, carAdId, vehicleAdId } = useParams();
     const [carAd, setCarAd] = useState(null);
     const [showDetails, setShowDetails] = useState(false);
@@ -67,6 +70,12 @@ export default function CarAdDetails({ specs, sellerId }) {
       fetchAds();
       fetchProfile();
     }, [carColors, vehicleAdId, businessId]);
+
+    const handleSendOffer = () => {
+      if (!offerAmount) return toast.error("Please enter an Amount");
+      console.log("Offer sent:", offerAmount);
+      setOfferAmount("");
+    }
 
 
     if (loading) return <div>Loading...</div>;
@@ -177,12 +186,33 @@ export default function CarAdDetails({ specs, sellerId }) {
        )}
      </div>
      <div className="p-4">
+      {showInput ? (
+        <div className="relative w-full">
+           <input
+              type="number"
+              placeholder="Enter your offer"
+              value={offerAmount}
+              onChange={(e) => setOfferAmount(e.target.value)}
+               className="w-full h-[44px] rounded-[8px] px-4 pr-12 border-[1px] focus:outline-none border-[#868686] text-[16px] font-inter"
+           />
+           <button
+             onClick={handleSendOffer}
+             className="absolute right-3 top-1/2 transform -translate-y-1/2">
+               <Img
+                 src="/offerImg.svg"
+                 width={17.9}
+                 height={18}
+                 className="w-[17.9px] h-[18px]"
+               />
+           </button>
+        </div>
+      ): (
        <Button 
-         className="w-full py-3 rounded-[8px] 
-         text-[#FFFFFF] font-inter 
-         font-[500] text-[14px] bg-[#5555DD]">
+         onClick={() => setShowInput(true)}
+          className="md:w-[300px] md:h-[53px] md:rounded-[8px] text-[#FFFFFF] font-inter font-[500] md:text-[16px] bg-[#5555DD]">
          Make Offer
-       </Button>
+        </Button>
+      )}
      </div>
    </div>
    </div>
@@ -593,9 +623,11 @@ export default function CarAdDetails({ specs, sellerId }) {
         className="w-[40px] h-[40px]"
       />
       <div className="flex flex-col">
-        <span className="text-[#000000] text-[14px] font-[500] font-inter">
+       <Link href="/" className="underline">
+          <span className="text-[#000000] text-[14px] font-[500] font-inter">
            {business?.businessName || "Business Name"}
         </span>
+       </Link>
         <div className="mt-1 flex items-center gap-2 bg-[#E9F4E8] w-auto h-[16px] rounded-[2px] px-2">
           <Img
             src="/profile.svg"
@@ -735,10 +767,33 @@ export default function CarAdDetails({ specs, sellerId }) {
        )}
      </div>
      <div className="p-4">
+      {showInput ? (
+        <div className="relative w-full">
+           <input
+              type="number"
+              placeholder="Enter your offer"
+              value={offerAmount}
+              onChange={(e) => setOfferAmount(e.target.value)}
+               className="w-full h-[44px] rounded-[8px] px-4 pr-12 border-[1px] focus:outline-none border-[#868686] text-[16px] font-inter"
+           />
+           <button
+             onClick={handleSendOffer}
+             className="absolute right-3 top-1/2 transform -translate-y-1/2">
+               <Img
+                 src="/offerImg.svg"
+                 width={17.9}
+                 height={18}
+                 className="w-[17.9px] h-[18px]"
+               />
+           </button>
+        </div>
+      ): (
        <Button 
-         className="md:w-[300px] md:h-[53px] md:rounded-[8px] text-[#FFFFFF] font-inter font-[500] md:text-[16px] bg-[#5555DD]">
+         onClick={() => setShowInput(true)}
+          className="md:w-[300px] md:h-[53px] md:rounded-[8px] text-[#FFFFFF] font-inter font-[500] md:text-[16px] bg-[#5555DD]">
          Make Offer
-       </Button>
+        </Button>
+      )}
      </div>
    </div>
       </div>
@@ -754,9 +809,11 @@ export default function CarAdDetails({ specs, sellerId }) {
              height={52}
              className="md:w-[52px] md:h-[52px]"/>
              <div className="flex flex-col">
-             <span className="text-[#000000] whitespace-nowrap md:text-[18px] font-[500] font-inter">
+              <Link href="/" className="underline">
+                 <span className="text-[#000000] whitespace-nowrap md:text-[18px] font-[500] font-inter">
                 {business?.businessName || "Business Name"}
              </span>
+              </Link>
             <div className="mt-1 flex items-center gap-2 bg-[#E9F4E8]  md:w-[93px] md:h-[16px] md:rounded-[2px]">
               <Img 
                 src="/profile.svg"
@@ -770,15 +827,15 @@ export default function CarAdDetails({ specs, sellerId }) {
                  </span>
             </div>
             <span className="mt-1 text-[#868686] font-inter font-[400] md:text-[12px]">Last Seen 20h ago</span>
-            <span className="mt-1 text-[#868686] font-[400] md:text-[12px] font-inter">
-               {userProfile?.createdAt
-                ? `Joined since ${new Date(userProfile.createdAt).toLocaleDateString()} {
-                year: "numeric",
-                month: "long",
-                day: "numeric"
-              })}`
-            : "Joined Tenaly"}
-            </span>
+            <span className="mt-1 text-[#868686] text-[10px] font-[400] font-inter">
+          {userProfile?.createdAt
+          ? `Joined Tenaly on ${new Date(userProfile.createdAt).toLocaleDateString("en-US", {
+           year: "numeric",
+           month: "long",
+           day: "numeric"
+         })}`
+        : "Joined Tenaly"}
+      </span>
             </div>
             </div>
             <div className="mt-5">

@@ -40,7 +40,6 @@ export default function Sidebar({ isMobile, activeSection, setActiveSection }) {
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
-        const token = localStorage.getItem("token");
         const { data } = await api.get("/profile");
         console.log("Profile Data:", data);
         const [first, ...rest] = data.fullName.split(" ");
