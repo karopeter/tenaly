@@ -1,32 +1,62 @@
-import  { io } from "socket.io-client";
-
+// app/utils/socket.js
+import { io } from "socket.io-client";
 
 let socket;
 
+export const initialSocket = (token) => {
+  if (socket && socket.connected) {
+    return socket;
+  }
 
-export const initialSocket  = () => {
-    socket = io("http://localhost:8080"); 
-    console.log("Connecting socket");
+  socket = io("http://localhost:8080", {
+    auth: {
+      token,
+    },
+  });
+
+  socket.on("connect", () => {
+    console.log("Socket connected:", socket.id);
+  });
+
+  socket.on("disconnect", (reason) => {
+    console.log("Socket disconnected:", reason);
+  });
+
+  socket.on("connect_error", (error) => {
+    console.error("Socket connection error:", error.message);
+  });
+
+  return socket;
 };
 
 export const disconnectSocket = () => {
-    if (socket) socket.disconnect();
-  };
+  if (socket) {
+    socket.disconnect();
+    socket = null;
+    console.log("Socket disconnected.");
+  }
+};
 
 export const joinRoom = (roomId) => {
-    if (socket && roomId) {
-        socket.emit("joinRoom", roomId);
-        console.log("Joined room:", roomId);
-    }
+  if (socket?.connected && roomId) {
+    socket.emit("joinRoom", roomId);
+    console.log("Joined room:", roomId);
+  }
 };
 
-export const sendMessage = (roomId, message) => {
-    if (socket) socket.emit("sendMessage", { roomId, message });
+export const sendMessage = ({ conversationId, from, to, text }) => {
+  if (socket?.connected) {
+    socket.emit("sendMessage", { conversationId, from, to, text });
+  } else {
+    console.warn("Socket not connected. Cannot send message.");
+  }
 };
 
-export const onReceieveMessage = (cb) => {
-  if (!socket) return;
-  socket.on("receieveMessage", (msg) => {
-    cb(msg);
-  });
+export const onReceiveMessage = (cb) => {
+  if (!socket) {
+    console.warn("Socket not initialized.");
+    return;
+  }
+  socket.off("receiveMessage");
+  socket.on("receiveMessage", cb);
 };
