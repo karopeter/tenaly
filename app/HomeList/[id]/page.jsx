@@ -8,7 +8,7 @@ import api from "@/services/api";
 import SignUpModal from "@/app/hooks/signup-modal";
 import MessageSellerButton from "@/app/components/UI/messageSeller";
 
-export default function HomeListDetails({ sellerId, productId }) {
+export default function HomeListDetails({ sellerId }) {
   const [activeTab, setActiveTab] = useState("car");
   const [showInput, setShowInput] = useState(false);
   const [offerAmount, setOfferAmount] = useState("");  
@@ -690,7 +690,6 @@ export default function HomeListDetails({ sellerId, productId }) {
     <div className="mt-2">
     <MessageSellerButton
        sellerId={sellerId}
-       productId={productId}
        openAuthModal={() => setShowSignInModal(true)}
      />
      {showSignInModal && (
