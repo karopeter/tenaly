@@ -43,9 +43,11 @@ export function AuthProvider({ children }) {
     router.push("/");
   };
 
+  const role = profile?.role || null;
+
   return (
     <AuthContext.Provider
-      value={{ profile, token, isLoggedIn, loading, login, logout }}
+      value={{ profile, token, isLoggedIn, loading, login, logout, role  }}
     >
       {children}
     </AuthContext.Provider>

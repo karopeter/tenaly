@@ -1,60 +1,68 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState, useRef } from "react";
+import { Plus, SendHorizonal } from "lucide-react";
 import axios from "axios";
-import Img from "./Image";
 
-export default function ChatBox({ conversationId, selectedUser, currentUserId, contactImg, token }) {
-  const [messages, setMessages] = useState([]);
-  const messagesEndRef = useRef(null);
+export default function ChatInput({ onSend, conversationId, recipientId, token }) {
+  const [message, setMessage] = useState("");
+  const fileInputRef = useRef(null);
 
-  useEffect(() => {
-    if (!conversationId || !token) return;
+  const handleFileUpload = () => fileInputRef.current.click();
 
-    const fetchMessages = async () => {
-      try {
-        const res = await axios.get(`/api/messages/${conversationId}`, {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!message.trim()) return;
+
+    if (!conversationId || !recipientId || !token) {
+      console.warn("Missing data to send message");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        "/api/messages",
+        {
+          conversationId,
+          to: recipientId,
+          text: message,
+        },
+        {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        });
-        setMessages(res.data.messages);
-      } catch (err) {
-        console.error("Failed to fetch messages:", err.response?.data || err.message);
-      }
-    };
+        }
+      );
 
-    fetchMessages();
-  }, [conversationId, token]);
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+      onSend?.(response.data.message); // Pass to parent to update UI if needed
+      setMessage("");
+    } catch (error) {
+      console.error("Failed to send message:", error?.response?.data || error.message);
+    }
+  };
 
   return (
-    <div className="flex-1 p-4 overflow-y-auto space-y-5 bg-white">
-      <div className="text-center text-[#868686] text-sm mb-2">Today</div>
-
-      {messages.map((msg, i) => {
-        const isCurrentUser = msg.from._id === currentUserId;
-        return (
-          <div key={i} className={`flex items-start gap-2 ${isCurrentUser ? "justify-end" : "justify-start"}`}>
-            {!isCurrentUser && (
-              <Img src={contactImg} alt="user" width={30} height={30} className="rounded-full" />
-            )}
-            <div className={`max-w-[70%] p-3 rounded-xl text-sm ${isCurrentUser ? "bg-[#DFDFF9]" : "bg-[#F7F7FF]"}`}>
-              <p>{msg.text}</p>
-              <div className="text-[11px] text-gray-500 mt-1 text-right">
-                {new Date(msg.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-              </div>
-            </div>
-            {isCurrentUser && (
-              <Img src="/mark.svg" alt="me" width={30} height={30} className="rounded-full" />
-            )}
-          </div>
-        );
-      })}
-      <div ref={messagesEndRef} />
+    <div className="px-4 py-3 bg-white border-t border-gray-200">
+      <form onSubmit={handleSubmit} className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={handleFileUpload}
+          className="p-2 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200"
+        >
+          <Plus className="w-5 h-5" />
+        </button>
+        <input
+          type="text"
+          placeholder="Type your message"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          className="flex-1 p-2 bg-[#FAFAFA] border border-gray-200 rounded-lg text-sm outline-none placeholder:text-[#8C8C8C]"
+        />
+        <button type="submit" className="p-2 rounded-full text-[#4C4C4C] hover:bg-gray-100">
+          <SendHorizonal className="w-5 h-5" />
+        </button>
+        <input type="file" ref={fileInputRef} className="hidden" />
+      </form>
     </div>
   );
 }
