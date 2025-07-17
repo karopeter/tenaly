@@ -3,14 +3,32 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Img from "../Image";
 import Button from "../Button";
+import api from "@/services/api";
+import { toast } from "react-toastify";
 import { useAuth } from "@/app/context/AuthContext";
 import SignUpModal from "../../hooks/signup-modal";
 import SignInModal from "@/app/hooks/signin-modal";
 
 export default function Navbar() {
+  const [profileData, setProfileData] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
   const { isLoggedIn, logout } = useAuth();
+
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+       try {
+       const { data } = await api.get("/profile");
+       console.log("Profile Data:", data);
+       setProfileData({
+         image: data.image || ""
+       });
+       } catch (error) {
+         toast.error("Failed to fetch user details:", error);
+       }
+    };
+    fetchUserDetails();
+  }, []);
   
   return (
     <>
@@ -60,11 +78,11 @@ export default function Navbar() {
                 </Link>
                 <Link href="/">
                  <Img 
-                   src="/GF.svg"
+                   src={profileData?.image || "profile-circles1.svg"}
                    alt="GF"
                    width={44}
                    height={44}
-                   className="w-[32px] h-[32px] md:w-[44px] md:h-[44px]"
+                   className="w-[32px] h-[32px] md:w-[44px] md:h-[44px] rounded-[30px]"
                    />
                 </Link>
                 <Link href="/Add">

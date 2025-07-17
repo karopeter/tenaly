@@ -8,9 +8,12 @@ import { carColors } from '@/app/lib/carData';
 import Button from '@/app/components/Button';
 import MessageSellerButton from '@/app/components/UI/messageSeller';
 import SignUpModal from '@/app/hooks/signup-modal';
+import { toast } from "react-toastify";
 
 export default function PropertyDetailsPage({ sellerId }) {
   const [activeTab, setActiveTab] = useState("car");
+  const [showInput, setShowInput] = useState(false);
+  const [offerAmount, setOfferAmount] = useState("");
   const params = useParams();
   const businessId = params?.businessId;
   const carAdId = params?.carAdId;
@@ -24,6 +27,7 @@ export default function PropertyDetailsPage({ sellerId }) {
   const [userProfile, setUserProfile] = useState(null);
   const [showSignUpModal, setShowSignUpModal] = useState(false);
   const [showSignInModal, setShowSignInModal] = useState(false);
+  
 
   useEffect(() => {
     const fetchAds = async () => {
@@ -75,6 +79,13 @@ export default function PropertyDetailsPage({ sellerId }) {
     fetchAds();
     fetchProfile();
   }, [propertyAdId, businessId, carAdId]);
+
+  const handleSendOffer = () => {
+    if (!offerAmount) return toast.error("Please enter an Amount!");
+    console.log("Offer sent:", offerAmount); // replace with actual API call 
+    setShowInput(false);
+    setOfferAmount("");
+  }
 
   if (loading) return <div>Loading...</div>;
   if (!carAd && !propertyAd) return <div>Ad not found.</div>;
@@ -184,12 +195,33 @@ export default function PropertyDetailsPage({ sellerId }) {
        )}
      </div>
      <div className="p-4">
+      {showInput ? (
+        <div className="relative w-full">
+           <input
+              type="number"
+              placeholder="Enter your offer"
+              value={offerAmount}
+              onChange={(e) => setOfferAmount(e.target.value)}
+               className="w-full h-[44px] rounded-[8px] px-4 pr-12 border-[1px] focus:outline-none border-[#868686] text-[16px] font-inter"
+           />
+           <button
+             onClick={handleSendOffer}
+             className="absolute right-3 top-1/2 transform -translate-y-1/2">
+               <Img
+                 src="/offerImg.svg"
+                 width={17.9}
+                 height={18}
+                 className="w-[17.9px] h-[18px]"
+               />
+           </button>
+        </div>
+      ): (
        <Button 
-         className="w-full py-3 rounded-[8px] 
-         text-[#FFFFFF] font-inter 
-         font-[500] text-[14px] bg-[#5555DD]">
+         onClick={() => setShowInput(true)}
+          className="w-full md:w-[300px] h-[53px] md:rounded-[8px] text-[#FFFFFF] font-inter font-[500] md:text-[16px] bg-[#5555DD]">
          Make Offer
-       </Button>
+        </Button>
+      )}
      </div>
    </div>
    </div>
@@ -284,7 +316,7 @@ export default function PropertyDetailsPage({ sellerId }) {
              </div>
            </div>
 
-           <div className="bg-[#FAFAFA] md:w-[650px] md:h-[285px] md:rounded-[12px] p-8 mt-4">
+           <div className="bg-[#FAFAFA] md:w-[650px] h-auto md:rounded-[12px] p-8 mt-4">
              <div className="flex items-center justify-between">
                <span className="text-[#525252] md:text-[16px] font-inter font-[500]">
                  Property Details
@@ -307,62 +339,35 @@ export default function PropertyDetailsPage({ sellerId }) {
              </div>
              {showDetails && (
               <div className="mt-4">
-                <div className="flex flex-wrap justify-between gap-y-4 gap-x-[4%] max-w-[650px] mx-auto">
-                  {/* Row 1 */}
-                  <div className="flex flex-col w-[48%] md:w-[30%]">
-                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-                     Property Type
-                    </span>
-                    {propertyAd && (
-                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                        {propertyAd?.propertyType}
-                    </span>
-                    )}
-                  </div>
-                  <div className="flex flex-col w-[48%] md:w-[30%]">
-                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium  font-inter">Furnishing</span>
-                    {propertyAd && (
-                      <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium  font-inter">
-                      {propertyAd.furnishing}
-                    </span>
-                    )}
-                  </div>
-                  <div className="flex flex-col w-[48%] md:w-[30%]">
-                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium  font-inter">
-                     Parking Spaces
-                    </span>
-                    {propertyAd && (
-                     <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                        {propertyAd.parking}
-                     </span>
-                    )}
-                  </div>
-
-                  {/* Row 2 */}
-                  <div className="flex flex-col w-[48%] md:w-[30%]">
-                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium  font-inter">Square Meteres</span>
-                    {propertyAd && (
-                     <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                       {propertyAd?.squareMeter}
-                     </span>
-                    )}
-                  </div>
-                  <div className="flex flex-col w-[48%] md:w-[30%]">
-                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium  font-inter">Role</span>
-                    {propertyAd && (
-                      <span  className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                        {propertyAd.ownershipStatus}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex flex-col w-[48%] md:w-[30%]">
-                     <span className="text-[#868686] text-[12px] md:text-[14px] font-medium  font-inter">Payment Duration</span>
-                     {propertyAd && (
-                      <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                        {propertyAd.propertyDuration}
-                      </span>
-                     )}
-                  </div>
+               <div className="flex flex-wrap justify-between gap-y-4 gap-x-[4%] max-w-[650px] mx-auto">
+                 {[
+                 { label: "Property Type", value: propertyAd?.propertyType },
+                 { label: "Furnishing", value: propertyAd?.furnishing },
+                 { label: "Parking Spaces", value: propertyAd?.parking },
+                 { label: "Square Meter", value: propertyAd?.squareMeter },
+                 { label: "Role", value: propertyAd?.ownershipStatus },
+                 { label: "Payment Duration", value: propertyAd?.paymentDuration },
+                 { label: "Service Charge", value: propertyAd?.serviceCharge },
+                 {label: "Development Fee", value: propertyAd?.developmentFee},
+                 {label: "Survey Fee", value: propertyAd?.surveyFee },
+                 {label: "Legal Fee", value: propertyAd?.legalFee },
+                 {label: "Pricing Units", value: propertyAd?.pricingUnits },
+                 { label: "Negotiation", value: propertyAd?.negotiation },
+                 { label: "Property Condition", value: propertyAd?.propertyCondition },
+                 { label: "Property Facilities", value: propertyAd?.propertyFacilities },
+                ].map(
+              (item, index) =>
+                item.value && (
+                 <div key={index} className="flex flex-col w-[48%] md:w-[30%]">
+                <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+                 {item.label}
+               </span>
+               <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+                 {item.value}
+               </span>
+             </div>
+            )
+           )}
                 </div>
 
                 {/* Fifth Row */}
@@ -593,13 +598,14 @@ export default function PropertyDetailsPage({ sellerId }) {
         </span>
         <span className="mt-1 text-[#868686] text-[10px] font-[400] font-inter">
           {userProfile?.createdAt
-            ? `Joined Tenaly on ${new Date(userProfile.createdAt).toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric"
-              })}`
-            : "Joined Tenaly"}
-        </span>
+          ? `Joined Tenaly on ${new Date(userProfile.createdAt).toLocaleDateString("en-US", {
+           year: "numeric",
+           month: "long",
+           day: "numeric"
+         })}`
+        : "Joined Tenaly"}
+      </span>
+
       </div>
     </div>
     <div className="mt-5">
@@ -715,10 +721,33 @@ export default function PropertyDetailsPage({ sellerId }) {
        )}
      </div>
      <div className="p-4">
+      {showInput ? (
+        <div className="relative w-full">
+           <input
+              type="number"
+              placeholder="Enter your offer"
+              value={offerAmount}
+              onChange={(e) => setOfferAmount(e.target.value)}
+               className="w-full h-[44px] rounded-[8px] px-4 pr-12 border-[1px] focus:outline-none border-[#868686] text-[16px] font-inter"
+           />
+           <button
+             onClick={handleSendOffer}
+             className="absolute right-3 top-1/2 transform -translate-y-1/2">
+               <Img
+                 src="/offerImg.svg"
+                 width={17.9}
+                 height={18}
+                 className="w-[17.9px] h-[18px]"
+               />
+           </button>
+        </div>
+      ): (
        <Button 
-         className="md:w-[300px] md:h-[53px] md:rounded-[8px] text-[#FFFFFF] font-inter font-[500] md:text-[16px] bg-[#5555DD]">
+         onClick={() => setShowInput(true)}
+          className="md:w-[300px] md:h-[53px] md:rounded-[8px] text-[#FFFFFF] font-inter font-[500] md:text-[16px] bg-[#5555DD]">
          Make Offer
-       </Button>
+        </Button>
+      )}
      </div>
    </div>
       </div>
@@ -732,11 +761,13 @@ export default function PropertyDetailsPage({ sellerId }) {
              alt="Profile Image"
              width={52}
              height={52}
-             className="md:w-[52px] md:h-[52px]"/>
+             className="md:w-[52px] md:h-[52px] rounded-[30px]"/>
              <div className="flex flex-col">
-             <span className="text-[#000000] whitespace-nowrap md:text-[18px] font-[500] font-inter">
+             <Link href="/" className="underline">
+               <span className="text-[#000000] whitespace-nowrap md:text-[18px] font-[500] font-inter">
                 {business?.businessName || "Business Name"}
-             </span>
+             </span> 
+             </Link>
             <div className="mt-1 flex items-center gap-2 bg-[#E9F4E8]  md:w-[93px] md:h-[16px] md:rounded-[2px]">
               <Img 
                 src="/profile.svg"
@@ -750,15 +781,16 @@ export default function PropertyDetailsPage({ sellerId }) {
                  </span>
             </div>
             <span className="mt-1 text-[#868686] font-inter font-[400] md:text-[12px]">Last Seen 20h ago</span>
-            <span className="mt-1 text-[#868686] font-[400] md:text-[12px] font-inter">
+             <span className="mt-1 text-[#868686] text-[10px] font-[400] font-inter">
                {userProfile?.createdAt
-                ? `Joined since ${new Date(userProfile.createdAt).toLocaleDateString()} {
+                ? `Joined Tenaly on ${new Date(userProfile.createdAt).toLocaleDateString("en-US", {
                 year: "numeric",
                 month: "long",
                 day: "numeric"
-              })}`
-            : "Joined Tenaly"}
-            </span>
+               })}`
+             : "Joined Tenaly"}
+           </span>
+
             </div>
             </div>
             <div className="mt-5">
