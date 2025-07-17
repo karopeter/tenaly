@@ -9,6 +9,8 @@ import {
   disconnectSocket,
   joinRoom,
   sendMessage,
+  emitTyping,
+  emitStopTyping,
 } from "../utils/socket";
 import { useAuth } from "../context/AuthContext";
 import api from "@/services/api";
@@ -24,6 +26,7 @@ export default function MessagePage() {
   const socketRef = useRef(null);
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [lastMessages, setLastMessages] = useState({});
+  const [typingUser, setTypingUser] = useState(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -65,11 +68,29 @@ export default function MessagePage() {
     socketRef.current = socket;
 
     const handleReceiveMessage = (msg) => {
-      setConversations((prev) => [...prev, msg]);
+    //  setConversations((prev) => [...prev, msg]);
       setLastMessages((prev) => ({
         ...prev,
         [msg.from._id === profile._id ? msg.to._id : msg.from._id]: msg.text,
       }));
+    };
+
+    const handleTyping = (userId) => {
+      if (userId !== profile._id) setTypingUser(userId);
+    };
+
+    const handleStopTyping = () => {
+      setTypingUser(null);
+    };
+
+    const handleMessagesRead = ({ messageIds, readerId }) => {
+      setConversations((prev) =>
+        prev.map((msg) =>
+          messageIds.includes(msg._id)
+            ? { ...msg, readBy: [...(msg.readBy || []), readerId] }
+            : msg
+        )
+      );
     };
 
     const handleOnlineUsers = (users) => {
@@ -80,6 +101,9 @@ export default function MessagePage() {
       joinRoom(chatRoomId);
       socket.off("receiveMessage", handleReceiveMessage);
       socket.on("receiveMessage", handleReceiveMessage);
+      socket.on("typing", handleTyping);
+      socket.on("stopTyping", handleStopTyping);
+      socket.on("messagesRead", handleMessagesRead);
       socket.on("onlineUsers", handleOnlineUsers);
     };
 
@@ -92,21 +116,53 @@ export default function MessagePage() {
     return () => {
       socket.off("connect", joinAndListen);
       socket.off("receiveMessage", handleReceiveMessage);
+      socket.off("typing", handleTyping);
+      socket.off("stopTyping", handleStopTyping);
+      socket.off("messagesRead", handleMessagesRead);
       socket.off("onlineUsers", handleOnlineUsers);
       disconnectSocket();
     };
   }, [chatRoomId, token, profile]);
 
-  const handleSend = (text) => {
-    if (!text || !chatRoomId || !selectedUser || !profile) return;
-    const msg = {
-      conversationId: chatRoomId,
-      to: selectedUser._id,
-      from: profile._id,
-      text,
-    };
-    sendMessage(msg);
-  };
+const handleSend = async ({ text, file }) => {
+  if (!chatRoomId || !selectedUser || !profile) return;
+
+  try {
+    const formData = new FormData();
+    formData.append("conversationId", chatRoomId);
+    formData.append("to", selectedUser._id); // ✅ Fix this line
+    if (text) formData.append("text", text);
+    if (file) formData.append("file", file);
+
+    const res = await api.post("/messages", formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    const msg = res.data;
+   // setConversations((prev) => [...prev, msg]); // update UI
+    sendMessage(msg); // emit via socket
+    emitStopTyping(chatRoomId);
+  } catch (err) {
+    console.error("❌ Failed to send message:", err.response?.data || err.message);
+  }
+};
+
+
+
+  // const handleSend = (text) => {
+  //   if (!text || !chatRoomId || !selectedUser || !profile) return;
+  //   const msg = {
+  //     conversationId: chatRoomId,
+  //     to: selectedUser._id,
+  //     from: profile._id,
+  //     text,
+  //   };
+  //   sendMessage(msg);
+  //   emitStopTyping(chatRoomId);
+  // };
 
   const handleUserClick = async (user) => {
     try {
@@ -129,55 +185,82 @@ export default function MessagePage() {
     }
   };
 
-const renderMessages = () => {
-  let lastDate = null;
+  const renderMessages = () => {
+    let lastDate = null;
 
-  return conversations.map((msg, i) => {
-    const currentDate = format(parseISO(msg.createdAt), "yyyy-MM-dd");
-    const isNewDate = !lastDate || !isSameDay(parseISO(lastDate), parseISO(msg.createdAt));
-    lastDate = msg.createdAt;
+    return conversations.map((msg, i) => {
+      const currentDate = format(parseISO(msg.createdAt), "yyyy-MM-dd");
+      const isNewDate = !lastDate || !isSameDay(parseISO(lastDate), parseISO(msg.createdAt));
+      lastDate = msg.createdAt;
 
-    // Handle cases where msg.from might be an object or string
-    const fromId = typeof msg.from === "object" ? msg.from._id : msg.from;
-    const isFromSelf = fromId === profile?._id;
+      const fromId = typeof msg.from === "object" ? msg.from._id : msg.from;
+      const isFromSelf = fromId === profile?._id;
 
-    const senderImg = isFromSelf
-      ? profile?.image || "/profile-circles1.svg"
-      : selectedUser?.img || "/profile-circles1.svg";
+      const senderImg = isFromSelf
+        ? profile?.image || "/profile-circles1.svg"
+        : selectedUser?.img || "/profile-circles1.svg";
 
-    return (
-      <div key={msg._id || i}>
-        {isNewDate && (
-          <div className="text-center text-gray-400 text-xs my-2">
-            {format(parseISO(msg.createdAt), "eeee, MMMM do yyyy")}
-          </div>
-        )}
+      const isRead = msg.readBy?.includes(selectedUser?._id);
+      const isDelivered = true;
 
-        <div className={`flex items-end space-x-2 ${isFromSelf ? "justify-end" : "justify-start"}`}>
-          {!isFromSelf && (
-            <Img src={senderImg} alt="sender" width={32} height={32} className="rounded-full" />
-          )}
-
-          <div
-            className={`max-w-[70%] px-3 py-2 rounded-lg text-sm relative ${
-              isFromSelf ? "bg-gray-100" : "bg-green-200"
-            }`}
-          >
-            <div className="text-sm mb-1">{msg.text}</div>
-            <div className="text-[10px] text-right text-gray-500">
-              {format(parseISO(msg.createdAt), "hh:mm a")}
+      return (
+        <div key={msg._id || i}>
+          {isNewDate && (
+            <div className="text-center text-gray-400 text-xs my-2">
+              {format(parseISO(msg.createdAt), "eeee, MMMM do yyyy")}
             </div>
-          </div>
-
-          {isFromSelf && (
-            <Img src={senderImg} alt="you" width={32} height={32} className="rounded-full" />
           )}
-        </div>
-      </div>
-    );
-  });
-};
 
+          <div className={`flex items-end space-x-2 ${isFromSelf ? "justify-end" : "justify-start"}`}>
+            {!isFromSelf && (
+              <Img src={senderImg} alt="sender" width={32} height={32} className="rounded-full" />
+            )}
+
+            <div
+              className={`max-w-[70%] px-3 py-2 rounded-lg text-sm relative ${
+                isFromSelf ? "bg-gray-100" : "bg-green-200"
+              }`}
+            >
+             {msg.file && msg.file.path && (
+  <div className="mt-1">
+    {msg.file.mimetype?.startsWith("image/") ? (
+      <img
+        src={`http://localhost:8080/${msg.file.path}`}
+        alt="uploaded"
+        className="w-40 h-auto rounded-md"
+      />
+    ) : (
+      <a
+        href={`http://localhost:8080/${msg.file.path}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-blue-600 underline text-xs"
+      >
+        Download file
+      </a>
+    )}
+  </div>
+)}
+
+              <div className="text-sm mb-1">{msg.text}</div>
+              <div className="text-[10px] text-right text-gray-500">
+                {format(parseISO(msg.createdAt), "hh:mm a")}
+              </div>
+              {isFromSelf && (
+                <div className="text-[10px] text-right text-gray-400">
+                  {isRead ? "Read" : isDelivered ? "Delivered" : "Sent"}
+                </div>
+              )}
+            </div>
+
+            {isFromSelf && (
+              <Img src={senderImg} alt="you" width={32} height={32} className="rounded-full" />
+            )}
+          </div>
+        </div>
+      );
+    });
+  };
 
   const isOnline = (userId) => onlineUsers.includes(userId);
 
@@ -218,7 +301,7 @@ const renderMessages = () => {
                 <div className="flex-1">
                   <p className="text-base font-medium text-[#525252] font-inter">{user.fullName}</p>
                   <p className="text-sm text-[#868686] font-inter line-clamp-1">
-                    {lastMessages[user._id] || "Click to start chat"}
+                    {lastMessages[user._id] || "Start Conversation"}
                   </p>
                 </div>
                 <span
@@ -257,6 +340,9 @@ const renderMessages = () => {
 
           <div className="flex-1 overflow-y-auto px-4 py-2 space-y-3">
             {renderMessages()}
+            {typingUser === selectedUser?._id && (
+              <div className="text-sm text-gray-500 italic">Typing...</div>
+            )}
           </div>
 
           {chatRoomId && selectedUser && (
@@ -265,6 +351,8 @@ const renderMessages = () => {
               conversationId={chatRoomId}
               recipientId={selectedUser._id}
               token={token}
+              onTyping={() => emitTyping(chatRoomId)}
+              onStopTyping={() => emitStopTyping(chatRoomId)}
             />
           )}
         </div>

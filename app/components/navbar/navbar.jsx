@@ -58,7 +58,7 @@ export default function Navbar() {
                    className="w-[32px] h-[32px] md:w-[44px] md:h-[44px]"
                    />
                 </Link>
-                <Link href="/">
+                <Link href="/Notification">
                   <Img 
                     src="/notification.svg"
                     alt="Notification"

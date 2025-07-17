@@ -43,3 +43,12 @@ export const disconnectSocket = () => {
     socket = null;
   }
 };
+
+
+export const emitTyping = (roomId) => {
+  socket.emit("typing", roomId);
+};
+
+export const emitStopTyping = (roomId) => {
+  socket.emit("stopTyping", roomId);
+};
