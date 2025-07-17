@@ -1,113 +1,271 @@
 "use client";
+
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Img from "../components/Image";
-import Button from "../components/Button";
-import { SendHorizonal, ArrowLeft, Plus } from "lucide-react";
-import { 
+import ChatInput from "../components/ChatInput";
+import {
   initialSocket,
   disconnectSocket,
   joinRoom,
   sendMessage,
-  onReceieveMessage
+  emitTyping,
+  emitStopTyping,
 } from "../utils/socket";
+import { useAuth } from "../context/AuthContext";
+import api from "@/services/api";
+import { format, isSameDay, parseISO } from "date-fns";
 
 export default function MessagePage() {
-  const [conversations, setConversations] = useState(() => ({ 
-    "Blessing Joe": [
-      { from: "buyer", text: "Good afternoon, Please I want to ask if this is still available", time: "2:30 PM" },
-      { from: "seller", text: "Good afternoon", time: "2:31 PM" },
-      { from: "seller", text: "No, it's not. So sorry for the inconvenience. I forgot to mark it as sold", time: "2:32 PM" },
-      { from: "seller", text: "I have others for sale, you can check my profile", time: "2:35 PM" }
-    ],
-    "Kalu Mark": [
-      { from: "buyer", text: "Is the car still available?", time: "10:00 AM" },
-      { from: "seller", text: "Yes, it is.", time: "10:05 AM" }
-    ],
-    "Angela White": [
-      { from: "buyer", text: "How many year warranty is the car", time: "10:30 AM" },
-      { from: "seller", text: "2 Years.", time: "10:32 AM" }
-    ],
-    "Mark Brown": [
-      { from: "buyer", text: "How about the car documents?", time: "10:35 AM" },
-      { from: "seller", text: "All the documents are available.", time: "10:40 AM" }
-    ]
-  }));
-  
-  const [message, setMessage] = useState("");
-  const [selectedUser, setSelectedUser] = useState("Blessing Joe");
-  const messagesEndRef = useRef(null);
-  const fileInputRef = useRef(null);
-  const chatRoomId = "tenaly-123-buyer&sellers-456";
-  
-  // Default contact list
-  const contacts = [
-    { name: "Blessing Joe", img: "/blessing.svg", lastMsg: "Hello good morning, is the car still available..." },
-    { name: "Kalu Mark", img: "/kalu.svg", lastMsg: "is the car still available?" },
-    { name: "Angela White", img: "/angela.svg", lastMsg: "is the car still available?" },
-    { name: "Mark Brown", img: "/mark.svg", lastMsg: "Hello good morning, is the car still available..." }
-  ];
-
-  // Default buyer status
-  const buyerStatus = {
-    name: "Blessing Joe",
-    img: "/blessing.svg",
-    isOnline: true,
-    lastSeen: "Today at 4:32 PM"
-  };
+  const { token } = useAuth();
+  const [profile, setProfile] = useState(null);
+  const [conversations, setConversations] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [contacts, setContacts] = useState([]);
+  const [chatRoomId, setChatRoomId] = useState(null);
+  const socketRef = useRef(null);
+  const [onlineUsers, setOnlineUsers] = useState([]);
+  const [lastMessages, setLastMessages] = useState({});
+  const [typingUser, setTypingUser] = useState(null);
 
   useEffect(() => {
-    initialSocket();
-    joinRoom(chatRoomId);
+    const fetchProfile = async () => {
+      try {
+        const res = await api.get("/profile", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setProfile(res.data);
+      } catch (err) {
+        console.error("Failed to load profile:", err);
+      }
+    };
+    if (token) fetchProfile();
+  }, [token]);
 
-    onReceieveMessage((msg) => {
-      setConversations((prev) => {
-        const updated = { ...prev };
-        if (!updated[selectedUser]) updated[selectedUser] = [];
-        updated[selectedUser].push(msg);
-        return updated;
-      });
-    });
+  useEffect(() => {
+    const fetchContacts = async () => {
+      try {
+        const res = await api.get("/profile/all-users", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const filtered = res.data.users.filter((u) => u._id !== profile?._id);
+        const formatted = filtered.map((user) => ({
+          ...user,
+          img: user.image || "/profile-circles1.svg",
+        }));
+        setContacts(formatted);
+      } catch (err) {
+        console.error("Failed to fetch users:", err);
+      }
+    };
+    if (profile && token) fetchContacts();
+  }, [profile, token]);
+
+  useEffect(() => {
+    if (!token || !chatRoomId || !profile) return;
+
+    const socket = initialSocket(token);
+    socketRef.current = socket;
+
+    const handleReceiveMessage = (msg) => {
+    //  setConversations((prev) => [...prev, msg]);
+      setLastMessages((prev) => ({
+        ...prev,
+        [msg.from._id === profile._id ? msg.to._id : msg.from._id]: msg.text,
+      }));
+    };
+
+    const handleTyping = (userId) => {
+      if (userId !== profile._id) setTypingUser(userId);
+    };
+
+    const handleStopTyping = () => {
+      setTypingUser(null);
+    };
+
+    const handleMessagesRead = ({ messageIds, readerId }) => {
+      setConversations((prev) =>
+        prev.map((msg) =>
+          messageIds.includes(msg._id)
+            ? { ...msg, readBy: [...(msg.readBy || []), readerId] }
+            : msg
+        )
+      );
+    };
+
+    const handleOnlineUsers = (users) => {
+      setOnlineUsers(users);
+    };
+
+    const joinAndListen = () => {
+      joinRoom(chatRoomId);
+      socket.off("receiveMessage", handleReceiveMessage);
+      socket.on("receiveMessage", handleReceiveMessage);
+      socket.on("typing", handleTyping);
+      socket.on("stopTyping", handleStopTyping);
+      socket.on("messagesRead", handleMessagesRead);
+      socket.on("onlineUsers", handleOnlineUsers);
+    };
+
+    if (socket.connected) {
+      joinAndListen();
+    } else {
+      socket.on("connect", joinAndListen);
+    }
 
     return () => {
+      socket.off("connect", joinAndListen);
+      socket.off("receiveMessage", handleReceiveMessage);
+      socket.off("typing", handleTyping);
+      socket.off("stopTyping", handleStopTyping);
+      socket.off("messagesRead", handleMessagesRead);
+      socket.off("onlineUsers", handleOnlineUsers);
       disconnectSocket();
     };
-  }, [selectedUser]);
+  }, [chatRoomId, token, profile]);
 
-  const handleSend = (e) => {
-    e.preventDefault();
-    if (!message.trim() || !selectedUser) return;
+const handleSend = async ({ text, file }) => {
+  if (!chatRoomId || !selectedUser || !profile) return;
 
-    const newMessage = {
-      from: "seller",
-      text: message,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    };
+  try {
+    const formData = new FormData();
+    formData.append("conversationId", chatRoomId);
+    formData.append("to", selectedUser._id); // ✅ Fix this line
+    if (text) formData.append("text", text);
+    if (file) formData.append("file", file);
 
-    // Send to backend
-    sendMessage(chatRoomId, newMessage);
+    const res = await api.post("/messages", formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
+      },
+    });
 
-    // Optimistically update UI
-    setConversations((prev) => ({
-      ...prev,
-      [selectedUser]: [...(prev[selectedUser] || []), newMessage],
-    }));
+    const msg = res.data;
+   // setConversations((prev) => [...prev, msg]); // update UI
+    sendMessage(msg); // emit via socket
+    emitStopTyping(chatRoomId);
+  } catch (err) {
+    console.error("❌ Failed to send message:", err.response?.data || err.message);
+  }
+};
 
-    setMessage("");
+
+
+  // const handleSend = (text) => {
+  //   if (!text || !chatRoomId || !selectedUser || !profile) return;
+  //   const msg = {
+  //     conversationId: chatRoomId,
+  //     to: selectedUser._id,
+  //     from: profile._id,
+  //     text,
+  //   };
+  //   sendMessage(msg);
+  //   emitStopTyping(chatRoomId);
+  // };
+
+  const handleUserClick = async (user) => {
+    try {
+      const res = await api.post(
+        "/conversation/create-conversation",
+        { userId: user._id },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const conversation = res.data?.conversation;
+      if (!conversation?._id) return;
+      setSelectedUser(user);
+      setChatRoomId(conversation._id);
+
+      const history = await api.get(`/messages/${conversation._id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setConversations(Array.isArray(history.data) ? history.data : []);
+    } catch (err) {
+      console.error("Failed to load conversation:", err);
+    }
   };
 
-  // Auto-scroll to the latest message
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [conversations[selectedUser]]);
+  const renderMessages = () => {
+    let lastDate = null;
 
-  const handleFileUpload = () => {
-    fileInputRef.current.click();
+    return conversations.map((msg, i) => {
+      const currentDate = format(parseISO(msg.createdAt), "yyyy-MM-dd");
+      const isNewDate = !lastDate || !isSameDay(parseISO(lastDate), parseISO(msg.createdAt));
+      lastDate = msg.createdAt;
+
+      const fromId = typeof msg.from === "object" ? msg.from._id : msg.from;
+      const isFromSelf = fromId === profile?._id;
+
+      const senderImg = isFromSelf
+        ? profile?.image || "/profile-circles1.svg"
+        : selectedUser?.img || "/profile-circles1.svg";
+
+      const isRead = msg.readBy?.includes(selectedUser?._id);
+      const isDelivered = true;
+
+      return (
+        <div key={msg._id || i}>
+          {isNewDate && (
+            <div className="text-center text-gray-400 text-xs my-2">
+              {format(parseISO(msg.createdAt), "eeee, MMMM do yyyy")}
+            </div>
+          )}
+
+          <div className={`flex items-end space-x-2 ${isFromSelf ? "justify-end" : "justify-start"}`}>
+            {!isFromSelf && (
+              <Img src={senderImg} alt="sender" width={32} height={32} className="rounded-full" />
+            )}
+
+            <div
+              className={`max-w-[70%] px-3 py-2 rounded-lg text-sm relative ${
+                isFromSelf ? "bg-gray-100" : "bg-green-200"
+              }`}
+            >
+             {msg.file && msg.file.path && (
+  <div className="mt-1">
+    {msg.file.mimetype?.startsWith("image/") ? (
+      <img
+        src={`http://localhost:8080/${msg.file.path}`}
+        alt="uploaded"
+        className="w-40 h-auto rounded-md"
+      />
+    ) : (
+      <a
+        href={`http://localhost:8080/${msg.file.path}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-blue-600 underline text-xs"
+      >
+        Download file
+      </a>
+    )}
+  </div>
+)}
+
+              <div className="text-sm mb-1">{msg.text}</div>
+              <div className="text-[10px] text-right text-gray-500">
+                {format(parseISO(msg.createdAt), "hh:mm a")}
+              </div>
+              {isFromSelf && (
+                <div className="text-[10px] text-right text-gray-400">
+                  {isRead ? "Read" : isDelivered ? "Delivered" : "Sent"}
+                </div>
+              )}
+            </div>
+
+            {isFromSelf && (
+              <Img src={senderImg} alt="you" width={32} height={32} className="rounded-full" />
+            )}
+          </div>
+        </div>
+      );
+    });
   };
+
+  const isOnline = (userId) => onlineUsers.includes(userId);
 
   return (
     <div className="md:px-[104px] px-4 md:ml-10">
-      {/* Breadcrumb */}
       <div className="mt-28 flex items-center gap-2 mb-4 font-[400] font-inter flex-nowrap">
         <Link href="/" className="text-[#868686] md:text-[14px] hover:text-[#000] transition-all whitespace-nowrap">
           Home &nbsp;&rsaquo;
@@ -117,101 +275,86 @@ export default function MessagePage() {
         </Link>
       </div>
 
-      <div className="flex h-screen bg-white">
+      <div className="flex bg-white h-[calc(100vh-150px)]">
         {/* Left Panel */}
-        <div className="w-[350px] bg-[#FAFAFA] border-r border-gray-300 p-4">
+        <div className="w-[350px] bg-[#FAFAFA] border-r border-gray-300 p-4 overflow-y-auto">
           <h2 className="md:text-18px text-[#525252] font-[500] font-inter mb-4">
-            My Messages <span className="bg-[#525252] md:w-[27px] md:h-[20px] md:rounded-[100px] md:pt-[4px] md:pr-[8px] md:pb-[4px] md:pl-[8px] text-[#FFFFFF] md:text-[12px]">4</span>
+            My Messages
+            <span className="bg-[#525252] md:w-[27px] md:h-[20px] rounded-full text-white text-xs px-2 py-[2px]">
+              {contacts.length}
+            </span>
           </h2>
           <div className="space-y-4">
             {contacts.map((user, i) => (
-              <div key={i} onClick={() => setSelectedUser(user.name)} 
-               className="flex items-center gap-3 cursor-pointer hover:bg-gray-100 rounded-lg p-2">
-                <Img src={user.img} alt={user.name} width={44} height={44} className="rounded-full" />
-                <div>
-                  <p className="md:text-[16px] font-[500] text-[#525252] font-inter">{user.name}</p>
-                  <p className="md:text-[14px] font-[400] text-[#868686] font-inter">{user.lastMsg}</p>
+              <div
+                key={i}
+                onClick={() => handleUserClick(user)}
+                className="flex items-center gap-3 cursor-pointer hover:bg-gray-100 rounded-lg p-2"
+              >
+                <Img
+                  src={user.img || "/profile-circles1.svg"}
+                  alt={user.fullName}
+                  width={44}
+                  height={44}
+                  className="rounded-full"
+                />
+                <div className="flex-1">
+                  <p className="text-base font-medium text-[#525252] font-inter">{user.fullName}</p>
+                  <p className="text-sm text-[#868686] font-inter line-clamp-1">
+                    {lastMessages[user._id] || "Start Conversation"}
+                  </p>
                 </div>
+                <span
+                  className={`w-2 h-2 rounded-full ${
+                    isOnline(user._id) ? "bg-green-500" : "bg-gray-400"
+                  }`}
+                ></span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Right Panel (Chat View) */}
-        <div className="flex-1 flex flex-col">
-          {/* Chat Header */}
-          <div 
-            className="border-b border-gray-200 px-4 py-3 flex items-center 
-            justify-between bg-[#FAFAFA] sticky top-0 z-10">
+        {/* Right Panel */}
+        <div className="flex-1 flex flex-col h-full min-h-0 bg-white">
+          <div className="border-b border-gray-200 px-4 py-3 flex items-center justify-between bg-[#FAFAFA]">
             <div className="flex items-center gap-2">
-              <ArrowLeft className="w-5 h-5 cursor-pointer text-[#4C4C4C]" />
-              <Img
-                src={contacts.find((contact) => contact.name === selectedUser).img}
-                alt={selectedUser}
-                width={40}
-                height={40}
-                className="rounded-full"
-              />
-              <p className="font-[500] text-[#525252] text-[16px]">{selectedUser}</p>
-            </div>
-
-            {/* Right section: ONLINE or Last seen */}
-            <div>
-              {buyerStatus.isOnline ? (
-                <span className="text-[#238E15] font-[500] text-[14px]">ONLINE</span>
-              ) : (
-                <span className="text-[#8C8C8C] font-[400] text-[14px]">
-                  Last seen: {buyerStatus.lastSeen}
-                </span>
+              {selectedUser?.img && (
+                <Img
+                  src={selectedUser.img || "/profile-circles1.svg"}
+                  alt={selectedUser.fullName || "User"}
+                  width={40}
+                  height={40}
+                  className="rounded-full"
+                />
               )}
+              <p className="font-medium text-[#525252] text-base">{selectedUser?.fullName}</p>
             </div>
+            <span
+              className={`font-medium text-sm ${
+                isOnline(selectedUser?._id) ? "text-[#238E15]" : "text-gray-500"
+              }`}
+            >
+              {isOnline(selectedUser?._id) ? "ONLINE" : "OFFLINE"}
+            </span>
           </div>
 
-          {/* Chat History */}
-          <div className="flex-1 p-4 overflow-y-auto space-y-5">
-            {/* Date Divider */}
-            <div className="text-center text-[#868686] text-sm mb-2">Today</div>
-            {conversations[selectedUser]?.map((msg, i) => (
-              <div key={i} className={`flex items-start gap-2 ${msg.from === "seller" ? "justify-end" : "justify-start"}`}>
-                {msg.from === "buyer" && (
-                  <Img src="/blessing.svg" alt="buyer" width={30} height={30} className="rounded-full" />
-                )}
-                <div 
-                 className={`max-w-[70%] p-3 rounded-xl text-sm relative ${msg.from === "seller" ? "bg-[#DFDFF9]" : "bg-[#F7F7FF]"}`}>
-                  <p>{msg.text}</p>
-                  <div className="text-[11px] text-gray-500 mt-1 text-right">{msg.time}</div>
-                </div>
-                {msg.from === "seller" && (
-                  <Img src="/mark.svg" alt="seller" width={30} height={30} className="rounded-full" />
-                )}
-              </div>
-            ))}
-            <div ref={messagesEndRef} />
+          <div className="flex-1 overflow-y-auto px-4 py-2 space-y-3">
+            {renderMessages()}
+            {typingUser === selectedUser?._id && (
+              <div className="text-sm text-gray-500 italic">Typing...</div>
+            )}
           </div>
 
-          {/* Chat Input */}
-          <div className="px-4 py-3 bg-white">
-            <form onSubmit={handleSend} className="flex items-center gap-2">
-              {/* "+" icon for file upload */}
-              <button type="button" onClick={handleFileUpload} className="p-2 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200">
-                <Plus className="w-5 h-5" />
-              </button>
-
-              {/* Input field */}
-              <input
-                type="text"
-                placeholder="Type your message"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                className="flex-1 p-2 bg-[#FAFAFA] border-none rounded-lg text-sm outline-none placeholder:text-[#8C8C8C]"
-              />
-
-              {/* Send button */}
-              <button type="submit" className="p-2 rounded-full text-[#4C4C4C]">
-                <SendHorizonal className="w-5 h-5" />
-              </button>
-            </form>
-          </div>
+          {chatRoomId && selectedUser && (
+            <ChatInput
+              onSend={handleSend}
+              conversationId={chatRoomId}
+              recipientId={selectedUser._id}
+              token={token}
+              onTyping={() => emitTyping(chatRoomId)}
+              onStopTyping={() => emitStopTyping(chatRoomId)}
+            />
+          )}
         </div>
       </div>
     </div>

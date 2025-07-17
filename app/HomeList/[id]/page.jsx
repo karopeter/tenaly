@@ -10,6 +10,8 @@ import MessageSellerButton from "@/app/components/UI/messageSeller";
 
 export default function HomeListDetails({ sellerId }) {
   const [activeTab, setActiveTab] = useState("car");
+  const [showInput, setShowInput] = useState(false);
+  const [offerAmount, setOfferAmount] = useState("");  
   const [loading, setLoading] = useState(true);
   const { params, id } = useParams();
   const businessId = params?.businessId;
@@ -72,6 +74,12 @@ export default function HomeListDetails({ sellerId }) {
       fetchProfile();
     }
   }, [id, businessId]);
+
+      const handleSendOffer = () => {
+        if (!offerAmount) return toast.error("Please enter an Amount");
+        console.log("Offer sent:", offerAmount);
+        setOfferAmount("");
+      }
 
   if (!data) return <div className="mt-32 text-center text-gray-500">Loading...</div>;
 
@@ -186,12 +194,33 @@ export default function HomeListDetails({ sellerId }) {
        )}
      </div>
      <div className="p-4">
+      {showInput ? (
+        <div className="relative w-full">
+           <input
+              type="number"
+              placeholder="Enter your offer"
+              value={offerAmount}
+              onChange={(e) => setOfferAmount(e.target.value)}
+               className="w-full h-[44px] rounded-[8px] px-4 pr-12 border-[1px] focus:outline-none border-[#868686] text-[16px] font-inter"
+           />
+           <button
+             onClick={handleSendOffer}
+             className="absolute right-3 top-1/2 transform -translate-y-1/2">
+               <Img
+                 src="/offerImg.svg"
+                 width={17.9}
+                 height={18}
+                 className="w-[17.9px] h-[18px]"
+               />
+           </button>
+        </div>
+      ): (
        <Button 
-         className="w-full py-3 rounded-[8px] 
-         text-[#FFFFFF] font-inter 
-         font-[500] text-[14px] bg-[#5555DD]">
+         onClick={() => setShowInput(true)}
+          className="md:w-[300px] md:h-[53px] md:rounded-[8px] text-[#FFFFFF] font-inter font-[500] md:text-[16px] bg-[#5555DD]">
          Make Offer
-       </Button>
+        </Button>
+      )}
      </div>
    </div>
    </div>
@@ -368,100 +397,33 @@ export default function HomeListDetails({ sellerId }) {
              </div>
              {showDetails && (
               <div className="mt-4">
-                <div className="flex flex-wrap justify-between gap-y-4 gap-x-[4%] max-w-[650px] mx-auto">
-                  {/* Row 1 */}
-                  <div className="flex flex-col w-[48%] md:w-[30%]">
-                     <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-                     Property Type
-                    </span>
-                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                        {propertyAd?.propertyType}
-                    </span>
-                  </div>
-                  <div className="flex flex-col w-[48%] md:w-[30%]">
-                     <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-                      Furnishing
-                    </span>
-                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                        {propertyAd?.furnishing}
-                    </span>
-                  </div>
-                  <div className="flex flex-col w-[48%] md:w-[30%]">
-                     <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-                     Parking Spaces
-                    </span>
-                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                        {propertyAd?.parking}
-                    </span>
-                  </div>
-
-                  {/* Row 2 */}
-                  <div className="flex flex-col w-[48%] md:w-[30%]">
-                     <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-                      Square Meter
-                    </span>
-                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                        {propertyAd?.squareMeter}
-                    </span>
-                  </div>
-                  <div className="flex flex-col w-[48%] md:w-[30%]">
-                     <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-                     Role
-                    </span>
-                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                        {propertyAd?.ownershipStatus}
-                    </span>
-                  </div>
-                  <div className="flex flex-col w-[48%] md:w-[30%]">
-                     <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-                     Payment Duration
-                    </span>
-                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                        {propertyAd?.paymentDuration}
-                    </span>
-                  </div>
-                  <div className="flex flex-col w-[48%] md:w-[30%]">
-                     <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-                      Service Charge
-                    </span>
-                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                        {propertyAd?.serviceCharge}
-                    </span>
-                  </div>
-                  <div className="flex flex-col w-[48%] md:w-[30%]">
-                     <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-                      Negotiation
-                    </span>
-                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                        {propertyAd?.negotiation}
-                    </span>
-                  </div>
-                   <div className="flex flex-col w-[48%] md:w-[30%]">
-                     <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-                      Property Condition
-                    </span>
-                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                        {propertyAd?.propertyCondition}
-                    </span>
-                  </div>
-                  <div className="flex flex-col w-[48%] md:w-[30%]">
-                     <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-                      Property Facilities
-                    </span>
-                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                        {propertyAd?.propertyFacilities}
-                    </span>
-                  </div>
-                  <div className="flex flex-col w-[48%] md:w-[30%]">
-                     <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-                      Property Condition
-                    </span>
-                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                        {propertyAd?.propertyCondition}
-                    </span>
-                  </div>
-                  {/* Continuation can start from here */}
+               <div className="flex flex-wrap justify-between gap-y-4 gap-x-[4%] max-w-[650px] mx-auto">
+                 {[
+                 { label: "Property Type", value: propertyAd?.propertyType },
+                 { label: "Furnishing", value: propertyAd?.furnishing },
+                 { label: "Parking Spaces", value: propertyAd?.parking },
+                 { label: "Square Meter", value: propertyAd?.squareMeter },
+                 { label: "Role", value: propertyAd?.ownershipStatus },
+                 { label: "Payment Duration", value: propertyAd?.paymentDuration },
+                 { label: "Service Charge", value: propertyAd?.serviceCharge },
+                 { label: "Negotiation", value: propertyAd?.negotiation },
+                 { label: "Property Condition", value: propertyAd?.propertyCondition },
+                 { label: "Property Facilities", value: propertyAd?.propertyFacilities },
+                ].map(
+              (item, index) =>
+                item.value && (
+                 <div key={index} className="flex flex-col w-[48%] md:w-[30%]">
+                <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+                 {item.label}
+               </span>
+               <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+                 {item.value}
+               </span>
+             </div>
+            )
+           )}
                 </div>
+
 
                 <div className="flex gap-2 mt-4">
                    <div className="flex flex-col w-[48%] md:w-[33%]">
@@ -685,7 +647,7 @@ export default function HomeListDetails({ sellerId }) {
         alt="Profile Image"
         width={52}
         height={52}
-        className="w-[40px] h-[40px]"
+        className="w-[40px] h-[40px] rounded-[30px]"
       />
       <div className="flex flex-col">
           <span className="text-[#000000] text-[14px] font-[500] font-inter">
@@ -821,10 +783,33 @@ export default function HomeListDetails({ sellerId }) {
        )}
      </div>
      <div className="p-4">
+      {showInput ? (
+        <div className="relative w-full">
+           <input
+              type="number"
+              placeholder="Enter your offer"
+              value={offerAmount}
+              onChange={(e) => setOfferAmount(e.target.value)}
+               className="w-full h-[44px] rounded-[8px] px-4 pr-12 border-[1px] focus:outline-none border-[#868686] text-[16px] font-inter"
+           />
+           <button
+             onClick={handleSendOffer}
+             className="absolute right-3 top-1/2 transform -translate-y-1/2">
+               <Img
+                 src="/offerImg.svg"
+                 width={17.9}
+                 height={18}
+                 className="w-[17.9px] h-[18px]"
+               />
+           </button>
+        </div>
+      ): (
        <Button 
-         className="md:w-[300px] md:h-[53px] md:rounded-[8px] text-[#FFFFFF] font-inter font-[500] md:text-[16px] bg-[#5555DD]">
+         onClick={() => setShowInput(true)}
+          className="md:w-[300px] md:h-[53px] md:rounded-[8px] text-[#FFFFFF] font-inter font-[500] md:text-[16px] bg-[#5555DD]">
          Make Offer
-       </Button>
+        </Button>
+      )}
      </div>
    </div>
       </div>
@@ -838,11 +823,13 @@ export default function HomeListDetails({ sellerId }) {
              alt="Profile Image"
              width={52}
              height={52}
-             className="md:w-[52px] md:h-[52px]"/>
+             className="md:w-[52px] md:h-[52px] rounded-[30px]"/>
              <div className="flex flex-col">
-               <span className="text-[#000000] whitespace-nowrap md:text-[18px] font-[500] font-inter">
+               <Link href="" className="underline">
+                 <span className="text-[#000000] whitespace-nowrap md:text-[18px] font-[500] font-inter">
                  {business?.businessName || "Business Name"}
                </span>
+               </Link>
             <div className="mt-1 flex items-center gap-2 bg-[#E9F4E8]  md:w-[93px] md:h-[16px] md:rounded-[2px]">
               <Img 
                 src="/profile.svg"

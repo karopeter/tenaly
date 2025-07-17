@@ -1,29 +1,66 @@
 "use client";
 import { useEffect, useState } from "react";
 import Img from "../Image";
-import Button from "../Button";
+import Button from "../Button"; 
 import Link from "next/link";
 import api from "@/services/api";
 
-export default function MarketPlace() {
+export default function MarketPlace({ category, search, location }) { 
   const [ads, setAds] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const machineImage = "/machineGun.svg";
+  const machineImage = "/machineGun.svg"; 
 
   useEffect(() => {
     const fetchAllAds = async () => {
+      setLoading(true);
+      setError(null);
       try {
-        const res = await api.get("/products/get-all-marketproducts");
+        const params = {};
+        
+        if (category) {
+            params.category = category;
+        }
+
+        if (search) {
+          params.search = search;
+        }
+        
+        if (location) {
+          params.location = location;
+        }
+
+        // Use your existing API service
+        const res = await api.get("/products/get-all-marketproducts", { params });
+        
         if (res.data.success) {
           setAds(res.data.data);
+        } else {
+          setError(res.data.message || "Failed to fetch ads.");
         }
       } catch (err) {
         console.error("Error fetching marketplace ads:", err);
+        setError("Error fetching marketplace ads. Please try again.");
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchAllAds();
-  }, []);
+  }, [category, search, location]);
+
+  if (loading) {
+    return <section className="px-4 md:px-10 mt-10 text-center">Loading marketplace ads...</section>;
+  }
+
+  if (error) {
+    return <section className="px-4 md:px-10 mt-10 text-center text-red-500">{error}</section>;
+  }
+
+  if (ads.length === 0) {
+    return <section className="px-4 md:px-10 mt-10 text-center">No marketplace ads found.</section>;
+  }
 
   return (
     <section className="px-4 md:px-10 mt-10">
@@ -35,61 +72,71 @@ export default function MarketPlace() {
 
             const mainAd = vehicleAd || propertyAd || {};
             const title = vehicleAd
-              ? `${vehicleAd.vehicleType || ""} ${vehicleAd.model || ""} ${vehicleAd.trim || ""} ${vehicleAd.year || ""}`
+              ? `${vehicleAd.vehicleType || ""} ${vehicleAd.model || ""} ${vehicleAd.trim || ""} ${vehicleAd.year || ""}`.trim()
               : propertyAd?.propertyName || "Untitled Property";
 
             const description = mainAd.description || "No description available";
             const price = mainAd.amount ? `₦${mainAd.amount.toLocaleString()}` : "Price not set";
 
-            const carImages = carAd?.vehicleImage || [];
-            const propertyImages = carAd?.propertyImage || [];
-            const allImages = [...carImages, ...propertyImages];
-            const displayImage = allImages.length
-              ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${allImages[0].replace(/\\/g, "/")}`
-              : null;
+            const displayImage = carAd?.vehicleImage?.[0] || carAd?.propertyImage?.[0];
+            const imageUrl = displayImage 
+                             ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${displayImage.replace(/\\/g, "/")}`
+                             : null;
 
             const location = carAd?.location || "Unknown";
 
             return (
               <Link href={`/HomeList/${adId}`} key={adId}>
-               <li className="bg-white text-left rounded-[12px] border border-[#EDEDED] overflow-hidden relative shadow-md transition-transform hover:scale-[1.02]">
-                <div className="relative w-full md:w-[300px] shrink-0 overflow-hidden"> {/* Image from vehicleAd or propertyAd */} {vehicleAd && carAd?.vehicleImage?.length > 0 ? ( <Img src={ process.env.NEXT_PUBLIC_BACKEND_URL + "/" + carAd.vehicleImage[0].replace(/\\/g, "/") } alt="Vehicle" width={340} height={210} className="w-full h-full object-cover" /> ) : propertyAd && carAd?.propertyImage?.length > 0 ? ( <Img src={ process.env.NEXT_PUBLIC_BACKEND_URL + "/" + carAd.propertyImage[0].replace(/\\/g, "/") } alt="Property" width={340} height={210} className="w-full h-full object-cover" /> ) : null}
-               {vehicleAd?.plan && (
-               <div
-                 className="absolute bottom-0 left-0 z-30 w-[139px] h-[35px] flex items-center px-4"
-                style={{
-                 backgroundImage: `url(${machineImage})`,
-                 backgroundSize: "cover",
-                 backgroundPosition: "center",
-                }}>
-               <div className="bg-[#DFDFF9] w-[100px] h-[24px] rounded-[4px] border flex justify-center items-center gap-2 border-[#2C2CCD]">
-               <Img src="/medal-star1.svg" alt="Plan" width={24} height={24} />
-                <span className="text-[#000087] text-[12px] font-[400] font-inter uppercase">
-                {vehicleAd.plan}
-              </span>
-            </div>
-           </div>
-          )}
+                <li className="bg-white text-left rounded-[12px] border border-[#EDEDED] overflow-hidden relative shadow-md transition-transform hover:scale-[1.02]">
+                  <div className="relative w-full md:w-[300px] shrink-0 overflow-hidden">
+                    {imageUrl && (
+                      <Img
+                        src={imageUrl}
+                        alt={title}
+                        width={340} 
+                        height={210}
+                        className="w-full h-full object-cover"
+                      />
+                    )}
 
-         {/* Plan badge for propertyAd */}
-         {propertyAd?.plan && (
-          <div
-            className="absolute bottom-0 left-0 z-30 w-[139px] h-[35px] flex items-center px-4"
-            style={{
-              backgroundImage: `url(${machineImage})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-           }}
-          >
-         <div className="bg-[#DFDFF9] w-[100px] h-[24px] rounded-[4px] border flex justify-center items-center gap-2 border-[#2C2CCD]">
-         <Img src="/medal-star1.svg" alt="Plan" width={24} height={24} />
-          <span className="text-[#000087] text-[12px] font-[400] font-inter uppercase">
-           {propertyAd.plan}
-         </span>
-        </div>
-      </div>
-      )}
-      </div>
+                    {/* Plan badge for vehicleAd */}
+                    {vehicleAd?.plan && (
+                      <div
+                        className="absolute bottom-0 left-0 z-30 w-[139px] h-[35px] flex items-center px-4"
+                        style={{
+                          backgroundImage: `url(${machineImage})`,
+                          backgroundSize: "cover",
+                          backgroundPosition: "center",
+                        }}
+                      >
+                        <div className="bg-[#DFDFF9] w-[100px] h-[24px] rounded-[4px] border flex justify-center items-center gap-2 border-[#2C2CCD]">
+                          <Img src="/medal-star1.svg" alt="Plan" width={24} height={24} />
+                          <span className="text-[#000087] text-[12px] font-[400] font-inter uppercase">
+                            {vehicleAd.plan}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Plan badge for propertyAd */}
+                    {propertyAd?.plan && (
+                      <div
+                        className="absolute bottom-0 left-0 z-30 w-[139px] h-[35px] flex items-center px-4"
+                        style={{
+                          backgroundImage: `url(${machineImage})`,
+                          backgroundSize: "cover",
+                          backgroundPosition: "center",
+                        }}
+                      >
+                        <div className="bg-[#DFDFF9] w-[100px] h-[24px] rounded-[4px] border flex justify-center items-center gap-2 border-[#2C2CCD]">
+                          <Img src="/medal-star1.svg" alt="Plan" width={24} height={24} />
+                          <span className="text-[#000087] text-[12px] font-[400] font-inter uppercase">
+                            {propertyAd.plan}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
 
                   <div className="pt-6 pb-4 px-4">
                     <div className="flex items-center gap-2">
@@ -112,7 +159,7 @@ export default function MarketPlace() {
                         {location}
                       </span>
 
-                      <div className="flex gap-2 mt-3">
+                      <div className="flex gap-2 mt-3 flex-wrap"> {/* Added flex-wrap for buttons */}
                         {vehicleAd?.carType && (
                           <Button className="flex items-center justify-center flex-1 bg-[#E8E8FF] rounded-[4px] text-[12px] font-inter font-normal py-1 px-2">
                             {vehicleAd.carType}
@@ -123,19 +170,19 @@ export default function MarketPlace() {
                             {vehicleAd.transmission}
                           </Button>
                         )}
-                       {propertyAd?.propertyType && (
-                         <Button className="inline-flex items-center justify-center bg-[#E8E8FF] 
-                         rounded-[4px] text-[12px]  break-words font-inter font-normal py-1 px-3 max-w-full">
+                        {propertyAd?.propertyType && (
+                          <Button className="inline-flex items-center justify-center bg-[#E8E8FF] rounded-[4px] text-[12px] break-words font-inter font-normal py-1 px-3 max-w-full">
                             {propertyAd.propertyType}
                           </Button>
-                       )}
-                       {propertyAd?.propertyCondition && (
-                           <Button 
+                        )}
+                        {propertyAd?.propertyCondition && (
+                          <Button
                             className="inline-flex items-center justify-center bg-[#E8E8FF]
-                             rounded-[4px] text-[12px] font-inter font-normal py-1 px-3 max-w-full">
+                            rounded-[4px] text-[12px] font-inter font-normal py-1 px-3 max-w-full"
+                          >
                             {propertyAd.propertyCondition}
                           </Button>
-                       )}
+                        )}
                       </div>
                     </div>
                   </div>

@@ -1,9 +1,48 @@
 "use client";
+import { useState } from "react";
 import Img from "../components/Image";
 import Button from "../components/Button";
 import BuyAnything from "../components/features/buy-anything";
+import api from "@/services/api";
+import { toast } from "react-toastify";
 
 export default function ContactUs() {
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    setLoading(true);
+    setSuccessMessage("");
+    setErrorMessage("");
+
+    try {
+       const res = await api.post("/contact/send-message", { email, message });
+       if (res.data.success) {
+        setSuccessMessage(res.data.message);
+        toast.success("Message submitted successfully");
+        setEmail(""); 
+        setMessage("");
+       } else {
+        setErrorMessage(res.data.message || "Failed to send message.");
+      }
+    } catch(error) {
+      console.error('Error sending contact message:', err);
+      if (err.response && err.response.data && err.response.data.message) {
+        setErrorMessage(err.response.data.message);
+      } else {
+         setErrorMessage("An unexpected error occurred. Please try again.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
   return (
     <section>
       {/* Header Background Section */}
@@ -65,7 +104,7 @@ export default function ContactUs() {
         <div className="bg-[#F7F7FF] w-full md:w-[756px] h-auto md:h-[424px] rounded-[8px] border border-[#DFDFF9] p-4 md:p-8">
           <h2 className="text-[#000087] font-[500] text-[16px] md:text-[20px] mb-4">Send Message</h2>
           
-          <form className="flex flex-col gap-4">
+          <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
             {/* Email Input */}
             <div>
               <label htmlFor="email" className="text-[14px] font-medium text-[#525252] block mb-1">Email</label>
@@ -74,6 +113,9 @@ export default function ContactUs() {
                 id="email"
                 className="w-full border border-[#CDCDD7] rounded-[4px] px-4 py-3 text-[14px] outline-none"
                 placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
               />
             </div>
 
@@ -84,8 +126,24 @@ export default function ContactUs() {
                 id="message"
                 className="w-full border border-[#CDCDD7] rounded-[4px] px-4 py-3 text-[14px] outline-none h-[120px]"
                 placeholder="Write your message"
+                 value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                required
+                minLength="10"
+                maxLength="1000"
               />
             </div>
+
+            {/* Feedback Messages */}
+            {loading && (
+              <p className="text-blue-600 text-sm">Sending message...</p>
+            )}
+             {successMessage && (
+              <p className="text-green-600 text-sm">{successMessage}</p>
+            )}
+            {errorMessage && (
+              <p className="text-red-600 text-sm">{errorMessage}</p>
+            )}
 
             {/* Submit Button */}
              <Button
@@ -93,8 +151,9 @@ export default function ContactUs() {
                 className="w-full md:w-[262px] h-[44px] md:rounded-[8px] 
                  pt-[10px] pr-[10px] pb-[10px] pl-[16px] md:pt-[10px] md:pr-[16px] md:pb-[10px] md:pl-[16px] 
                  font-[500] md:text-[14px] bg-[#EDEDED] text-[#CDCDD7] 
-                bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white">
-              Submit
+                bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white"
+                disabled={loading}>
+                  {loading ? "Submitting..." : "Submit"}
             </Button>
           </form>
         </div>

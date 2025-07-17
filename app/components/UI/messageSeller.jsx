@@ -5,9 +5,9 @@ import Button from "../Button";
 import Img from "../Image";
 
 
-const MessageSellerButton = ({sellerId, openAuthModal }) => {
+const MessageSellerButton = ({sellerId, productId,  openAuthModal }) => {
   const router = useRouter();
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, profile} = useAuth();
 
    const handleClick = () => {
      if (isLoggedIn) {

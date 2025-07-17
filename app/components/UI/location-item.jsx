@@ -3,11 +3,16 @@ import { useState } from "react";
 import Img from "../Image";
 import LocationModal from "./locationModal";
 
-export default function LocationSearch() {
+export default function LocationSearch({ onSearchChange, onLocationSelect }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState("Choose location");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedState, setSelectedState] = useState(null);
+  
+
+  const handleLocationSelect = (location) => {
+    console.log("Selected Location in ProductList:", location);
+  };
 
   const handleStateSelect = (state) => {
     setSelectedState(state);
@@ -15,9 +20,17 @@ export default function LocationSearch() {
   };
 
   const handleLGASelect = ({ state, lga }) => {
-    setSelectedLocation(`${state}, ${lga}`);
+    const fullLocation = `${state}, ${lga}`;
+    setSelectedLocation(fullLocation);
     setIsModalOpen(false);
     setSelectedState(null);
+    onLocationSelect(fullLocation);
+  };
+
+  const handleInputChange = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    onSearchChange(query); 
   };
 
   return (
@@ -46,6 +59,8 @@ export default function LocationSearch() {
           placeholder="Search for anything"
           className="outline-none py-2 px-4 pr-12 rounded-[8px] text-[14px]  
           bg-[#E8E8FF] w-[193px] h-[44px] md:w-[365px] md:h-[52px] placeholder:text-[#CDCDD7]"
+          value={searchQuery}
+          onChange={handleInputChange}
         />
         <Img
           src="/search.svg"
