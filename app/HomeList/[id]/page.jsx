@@ -35,16 +35,6 @@ export default function HomeListDetails({ sellerId }) {
         }
       };
 
-    
-    //   const fetchBusiness = async () => {
-    //     try {
-    //     const res = await api.get(`/business/getbusiness/${businessId}`);
-    //     setBusiness(res.data);
-    //   } catch (err) {
-    //     console.error("Error fetching business:", err);
-    //     setBusiness(null);
-    //   }
-    //  };
      const fetchBusiness = async () => {
        try {
         const res = await api.get('/business/my-businesses');
@@ -92,18 +82,13 @@ export default function HomeListDetails({ sellerId }) {
           Home&nbsp;&rsaquo;
         </Link>
         {carAd?.category && (
-          <Link href="/cars" className="text-[#868686] text-[13px] md:text-[14px] font-[400] font-inter whitespace-nowrap">
+          <span className="text-[#868686] text-[13px] md:text-[14px] font-[400] font-inter whitespace-nowrap">
             {carAd.category}
-          </Link>
+          </span>
         )}
         {vehicleAd && (
-          <Link href="/vehicles" className="text-[#000087] text-[13px] md:text-[14px] font-[500] font-inter whitespace-nowrap">
+          <span href="/vehicles" className="text-[#000087] text-[13px] md:text-[14px] font-[500] font-inter whitespace-nowrap">
             {vehicleAd.vehicleType} {vehicleAd.model} {vehicleAd.horsePower} {vehicleAd.trim} {vehicleAd.year}  {vehicleAd.color}
-          </Link>
-        )}
-        {propertyAd?.propertyName && (
-          <span className="text-[#000087] text-[13px] md:text-[14px] font-[500] font-inter whitespace-nowrap">
-            {propertyAd.propertyName} {propertyAd.furnishing}
           </span>
         )}
       </div>
@@ -231,20 +216,51 @@ export default function HomeListDetails({ sellerId }) {
       {/* Toogle Switch */}
       <div className="bg-[#FAFAFA] md:w-[650px] md:h-[44px] md:rounded-[4px]">
         <div className="flex space-x-4 mb-4">
-           <Button
+           {propertyAd && (
+            <Button
+            className={`
+             w-full sm:w-auto
+             min-w-[200px]
+              h-[44px]
+             whitespace-nowrap
+             rounded-tl-[4px] rounded-tr-[4px]
+             text-center text-sm sm:text-base
+             overflow-hidden 
+            ${activeTab === "car"
+           ? "bg-[#DFDFF9] text-[#000087]"
+           : "bg-gray-200 text-gray-700"}`}
+           onClick={() => setActiveTab("car")}>
+            Commercial Property 
+          </Button>
+
+           )}
+           {vehicleAd && (
+            <Button
              className={`py-2 px-4 min-w-[120px] h-[40px] md:h-[44px] rounded-tl-[4px] whitespace-nowrap rounded-tr-[4px] text-center ${
                   activeTab === "car" ? "bg-[#DFDFF9] text-[#000087]" : "bg-gray-200 text-gray-700"
                   }`}
                    onClick={() => setActiveTab("car")}>
               Car Details 
            </Button>
-           <Button
+           )}
+           {propertyAd && (
+            <Button
             className={`py-2 px-4 min-w-[120px] h-[40px] md:h-[44px] rounded-tl-[4px] whitespace-nowrap rounded-tr-[4px] text-center ${
                activeTab === "review" ? "bg-[#DFDFF9] text-[#000087]" : "bg-gray-200 text-gray-700"
              }`}
               onClick={() => setActiveTab("review")}>
               Review 
            </Button>
+           )}
+           {vehicleAd && (
+            <Button
+            className={`py-2 px-4 min-w-[120px] h-[40px] md:h-[44px] rounded-tl-[4px] whitespace-nowrap rounded-tr-[4px] text-center ${
+               activeTab === "review" ? "bg-[#DFDFF9] text-[#000087]" : "bg-gray-200 text-gray-700"
+             }`}
+              onClick={() => setActiveTab("review")}>
+              Review 
+           </Button>
+           )}
         </div>
       </div>
 
@@ -780,6 +796,9 @@ export default function HomeListDetails({ sellerId }) {
        <span className="text-[#525252] md:text-[15px] font-[400] font-inter">Price</span>
        {propertyAd && (
         <span className="text-[#525252] md:text-[24px] font-[500] font-inter">₦{propertyAd.amount?.toLocaleString()}</span>
+       )}
+       {vehicleAd && (
+        <span className="text-[#525252] md:text-[24px] font-[500] font-inter">₦{vehicleAd.amount?.toLocaleString()}</span>
        )}
      </div>
      <div className="p-4">

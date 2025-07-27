@@ -13,7 +13,7 @@ import { toast } from "react-toastify";
 
 const sidebarItems = [
   { label: "Profile", icon: "/profile-circle.svg", href: "/Profile" },
-  { label: "My Ads", icon: "/addItem.svg", href: "/Add" },
+  { label: "My Ads", icon: "/addKai.svg", href: "/Add" },
   { label: "Analytics", icon: "/chart.svg", href: "/Analytics" },
   { label: "Customer Reviews", icon: "/star.svg", href: "/CustomerReviews" },
   { label: "Premium Services", icon: "/crown-2.svg", href: "/PremiumService" },
@@ -76,11 +76,14 @@ export default function Sidebar({ isMobile, activeSection, setActiveSection }) {
         <div key={item.label}>
           <button
             onClick={() => handleNavClick(item)}
-            className="flex items-center justify-between gap-3 p-2 hover:bg-[#000087] hover:text-white transition text-left w-full"
+            className="group flex items-center justify-between gap-3 p-2 hover:bg-[#000087] hover:text-white transition text-left w-full"
           >
             <div className="flex items-center gap-3">
-              <img src={item.icon} alt={item.label} className="w-5 h-5" />
-              <span>{item.label}</span>
+              <img
+                src={item.icon} 
+                alt={item.label} 
+                className="w-5 h-5 transition group-hover:filter group-hover:invert group-hover:brightness-0 group-hover:contrast-200" />
+              <span className="transition group-hover:text-white">{item.label}</span>
             </div>
             {item.label === "Settings" &&
               (settingsOpen ? (

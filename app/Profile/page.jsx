@@ -153,7 +153,7 @@ export default function Profile({
 
   const renderPersonalInfo = () => (
     <div className="mt-6">
-      <div className="grid md:grid-cols-2 gap-x-6 gap-y-4">
+      <div className="grid grid-cols-2  gap-x-6 gap-y-4">
         <InputField
           label="First Name"
           placeholder="First Name"
@@ -169,44 +169,53 @@ export default function Profile({
           disabled={!isEditable}
         />
       </div>
-  
-      <div className="grid md:grid-cols-1 mt-4">
-        <div className="flex items-center justify-between gap-4 w-full">
-          <div className="flex-1">
-            <InputField
-              label="Email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={!isEditable}
-            />
-          </div>
-          {isEditable && (
-            <Button type="button" className="text-[#232323] text-sm underline bg-transparent whitespace-nowrap">
-              Change my email
-            </Button>
-          )}
-        </div>
-      </div>
-  
-      <div className="grid md:grid-cols-1 mt-4">
-        <div className="flex items-center justify-between gap-4 w-full">
-          <div className="flex-1">
-            <InputField
-              label="Phone Number"
-              placeholder="Phone Number"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              disabled={!isEditable}
-            />
-          </div>
-          {isEditable && (
-            <Button type="button" className="text-[#232323] text-sm underline bg-transparent whitespace-nowrap">
-              Change my phone number
-            </Button>
-          )}
-        </div>
-      </div>
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-1 mt-4">
+  {/* Email Section */}
+  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-4 w-full">
+    <div className="flex-1">
+      <InputField
+        label="Email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        disabled={!isEditable}
+        className="w-full"
+      />
+    </div>
+    {isEditable && (
+      <Button
+        type="button"
+        className="text-[#232323] text-[14px] underline bg-transparent p-0 md:p-2"
+      >
+        Change my email
+      </Button>
+    )}
+  </div>
+
+  {/* Phone Section */}
+  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-4 w-full">
+    <div className="flex-1">
+      <InputField
+        label="Phone Number"
+        placeholder="Phone Number"
+        value={phoneNumber}
+        onChange={(e) => setPhoneNumber(e.target.value)}
+        disabled={!isEditable}
+        className="w-full"
+      />
+    </div>
+    {isEditable && (
+      <Button
+        type="button"
+        className="text-[#232323] text-[14px] underline bg-transparent p-0 md:p-2"
+      >
+        Change my phone number
+      </Button>
+    )}
+  </div>
+</div>
+
     </div>
   );
 
@@ -266,10 +275,10 @@ export default function Profile({
                  <Button
                    type="button"
                    onClick={() => setIsEditable(!isEditable)}
-                   className="flex items-center gap-1 border-[1px] border-[#EDEDED] md:h-[36px] md:rounded-[28px] text-[#232323] text-sm font-medium bg-[#F1F1F1]"
+                   className="flex items-center justify-center gap-1 border-[1px] border-[#EDEDED] w-[80px] h-[36px] md:h-[36px]  rounded-[28px] text-[#232323] text-sm font-medium bg-[#F1F1F1]"
                  >
                    <Pencil className="w-4 h-4 text-[#3C3C3C]" />
-                   {isEditable ? "Done" : "Edit"}
+                  <span className="text-center"> {isEditable ? "Done" : "Edit"}</span>
                  </Button>
                </div>
               )}
@@ -304,7 +313,7 @@ export default function Profile({
                  <Button
                    type="submit"
                    disabled={loading}
-                   className="flex items-center justify-center gap-2 md:w-[262px] md:h-[44px] md:rounded-[8px] font-[500] md:text-[14px] bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white"
+                   className="flex items-center justify-center gap-2 w-[262px]  md:w-[262px] h-[44px] md:rounded-[8px] font-[500] md:text-[14px] bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white"
                  >
                    {loading ? "Saving..." : (
                      <>

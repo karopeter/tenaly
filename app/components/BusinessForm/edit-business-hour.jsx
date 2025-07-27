@@ -4,6 +4,7 @@ import { PencilIcon } from "@heroicons/react/24/solid";
 import api from "@/services/api";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { MoreVertical } from "lucide-react";
 import BusinessLink from "../navbar/business.link";
 import Img from "../Image";
 
@@ -15,6 +16,7 @@ export default function EditBusinessForm() {
   const [businessName, setBusinessName] = useState("");
   const [addresses, setAddresses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [businessHours, setBusinessHours] = useState([]);
 
   const router = useRouter();
@@ -103,10 +105,31 @@ export default function EditBusinessForm() {
   }
 
   return (
-    <div className="flex md:flex-row w-full gap-2 min-h-screen mt-10">
-      <BusinessLink />
-      <div className="flex-1">
-        <div className="bg-white shadow p-4 rounded-lg h-auto">
+    <div className="relative flex flex-col md:flex-row w-full gap-2 min-h-screen mt-10">
+     {/* Desktop sidebar */ }
+      <div className="hidden md:block">
+         <BusinessLink />
+      </div>
+
+      {/*Mobile: 3 dots button on top-right of the card */}
+      <div className="absolute top-0 right-4 z-30 md:hidden">
+      <button
+        onClick={() => setShowMobileMenu(!showMobileMenu)}
+        className="p-1"
+        aria-label="Toggle menu">
+       <MoreVertical size={22} />
+      </button>
+     </div>
+
+     {showMobileMenu && (
+      <div className="absolute top-10 left-0 w-full bg-white z-20 shadow-md p-4 md:hidden">
+         <BusinessLink />
+      </div>
+     )}
+
+      {/* Mobile Menu Dropdown */}
+      <div className="flex-1 px-4 md:px-0 mt-10 md:mt-0">
+        <div className="bg-white shadow p-4 rounded-lg w-full">
           <div className="flex items-center justify-between mb-6">
             <span className="text-[#525252] text-[14px] font-[500] font-inter">
               {businessName}
@@ -123,64 +146,63 @@ export default function EditBusinessForm() {
           {/* Business Hours */}
           {businessHours.length > 0 ? (
             businessHours.map((hour, idx) => (
-              <div key={hour._id || idx} className="mb-4">
-                {/* Address row */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Img
-                      src="/addressLoc.svg"
-                      alt="Address Location"
-                      width={11.67}
-                      height={11.67}
-                      className="w-[11.6px] h-[11.6px]"
-                    />
-                    <span className="text-[#868686] font-[400] text-[14px] font-inter">
-                      {hour.addressObj?.address || "No address"}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Img
-                      src="/timeClock.svg"
-                      width={16}
-                      height={16}
-                      className="w-[16px] h-[16px]"
-                    />
-                    <span className="text-[#238E15] font-[500] font-inter text-[10px]">
-                      {hour.openingTime || "--:--"} - {hour.closingTime || "--:--"}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Days row */}
-                <div className="mt-1 flex gap-2 flex-wrap">
-                  {hour.days && hour.days.length > 0 ? (
-                    hour.days.map((day, i) => {
-                      const shortDay =
-                        day.length > 3
-                          ? day.slice(0, 3).charAt(0).toUpperCase() +
-                            day.slice(1, 3).toLowerCase()
-                          : day;
-                      return (
-                        <span
-                          key={i}
-                          className="bg-[#F7F7FF] rounded-[4px] px-2 py-1 text-[10px] text-[#000087] font-[500] font-inter flex items-center justify-center min-w-[28px]"
-                          style={{ minWidth: "28px", textAlign: "center" }}
-                        >
-                          {shortDay}
-                        </span>
-                      );
-                    })
-                  ) : (
-                    <span className="text-[10px]">No days set</span>
-                  )}
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="text-gray-400 italic">No business hours yet</div>
-          )}
-        </div>
-      </div>
+          <div key={hour._id || idx} className="mb-4">
+          <div className="flex items-center justify-between gap-2 overflow-hidden">
+        <div className="flex items-center gap-1 min-w-0">
+          <Img
+            src="/addressLoc.svg"
+            alt="Address Location"
+            width={11.67}
+            height={11.67}
+            className="w-[11.6px] h-[11.6px] shrink-0"
+         />
+         <span className="text-[#868686] font-[400] text-[13px] font-inter truncate">
+          {hour.addressObj?.address || "No address"}
+         </span>
+       </div>
+      <div className="flex items-center gap-1 shrink-0">
+        <Img
+          src="/timeClock.svg"
+           width={16}
+           height={16}
+          className="w-[16px] h-[16px]"
+       />
+      <span className="text-[#238E15] font-[500] font-inter text-[10px] whitespace-nowrap">
+        {hour.openingTime || "--:--"} - {hour.closingTime || "--:--"}
+      </span>
     </div>
+    </div>
+
+    {/* Days row */}
+    <div className="mt-1 flex gap-2 flex-wrap">
+      {hour.days && hour.days.length > 0 ? (
+        hour.days.map((day, i) => {
+         const shortDay =
+          day.length > 3
+            ? day.slice(0, 3).charAt(0).toUpperCase() +
+              day.slice(1, 3).toLowerCase()
+            : day;
+        return (
+          <span
+            key={i}
+            className="bg-[#F7F7FF] rounded-[4px] px-2 py-1 text-[10px] text-[#000087] font-[500] font-inter flex items-center justify-center min-w-[28px]"
+            style={{ minWidth: "28px", textAlign: "center" }}
+          >
+            {shortDay}
+          </span>
+        );
+      })
+    ) : (
+      <span className="text-[10px]">No days set</span>
+    )}
+   </div>
+   </div>
+   ))
+   ) : (
+     <div className="text-gray-400 italic">No business hours yet</div>
+   )}
+  </div>
+  </div>
+  </div>
   );
 }

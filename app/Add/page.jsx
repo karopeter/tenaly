@@ -50,7 +50,7 @@ export default function AddCarPost() {
           </span>
         </div>
       ) : error ? (
-        <div className="bg-white p-6 md:p-10 text-center shadow-phenom rounded-lg">
+        <div className="bg-white w-full h-[490px] p-6 md:p-10 text-center shadow-phenom rounded-lg flex flex-col justify-center items-center">
           <p className="text-red-500 text-sm md:text-base">{error}</p>
           <div className="flex justify-center mt-4">
             <Button
@@ -62,7 +62,7 @@ export default function AddCarPost() {
           </div>
         </div>
       ) : userAds.length === 0 ? (
-        <div className="bg-white p-6 md:p-10 text-center shadow-phenom rounded-lg">
+        <div className="bg-white w-full h-[490px] p-6 md:p-10 text-center shadow-phenom rounded-lg flex flex-col justify-center items-center">
           <Img
             src="/postAds.svg"
             width={158}
@@ -83,7 +83,7 @@ export default function AddCarPost() {
           </div>
         </div>
       ) : (
-        <div className="bg-white p-6 md:p-10 text-center shadow-phenom rounded-lg">
+        <div className="bg-white w-full h-[490px] p-6 md:p-10 text-center shadow-phenom rounded-lg flex flex-col justify-center items-center">
           <p className="font-[500] text-[#525252] font-inter text-sm md:text-base mb-4">
             You already have {userAds.length} ad{userAds.length > 1 ? "s" : ""}.
           </p>

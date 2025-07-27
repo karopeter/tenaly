@@ -323,7 +323,7 @@ export default function CreateCarPost() {
                 <Button
                   type="submit"
                   disabled={!isFormValid || loading}
-                  className={`md:w-[262px] md:h-[44px] md:rounded-[8px] font-[500] md:text-[14px] ${
+                  className={`w-[262px] md:w-[262px] h-[44px] md:rounded-[8px] font-[500] md:text-[14px] ${
                     !isFormValid || loading
                       ? "bg-[#EDEDED] text-[#CDCDD7]"
                       : "bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white"

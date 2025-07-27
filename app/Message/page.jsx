@@ -62,13 +62,30 @@ export default function MessagePage() {
   }, [profile, token]);
 
   useEffect(() => {
+  const autoLoadLastChat = async () => {
+    const lastUserId = localStorage.getItem("lastSelectedUserId");
+    if (lastUserId && contacts.length > 0) {
+      const user = contacts.find((u) => u._id === lastUserId);
+      if (user) {
+        await handleUserClick(user); // 👈 load messages for that user
+      }
+    }
+  };
+
+  if (profile && contacts.length > 0) {
+    autoLoadLastChat();
+  }
+}, [profile, contacts]);
+
+
+  useEffect(() => {
     if (!token || !chatRoomId || !profile) return;
 
     const socket = initialSocket(token);
     socketRef.current = socket;
 
     const handleReceiveMessage = (msg) => {
-    //  setConversations((prev) => [...prev, msg]);
+     setConversations((prev) => [...prev, msg]);
       setLastMessages((prev) => ({
         ...prev,
         [msg.from._id === profile._id ? msg.to._id : msg.from._id]: msg.text,
@@ -166,6 +183,8 @@ const handleSend = async ({ text, file }) => {
 
   const handleUserClick = async (user) => {
     try {
+      localStorage.setItem("lastSelectedUserId", user._id);
+      
       const res = await api.post(
         "/conversation/create-conversation",
         { userId: user._id },
@@ -179,7 +198,8 @@ const handleSend = async ({ text, file }) => {
       const history = await api.get(`/messages/${conversation._id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setConversations(Array.isArray(history.data) ? history.data : []);
+      setConversations(Array.isArray(history.data?.messages) ? history.data.messages : []);
+      //setConversations(Array.isArray(history.data) ? history.data : []);
     } catch (err) {
       console.error("Failed to load conversation:", err);
     }
