@@ -5,7 +5,7 @@ import InputField from "../components/input";
 import api from "@/services/api";
 import { toast } from "react-toastify";
 import Img from "../components/Image";
-import Select from 'react-select';
+import Select from "../components/clientOnlySelect";
 import FreePropertySuccessModal from "../components/free-property-sucess-modal";
 import PostDropdown from "../components/dropdowns/car-post-dropdown";
 import { useRouter } from "next/navigation";
@@ -28,6 +28,46 @@ import {
    smokingAllowedOptions 
 } from "../lib/propertyData";
 import { negotiationOptions } from "../lib/carData";
+
+
+const customStyles = {
+  control: (base, state) => ({
+    ...base,
+    backgroundColor: '#fff',
+    borderColor: state.isFocused ? '#000087' : '#d1d5db', // Tailwind: border-gray-300
+    boxShadow: state.isFocused ? '0 0 0 1px #000087' : 'none',
+    '&:hover': {
+      borderColor: '#000087',
+    },
+    borderRadius: '0.375rem', 
+    minHeight: '2.75rem',    
+    fontSize: '0.875rem',   
+  }),
+  option: (base, { isFocused, isSelected }) => ({
+    ...base,
+    backgroundColor: isSelected
+      ? '#000087'
+      : isFocused
+      ? '#e5e7eb' 
+      : 'white',
+    color: isSelected ? 'white' : '#111827', 
+    fontSize: '0.875rem', 
+    padding: '0.5rem 0.75rem', 
+    cursor: 'pointer',
+  }),
+  menu: (base) => ({
+    ...base,
+    borderRadius: '0.375rem',
+    marginTop: '0.25rem',
+    boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
+    zIndex: 10,
+  }),
+  placeholder: (base) => ({
+    ...base,
+    color: '#6b7280', 
+    fontSize: '0.875rem',
+  }),
+};
 
 export default function MorePropertyPost() {
     const [propertyName, setPropertyName] = useState("");
@@ -279,15 +319,15 @@ const planDetails = {
            <Sidebar />
 
            <main className="flex-1">
-              <div className="bg-white shadow-phenom md:rounded-[12px] p-10 text-center">
-              <Button
+              <div className="bg-white shadow-phenom md:rounded-[12px] p-10 text-left md:text-center">
+              <button
                 onClick={handleGoBack}
-                className="flex items-center text-[#1031AA] hover:text-[#00A8DF] font-medium"
+                className="flex justify-start items-start md:justify-center md:items-center text-[#1031AA] hover:text-[#00A8DF] font-medium"
               >
                 <ArrowLeft className="w-5 h-5 mr-2 text-[#141B34]"  /> 
-                <span className="text-[#525252] font-[500] md:text-[14px] font-inter">Go Back</span>
-              </Button>
-                <h3 className="text-center text-[#525252] fonmt-[500] font-inter md:text-[16px]">Shortlet</h3>
+                <span className="text-[#525252] font-[500] text-[14px] font-inter">Go Back</span>
+              </button>
+                <h3 className="text-center text-[#525252] font-[500] font-inter text-[14px] md:text-[16px] mt-8 mb-4">Shortlet</h3>
                 <form>
                   <div className="grid md:grid-cols-2 gap-x-6 gap-y-4">
                     <InputField
@@ -414,12 +454,14 @@ const planDetails = {
                       onChange={setNegotiation}
                       options={negotiationOptions}
                     />
+                    <label htmlFor="business"></label>
                  <Select
                   options={businessOptions}
                   value={businessOptions.find((opt) => opt.value === business)}
                   onChange={(selected) => setBusiness(selected?.value)}
                   placeholder="Select a business"
                   isClearable
+                  styles={customStyles}
                 />
                   </div>
                    <div className="mt-2">
@@ -438,21 +480,19 @@ const planDetails = {
                    <Button
                      type="button"
                      onClick={handlePost}
-                       className="md:w-[262px] md:h-[44px] md:rounded-[8px] 
+                       className="w-[262px] h-[44px] rounded-[8px] 
                        md:pt-[10px] md:pr-[16px] md:pb-[10px] md:pl-[16px] 
                        font-[500] md:text-[14px] bg-[#EDEDED] text-[#CDCDD7] 
                        bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white">
                      Post Ad
                    </Button>
                  </div>
-                  <div className="text-center mt-5 font-[400] font-inter md:text-[12px]">
-                   <p className="text-[#767676]">By clicking on Post Ad, you accept to 
-                    <span className="text-[#000087]">Terms of Use,</span>
-                    confirm that you will abide by the Safety Tips, 
-                    <br />
-                  and declare that this posting does not include any Prohibited items.
-                  </p>
-                </div> 
+                   <div className="text-center mt-5 font-[400] font-inter text-sm md:text-[12px] leading-relaxed px-4">
+                     <p className="text-[#767676]">
+                         By clicking on <strong>Post Ad</strong>, you accept to{" "}
+                      <span className="text-[#000087]">Terms of Use</span>, confirm that you will abide by the Safety Tips, and declare that this posting does not include any Prohibited items.
+                    </p>
+                   </div>
                 </form>
               </div>
            </main>

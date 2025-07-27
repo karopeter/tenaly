@@ -6,7 +6,7 @@ import Sidebar from "../components/navbar/sidebar";
 import api from "@/services/api";
 import InputField from "../components/input";
 import Img from "../components/Image";
-import Select from 'react-select';
+import Select from "../components/clientOnlySelect";
 import Button from "../components/Button";
 import PostDropdown from "../components/dropdowns/car-post-dropdown";
 import { furnishingOptions, ownershipStatusOptions, parkingSpaceOptions, propertyConditionOptions, propertyTypeOptions, serviceChargeOptions } from "../lib/propertyData";
@@ -256,15 +256,19 @@ export default function MorePropertyPost() {
         <Sidebar />
 
         <main className="flex-1">
-          <div className="bg-white shadow-phenom md:rounded-[12px] p-10 text-center">
-            <Button
+          <div className="bg-white shadow-phenom rounded-[12px] p-10 text-left md:text-center">
+            <button
               onClick={handleGoBack}
-              className="flex items-center text-[#1031AA] hover:text-[#00A8DF] font-medium"
+              className="flex justify-start items-start md:justify-center md:items-center text-[#1031AA] hover:text-[#00A8DF] font-medium"
             >
               <ArrowLeft className="w-5 h-5 mr-2 text-[#141B34]" />
               <span className="text-[#525252] font-[500] md:text-[14px] font-inter">Go Back</span>
-            </Button>
-            <h3 className="text-center text-[#525252] fonmt-[500] font-inter md:text-[16px]">Commercial Propert for Sale</h3>
+            </button>
+            <h3 
+             className="text-left md:text-center 
+             text-[#525252] fonmt-[500] 
+             font-inter text-[14px] 
+             md:text-[16px] mt-8 mb-4">Commercial Property for Sale</h3>
             <form>
               <div className="grid md:grid-cols-2 gap-x-6 gap-y-4">
                 <InputField

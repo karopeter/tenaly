@@ -96,11 +96,11 @@ export default function PropertyDetailsPage({ sellerId }) {
         <Link href="/" className="hover:text-[#000] transition-all whitespace-nowrap">
           Home&nbsp;&rsaquo;
         </Link>
-        {carAd && (
+        {/* {carAd && (
           <Link href="/cars" className="text-[#868686] text-[13px] md:text-[14px] font-[400] font-inter whitespace-nowrap">
             {carAd.category}
           </Link>
-        )}
+        )} */}
         {propertyAd && (
           <Link href="/properties" className="text-[#000087] text-[13px] md:text-[14px] font-[500] font-inter whitespace-nowrap">
             {propertyAd.propertyName} {propertyAd.furnishing}
@@ -233,7 +233,7 @@ export default function PropertyDetailsPage({ sellerId }) {
       <div className="bg-[#FAFAFA] md:w-[650px] md:h-[44px] md:rounded-[4px]">
         <div className="flex space-x-4 mb-4">
           <Button
-            className={`py-2 px-4 min-w-[120px] h-[40px] md:h-[44px] rounded-tl-[4px] whitespace-nowrap rounded-tr-[4px] text-center ${
+            className={`py-2 px-4 min-w-[120px] h-[40px] whitespace-nowrap md:h-[44px] rounded-tl-[4px] rounded-tr-[4px] text-center ${
                   activeTab === "car" ? "bg-[#DFDFF9] text-[#000087]" : "bg-gray-200 text-gray-700"
                   }`}
                   onClick={() => setActiveTab("car")}>

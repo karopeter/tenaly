@@ -13,6 +13,9 @@ export default function Navbar() {
   const [profileData, setProfileData] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [notification, setNotifications] = useState([]);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
   const { isLoggedIn, logout } = useAuth();
 
   useEffect(() => {
@@ -27,8 +30,60 @@ export default function Navbar() {
          toast.error("Failed to fetch user details:", error);
        }
     };
+
     fetchUserDetails();
   }, []);
+
+
+  useEffect(() => {
+    let interval;
+
+
+    const fetchUnreadCount = async () => {
+       try {
+         const res = await api.get("/messages/unread-count");
+         console.log("Unread count:", res.data.unreadCount);
+         setUnreadCount(res.data.unreadCount);
+       } catch (err) {
+        console.error("Failed to fetch unread count:", err); 
+       }
+    };
+
+
+    if (isLoggedIn) {
+      fetchUnreadCount();
+      interval = setInterval(fetchUnreadCount, 10000);
+    }
+
+    return () => clearInterval(interval);
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+  let interval;
+
+  const fetchNotifications = async () => {
+    try {
+      const res = await api.get("/notification");
+      const notificationList = Array.isArray(res.data)
+        ? res.data
+        : res.data.notifications || [];
+
+      const unread = notificationList.filter(n => !n.isRead);
+      setNotifications(notificationList);
+      setUnreadNotifications(unread.length);
+    } catch (err) {
+      console.error("Failed to fetch notifications:", err);
+    }
+  };
+
+  if (isLoggedIn) {
+    fetchNotifications();
+    interval = setInterval(fetchNotifications, 10000); // Poll every 10s
+  }
+
+  return () => clearInterval(interval);
+}, [isLoggedIn]);
+
   
   return (
     <>
@@ -49,16 +104,24 @@ export default function Navbar() {
           <div className="flex gap-2 items-center">
             {isLoggedIn ? (
               <div className="flex items-center gap-2  md:gap-4">
-                <Link href="/Message">
+                <div className="relative">
+                  <Link href="/Message">
                   <Img 
                    src="/chatIcon.svg"
                    alt="Chat"
                    width={44}
                    height={44}
                    className="w-[32px] h-[32px] md:w-[44px] md:h-[44px]"
-                   />
+                  />
+                  {unreadCount > 0 && (
+                    <span className="absolute top-0 right-0 bg-red-600 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                      {unreadCount}
+                    </span>
+                  )}
                 </Link>
-                <Link href="/Notification">
+                </div>
+                <div className="relative">
+                  <Link href="/Notification">
                   <Img 
                     src="/notification.svg"
                     alt="Notification"
@@ -66,7 +129,13 @@ export default function Navbar() {
                     height={44}
                     className="w-[32px] h-[32px] md:w-[44px] md:h-[44px]"
                   />
+                  {unreadNotifications > 0 && (
+                    <span className="absolute top-0 right-0 bg-red-600 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                       {unreadNotifications}
+                    </span>
+                  )}
                 </Link>
+                </div>
                 <Link href="/">
                   <Img 
                     src="/crown.svg"

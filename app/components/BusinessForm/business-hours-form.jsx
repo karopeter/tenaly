@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import BusinessLink from "../navbar/business.link";
 import api from "@/services/api";
+import { MoreVertical } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Img from "../Image";
 import { toast } from "react-toastify";
@@ -16,6 +17,7 @@ export default function BusinessHoursForm() {
   const businessId = searchParams.get("businessId"); 
   const mode = searchParams.get("mode");
   const [isEditMode, setIsEditMode] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   const [openingTime, setOpeningTime] = useState("");
   const [closingTime, setClosingTime] = useState("");
@@ -167,7 +169,6 @@ export default function BusinessHoursForm() {
     try {
        await api.put(`/business/${businessId}/hours`, payload);
 
-
         if (isEditMode) {
            toast.success("Business Hour updated successfully!");
            router.push(`/EditBusinessHour?businessId=${businessId}`);
@@ -190,10 +191,32 @@ export default function BusinessHoursForm() {
   if (loading) return <p className="text-center mt-20">Loading...</p>;
 
     return (
-      <div className="flex md:flex-row w-full gap-2 min-h-screen mt-10">
-       <BusinessLink />
-       <div className="flex-1">
-        <div className="bg-white shadow p-4 rounded-lg h-auto">
+      <div className="relative flex flex-col md:flex-row w-full gap-2 min-h-screen mt-10">
+       {/* Desktop Sidebar */ }
+       <div className="hidden md:block">
+           <BusinessLink />
+       </div>
+
+       {/* Mobile; 3 dots button on the top-right of the card */}
+       <div className="absolute top-0 right-4 z-30 md:hidden">
+         <button 
+           onClick={() => setShowMobileMenu(!showMobileMenu)}
+           className="p-1"
+           aria-label="Toggle menu">
+           <MoreVertical size={22} />
+         </button>
+       </div>
+
+       {/* Mobile Menu Dropdown */ }
+       {showMobileMenu && (
+        <div className="absolute top-10 left-0 w-full bg-white z-20 shadow-md p-4 md:hidden">
+          <BusinessLink />
+         </div>
+       )}
+
+       {/* Main Content */ }
+       <div className="flex-1 px-4 md:px-0 mt-10 md:mt-0">
+        <div className="bg-white shadow p-4 w-[300px] rounded-lg md:w-full">
            <div className="flex items-center gap-2 mb-4">
            <button className="flex items-center gap-2" onClick={() => router.push('/BusinessHours')}>
               <Img 
@@ -218,8 +241,8 @@ export default function BusinessHoursForm() {
                        </li>
                     ))}
                  </ul>
-                 <div className="flex flex-row gap-4 mt-4">
-                    <div>
+                 <div className="flex flex-row gap-4 mt-4 w-full">
+                    <div className="w-full md:w-[159.5px]">
                       <div className="flex items-start">
                          <label className="text-[#525252] font-inter font-[500] text-[12px]">
                            Opening Time
@@ -228,9 +251,7 @@ export default function BusinessHoursForm() {
                       <select 
                       value={openingTime}
                       onChange={(e) => setOpeningTime(e.target.value)}
-                       className="border-[1px] border-[#CDCDD7] md:w-[159.5px]
-                        md:h-[52px] focus:outline-none rounded-[4px] md:pt-[4px]
-                         md:pr-[12px] md:pb-[4px] md:pl-[12px]">
+                       className="border border-[#CDCDD7] w-full h-[52px] rounded-[4px] px-3 focus:outline-none">
                          <option value="">Select</option>
                          {Array.from({ length: 12 }, (_, i) => {
                           const hour = i + 1;
@@ -243,7 +264,7 @@ export default function BusinessHoursForm() {
                          })}
                       </select>
                     </div>
-                   <div>
+                   <div className="w-full md:w-[159.5px]">
                      <div className="flex items-start">
                        <label className="text-[#525252] font-inter font-[500] text-[12px]">
                         Closing Time
@@ -252,7 +273,7 @@ export default function BusinessHoursForm() {
                      <select 
                      value={closingTime}
                      onChange={(e) => setClosingTime(e.target.value)}
-                       className="border-[1px] border-[#CDCDD7] md:w-[159.5px] md:h-[52px] focus:outline-none rounded-[4px] md:pt-[4px] md:pr-[12px] md:pb-[4px] md:pl-[12px]">
+                       className="border border-[#CDCDD7] w-full h-[52px] rounded-[4px] px-3 focus:outline-none">
                        <option value="">Select</option>
                        {Array.from({ length: 12 }, (_, i) => {
                           const hour = i + 1;
@@ -326,12 +347,12 @@ export default function BusinessHoursForm() {
         {/* Opening and Closing Time */}
         <div className="flex flex-row gap-4 mt-2">
           {/* Opening Time */}
-          <div>
+          <div  className="w-full md:w-[159.5px]">
             <label className="flex items-start text-[#525252] font-inter font-[500] text-[12px]">Opening Time</label>
             <select
               value={businessHours[index].openingTime}
               onChange={(e) => updateOpeningTime(index, e.target.value)}
-              className="border border-[#CDCDD7] w-[159.5px] h-[52px] rounded-[4px] p-3 focus:outline-none"
+              className="border border-[#CDCDD7] w-full h-[52px] rounded-[4px] px-3 focus:outline-none"
             >
               <option value="">Select</option>
                 {Array.from({ length: 12 }, (_, i) => {
@@ -347,12 +368,12 @@ export default function BusinessHoursForm() {
           </div>
 
           {/* Closing Time */}
-          <div>
+          <div className="w-full md:w-[159.5px]">
             <label className="flex items-start text-[#525252] font-inter font-[500] text-[12px]">Closing Time</label>
             <select
              value={businessHours[index].closingTime}
               onChange={(e) => updateClosingTime(index, e.target.value)}
-              className="border border-[#CDCDD7] w-[159.5px] h-[52px] rounded-[4px] p-3 focus:outline-none"
+              className="border border-[#CDCDD7] w-full h-[52px] rounded-[4px] px-3 focus:outline-none"
             >
               <option value="">Select</option>
                {Array.from({ length: 12 }, (_, i) => {

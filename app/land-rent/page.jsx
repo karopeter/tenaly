@@ -7,7 +7,7 @@ import Button from "../components/Button";
 import { useAuth } from "../context/AuthContext";
 import InputField from "../components/input";
 import api from "@/services/api";
-import Select from 'react-select';
+import Select from "../components/clientOnlySelect";
 import PostDropdown from "../components/dropdowns/car-post-dropdown";
 import Img from "../components/Image";
 import { toast } from "react-toastify";
@@ -23,6 +23,47 @@ import {
 } from "../lib/propertyData";
 import { negotiationOptions } from "../lib/carData";
 import FreePropertySuccessModal from "../components/free-property-sucess-modal";
+
+
+const customStyles = {
+  control: (base, state) => ({
+    ...base,
+    backgroundColor: '#fff',
+    borderColor: state.isFocused ? '#000087' : '#d1d5db', // Tailwind: border-gray-300
+    boxShadow: state.isFocused ? '0 0 0 1px #000087' : 'none',
+    '&:hover': {
+      borderColor: '#000087',
+    },
+    borderRadius: '0.375rem', 
+    minHeight: '2.75rem',    
+    fontSize: '0.875rem',   
+  }),
+  option: (base, { isFocused, isSelected }) => ({
+    ...base,
+    backgroundColor: isSelected
+      ? '#000087'
+      : isFocused
+      ? '#e5e7eb' 
+      : 'white',
+    color: isSelected ? 'white' : '#111827', 
+    fontSize: '0.875rem', 
+    padding: '0.5rem 0.75rem', 
+    cursor: 'pointer',
+  }),
+  menu: (base) => ({
+    ...base,
+    borderRadius: '0.375rem',
+    marginTop: '0.25rem',
+    boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
+    zIndex: 10,
+  }),
+  placeholder: (base) => ({
+    ...base,
+    color: '#6b7280', 
+    fontSize: '0.875rem',
+  }),
+};
+
 
 export default function MorePropertyPost() {
    const router = useRouter();
@@ -260,15 +301,15 @@ export default function MorePropertyPost() {
            <Sidebar />
 
            <main className="flex-1">
-              <div className="bg-white shadow-phenom md:rounded-[12px] p-10 text-center">
-              <Button
+              <div className="bg-white shadow-phenom rounded-[12px] p-10 text-left md:text-center">
+              <button
                 onClick={handleGoBack}
-                className="flex items-center text-[#1031AA] hover:text-[#00A8DF] font-medium"
+                className="flex justify-start items-start md:justify-center md:items-center text-[#1031AA] hover:text-[#00A8DF] font-medium"
               >
                 <ArrowLeft className="w-5 h-5 mr-2 text-[#141B34]"  /> 
-                <span className="text-[#525252] font-[500] md:text-[14px] font-inter">Go Back</span>
-              </Button>
-               <h3 className="text-center text-[#525252] fonmt-[500] font-inter md:text-[16px]">
+                <span className="text-[#525252] font-[500] text-[14px] font-inter">Go Back</span>
+              </button>
+               <h3 className="text-left md:text-center text-[#525252] font-[500] font-inter text-[14px] md:text-[16px] mt-8 mb-4">
                   Lands and Plots for rent & sale
                </h3>
                <form>
@@ -376,13 +417,15 @@ export default function MorePropertyPost() {
                     onChange={setNegotiation}
                     options={negotiationOptions}
                   />
+                  <label htmlFor="business"></label>
                   <Select
-                  options={businessOptions}
-                  value={businessOptions.find((opt) => opt.value === business)}
-                  onChange={(selected) => setBusiness(selected?.value)}
-                  placeholder="Select a business"
-                  isClearable
-                />
+                    options={businessOptions}
+                    value={businessOptions.find((opt) => opt.value === business)}
+                    onChange={(selected) => setBusiness(selected?.value)}
+                    placeholder="Select a business"
+                    isClearable
+                    styles={customStyles}
+                 />
                  </div>
                  <div className="mt-2">
                   <label className="block text-left mb-1 text-[#525252] font-[500] font-inter">Description</label>
@@ -398,114 +441,109 @@ export default function MorePropertyPost() {
                    <Button
                      type="button"
                      onClick={handlePost}
-                       className="md:w-[262px] md:h-[44px] md:rounded-[8px] 
+                       className="w-[262px] h-[44px] rounded-[8px] 
                        md:pt-[10px] md:pr-[16px] md:pb-[10px] md:pl-[16px] 
                        font-[500] md:text-[14px] bg-[#EDEDED] text-[#CDCDD7] 
                        bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white">
-                     Post Ad
+                       Post Ad
                    </Button>
                  </div>
                  
                </form>
-                <div className="text-center mt-5 font-[400] font-inter md:text-[12px]">
-                   <p className="text-[#767676]">By clicking on Post Ad, you accept to 
-                    <span className="text-[#000087]"> Terms of Use,</span>
-                    confirm that you will abide by the Safety Tips, 
-                    <br />
-                    and declare that this posting does not include any Prohibited items.
-                  </p>
-                </div> 
+                 <div className="text-center mt-5 font-[400] font-inter text-sm md:text-[12px] leading-relaxed px-4">
+                   <p className="text-[#767676]">
+                    By clicking on <strong>Post Ad</strong>, you accept to{" "}
+                    <span className="text-[#000087]">Terms of Use</span>, confirm that you will abide by the Safety Tips, and declare that this posting does not include any Prohibited items.
+                    </p>
+                 </div>
               </div>
            </main>
          
           {mounted && (
             <>
               {showModalPromote && (
-                                        <div className="fixed inset-0  flex items-center justify-center bg-black bg-opacity-40 z-50">
-                                          <div className="bg-white p-6 rounded-[24px] shadow-lg max-w-md mx-4 p-6 w-full md:h-[600px]">
-                                            <h2 className="text-[#525252] text-center font-[500] font-inter text-[18px]">Boost Your Ad for More Views</h2>
-                                            <p className="text-[#767676] font-[400] font-inter text-[14px]">
-                                              Get up to 5x more visibility by promoting your ad.
-                                              <br className="hidden-xs" />
-                                              Choose from our affordable plans.
-                                            </p>
+                 <div className="fixed inset-0  flex items-center justify-center bg-black bg-opacity-40 z-50">
+                     <div className="bg-white p-6 rounded-[24px] shadow-lg max-w-md mx-4 p-6 w-full md:h-[600px]">
+                         <h2 className="text-[#525252] text-center font-[500] font-inter text-[18px]">Boost Your Ad for More Views</h2>
+                           <p className="text-[#767676] font-[400] font-inter text-[14px]">
+                              Get up to 5x more visibility by promoting your ad.
+                             <br className="hidden-xs" />
+                              Choose from our affordable plans.
+                           </p>
                                       
-                                              <div className="text-center mt-4">
-                                                      <h4 className="text-[#525252] text-[16px] font-[500] font-inter mb-4">Promote your Ad</h4>
-                                                      <p className="text-[#767676] text-[12px] font-[400] font-inter mb-6">
-                                                        You have reached your limit of free ad posting in vehicles
-                                                      </p>
+                          <div className="text-center mt-4">
+                                <h4 className="text-[#525252] text-[16px] font-[500] font-inter mb-4">Promote your Ad</h4>
+                                    <p className="text-[#767676] text-[12px] font-[400] font-inter mb-6">
+                                         You have reached your limit of free ad posting in vehicles
+                                     </p>
+                                       {Object.keys(planDetails).map((plan) => (
+                                <div
+                                   key={plan}
+                                   onClick={() => onPlanSelect(plan)}
+                                   className={`max-w-md mx-auto border rounded-lg p-4 flex items-center justify-between cursor-pointer transition-all duration-300 ${
+                                         selectedPlan === plan
+                                               ? "border-[#000087] bg-[#F7F7FF]"
+                                                : "border-[#EDEDED] hover:border-[#000087] hover:bg-gray-50"
+                                                }`}>
+                                          <label htmlFor={plan} className="flex items-center gap-3 flex-1 cursor-pointer">
+                                            <div
+                                              id={plan}
+                                              className={`w-5 h-5 border rounded flex items-center justify-center flex-shrink-0 ${
+                                                   selectedPlan === plan ? "border-[#000087]" : "border-[#EDEDED]"
+                                                }`}>
+                                                 {selectedPlan === plan && (
+                                                <Img
+                                                  src="/icon-check.svg"
+                                                  alt="Check"
+                                                  width={4}
+                                                  height={4}
+                                                  className="w-4 h-4"
+                                                />
+                                              )}
+                                              </div>
+                                             <div className="w-8 h-8 flex-shrink-0">
+                                               <Img
+                                                 src={planDetails[plan].image}
+                                                  width={67}
+                                                  height={67}
+                                                  alt={`${plan} plan`}
+                                                  className="w-full h-full object-contain"
+                                                 />
+                                              </div>
+                                              <span className="text-[#525252] font-inter font-[500] text-sm truncate">
+                                                  {plan.charAt(0).toUpperCase() + plan.slice(1)}
+                                               </span>
+                                              </label>
                                       
-                                                      {Object.keys(planDetails).map((plan) => (
-                                                      <div
-                                                        key={plan}
-                                                       onClick={() => onPlanSelect(plan)}
-                                                      className={`max-w-md mx-auto border rounded-lg p-4 flex items-center justify-between cursor-pointer transition-all duration-300 ${
-                                                      selectedPlan === plan
-                                                       ? "border-[#000087] bg-[#F7F7FF]"
-                                                       : "border-[#EDEDED] hover:border-[#000087] hover:bg-gray-50"
-                                                     }`}>
-                                                    <label htmlFor={plan} className="flex items-center gap-3 flex-1 cursor-pointer">
-                                                      <div
-                                                        id={plan}
-                                                        className={`w-5 h-5 border rounded flex items-center justify-center flex-shrink-0 ${
-                                                        selectedPlan === plan ? "border-[#000087]" : "border-[#EDEDED]"
-                                                       }`}>
-                                                      {selectedPlan === plan && (
-                                                        <Img
-                                                         src="/icon-check.svg"
-                                                         alt="Check"
-                                                         width={4}
-                                                         height={4}
-                                                         className="w-4 h-4"
-                                                       />
-                                                      )}
-                                                    </div>
+                                              <div className="text-right ml-4">
+                                                <span className="text-[#525252] font-inter font-[500] text-sm">
+                                                  ₦{planDetails[plan].amount.toLocaleString()}
+                                                </span>
+                                              </div>
+                                              </div>
+                                            ))}
+                                          </div>
                                       
-                                                  <div className="w-8 h-8 flex-shrink-0">
-                                                    <Img
-                                                      src={planDetails[plan].image}
-                                                      width={67}
-                                                      height={67}
-                                                      alt={`${plan} plan`}
-                                                      className="w-full h-full object-contain"
-                                                    />
-                                                  </div>
-                                      
-                                                   <span className="text-[#525252] font-inter font-[500] text-sm truncate">
-                                                      {plan.charAt(0).toUpperCase() + plan.slice(1)}
-                                                    </span>
-                                                  </label>
-                                      
-                                                <div className="text-right ml-4">
-                                                  <span className="text-[#525252] font-inter font-[500] text-sm">
-                                                    ₦{planDetails[plan].amount.toLocaleString()}
-                                                  </span>
-                                                   </div>
-                                                  </div>
-                                                  ))}
-                                                </div>
-                                      
-                                                <div className="mt-6 flex justify-center gap-2 items-center">
-                                                   <Button 
-                                                      onClick={postAdForFree} className="md:w-[121px] md:h-[52px] md:rounded-[8px] 
-                                                        md:pt-[10px] md:pr-[16px] md:pb-[10px] md:pl-[16px] border border-[#CDCDD7]
-                                                        font-[500] md:text-[14px] text-[#525252]">
-                                                      No, Post for free
-                                                   </Button>
-                                                   <Button 
-                                                     onClick={promoteAd} className="md:w-[241px] md:h-[52px] md:rounded-[8px] 
-                                                        md:pt-[10px] md:pr-[16px] md:pb-[10px] md:pl-[16px] 
-                                                        font-[500] md:text-[14px]  text-[#CDCDD7] 
-                                                        bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white">
-                                                      Yes, promote my ad
-                                                  </Button>
-                                                </div>
+                                          <div className="mt-6 flex justify-center gap-2 items-center">
+                                              <Button 
+                                                onClick={postAdForFree} className="md:w-[121px] md:h-[52px] md:rounded-[8px] 
+                                                  md:pt-[10px] md:pr-[16px] md:pb-[10px] md:pl-[16px] border border-[#CDCDD7]
+                                                    font-[500] md:text-[14px] text-[#525252]">
+                                                  No, Post for free
+                                                </Button>
+                                                <Button 
+                                                 onClick={promoteAd} className="md:w-[241px] md:h-[52px] md:rounded-[8px] 
+                                                    md:pt-[10px] md:pr-[16px] md:pb-[10px] md:pl-[16px] 
+                                                    font-[500] md:text-[14px]  text-[#CDCDD7] 
+                                                    bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white">
+                                                  Yes, promote my ad
+                                              </Button>
+                                            </div>
                                           </div>
                                         </div>
                                     )}
-                       </>
-                      )}
+                                  </>
+                                 )}
              {showFreeCommercialPropertySuccessModal && (
                 <FreePropertySuccessModal 
                   onClose={() => showFreeCommercialPropertySuccessModal(false)}
