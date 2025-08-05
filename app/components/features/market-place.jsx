@@ -39,9 +39,15 @@ export default function MarketPlace({ category, search, location }) {
     fetchAllAds();
   }, [category, search, location]);
 
-  if (loading) {
-    return <section className="px-4 md:px-10 mt-10 text-center">Loading marketplace ads...</section>;
-  }
+ if (loading) {
+  return (
+    <section className="px-4 md:px-10 mt-10 flex flex-col items-center justify-center min-h-[200px]">
+      <div className="w-10 h-10 border-4 border-t-transparent border-blue-500 rounded-full animate-spin"></div>
+      <p className="mt-2 text-sm text-gray-500 font-inter">Loading marketplace ads...</p>
+    </section>
+  );
+}
+
 
   if (error) {
     return <section className="px-4 md:px-10 mt-10 text-center text-red-500">{error}</section>;

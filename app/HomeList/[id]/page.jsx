@@ -7,73 +7,150 @@ import Button from "@/app/components/Button";
 import api from "@/services/api";
 import SignUpModal from "@/app/hooks/signup-modal";
 import MessageSellerButton from "@/app/components/UI/messageSeller";
+import { toast } from "react-toastify";
+import { useAuth } from "@/app/context/AuthContext";
 
-export default function HomeListDetails({ sellerId }) {
-  const [activeTab, setActiveTab] = useState("car");
+export default function HomeListDetails() {
+ const [activeTab, setActiveTab] = useState("car");
   const [showInput, setShowInput] = useState(false);
-  const [offerAmount, setOfferAmount] = useState("");  
+  const [offerAmount, setOfferAmount] = useState("");
   const [loading, setLoading] = useState(true);
-  const { params, id } = useParams();
-  const businessId = params?.businessId;
-  const [data, setData] = useState(null);
-  const [business, setBusiness] = useState(null);
-  const [showDetails, setShowDetails] = useState(false);
+  const [error, setError] = useState(null);
+  const { id } = useParams();
+
+  const [adData, setAdData] = useState(null);
+  const [showDetails, setShowDetails] = useState(false); 
   const [userProfile, setUserProfile] = useState(null);
   const [showSignUpModal, setShowSignUpModal] = useState(false);
   const [showSignInModal, setShowSignInModal] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [bookmarkLoading, setBookmarkLoading] = useState(false);
+  const { openAuthModal, isLoggedIn, profile } = useAuth();
+
+   const getImageUrl = (imagePath) => {
+    if (!imagePath) return null;
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+      return imagePath;
+    }
+    return `${process.env.NEXT_PUBLIC_BACKEND_URL}/upload/${imagePath.replace(/\\/g, "/")}`;
+  };
 
   useEffect(() => {
-    if (id) {
-      const fetchAd = async () => {
+    const fetchAdAndProfile = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        if (!id) {
+          setLoading(false);
+          return;
+        }
+        const adRes = await api.get(`/products/get-marketById/${id}`);
+        if (adRes.data.success) {
+          setAdData(adRes.data.data);
+        } else {
+          setError(adRes.data.message || "Failed to fetch ad details.");
+        }
+        const profileRes = await api.get("/profile");
+        setUserProfile(profileRes.data);
+      } catch (err) {
+        console.error("Error fetching ad or profile:", err);
+        setError("Error loading ad details. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAdAndProfile();
+  }, [id]);
+
+ 
+  useEffect(() => {
+    if (id && userProfile) { 
+      const checkBookmark = async () => {
         try {
-          const res = await api.get(`/products/get-marketById/${id}`);
+          const res = await api.get(`/bookmark/bookmark-status/${id}/status`);
           if (res.data.success) {
-            setData(res.data.data);
+            setIsBookmarked(res.data.bookmarked);
           }
         } catch (err) {
-          console.error("Error fetching ad:", err);
+          console.error("Error checking bookmark status:", err);
         }
       };
-
-     const fetchBusiness = async () => {
-       try {
-        const res = await api.get('/business/my-businesses');
-        console.log("res.data:", res.data); 
-        const business = res.data[0]; 
-        console.log("business name:", business?.businessName);
-        setBusiness(business || null);
-       } catch (err) {
-        console.error("Error fetching business:", err);
-        setBusiness(null);
-       }
-     };
-
-
-      
-      const fetchProfile = async () => {
-        try {
-           const res = await api.get("/profile");
-           setUserProfile(res.data);
-        } catch {
-           setUserProfile(null);
-        }
-      }
-      
-      fetchBusiness();
-      fetchAd();
-      fetchProfile();
+      checkBookmark();
     }
-  }, [id, businessId]);
+  }, [id, userProfile]); 
 
-      const handleSendOffer = () => {
-        if (!offerAmount) return toast.error("Please enter an Amount");
-        console.log("Offer sent:", offerAmount);
-        setOfferAmount("");
+  const handleBookmark = async () => {
+    if (!isLoggedIn) {
+      setShowSignUpModal(true); 
+      return;
+    }
+
+    try {
+      setBookmarkLoading(true);
+      const res = await api.post(`/bookmark/bookmarkAd/${id}`);
+      if (res.data.success) {
+        setIsBookmarked(true);
+        toast.success("Added to bookmarks!");
       }
+    } catch (err) {
+      console.error("Error bookmarking:", err);
+      toast.error(err?.response?.data?.message || "Failed to add bookmark");
+    } finally {
+      setBookmarkLoading(false);
+    }
+  };
 
-  if (!data) return <div className="mt-32 text-center text-gray-500">Loading...</div>;
+  const handleSendOffer = () => {
+    if (!offerAmount) return toast.error("Please enter an Amount");
+    console.log("Offer sent:", offerAmount);
+    setOfferAmount("");
+  };
 
-  const { carAd, vehicleAd, propertyAd } = data;
+  // Loading and Error States
+  if (loading) {
+    return (
+      <section className="px-4 md:px-10 mt-10 flex flex-col items-center justify-center min-h-[200px]">
+        <div className="w-10 h-10 border-4 border-t-transparent border-blue-500 rounded-full animate-spin"></div>
+        <p className="mt-2 text-sm text-gray-500 font-inter">Loading ad details...</p>
+      </section>
+    );
+  }
+
+  if (error) {
+    return <section className="px-4 md:px-10 mt-10 text-center text-red-500">{error}</section>;
+  }
+
+  if (!adData) {
+   
+    return <section className="px-4 md:px-10 mt-10 text-center">Ad not found.</section>;
+  }
+
+  const { carAd, vehicleAd, propertyAd, business } = adData;
+  const sellerId = business?._id;
+  const mainAd = vehicleAd || propertyAd; 
+  const businessName = business?.businessName || "Unknown Seller";
+  const aboutBusiness = business?.aboutBusiness || "No 'About' section provided.";
+  const businessLocation = business?.location || "N/A";
+  const businessAddresses = business?.addresses || []; 
+
+  const businessProfileImage = business?.profileImage || business?.image;
+  const isBusinessVerified = business?.isVerified;
+
+
+ 
+  const productTitle = carAd 
+    ? `${vehicleAd?.vehicleType || ""} ${vehicleAd?.model || ""} ${
+        vehicleAd?.year || ""
+      }`.trim()
+    : propertyAd?.propertyName || "Product";
+
+     const productImage = carAd?.vehicleImage?.[0]
+    ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${carAd.vehicleImage[0].replace(/\\/g, "/")}`
+    : propertyAd?.propertyImage?.[0]
+    ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${propertyAd.propertyImage[0].replace(/\\/g, "/")}`
+    : null;
+
 
   return (
     <div className="md:px-[104px] px-4 md:ml-10">
@@ -107,9 +184,25 @@ export default function HomeListDetails({ sellerId }) {
           )}
         </div>
         <div className="flex items-center space-x-3">
-          <button className="cursor-pointer">
-            <Img src="/bookmark.svg" alt="Bookmark" width={44} height={44} className="w-[36px] h-[36px] md:w-[44px] md:h-[44px]" />
-          </button>
+         <button
+          className={`cursor-pointer transition duration-300 ${
+            isBookmarked ? "filter saturate-150 brightness-110" : "filter grayscale"
+          }`}
+          onClick={handleBookmark}
+          disabled={bookmarkLoading}
+          title={isBookmarked ? "Already Bookmarked" : "Add to Bookmarks"}
+        >
+          <Img
+            src="/bookmark.svg"
+            alt="Bookmark"
+            width={44}
+            height={44}
+            className="w-[36px] h-[36px] md:w-[44px] md:h-[44px]"
+          />
+        </button>
+          <Link href="/Bookmarked">
+            <span className="text-[13px] text-blue-500 underline">Go to Bookmarks</span>
+          </Link>
           <button
             className="cursor-pointer"
             onClick={() => {
@@ -666,10 +759,13 @@ export default function HomeListDetails({ sellerId }) {
         className="w-[40px] h-[40px] rounded-[30px]"
       />
       <div className="flex flex-col">
-          <span className="text-[#000000] text-[14px] font-[500] font-inter">
-           {business?.businessName || "Business Name"}
-        </span>
-        <div className="mt-1 flex items-center gap-2 bg-[#E9F4E8] w-auto h-[16px] rounded-[2px] px-2">
+         <Link href="/seller-profile" className="underline">
+            <span className="text-[#000000] text-[14px] font-[500] font-inter">
+             {businessName}
+          </span>
+          </Link>
+         {userProfile?.isVerified ? (
+           <div className="mt-1 flex items-center gap-2 bg-[#E9F4E8] w-auto h-[16px] rounded-[2px] px-2">
           <Img
             src="/profile.svg"
             alt="Verified Icon"
@@ -681,6 +777,20 @@ export default function HomeListDetails({ sellerId }) {
             Verified User
           </span>
         </div>
+         ): (
+           <div className="mt-1 flex items-center gap-2 bg-[#E9F4E8] w-auto h-[16px] rounded-[2px] px-2">
+          <Img
+            src="/profile.svg"
+            alt="Verified Icon"
+            width={10}
+            height={10}
+            className="w-[10px] h-[10px]"
+          />
+          <span className="text-[#238E15] text-[10px] font-[500] font-inter">
+            Unverified User
+          </span>
+        </div>
+         )}
         <span className="mt-1 text-[#868686] text-[10px] font-[400] font-inter">
           Last Seen 20h ago
         </span>
@@ -706,9 +816,14 @@ export default function HomeListDetails({ sellerId }) {
     <div className="mt-2">
     <MessageSellerButton
        sellerId={sellerId}
-       openAuthModal={() => setShowSignInModal(true)}
+       productId={id}
+        openAuthModal={openAuthModal} 
+       productImage={productImage}
+       productTitle={productTitle}
+       //openAuthModal={() => setShowSignInModal(true)}
      />
-     {showSignInModal && (
+      {!sellerId && <p className="text-red-500">Seller ID not found for this product.</p>}
+     {/* {showSignInModal && (
        <SignUpModal 
          onClose={() => setShowSignInModal(false)}
          initialView="signin"
@@ -719,7 +834,7 @@ export default function HomeListDetails({ sellerId }) {
          onClose={() => setShowSignUpModal(false)}
          initialView="signup"
        />
-      )}
+      )} */}
     </div>
      <div className="mt-2">
       
@@ -833,34 +948,40 @@ export default function HomeListDetails({ sellerId }) {
    </div>
       </div>
        <div className="hidden md:block">
-      <div 
+      {business && (
+         <div 
         className="border-[1px] border-[#EDEDED] md:w-[330px]
          md:h-[276px] md:rounded-[8px] mt-5 p-4">
          <div className="flex  gap-3">
-            <Img 
-             src={userProfile?.image || "/profile-placeholder.png"}
-             alt="Profile Image"
-             width={52}
-             height={52}
-             className="md:w-[52px] md:h-[52px] rounded-[30px]"/>
+             {businessProfileImage && (
+              <Img
+                src={getImageUrl(businessProfileImage)}
+                alt="Business Profile"
+                width={52}
+                height={52}
+                className="w-[52px] h-[52px] rounded-full object-cover"
+              />
+            )}
              <div className="flex flex-col">
-               <Link href="" className="underline">
-                 <span className="text-[#000000] whitespace-nowrap md:text-[18px] font-[500] font-inter">
-                 {business?.businessName || "Business Name"}
-               </span>
-               </Link>
-            <div className="mt-1 flex items-center gap-2 bg-[#E9F4E8]  md:w-[93px] md:h-[16px] md:rounded-[2px]">
-              <Img 
-                src="/profile.svg"
-                alt="Verified Icon"
-                width={10}
-                height={10}
-                className="w-[10px] h-[10px] ml-1"/>
-                <span 
-                  className="md:text-[#238E15] font-[500] md:text-[10px] font-inter">
-                    Verified User
-                 </span>
-            </div>
+              <Link href="/seller-profile" className="underline">
+               <span className="text-[#000000] text-[14px] font-[500] font-inter">
+                  {businessName}
+              </span>
+             </Link>
+             {isBusinessVerified && (
+                <div className="mt-1 flex items-center gap-2 bg-[#E9F4E8] w-fit px-2 py-1 rounded-[2px]">
+                  <Img
+                    src="/profile.svg" 
+                    alt="Verified Icon"
+                    width={10}
+                    height={10}
+                    className="w-[10px] h-[10px]"
+                  />
+                  <span className="text-[#238E15] font-[500] text-[10px] font-inter">
+                    Verified Business
+                  </span>
+                </div>
+              )}
             <span className="mt-1 text-[#868686] font-inter font-[400] md:text-[12px]">Last Seen 20h ago</span>
            <span className="mt-1 text-[#868686] text-[10px] font-[400] font-inter"> {userProfile?.createdAt ? ( `Joined Tenaly on ${new Date(userProfile.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}` ) : ( "Joined Tenaly" )} </span>
             </div>
@@ -884,10 +1005,13 @@ export default function HomeListDetails({ sellerId }) {
             <div className="mt-2">
               <MessageSellerButton 
                sellerId={sellerId}
-               openAuthModal={() => setShowSignInModal(true)}
+               productId={id}
+               productImage={productImage}
+               productTitle={productTitle}
+                openAuthModal={openAuthModal} 
               />
 
-             {showSignInModal && (
+             {/* {showSignInModal && (
              <SignUpModal 
               onClose={() => setShowSignInModal(false)}
               initialView="signin"
@@ -899,9 +1023,10 @@ export default function HomeListDetails({ sellerId }) {
              onClose={() => setShowSignUpModal(false)}
              initialView="signup"
             />
-           )}
+           )} */}
             </div>
-          </div>
+      </div>
+      )}
 
           <div className="hidden md:block">
           <div 

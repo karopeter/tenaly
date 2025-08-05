@@ -147,7 +147,7 @@ export default function Navbar() {
                 </Link>
                 <Link href="/">
                  <Img 
-                   src={profileData?.image || "profile-circles1.svg"}
+                   src={profileData?.image || "/profile-circles1.svg"}
                    alt="GF"
                    width={44}
                    height={44}
