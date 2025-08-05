@@ -52,3 +52,7 @@ export const emitTyping = (roomId) => {
 export const emitStopTyping = (roomId) => {
   socket.emit("stopTyping", roomId);
 };
+
+export const emitReadMessage = (messageIds, conversationId) => {
+    socket.emit("markAsRead", {messageIds, conversationId});
+}

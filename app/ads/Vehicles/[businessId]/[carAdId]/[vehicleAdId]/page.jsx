@@ -108,7 +108,7 @@ export default function CarAdDetails({ specs, sellerId }) {
             )}
           </div>
           <div className="flex items-center space-x-3">
-            <button className="cursor-pointer">
+         {/* <button className="cursor-pointer">
                <Img 
                  src="/bookmark.svg"
                  alt="BookMark"
@@ -116,7 +116,7 @@ export default function CarAdDetails({ specs, sellerId }) {
                  height={44}
                  className="w-[36px] h-[36px] md:w-[44px] md:h-[44px]"
               />
-            </button>
+            </button> */}
             <button 
              className="cursor-pointer"
              onClick={() => {
