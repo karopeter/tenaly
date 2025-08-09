@@ -294,179 +294,126 @@ export default function MorePropertyPost() {
   };
 
     return (
+      <>
       <div className="md:px-[104px] px-4 md:ml-10 mt-20 md:mt-40">
-        <div className="flex flex-col md:flex-row gap-10">
-           <Sidebar />
+  <div className="flex flex-col md:flex-row gap-10">
+    <Sidebar />
 
-           <main className="flex-1">
-              <div className="bg-white shadow-phenom rounded-[12px] p-10 text-left md:text-center">
-              <button
-                onClick={handleGoBack}
-                className="flex justify-start items-start md:justify-center md:items-center text-[#1031AA] hover:text-[#00A8DF] font-medium"
-              >
-                <ArrowLeft className="w-5 h-5 mr-2 text-[#141B34]"  /> 
-                <span className="text-[#525252] font-[500] text-[14px] font-inter">Go Back</span>
-              </button>
-               <h3 className="text-left md:text-center text-[#525252] font-[500] font-inter text-[14px] md:text-[16px] mt-8 mb-4">House and Apartment Property for rent</h3>
-               <form>
-                 <div className="grid md:grid-cols-2 gap-x-6 gap-y-4">
-                   <InputField
-                    label="Title"
-                    placeholder="Enter name of the property"
-                    value={propertyName}
-                    onChange={(e) => setPropertyName(e.target.value)}
-                   />
-                   <InputField
-                    label="Address"
-                    placeholder="Enter the address of the property"
-                    value={propertyAddress}
-                    onChange={(e) => setPropertyAddress(e.target.value)}
-                   />
-                 </div>
-                 <div className="grid md:grid-cols-2 gap-x-6 gap-y-4">
-                   <PostDropdown
-                     label="Property Type"
-                     value={propertyType}
-                     onChange={setPropertyType}
-                     options={apartmentRentOptions}
-                   />
-                   <PostDropdown
-                     label="Furnishing"
-                     value={furnishing}
-                     onChange={setFurnishing}
-                     options={furnishingOptions}
-                   />
-                 </div>
-                 <div className="grid md:grid-cols-2 gap-x-6 gap-y-4">
-                   <PostDropdown
-                     label="Property Condition"
-                     value={propertyCondition}
-                    onChange={setPropertyCondition}
-                     options={propertyConditionOptions}
-                   />
-                    <PostDropdown
-                     label="Is there a parking space"
-                     value={parking}
-                    onChange={setParking}
-                     options={parkingSpaceOptions}
-                    />
-                 </div>
-                 <div className="grid md:grid-cols-2 gap-x-6 gap-y-4">
-                   <InputField
-                     label="Square Meters (sqm)"
-                     placeholder="Enter"
-                     value={squareMeter}
-                     onChange={e => setSquareMeter(e.target.value)}
-                   />
-                   <PostDropdown
-                    label="Are you the owner or an agent of the property"
-                    value={ownershipStatus}
-                    onChange={setOwnerShipStatus}
-                    options={ownershipStatusOptions}
-                   />
-                 </div>
-                 <div className="grid md:grid-cols-2 gap-x-6 gap-y-4">
-                    <PostDropdown
-                      label="Property facilities"
-                      value={propertyFacility}
-                      onChange={setPropertyFacilities}
-                      options={propertyFacilities}
-                    />
-                    <PostDropdown
-                      label="Number of bedrooms"
-                       value={numberOfBedrooms}
-                      onChange={setNumberOfBedrooms}
-                      options={apartmentRentBedroomNumberOptions}
-                    />
-                 </div>
-                 <div className="grid md:grid-cols-2 gap-x-6 gap-y-4">
-                   <PostDropdown
-                     label="Number of bathrooms"
-                      value={numberofBathrooms}
-                     onChange={setNumberOfBathrooms}
-                     options={apartmentRentBathroomsOptions}
-                   />
-                   <PostDropdown
-                     label="Number of toilet"
-                      value={numberOfToilet}
-                     onChange={setNumberOfToilet}
-                     options={apartmentRentToiletOptions}
-                   />
-                 </div>
-                 <div className="bg-[#FAFAFA] px-3 py-2 p-5 md:h-auto mt-5">
-                   <div className="grid md:grid-cols-2 gap-x-6 gap-y-4">
-                      <PostDropdown
-                        label="Is there a service charge?"
-                        value={serviceCharge}
-                        onChange={setServiceCharge}
-                        options={serviceChargeOptions}
-                      />
-                      <div></div>
-                   </div>
-                 </div>
-                 <div className="grid md:grid-cols-2 gap-x-6 gap-y-4">
-                   <PostDropdown
-                    label="Duration"
-                    value={propertyDuration}
-                    onChange={setPropertyDuration}
-                    options={propertyDurationOptions}
-                   />
-                   <InputField
-                     label="Amount"
-                     placeholder="₦| Enter your amount"
-                     value={amount}
-                    onChange={e => setAmount(e.target.value)}
-                   />
-                 </div>
-                 <div className="grid md:grid-cols-2 gap-x-6 gap-y-4">
-                   <PostDropdown
-                     label="Are you opened for negotiation"
-                     value={negotiation}
-                     onChange={setNegotiation}
-                     options={negotiationOptions}
-                   />
-                    <Select
-                      options={businessOptions}
-                      value={businessOptions.find((opt) => opt.value === business)}
-                      onChange={(selected) => setBusiness(selected?.value)}
-                      placeholder="Select a business"
-                      isClearable
-                      styles={customStyles}
-                    />
-                 </div>
-                 <div className="mt-2">
-                  <label className="block text-left mb-1 text-[#525252] font-[500] font-inter">Description</label>
-                  <textarea
-                    placeholder="Enter the description of this property"
-                    className="w-full h-[120px] border border-[#CDCDD7] rounded-[4px] px-3 py-2 bg-white focus:outline-none resize-none"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    >
+    <main className="flex-1">
+      <div className="bg-white shadow-phenom rounded-[12px] p-5 sm:p-10 text-left">
+        <button
+          onClick={handleGoBack}
+          className="flex justify-start items-center md:justify-center text-[#1031AA] hover:text-[#00A8DF] font-medium"
+        >
+          <ArrowLeft className="w-5 h-5 mr-2 text-[#141B34]" />
+          <span className="text-[#525252] font-[500] text-sm font-inter">Go Back</span>
+        </button>
 
-                  </textarea>
-                 </div>
-                 <div className="flex justify-center mt-5">
-                   <Button
-                     type="button"
-                     onClick={handlePost}
-                       className="w-[262px] h-[44px] md:rounded-[8px] 
-                       md:pt-[10px] md:pr-[16px] md:pb-[10px] md:pl-[16px] 
-                       font-[500] md:text-[14px] bg-[#EDEDED] text-[#CDCDD7] 
-                       bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white">
-                     Post Ad
-                   </Button>
-                 </div>
-                 <div className="text-center mt-5 font-[400] font-inter text-sm md:text-[12px] leading-relaxed px-4">
-                     <p className="text-[#767676]">
-                         By clicking on <strong>Post Ad</strong>, you accept to{" "}
-                      <span className="text-[#000087]">Terms of Use</span>, confirm that you will abide by the Safety Tips, and declare that this posting does not include any Prohibited items.
-                    </p>
-                   </div> 
-               </form>
+        <h3 className="text-left md:text-center text-[#525252] font-[500] font-inter text-sm md:text-base mt-8 mb-4">
+          House and Apartment Property for rent
+        </h3>
+
+        <form>
+          {/* Input Sections */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <InputField label="Title" placeholder="Enter name of the property" value={propertyName} onChange={(e) => setPropertyName(e.target.value)} />
+            <InputField label="Address" placeholder="Enter the address of the property" value={propertyAddress} onChange={(e) => setPropertyAddress(e.target.value)} />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <PostDropdown label="Property Type" value={propertyType} onChange={setPropertyType} options={apartmentRentOptions} />
+            <PostDropdown label="Furnishing" value={furnishing} onChange={setFurnishing} options={furnishingOptions} />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <PostDropdown label="Property Condition" value={propertyCondition} onChange={setPropertyCondition} options={propertyConditionOptions} />
+            <PostDropdown label="Is there a parking space" value={parking} onChange={setParking} options={parkingSpaceOptions} />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <InputField label="Square Meters (sqm)" placeholder="Enter" value={squareMeter} onChange={(e) => setSquareMeter(e.target.value)} />
+            <PostDropdown label="Are you the owner or an agent of the property" value={ownershipStatus} onChange={setOwnerShipStatus} options={ownershipStatusOptions} />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <PostDropdown label="Property facilities" value={propertyFacility} onChange={setPropertyFacilities} options={propertyFacilities} />
+            <PostDropdown label="Number of bedrooms" value={numberOfBedrooms} onChange={setNumberOfBedrooms} options={apartmentRentBedroomNumberOptions} />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <PostDropdown label="Number of bathrooms" value={numberofBathrooms} onChange={setNumberOfBathrooms} options={apartmentRentBathroomsOptions} />
+            <PostDropdown label="Number of toilet" value={numberOfToilet} onChange={setNumberOfToilet} options={apartmentRentToiletOptions} />
+          </div>
+
+          {/* Gray Box */}
+          <div className="bg-[#FAFAFA] px-4 py-5 mt-5 rounded-md">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <PostDropdown label="Is there a service charge?" value={serviceCharge} onChange={setServiceCharge} options={serviceChargeOptions} />
+              <PostDropdown label="Are you opened for negotiation" value={negotiation} onChange={setNegotiation} options={negotiationOptions} />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <PostDropdown label="Duration" value={propertyDuration} onChange={setPropertyDuration} options={propertyDurationOptions} />
+            <InputField label="Amount" placeholder="₦| Enter your amount" value={amount} onChange={(e) => setAmount(e.target.value)} />
+          </div>
+
+          {/* Business Select with Label Left on Desktop */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div>
+              <label htmlFor="business" className="text-[#525252] font-[500] font-inter mb-2 md:mb-0 min-w-[160px]">
+                Select your business
+              </label>
+              <div className="flex-1">
+                <Select
+                  options={businessOptions}
+                  value={businessOptions.find((opt) => opt.value === business)}
+                  onChange={(selected) => setBusiness(selected?.value)}
+                  placeholder="Select a business"
+                  isClearable
+                  styles={customStyles}
+                />
               </div>
-           </main>
+            </div>
+          </div>
 
-            {mounted && (
+          {/* Description */}
+          <div className="mt-4">
+            <label className="block text-left mb-1 text-[#525252] font-[500] font-inter">Description</label>
+            <textarea
+              placeholder="Enter the description of this property"
+              className="w-full h-[120px] border border-[#CDCDD7] rounded-[4px] px-3 py-2 bg-white focus:outline-none resize-none"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </div>
+
+          {/* Post Button */}
+          <div className="flex justify-center mt-6">
+            <Button
+              type="button"
+              onClick={handlePost}
+              className="w-full sm:w-[262px] h-[44px] rounded-[8px] font-[500] text-[14px] bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white"
+            >
+              Post Ad
+            </Button>
+          </div>
+
+          {/* Terms Notice */}
+          <div className="text-center mt-5 font-[400] font-inter text-sm leading-relaxed px-2 sm:px-4">
+            <p className="text-[#767676]">
+              By clicking on <strong>Post Ad</strong>, you accept to{" "}
+              <span className="text-[#000087]">Terms of Use</span>, confirm that you will abide by the Safety Tips, and declare that this posting does not include any Prohibited items.
+            </p>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+</div>
+
+
+        {mounted && (
               <>
                 {showModalPromote && (
                   <div className="fixed inset-0  flex items-center justify-center bg-black bg-opacity-40 z-50">
@@ -559,7 +506,6 @@ export default function MorePropertyPost() {
                onClose={() => showFreeCommercialPropertySuccessModal(false)}
             />
           )}
-        </div>
-      </div>
+      </>
     );
 }

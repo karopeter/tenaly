@@ -6,6 +6,7 @@ import Sidebar from "../components/navbar/sidebar";
 import Img from "../components/Image";
 import { useAuth } from "../context/AuthContext";
 import api from "@/services/api";
+import MessageSellerButton from "../components/UI/messageSeller";
 
 export default function Bookmarked() {
   const router = useRouter();
@@ -302,12 +303,9 @@ export default function Bookmarked() {
   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-4">
     {/* Buttons group */}
     <div className="flex flex-row gap-3 sm:gap-4 w-full sm:w-auto">
-      <button 
-        className="border border-[#CDCDD7] text-[#525252] 
-          h-[45px] flex-1 flex items-center whitespace-nowrap justify-center px-4 py-2 rounded-[4px] 
-          font-inter font-[400] text-sm transition">
-        Send Message
-      </button>
+      <div>
+        <MessageSellerButton />
+      </div>
       <a
         href={`tel:${sellerPhone}`}
         className="bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white 

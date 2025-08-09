@@ -362,7 +362,12 @@ export default function MorePropertyPost() {
                     onChange={setTitleDocuments}
                     options={landTitleDocument}
                    />
-                   <div></div>
+                   <PostDropdown 
+                    label="Are you opened for negotiation"
+                     value={negotiation}
+                    onChange={setNegotiation}
+                    options={negotiationOptions}
+                  />
                  </div>
                  <div className="bg-[#FAFAFA] px-3 py-2 p-5 md:h-auto mt-5">
                    <div className="grid md:grid-cols-2 gap-x-6 gap-y-4">
@@ -410,14 +415,9 @@ export default function MorePropertyPost() {
                       onChange={(e) => setAmount(e.target.value)}
                      />
                  </div>
-                 <div className="grid md:grid-cols-2 gap-x-6 gap-y-4">
-                  <PostDropdown 
-                    label="Are you opened for negotiation"
-                     value={negotiation}
-                    onChange={setNegotiation}
-                    options={negotiationOptions}
-                  />
-                  <label htmlFor="business"></label>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                  <div>
+                   <label htmlFor="business" className="block text-[#525252] font-[500] font-inter mb-1 text-left">Select your business</label>
                   <Select
                     options={businessOptions}
                     value={businessOptions.find((opt) => opt.value === business)}
@@ -425,7 +425,8 @@ export default function MorePropertyPost() {
                     placeholder="Select a business"
                     isClearable
                     styles={customStyles}
-                 />
+                 />  
+                  </div>
                  </div>
                  <div className="mt-2">
                   <label className="block text-left mb-1 text-[#525252] font-[500] font-inter">Description</label>

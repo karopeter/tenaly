@@ -39,17 +39,19 @@ export default function MarketPlace({ category, search, location }) {
     fetchAllAds();
   }, [category, search, location]);
 
- if (loading) {
-  return (
-    <section className="px-4 md:px-10 mt-10 flex flex-col items-center justify-center min-h-[200px]">
-      <div className="w-10 h-10 border-4 border-t-transparent border-blue-500 rounded-full animate-spin"></div>
-      <p className="mt-2 text-sm text-gray-500 font-inter">Loading marketplace ads...</p>
-    </section>
-  );
-}
 
+   if (loading) {
+    return (
+      <div className="min-h-screen flex  justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading market products...</p>
+        </div>
+      </div>
+    );
+  }
 
-  if (error) {
+   if (error) {
     return <section className="px-4 md:px-10 mt-10 text-center text-red-500">{error}</section>;
   }
 
@@ -82,14 +84,14 @@ export default function MarketPlace({ category, search, location }) {
 
             return (
               <Link href={`/HomeList/${adId}`} key={adId}>
-                <li className="bg-white text-left rounded-[12px] border border-[#EDEDED] overflow-hidden relative shadow-md transition-transform hover:scale-[1.02]">
-                  <div className="relative w-full aspect-video sm:aspect-[4/3] overflow-hidden">
+                <li className="bg-white rounded-xl shadow-sm border hover:shadow-lg transition-all duration-300 overflow-hidden group cursor-pointer">
+                  <div className="relative aspect-[4/3] overflow-hidden">
                     {imageUrl && (
                       <Img
                         src={imageUrl}
                         alt={title}
                         fill
-                        className="object-cover"
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     )}
 
@@ -112,50 +114,47 @@ export default function MarketPlace({ category, search, location }) {
                     )}
                   </div>
 
-                  <div className="pt-4 pb-4 px-3 sm:px-4">
-                    <div className="flex items-center gap-2">
+                  <div className="p-5">
+                    <div className="flex items-start justify-between mb-3">
                       <span className="text-[#000087] font-inter font-semibold text-[14px] sm:text-[16px] md:text-[18px] truncate">
                         {price}
                       </span>
                     </div>
 
-                    <h3 className="mt-1 text-[#525252] text-[13px] sm:text-[14px] md:text-[16px] font-medium font-inter whitespace-nowrap overflow-hidden text-ellipsis">
+                    <h3 className="mt-1 text-[#525252] font-inter text-lg line-clamp-1">
                       {title}
                     </h3>
 
-                    <p className="text-[#8C8C8C] text-[12px] sm:text-[13px] md:text-[14px] font-inter font-normal mt-1 line-clamp-2">
+                    <p className="text-[#8C8C8C] font-inter text-sm line-clamp-2 mb-4">
                       {description}
                     </p>
 
-                    <div className="flex flex-col mt-4 text-sm text-[#555] gap-[4px]">
-                      <span className="flex items-center gap-2 text-[#8C8C8C] text-[12px] sm:text-[13px] md:text-[14px] font-inter font-normal">
+                    <div className="flex items-center gap-1 text-[#8C8C8C] font-inter text-sm mb-4">   
                         <Img src="/location.svg" alt="Location" width={10} height={14} />
-                        {location}
-                      </span>
-
-                      <div className="flex gap-2 mt-3 flex-wrap">
+                        <span>{location}</span>
+                    </div>
+                     <div className="flex gap-2">
                         {vehicleAd?.carType && (
-                          <Button className="bg-[#E8E8FF] rounded-[4px] text-[12px] font-inter font-normal py-1 px-2 whitespace-nowrap">
+                          <span className="bg-[#E8E8FF] font-inter text-[#525252] px-2 py-1 rounded text-xs">
                             {vehicleAd.carType}
-                          </Button>
+                          </span>
                         )}
                         {vehicleAd?.transmission && (
-                          <Button className="bg-[#E8E8FF] rounded-[4px] text-[12px] font-inter font-normal py-1 px-2 whitespace-nowrap">
+                          <span className="bg-[#E8E8FF] font-inter text-[#525252] px-2 py-1 rounded text-xs">
                             {vehicleAd.transmission}
-                          </Button>
+                          </span>
                         )}
                         {propertyAd?.propertyType && (
-                          <Button className="bg-[#E8E8FF] rounded-[4px] text-[12px] font-inter font-normal py-1 px-3 whitespace-nowrap">
+                          <span className="bg-[#E8E8FF] font-inter whitespace-nowrap text-[#525252] px-2 py-1 rounded text-xs">
                             {propertyAd.propertyType}
-                          </Button>
+                          </span>
                         )}
                         {propertyAd?.propertyCondition && (
-                          <Button className="bg-[#E8E8FF] rounded-[4px] text-[12px] font-inter font-normal py-1 px-3 whitespace-nowrap">
+                          <span className="bg-[#E8E8FF]  font-inter whitespace-nowrap text-[#525252] px-2 py-1 rounded text-xs">
                             {propertyAd.propertyCondition}
-                          </Button>
+                          </span>
                         )}
                       </div>
-                    </div>
                   </div>
                 </li>
               </Link>

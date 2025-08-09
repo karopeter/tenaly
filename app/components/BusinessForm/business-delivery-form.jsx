@@ -167,7 +167,7 @@ const handleSubmit = async () => {
       };
 
       await api.patch(`/business/${businessId}/addresses`, payload);
-      toast.success("Delivery settings updated successfully for multiple addresses.");
+      toast.success("Business Delivery updated successfully");
     }
 
     // Redirect to Edit Delivery Page
@@ -188,7 +188,7 @@ const handleSubmit = async () => {
   );
 
   return (
-    <div className="relative flex flex-col md:flex-row w-full gap-2 min-h-screen mt-10">
+    <div className="relative flex flex-col md:flex-row w-full gap-2 min-h-screen">
      {/* Desktop sidebar */}
      <div className="hidden md:block">
        <BusinessLink />

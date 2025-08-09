@@ -327,7 +327,7 @@ const planDetails = {
                 <ArrowLeft className="w-5 h-5 mr-2 text-[#141B34]"  /> 
                 <span className="text-[#525252] font-[500] text-[14px] font-inter">Go Back</span>
               </button>
-                <h3 className="text-center text-[#525252] font-[500] font-inter text-[14px] md:text-[16px] mt-8 mb-4">Shortlet</h3>
+                <h3 className="text-left md:text-center text-[#525252] font-[500] font-inter text-[14px] md:text-[16px] mt-8 mb-4">Shortlet</h3>
                 <form>
                   <div className="grid md:grid-cols-2 gap-x-6 gap-y-4">
                     <InputField
@@ -420,7 +420,12 @@ const planDetails = {
                       onChange={setPetsAllowed}
                       options={petsAllowedOptions}
                     />
-                    <div></div>
+                   <PostDropdown
+                      label="Are you opened for negotiation"
+                      value={negotiation}
+                      onChange={setNegotiation}
+                      options={negotiationOptions}
+                    />
                   </div>
                   <div className="bg-[#FAFAFA] px-3 py-2 p-5 md:h-auto mt-5">
                    <div className="grid md:grid-cols-2 gap-x-6 gap-y-4">
@@ -447,14 +452,9 @@ const planDetails = {
                       onChange={e => setAmount(e.target.value)}
                     />
                   </div>
-                  <div className="grid md:grid-cols-2 gap-x-6 gap-y-4">
-                    <PostDropdown
-                      label="Are you opened for negotiation"
-                      value={negotiation}
-                      onChange={setNegotiation}
-                      options={negotiationOptions}
-                    />
-                    <label htmlFor="business"></label>
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                 <div>
+                  <label htmlFor="business" className="block text-[#525252] font-[500] font-inter mb-1 text-left">Select your business</label>
                  <Select
                   options={businessOptions}
                   value={businessOptions.find((opt) => opt.value === business)}
@@ -462,7 +462,8 @@ const planDetails = {
                   placeholder="Select a business"
                   isClearable
                   styles={customStyles}
-                />
+                 />
+                 </div>
                   </div>
                    <div className="mt-2">
                   <label className="block text-left mb-1 text-[#525252] font-[500] font-inter">Description</label>

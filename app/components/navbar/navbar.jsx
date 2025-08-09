@@ -96,7 +96,7 @@ export default function Navbar() {
 
           {/* Desktop Navigation Links */}
           <div className="hidden md:flex gap-3 text-[#000087] font-[500] font-inter">
-            <Link href="/" className="text-[14px] transition">Find Anything,</Link>
+            <Link href="/Product-List" className="text-[14px] transition">Find Anything,</Link>
             <Link href="/" className="text-[14px] transition">Sell Anything</Link>
           </div>
 
