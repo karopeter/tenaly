@@ -16,7 +16,7 @@ export default function HomeListDetails() {
   const [offerAmount, setOfferAmount] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { id } = useParams();
+  const { businessId, id } = useParams();
 
   const [adData, setAdData] = useState(null);
   const [showDetails, setShowDetails] = useState(false); 
@@ -111,8 +111,10 @@ export default function HomeListDetails() {
   if (loading) {
     return (
       <section className="px-4 md:px-10 mt-10 flex flex-col items-center justify-center min-h-[200px]">
-        <div className="w-10 h-10 border-4 border-t-transparent border-blue-500 rounded-full animate-spin"></div>
-        <p className="mt-2 text-sm text-gray-500 font-inter">Loading ad details...</p>
+         <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading ad details...</p>
+        </div>
       </section>
     );
   }
@@ -127,7 +129,8 @@ export default function HomeListDetails() {
   }
 
   const { carAd, vehicleAd, propertyAd, business } = adData;
-  const sellerId = business?._id;
+  const actualBusinessId = carAd?.businessCategory?._id || carAd?.businessCategory;
+  const sellerId = business?.userId || carAd?.userId || vehicleAd?.userId || propertyAd?.userId;
   const mainAd = vehicleAd || propertyAd; 
   const businessName = business?.businessName || "Unknown Seller";
   const aboutBusiness = business?.aboutBusiness || "No 'About' section provided.";
@@ -150,6 +153,12 @@ export default function HomeListDetails() {
     : propertyAd?.propertyImage?.[0]
     ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${propertyAd.propertyImage[0].replace(/\\/g, "/")}`
     : null;
+
+    // Debug Logs to check the IDS 
+    console.log("Business object:", business);
+    console.log("CarAd businessCategory:", carAd?.businessCategory);
+    console.log("Actual Business ID for URl:", actualBusinessId);
+    console.log("Seller ID (user ID):", sellerId);
 
 
   return (
@@ -752,14 +761,14 @@ export default function HomeListDetails() {
      <div className="border-[1px] border-[#EDEDED] w-full rounded-[8px] p-4">
      <div className="flex gap-3">
        <Img
-        src={userProfile?.image || "/profile-placeholder.png"}
+        src={userProfile?.image || "/profile-circles1.svg"}
         alt="Profile Image"
         width={52}
         height={52}
         className="w-[40px] h-[40px] rounded-[30px]"
       />
       <div className="flex flex-col">
-         <Link href="/seller-profile" className="underline">
+         <Link href={`/seller-profile/${sellerId}`} className="underline">
             <span className="text-[#000000] text-[14px] font-[500] font-inter">
              {businessName}
           </span>
@@ -955,7 +964,11 @@ export default function HomeListDetails() {
          <div className="flex  gap-3">
              {businessProfileImage && (
               <Img
-                src={getImageUrl(businessProfileImage)}
+                src={
+                  businessProfileImage
+                  ? getImageUrl(businessProfileImage)
+                  : "/profile-circles1.svg"
+                }
                 alt="Business Profile"
                 width={52}
                 height={52}
@@ -963,25 +976,25 @@ export default function HomeListDetails() {
               />
             )}
              <div className="flex flex-col">
-              <Link href="/seller-profile" className="underline">
+              <Link href={`/seller-profile/${sellerId}`} className="underline">
                <span className="text-[#000000] text-[14px] font-[500] font-inter">
                   {businessName}
               </span>
              </Link>
-             {isBusinessVerified && (
-                <div className="mt-1 flex items-center gap-2 bg-[#E9F4E8] w-fit px-2 py-1 rounded-[2px]">
-                  <Img
-                    src="/profile.svg" 
-                    alt="Verified Icon"
-                    width={10}
-                    height={10}
-                    className="w-[10px] h-[10px]"
-                  />
-                  <span className="text-[#238E15] font-[500] text-[10px] font-inter">
-                    Verified Business
-                  </span>
-                </div>
-              )}
+               {isBusinessVerified && (
+           <div className="mt-1 flex items-center gap-2 bg-[#E9F4E8] w-auto h-[16px] rounded-[2px] px-2">
+          <Img
+            src="/profile.svg"
+            alt="Verified Icon"
+            width={10}
+            height={10}
+            className="w-[10px] h-[10px]"
+          />
+          <span className="text-[#238E15] text-[10px] font-[500] font-inter">
+          {isBusinessVerified ? "Verified" : "Unverified"}
+          </span>
+        </div>
+             )}
             <span className="mt-1 text-[#868686] font-inter font-[400] md:text-[12px]">Last Seen 20h ago</span>
            <span className="mt-1 text-[#868686] text-[10px] font-[400] font-inter"> {userProfile?.createdAt ? ( `Joined Tenaly on ${new Date(userProfile.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}` ) : ( "Joined Tenaly" )} </span>
             </div>

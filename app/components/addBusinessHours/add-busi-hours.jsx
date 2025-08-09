@@ -69,7 +69,7 @@ export default function AddBusinessHourss() {
   if (loading) return <div className="text-center mt-20">Loading...</div>;
 
   return (
-    <div className="relative flex flex-col md:flex-row w-full gap-2 min-h-screen mt-10">
+    <div className="relative flex flex-col md:flex-row w-full gap-2 min-h-screen">
       {/* Desktop sidebar */}
       <div className="hidden md:block">
          <BusinessLink />

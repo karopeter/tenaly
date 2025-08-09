@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import api from "@/services/api";
-import Img from "../components/Image"; 
+import Img from "../components/Image";
 import { toast } from "react-toastify";
 
 export default function NotificationPage() {
@@ -13,88 +13,99 @@ export default function NotificationPage() {
 
   useEffect(() => {
     const fetchNotifications = async () => {
-  try {
-    const res = await api.get("/notification");
-    const notificationList = res.data?.notifications || [];
+      try {
+        const res = await api.get("/notification");
+        const notificationList = res.data?.notifications || [];
 
-    const count = notificationList.filter((n) => !n.isRead).length;
-    setUnreadCount(count);
+        const count = notificationList.filter((n) => !n.isRead).length;
+        setUnreadCount(count);
 
-    const withImages = await Promise.all(
-      notificationList.map(async (notif) => {
-        let adId = null;
-        let adType = null;
-        let carModel = "";
-        let displayImage = null;
+        const withImages = await Promise.all(
+          notificationList.map(async (notif) => {
+            let adId = notif.propertyAdId || notif.vehicleAdId || notif.carAdId || notif.adId || notif.ad;
+            let adType = notif.adType || "unknown";
+            let adName = "";
+            let displayImage = null;
 
-        // ✅ Determine the correct ad type and ID
-        if (notif.propertyAdId) {
-          adId = notif.propertyAdId;
-          adType = "property";
-        } else if (notif.vehicleAdId || notif.carAdId || notif.adId || notif.ad) {
-          adId = notif.vehicleAdId || notif.carAdId || notif.adId || notif.ad;
-          adType = "vehicle";
-        }
-
-        if (!adId) {
-          console.warn("❌ No valid adId found in notification:", notif);
-          return { ...notif, carAdImage: null, adType: "unknown" };
-        }
-
-        try {
-          if (adType === "vehicle") {
-            const res = await api.get(`/vehicles/vehicle-ad/${adId}/details`);
-            const carAd = res?.data?.carAd || {};
-            const vehicleAd = res?.data || {};
-
-            carModel = vehicleAd?.model || carAd?.model || "";
-
-            if (Array.isArray(carAd.vehicleImage) && carAd.vehicleImage.length > 0) {
-              displayImage = carAd.vehicleImage[0];
-            } else if (Array.isArray(carAd.propertyImage) && carAd.propertyImage.length > 0) {
-              displayImage = carAd.propertyImage[0];
-            } else if (Array.isArray(vehicleAd.vehicleImage) && vehicleAd.vehicleImage.length > 0) {
-              displayImage = vehicleAd.vehicleImage[0];
-            } else if (Array.isArray(vehicleAd.propertyImage) && vehicleAd.propertyImage.length > 0) {
-              displayImage = vehicleAd.propertyImage[0];
+            if (!adId) {
+              console.warn("❌ No valid adId found in notification:", notif);
+              return { ...notif, carAdImage: null, adName: "", adType: "unknown" };
             }
 
-            console.log("🚗 Vehicle Ad Image Selected:", displayImage);
-          }
+            // Determine adType based on notification object if possible
+            if (notif.propertyAdId) adType = "property";
+            else if (notif.vehicleAdId) adType = "vehicle";
 
-          else if (adType === "property") {
-            const res = await api.get(`/property/property-ad/${adId}/details`);
-            const carAd = res?.data?.carAd || {}; // fallback to res.data if needed
+            console.log(`🎯 Processing adId: ${adId} as initial type: ${adType}`);
 
-            carModel = carAd?.propertyName || carAd?.model || "Property";
+            try {
+              let adData = {};
+              if (adType === "property") {
+                const propertyRes = await api.get(`/property/property-ad/${adId}/details`);
+                adData = propertyRes.data;
+              } else if (adType === "vehicle") {
+                const vehicleRes = await api.get(`/vehicles/vehicle-ad/${adId}/details`);
+                adData = vehicleRes.data;
+              } else {
+                // If type is unknown, try both endpoints to be safe
+                try {
+                  const res = await api.get(`/property/property-ad/${adId}/details`);
+                  if (res.data?.propertyAd || res.data?.carAd) {
+                    adData = res.data;
+                    adType = "property";
+                  }
+                } catch (e) {
+                  const res = await api.get(`/vehicles/vehicle-ad/${adId}/details`);
+                  if (res.data?.carAd) {
+                    adData = res.data;
+                    adType = "vehicle";
+                  }
+                }
+              }
 
-            if (Array.isArray(carAd.propertyImage) && carAd.propertyImage.length > 0) {
-              displayImage = carAd.propertyImage[0];
-              console.log("🏠 Property Ad Image Selected:", displayImage);
-            } else {
-              console.warn("📭 PropertyAd has no propertyImage:", carAd);
+              // Now, process the adData based on the determined type
+              if (adType === "property") {
+                const propertyAd = adData.propertyAd || {};
+                const carAd = adData.carAd || {};
+                adName = propertyAd.propertyName || carAd.category || "Property Ad";
+
+                // Prioritize property images from the carAd, then the propertyAd
+                if (Array.isArray(carAd.propertyImage) && carAd.propertyImage.length > 0) {
+                  displayImage = carAd.propertyImage[0];
+                } else if (Array.isArray(propertyAd.propertyImage) && propertyAd.propertyImage.length > 0) {
+                  displayImage = propertyAd.propertyImage[0];
+                }
+              } else if (adType === "vehicle") {
+                const carAd = adData.carAd || {};
+                adName = carAd.model || carAd.category || "Vehicle Ad";
+
+                // Prioritize vehicle images
+                if (Array.isArray(carAd.vehicleImage) && carAd.vehicleImage.length > 0) {
+                  displayImage = carAd.vehicleImage[0];
+                }
+              }
+            } catch (fetchErr) {
+              console.error(
+                `❌ Failed to fetch ad (${adId}) for type ${adType}:`,
+                fetchErr?.response?.data?.message || fetchErr.message
+              );
             }
-          }
 
-        } catch (fetchErr) {
-          console.error(`❌ Failed to fetch ${adType} ad (${adId}):`, fetchErr?.response?.data || fetchErr.message);
-        }
+            return {
+              ...notif,
+              carAdImage: displayImage, // This is the image we will render
+              carModel: adName, // This is the name we will render
+              adType,
+            };
+          })
+        );
 
-        return {
-          ...notif,
-          carAdImage: displayImage,
-          carModel,
-          adType,
-        };
-      })
-    );
-
-    setNotifications(withImages.reverse());
-
-  } catch (error) {
-    console.error("❌ Error fetching notifications:", error);
-  }
-};
+        setNotifications(withImages.reverse());
+      } catch (error) {
+        console.error("❌ Error fetching notifications:", error);
+        toast.error("Failed to fetch notifications.");
+      }
+    };
 
     fetchNotifications();
   }, []);
@@ -102,11 +113,9 @@ export default function NotificationPage() {
   const handleMarkOneAsRead = async (id) => {
     try {
       await api.patch(`/notification/${id}/read`);
-      const updated = notifications.map((n) =>
-        n._id === id ? { ...n, isRead: true } : n
-      );
+      const updated = notifications.map((n) => (n._id === id ? { ...n, isRead: true } : n));
       setNotifications(updated);
-      const newUnreadCount = updated.filter(n => !n.isRead).length;
+      const newUnreadCount = updated.filter((n) => !n.isRead).length;
       setUnreadCount(newUnreadCount);
       toast.success("Notification marked as read");
     } catch (error) {
@@ -128,15 +137,16 @@ export default function NotificationPage() {
     }
   };
 
-  const visibleNotifications = hideRead
-    ? notifications.filter((n) => !n.isRead)
-    : notifications;
+  const visibleNotifications = hideRead ? notifications.filter((n) => !n.isRead) : notifications;
 
   return (
     <div className="md:px-[104px] px-4 md:ml-10">
       {/* Breadcrumbs */}
       <div className="mt-28 flex items-center gap-2 mb-4 font-[400] font-inter flex-nowrap">
-        <Link href="/Product-List" className="text-[#868686] md:text-[14px] hover:text-[#000] transition-all whitespace-nowrap">
+        <Link
+          href="/Product-List"
+          className="text-[#868686] md:text-[14px] hover:text-[#000] transition-all whitespace-nowrap"
+        >
           Home &nbsp;&rsaquo;
         </Link>
         <Link href="/Notification" className="text-[#000087] md:text-[14px] font-[500]">
@@ -165,11 +175,11 @@ export default function NotificationPage() {
           {/* Hide and Read checkbox */}
           {notifications.length > 0 && (
             <label htmlFor="" className="text-xs gap-1 items-center text-gray-600">
-              <input 
-                type="checkbox" 
-                checked={hideRead} 
-                onChange={() => setHideRead(!hideRead)} 
-                className="accent-[#5555DD]" 
+              <input
+                type="checkbox"
+                checked={hideRead}
+                onChange={() => setHideRead(!hideRead)}
+                className="accent-[#5555DD]"
               />
               Hide read
             </label>
@@ -189,7 +199,7 @@ export default function NotificationPage() {
 
               const imageUrl = displayImage
                 ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${displayImage.replace(/\\/g, "/")}`
-                : null;
+                : `https://placehold.co/64x64/E0E0E0/333333?text=No+Image`; // Placeholder URL
 
               return (
                 <li
@@ -200,24 +210,13 @@ export default function NotificationPage() {
                 >
                   {/* Left: Image + Message */}
                   <div className="flex items-center gap-3">
-                    {imageUrl ? (
-                      <Img
-                        src={imageUrl}
-                        alt="Ad"
-                        width={64}
-                        height={64}
-                        className="w-16 h-16 rounded-md object-cover"
-                        onError={(e) => {
-                          console.warn("Image failed to load:", imageUrl);
-                          e.target.style.display = 'none';
-                          e.target.nextSibling.style.display = 'block';
-                        }}
-                      />
-                    ) : (
-                      <div className="w-16 h-16 bg-gray-300 rounded-md flex items-center justify-center">
-                        <span className="text-gray-500 text-xs">No Image</span>
-                      </div>
-                    )}
+                    <Img
+                      src={imageUrl}
+                      alt="Ad"
+                      width={64}
+                      height={64}
+                      className="w-16 h-16 rounded-md object-cover"
+                    />
                     <div className="flex flex-col">
                       <p className="text-[#525252] font-[400] font-inter text-[12px] md:text-[14px] break-words leading-snug">
                         {notif.message}

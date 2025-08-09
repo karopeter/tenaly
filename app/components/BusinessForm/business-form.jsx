@@ -95,7 +95,7 @@ export default function BusinessForm({ initialData, isEditMode, businessId, mode
       
   return (
      <>
-      <div className="relative flex flex-col md:flex-row w-full gap-2 min-h-screen mt-10">
+      <div className="relative flex flex-col md:flex-row w-full gap-2 min-h-screen">
        {/* Desktop sidebar */ }
        <div className="hidden md:block">
            <BusinessLink />

@@ -571,7 +571,7 @@ export default function PropertyDetailsPage({ sellerId }) {
      <div className="border-[1px] border-[#EDEDED] w-full rounded-[8px] p-4">
        <div className="flex gap-3">
        <Img
-        src={userProfile?.image || "/profile-placeholder.png"}
+        src={userProfile?.image || "/profile-circles1.svg"}
         alt="Profile Image"
         width={52}
         height={52}
@@ -757,7 +757,7 @@ export default function PropertyDetailsPage({ sellerId }) {
          md:h-[276px] md:rounded-[8px] mt-5 p-4">
          <div className="flex  gap-3">
             <Img 
-             src={userProfile?.image || "/profile-placeholder.png"}
+             src={userProfile?.image || "/profile-circles1.svg"}
              alt="Profile Image"
              width={52}
              height={52}

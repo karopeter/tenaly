@@ -251,152 +251,176 @@ export default function MorePropertyPost() {
   };
 
   return (
-    <div className="md:px-[104px] px-4 md:ml-10 mt-20 md:mt-40">
-      <div className="flex flex-col md:flex-row gap-10">
-        <Sidebar />
+    <>
+    <div className="px-4 md:px-[104px] md:ml-10 mt-10 md:mt-40">
+  <div className="flex flex-col md:flex-row gap-10">
+    <Sidebar />
 
-        <main className="flex-1">
-          <div className="bg-white shadow-phenom rounded-[12px] p-10 text-left md:text-center">
-            <button
-              onClick={handleGoBack}
-              className="flex justify-start items-start md:justify-center md:items-center text-[#1031AA] hover:text-[#00A8DF] font-medium"
-            >
-              <ArrowLeft className="w-5 h-5 mr-2 text-[#141B34]" />
-              <span className="text-[#525252] font-[500] md:text-[14px] font-inter">Go Back</span>
-            </button>
-            <h3 
-             className="text-left md:text-center 
-             text-[#525252] fonmt-[500] 
-             font-inter text-[14px] 
-             md:text-[16px] mt-8 mb-4">Commercial Property for Sale</h3>
-            <form>
-              <div className="grid md:grid-cols-2 gap-x-6 gap-y-4">
-                <InputField
-                  label="Title"
-                  placeholder="Enter name of the property"
-                  value={propertyName}
-                  onChange={(e) => setPropertyName(e.target.value)}
-                />
-                <InputField
-                  label="Address"
-                  placeholder="Enter the address of the property"
-                  value={propertyAddress}
-                  onChange={(e) => setPropertyAddress(e.target.value)}
-                />
-              </div>
-              <div className="grid md:grid-cols-2 gap-x-6 gap-y-4">
-                <PostDropdown
-                  label="Property Type"
-                  value={propertyType}
-                  onChange={setPropertyType}
-                  options={propertyTypeOptions}
-                />
-                <PostDropdown
-                  label="Furnishing"
-                  value={furnishing}
-                  onChange={setFurnishing}
-                  options={furnishingOptions}
-                />
-              </div>
-              <div className="grid md:grid-cols-2 gap-x-6 gap-y-4">
-                <PostDropdown
-                  label="Property Condition"
-                  value={propertyCondition}
-                  onChange={setPropertyCondition}
-                  options={propertyConditionOptions}
-                />
-                <PostDropdown
-                  label="Is there a parking space"
-                  value={parking}
-                  onChange={setParking}
-                  options={parkingSpaceOptions}
-                />
-              </div>
-              <div className="grid md:grid-cols-2 gap-x-6 gap-y-4">
-                <InputField
-                  label="Square Meters (sqm)"
-                  placeholder="Enter"
-                  value={squareMeter}
-                  onChange={(e) => setSquareMeter(e.target.value)}
-                />
-                <PostDropdown
-                  label="Are you the owner or an agent of the property"
-                  value={ownershipStatus}
-                  onChange={setOwnerShipStatus}
-                  options={ownershipStatusOptions}
-                />
-              </div>
+    <main className="flex-1">
+      <div className="bg-white shadow-phenom rounded-[12px] p-4 sm:p-6 md:p-10">
+        <button
+          onClick={handleGoBack}
+          className="flex items-center text-[#1031AA] hover:text-[#00A8DF] font-medium mb-4"
+        >
+          <ArrowLeft className="w-5 h-5 mr-2 text-[#141B34]" />
+          <span className="text-[#525252] font-[500] text-[14px] font-inter">
+            Go Back
+          </span>
+        </button>
 
-              <div className="bg-[#FAFAFA] px-3 py-2 p-5 md:h-auto mt-5">
-                <div className="grid md:grid-cols-2 gap-x-6 gap-y-4">
-                  <PostDropdown
-                    label="Is there a service charge?"
-                    value={serviceCharge}
-                    onChange={setServiceCharge}
-                    options={serviceChargeOptions}
-                  />
-                  <div></div>
-                </div>
-              </div>
-              <div className="grid md:grid-cols-2 gap-x-6 gap-y-4">
-                <InputField
-                  label="Amount"
-                  placeholder="₦| Enter your amount"
-                  value={amount}
-                  onChange={e => setAmount(e.target.value)}
-                />
-                <div></div>
-              </div>
-              <div className="grid md:grid-cols-2 gap-x-6 gap-y-4">
-                <PostDropdown
-                  label="Are you open for negotiation?"
-                  value={negotiation}
-                  onChange={setNegotiation}
-                  options={negotiationOptions}
-                />
-                <Select
-                  options={businessOptions}
-                  value={businessOptions.find((opt) => opt.value === business)}
-                  onChange={(selected) => setBusiness(selected?.value)}
-                  placeholder="Select a business"
-                  isClearable
-                />
-              </div>
-              <div className="mt-2">
-                <label className="block text-left mb-1 text-[#525252] font-[500] font-inter">Description</label>
-                <textarea
-                  placeholder="Enter the description of the property"
-                  className="w-full h-[120px] border border-[#CDCDD7] rounded-[4px] px-3 py-2 bg-white focus:outline-none resize-none"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                >
-                </textarea>
-              </div>
-              <div
-                className="flex justify-center mt-5">
-                <Button
-                  type="button"
-                  onClick={handlePost}
-                  className="md:w-[262px] md:h-[44px] md:rounded-[8px]
-                  md:pt-[10px] md:pr-[16px] md:pb-[10px] md:pl-[16px]
-                  font-[500] md:text-[14px] bg-[#EDEDED] text-[#CDCDD7]
-                  bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white">
-                  Post Ad
-                </Button>
-              </div>
-            </form>
-            <div className="text-center mt-5 font-[400] font-inter md:text-[12px]">
-              <p className="text-[#767676]">By clicking on Post Ad, you accept to
-                <span className="text-[#000087]"> Terms of Use,</span>
-                confirm that you will abide by the Safety Tips,
-                <br />
-                and declare that this posting does not include any Prohibited items.
-              </p>
+        <h3 className="text-[#525252] font-[500] font-inter text-[14px] md:text-[16px] mb-4 text-left md:text-center">
+          Commercial Property for Sale
+        </h3>
+
+        <form>
+          {/* Row 1 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <InputField
+              label="Title"
+              placeholder="Enter name of the property"
+              value={propertyName}
+              onChange={(e) => setPropertyName(e.target.value)}
+            />
+            <InputField
+              label="Address"
+              placeholder="Enter the address of the property"
+              value={propertyAddress}
+              onChange={(e) => setPropertyAddress(e.target.value)}
+            />
+          </div>
+
+          {/* Row 2 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <PostDropdown
+              label="Property Type"
+              value={propertyType}
+              onChange={setPropertyType}
+              options={propertyTypeOptions}
+            />
+            <PostDropdown
+              label="Furnishing"
+              value={furnishing}
+              onChange={setFurnishing}
+              options={furnishingOptions}
+            />
+          </div>
+
+          {/* Row 3 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <PostDropdown
+              label="Property Condition"
+              value={propertyCondition}
+              onChange={setPropertyCondition}
+              options={propertyConditionOptions}
+            />
+            <PostDropdown
+              label="Is there a parking space"
+              value={parking}
+              onChange={setParking}
+              options={parkingSpaceOptions}
+            />
+          </div>
+
+          {/* Row 4 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <InputField
+              label="Square Meters (sqm)"
+              placeholder="Enter"
+              value={squareMeter}
+              onChange={(e) => setSquareMeter(e.target.value)}
+            />
+            <PostDropdown
+              label="Are you the owner or an agent of the property"
+              value={ownershipStatus}
+              onChange={setOwnerShipStatus}
+              options={ownershipStatusOptions}
+            />
+          </div>
+
+          {/* Row 5 */}
+          <div className="bg-[#FAFAFA] px-4 py-4 mt-5 rounded-md">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <PostDropdown
+                label="Is there a service charge?"
+                value={serviceCharge}
+                onChange={setServiceCharge}
+                options={serviceChargeOptions}
+              />
             </div>
           </div>
-        </main>
 
-        {/* Conditionally render modals only after the component has mounted on the client */}
+          {/* Row 6 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <InputField
+              label="Amount"
+              placeholder="₦| Enter your amount"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+            />
+            <PostDropdown
+              label="Are you open for negotiation?"
+              value={negotiation}
+              onChange={setNegotiation}
+              options={negotiationOptions}
+            />
+          </div>
+
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div>
+              <label className="block text-[#525252] font-[500] font-inter mb-1">
+                Select a business
+              </label>
+              <Select
+                options={businessOptions}
+                value={businessOptions.find((opt) => opt.value === business)}
+                onChange={(selected) => setBusiness(selected?.value)}
+                placeholder="Select a business"
+                isClearable
+              />
+              </div>
+            </div>
+
+          {/* Description */}
+          <div className="mt-4">
+            <label className="block mb-1 text-[#525252] font-[500] font-inter">
+              Description
+            </label>
+            <textarea
+              placeholder="Enter the description of the property"
+              className="w-full h-[120px] border border-[#CDCDD7] rounded-[4px] px-3 py-2 bg-white focus:outline-none resize-none"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            ></textarea>
+          </div>
+
+          {/* Submit */}
+          <div className="flex justify-center mt-6">
+            <Button
+              type="button"
+              onClick={handlePost}
+              className="w-full md:w-[262px] h-[44px] rounded-[8px] font-[500] text-[14px] bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white"
+            >
+              Post Ad
+            </Button>
+          </div>
+        </form>
+
+        <div className="text-center mt-6 font-[400] font-inter text-[12px] px-2">
+          <p className="text-[#767676]">
+            By clicking on Post Ad, you accept to
+            <span className="text-[#000087]"> Terms of Use,</span> confirm that
+            you will abide by the Safety Tips, and declare that this posting
+            does not include any Prohibited items.
+          </p>
+        </div>
+      </div>
+    </main>
+  </div>
+     </div>
+
+
+      {/* Conditionally render modals only after the component has mounted on the client */}
         {mounted && (
           <>
             {showModalPromote && (
@@ -492,7 +516,6 @@ export default function MorePropertyPost() {
             )}
           </>
         )}
-      </div>
-    </div>
+    </>
   );
 }
