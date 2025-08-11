@@ -23,7 +23,7 @@ export default function PostDropdown({
       <div
         onClick={() => !disabled && setOpen((o) => !o)}
         className={[
-          "border-[1px] border-[#CDCDD7] md:h-[52px] rounded-[4px] mb-2  px-3 py-2 text-[#525252] flex justify-between items-center bg-white",
+          "border-[1px] border-[#CDCDD7] h-[52px] rounded-[4px] mb-0 md:mb-2  px-3 py-2 text-[#525252] flex justify-between items-center bg-white",
           disabled
             ? "opacity-50 cursor-not-allowed"
             : "cursor-pointer",

@@ -5,77 +5,167 @@ import Link from "next/link";
 import Img from "@/app/components/Image";
 import Button from "@/app/components/Button";
 import api from "@/services/api";
-import SignUpModal from "@/app/hooks/signup-modal";
 import MessageSellerButton from "@/app/components/UI/messageSeller";
+import { toast } from "react-toastify";
+import { useAuth } from "@/app/context/AuthContext";
 
-export default function HomeListDetails({ sellerId }) {
-  const [activeTab, setActiveTab] = useState("car");
+export default function HomeListDetails() {
+ const [activeTab, setActiveTab] = useState("car");
+  const [showInput, setShowInput] = useState(false);
+  const [offerAmount, setOfferAmount] = useState("");
   const [loading, setLoading] = useState(true);
-  const { params, id } = useParams();
-  const businessId = params?.businessId;
-  const [data, setData] = useState(null);
-  const [business, setBusiness] = useState(null);
-  const [showDetails, setShowDetails] = useState(false);
+  const [error, setError] = useState(null);
+  const { businessId, id } = useParams();
+
+  const [adData, setAdData] = useState(null);
+  const [showDetails, setShowDetails] = useState(false); 
   const [userProfile, setUserProfile] = useState(null);
   const [showSignUpModal, setShowSignUpModal] = useState(false);
   const [showSignInModal, setShowSignInModal] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [bookmarkLoading, setBookmarkLoading] = useState(false);
+  const { openAuthModal, isLoggedIn, profile } = useAuth();
+
+   const getImageUrl = (imagePath) => {
+    if (!imagePath) return null;
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+      return imagePath;
+    }
+    return `${process.env.NEXT_PUBLIC_BACKEND_URL}/upload/${imagePath.replace(/\\/g, "/")}`;
+  };
 
   useEffect(() => {
-    if (id) {
-      const fetchAd = async () => {
+    const fetchAdAndProfile = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        if (!id) {
+          setLoading(false);
+          return;
+        }
+        const adRes = await api.get(`/products/get-marketById/${id}`);
+        if (adRes.data.success) {
+          setAdData(adRes.data.data);
+        } else {
+          setError(adRes.data.message || "Failed to fetch ad details.");
+        }
+        const profileRes = await api.get("/profile");
+        setUserProfile(profileRes.data);
+      } catch (err) {
+        console.error("Error fetching ad or profile:", err);
+        setError("Error loading ad details. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAdAndProfile();
+  }, [id]);
+
+ 
+  useEffect(() => {
+    if (id && userProfile) { 
+      const checkBookmark = async () => {
         try {
-          const res = await api.get(`/products/get-marketById/${id}`);
+          const res = await api.get(`/bookmark/bookmark-status/${id}/status`);
           if (res.data.success) {
-            setData(res.data.data);
+            setIsBookmarked(res.data.bookmarked);
           }
         } catch (err) {
-          console.error("Error fetching ad:", err);
+          console.error("Error checking bookmark status:", err);
         }
       };
-
-    
-    //   const fetchBusiness = async () => {
-    //     try {
-    //     const res = await api.get(`/business/getbusiness/${businessId}`);
-    //     setBusiness(res.data);
-    //   } catch (err) {
-    //     console.error("Error fetching business:", err);
-    //     setBusiness(null);
-    //   }
-    //  };
-     const fetchBusiness = async () => {
-       try {
-        const res = await api.get('/business/my-businesses');
-        console.log("res.data:", res.data); 
-        const business = res.data[0]; 
-        console.log("business name:", business?.businessName);
-        setBusiness(business || null);
-       } catch (err) {
-        console.error("Error fetching business:", err);
-        setBusiness(null);
-       }
-     };
-
-
-      
-      const fetchProfile = async () => {
-        try {
-           const res = await api.get("/profile");
-           setUserProfile(res.data);
-        } catch {
-           setUserProfile(null);
-        }
-      }
-      
-      fetchBusiness();
-      fetchAd();
-      fetchProfile();
+      checkBookmark();
     }
-  }, [id, businessId]);
+  }, [id, userProfile]); 
 
-  if (!data) return <div className="mt-32 text-center text-gray-500">Loading...</div>;
+  const handleBookmark = async () => {
+    if (!isLoggedIn) {
+      setShowSignUpModal(true); 
+      return;
+    }
 
-  const { carAd, vehicleAd, propertyAd } = data;
+    try {
+      setBookmarkLoading(true);
+      const res = await api.post(`/bookmark/bookmarkAd/${id}`);
+      if (res.data.success) {
+        setIsBookmarked(true);
+        toast.success("Added to bookmarks!");
+      }
+    } catch (err) {
+      console.error("Error bookmarking:", err);
+      toast.error(err?.response?.data?.message || "Failed to add bookmark");
+    } finally {
+      setBookmarkLoading(false);
+    }
+  };
+
+  const handleSendOffer = () => {
+    if (!offerAmount) return toast.error("Please enter an Amount");
+    console.log("Offer sent:", offerAmount);
+    setOfferAmount("");
+  };
+
+  // Loading and Error States
+  if (loading) {
+    return (
+      <section className="px-4 md:px-10 mt-10 flex flex-col items-center justify-center min-h-[200px]">
+         <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600 font-inter">Loading Products details...</p>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return <section className="px-4 md:px-10 mt-10 text-center text-red-500">{error}</section>;
+  }
+
+  if (!adData) {
+   
+    return <section className="px-4 md:px-10 mt-10 text-center">Ad not found.</section>;
+  }
+
+
+  const { carAd, vehicleAd, propertyAd, business } = adData;
+  const actualBusinessId = carAd?.businessCategory?._id || carAd?.businessCategory;
+  const sellerId = business?.userId || carAd?.userId || vehicleAd?.userId || propertyAd?.userId;
+  const mainAd = vehicleAd || propertyAd; 
+  const businessName = business?.businessName || "Unknown Seller";
+  const aboutBusiness = business?.aboutBusiness || "No 'About' section provided.";
+  const businessLocation = business?.location || "N/A";
+  const businessAddresses = business?.addresses || []; 
+
+  const businessProfileImage = business?.profileImage || business?.image;
+  const isBusinessVerified = business?.isVerified;
+
+
+ 
+const productTitle =
+  propertyAd?.propertyName ||
+  (vehicleAd ? `${vehicleAd.vehicleType} ${vehicleAd.model}` : "") ||
+  (carAd ? `${carAd.vehicleType} ${carAd.model}` : "");
+
+// Pick correct product image
+const productImage =
+  propertyAd?.propertyImage?.[0] ||
+  vehicleAd?.vehicleImage?.[0] ||
+  carAd?.vehicleImage?.[0];
+
+
+// Product ID (the ad's own ID)
+const productId =
+  propertyAd?._id ||
+  vehicleAd?._id ||
+  carAd?._id;
+
+    // Debug Logs to check the IDS 
+    console.log("Business object:", business);
+    console.log("CarAd businessCategory:", carAd?.businessCategory);
+    console.log("Actual Business ID for URl:", actualBusinessId);
+    console.log("Seller ID (user ID):", sellerId);
+
 
   return (
     <div className="md:px-[104px] px-4 md:ml-10">
@@ -84,18 +174,13 @@ export default function HomeListDetails({ sellerId }) {
           Home&nbsp;&rsaquo;
         </Link>
         {carAd?.category && (
-          <Link href="/cars" className="text-[#868686] text-[13px] md:text-[14px] font-[400] font-inter whitespace-nowrap">
+          <span className="text-[#868686] text-[13px] md:text-[14px] font-[400] font-inter whitespace-nowrap">
             {carAd.category}
-          </Link>
+          </span>
         )}
         {vehicleAd && (
-          <Link href="/vehicles" className="text-[#000087] text-[13px] md:text-[14px] font-[500] font-inter whitespace-nowrap">
+          <span href="/vehicles" className="text-[#000087] text-[13px] md:text-[14px] font-[500] font-inter whitespace-nowrap">
             {vehicleAd.vehicleType} {vehicleAd.model} {vehicleAd.horsePower} {vehicleAd.trim} {vehicleAd.year}  {vehicleAd.color}
-          </Link>
-        )}
-        {propertyAd?.propertyName && (
-          <span className="text-[#000087] text-[13px] md:text-[14px] font-[500] font-inter whitespace-nowrap">
-            {propertyAd.propertyName} {propertyAd.furnishing}
           </span>
         )}
       </div>
@@ -114,9 +199,25 @@ export default function HomeListDetails({ sellerId }) {
           )}
         </div>
         <div className="flex items-center space-x-3">
-          <button className="cursor-pointer">
-            <Img src="/bookmark.svg" alt="Bookmark" width={44} height={44} className="w-[36px] h-[36px] md:w-[44px] md:h-[44px]" />
-          </button>
+         <button
+          className={`cursor-pointer transition duration-300 ${
+            isBookmarked ? "filter saturate-150 brightness-110" : "filter grayscale"
+          }`}
+          onClick={handleBookmark}
+          disabled={bookmarkLoading}
+          title={isBookmarked ? "Already Bookmarked" : "Add to Bookmarks"}
+        >
+          <Img
+            src="/bookmark.svg"
+            alt="Bookmark"
+            width={44}
+            height={44}
+            className="w-[36px] h-[36px] md:w-[44px] md:h-[44px]"
+          />
+        </button>
+          <Link href="/Bookmarked">
+            <span className="text-[13px] text-blue-500 underline">Go to Bookmarks</span>
+          </Link>
           <button
             className="cursor-pointer"
             onClick={() => {
@@ -186,12 +287,33 @@ export default function HomeListDetails({ sellerId }) {
        )}
      </div>
      <div className="p-4">
+      {showInput ? (
+        <div className="relative w-full">
+           <input
+              type="number"
+              placeholder="Enter your offer"
+              value={offerAmount}
+              onChange={(e) => setOfferAmount(e.target.value)}
+               className="w-full h-[44px] rounded-[8px] px-4 pr-12 border-[1px] focus:outline-none border-[#868686] text-[16px] font-inter"
+           />
+           <button
+             onClick={handleSendOffer}
+             className="absolute right-3 top-1/2 transform -translate-y-1/2">
+               <Img
+                 src="/offerImg.svg"
+                 width={17.9}
+                 height={18}
+                 className="w-[17.9px] h-[18px]"
+               />
+           </button>
+        </div>
+      ): (
        <Button 
-         className="w-full py-3 rounded-[8px] 
-         text-[#FFFFFF] font-inter 
-         font-[500] text-[14px] bg-[#5555DD]">
+         onClick={() => setShowInput(true)}
+          className="md:w-[300px] md:h-[53px] md:rounded-[8px] text-[#FFFFFF] font-inter font-[500] md:text-[16px] bg-[#5555DD]">
          Make Offer
-       </Button>
+        </Button>
+      )}
      </div>
    </div>
    </div>
@@ -202,20 +324,51 @@ export default function HomeListDetails({ sellerId }) {
       {/* Toogle Switch */}
       <div className="bg-[#FAFAFA] md:w-[650px] md:h-[44px] md:rounded-[4px]">
         <div className="flex space-x-4 mb-4">
-           <Button
+           {propertyAd && (
+            <Button
+            className={`
+             w-full sm:w-auto
+             min-w-[200px]
+              h-[44px]
+             whitespace-nowrap
+             rounded-tl-[4px] rounded-tr-[4px]
+             text-center text-sm sm:text-base
+             overflow-hidden 
+            ${activeTab === "car"
+           ? "bg-[#DFDFF9] text-[#000087]"
+           : "bg-gray-200 text-gray-700"}`}
+           onClick={() => setActiveTab("car")}>
+            Commercial Property 
+          </Button>
+
+           )}
+           {vehicleAd && (
+            <Button
              className={`py-2 px-4 min-w-[120px] h-[40px] md:h-[44px] rounded-tl-[4px] whitespace-nowrap rounded-tr-[4px] text-center ${
                   activeTab === "car" ? "bg-[#DFDFF9] text-[#000087]" : "bg-gray-200 text-gray-700"
                   }`}
                    onClick={() => setActiveTab("car")}>
               Car Details 
            </Button>
-           <Button
+           )}
+           {propertyAd && (
+            <Button
             className={`py-2 px-4 min-w-[120px] h-[40px] md:h-[44px] rounded-tl-[4px] whitespace-nowrap rounded-tr-[4px] text-center ${
                activeTab === "review" ? "bg-[#DFDFF9] text-[#000087]" : "bg-gray-200 text-gray-700"
              }`}
               onClick={() => setActiveTab("review")}>
               Review 
            </Button>
+           )}
+           {vehicleAd && (
+            <Button
+            className={`py-2 px-4 min-w-[120px] h-[40px] md:h-[44px] rounded-tl-[4px] whitespace-nowrap rounded-tr-[4px] text-center ${
+               activeTab === "review" ? "bg-[#DFDFF9] text-[#000087]" : "bg-gray-200 text-gray-700"
+             }`}
+              onClick={() => setActiveTab("review")}>
+              Review 
+           </Button>
+           )}
         </div>
       </div>
 
@@ -368,100 +521,33 @@ export default function HomeListDetails({ sellerId }) {
              </div>
              {showDetails && (
               <div className="mt-4">
-                <div className="flex flex-wrap justify-between gap-y-4 gap-x-[4%] max-w-[650px] mx-auto">
-                  {/* Row 1 */}
-                  <div className="flex flex-col w-[48%] md:w-[30%]">
-                     <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-                     Property Type
-                    </span>
-                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                        {propertyAd?.propertyType}
-                    </span>
-                  </div>
-                  <div className="flex flex-col w-[48%] md:w-[30%]">
-                     <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-                      Furnishing
-                    </span>
-                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                        {propertyAd?.furnishing}
-                    </span>
-                  </div>
-                  <div className="flex flex-col w-[48%] md:w-[30%]">
-                     <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-                     Parking Spaces
-                    </span>
-                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                        {propertyAd?.parking}
-                    </span>
-                  </div>
-
-                  {/* Row 2 */}
-                  <div className="flex flex-col w-[48%] md:w-[30%]">
-                     <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-                      Square Meter
-                    </span>
-                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                        {propertyAd?.squareMeter}
-                    </span>
-                  </div>
-                  <div className="flex flex-col w-[48%] md:w-[30%]">
-                     <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-                     Role
-                    </span>
-                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                        {propertyAd?.ownershipStatus}
-                    </span>
-                  </div>
-                  <div className="flex flex-col w-[48%] md:w-[30%]">
-                     <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-                     Payment Duration
-                    </span>
-                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                        {propertyAd?.paymentDuration}
-                    </span>
-                  </div>
-                  <div className="flex flex-col w-[48%] md:w-[30%]">
-                     <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-                      Service Charge
-                    </span>
-                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                        {propertyAd?.serviceCharge}
-                    </span>
-                  </div>
-                  <div className="flex flex-col w-[48%] md:w-[30%]">
-                     <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-                      Negotiation
-                    </span>
-                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                        {propertyAd?.negotiation}
-                    </span>
-                  </div>
-                   <div className="flex flex-col w-[48%] md:w-[30%]">
-                     <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-                      Property Condition
-                    </span>
-                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                        {propertyAd?.propertyCondition}
-                    </span>
-                  </div>
-                  <div className="flex flex-col w-[48%] md:w-[30%]">
-                     <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-                      Property Facilities
-                    </span>
-                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                        {propertyAd?.propertyFacilities}
-                    </span>
-                  </div>
-                  <div className="flex flex-col w-[48%] md:w-[30%]">
-                     <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-                      Property Condition
-                    </span>
-                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                        {propertyAd?.propertyCondition}
-                    </span>
-                  </div>
-                  {/* Continuation can start from here */}
+               <div className="flex flex-wrap justify-between gap-y-4 gap-x-[4%] max-w-[650px] mx-auto">
+                 {[
+                 { label: "Property Type", value: propertyAd?.propertyType },
+                 { label: "Furnishing", value: propertyAd?.furnishing },
+                 { label: "Parking Spaces", value: propertyAd?.parking },
+                 { label: "Square Meter", value: propertyAd?.squareMeter },
+                 { label: "Role", value: propertyAd?.ownershipStatus },
+                 { label: "Payment Duration", value: propertyAd?.paymentDuration },
+                 { label: "Service Charge", value: propertyAd?.serviceCharge },
+                 { label: "Negotiation", value: propertyAd?.negotiation },
+                 { label: "Property Condition", value: propertyAd?.propertyCondition },
+                 { label: "Property Facilities", value: propertyAd?.propertyFacilities },
+                ].map(
+              (item, index) =>
+                item.value && (
+                 <div key={index} className="flex flex-col w-[48%] md:w-[30%]">
+                <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+                 {item.label}
+               </span>
+               <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+                 {item.value}
+               </span>
+             </div>
+            )
+           )}
                 </div>
+
 
                 <div className="flex gap-2 mt-4">
                    <div className="flex flex-col w-[48%] md:w-[33%]">
@@ -681,17 +767,20 @@ export default function HomeListDetails({ sellerId }) {
      <div className="border-[1px] border-[#EDEDED] w-full rounded-[8px] p-4">
      <div className="flex gap-3">
        <Img
-        src={userProfile?.image || "/profile-placeholder.png"}
+        src={userProfile?.image || "/profile-circles1.svg"}
         alt="Profile Image"
         width={52}
         height={52}
-        className="w-[40px] h-[40px]"
+        className="w-[40px] h-[40px] rounded-[30px]"
       />
       <div className="flex flex-col">
-          <span className="text-[#000000] text-[14px] font-[500] font-inter">
-           {business?.businessName || "Business Name"}
-        </span>
-        <div className="mt-1 flex items-center gap-2 bg-[#E9F4E8] w-auto h-[16px] rounded-[2px] px-2">
+         <Link href={`/seller-profile/${sellerId}`} className="underline">
+            <span className="text-[#000000] text-[14px] font-[500] font-inter">
+             {businessName}
+          </span>
+          </Link>
+         {userProfile?.isVerified ? (
+           <div className="mt-1 flex items-center gap-2 bg-[#E9F4E8] w-auto h-[16px] rounded-[2px] px-2">
           <Img
             src="/profile.svg"
             alt="Verified Icon"
@@ -703,6 +792,20 @@ export default function HomeListDetails({ sellerId }) {
             Verified User
           </span>
         </div>
+         ): (
+           <div className="mt-1 flex items-center gap-2 bg-[#E9F4E8] w-auto h-[16px] rounded-[2px] px-2">
+          <Img
+            src="/profile.svg"
+            alt="Verified Icon"
+            width={10}
+            height={10}
+            className="w-[10px] h-[10px]"
+          />
+          <span className="text-[#238E15] text-[10px] font-[500] font-inter">
+            Unverified User
+          </span>
+        </div>
+         )}
         <span className="mt-1 text-[#868686] text-[10px] font-[400] font-inter">
           Last Seen 20h ago
         </span>
@@ -728,9 +831,14 @@ export default function HomeListDetails({ sellerId }) {
     <div className="mt-2">
     <MessageSellerButton
        sellerId={sellerId}
-       openAuthModal={() => setShowSignInModal(true)}
+       productId={id}
+        openAuthModal={openAuthModal} 
+       productImage={productImage}
+       productTitle={productTitle}
+       //openAuthModal={() => setShowSignInModal(true)}
      />
-     {showSignInModal && (
+      {!sellerId && <p className="text-red-500">Seller ID not found for this product.</p>}
+     {/* {showSignInModal && (
        <SignUpModal 
          onClose={() => setShowSignInModal(false)}
          initialView="signin"
@@ -741,7 +849,7 @@ export default function HomeListDetails({ sellerId }) {
          onClose={() => setShowSignUpModal(false)}
          initialView="signup"
        />
-      )}
+      )} */}
     </div>
      <div className="mt-2">
       
@@ -819,42 +927,78 @@ export default function HomeListDetails({ sellerId }) {
        {propertyAd && (
         <span className="text-[#525252] md:text-[24px] font-[500] font-inter">₦{propertyAd.amount?.toLocaleString()}</span>
        )}
+       {vehicleAd && (
+        <span className="text-[#525252] md:text-[24px] font-[500] font-inter">₦{vehicleAd.amount?.toLocaleString()}</span>
+       )}
      </div>
      <div className="p-4">
+      {showInput ? (
+        <div className="relative w-full">
+           <input
+              type="number"
+              placeholder="Enter your offer"
+              value={offerAmount}
+              onChange={(e) => setOfferAmount(e.target.value)}
+               className="w-full h-[44px] rounded-[8px] px-4 pr-12 border-[1px] focus:outline-none border-[#868686] text-[16px] font-inter"
+           />
+           <button
+             onClick={handleSendOffer}
+             className="absolute right-3 top-1/2 transform -translate-y-1/2">
+               <Img
+                 src="/offerImg.svg"
+                 width={17.9}
+                 height={18}
+                 className="w-[17.9px] h-[18px]"
+               />
+           </button>
+        </div>
+      ): (
        <Button 
-         className="md:w-[300px] md:h-[53px] md:rounded-[8px] text-[#FFFFFF] font-inter font-[500] md:text-[16px] bg-[#5555DD]">
+         onClick={() => setShowInput(true)}
+          className="md:w-[300px] md:h-[53px] md:rounded-[8px] text-[#FFFFFF] font-inter font-[500] md:text-[16px] bg-[#5555DD]">
          Make Offer
-       </Button>
+        </Button>
+      )}
      </div>
    </div>
       </div>
        <div className="hidden md:block">
-      <div 
+      {business && (
+         <div 
         className="border-[1px] border-[#EDEDED] md:w-[330px]
          md:h-[276px] md:rounded-[8px] mt-5 p-4">
          <div className="flex  gap-3">
-            <Img 
-             src={userProfile?.image || "/profile-placeholder.png"}
-             alt="Profile Image"
-             width={52}
-             height={52}
-             className="md:w-[52px] md:h-[52px]"/>
+             {businessProfileImage && (
+              <Img
+                src={
+                  businessProfileImage
+                  ? getImageUrl(businessProfileImage)
+                  : "/profile-circles1.svg"
+                }
+                alt="Business Profile"
+                width={52}
+                height={52}
+                className="w-[52px] h-[52px] rounded-full object-cover"
+              />
+            )}
              <div className="flex flex-col">
-               <span className="text-[#000000] whitespace-nowrap md:text-[18px] font-[500] font-inter">
-                 {business?.businessName || "Business Name"}
-               </span>
-            <div className="mt-1 flex items-center gap-2 bg-[#E9F4E8]  md:w-[93px] md:h-[16px] md:rounded-[2px]">
-              <Img 
-                src="/profile.svg"
-                alt="Verified Icon"
-                width={10}
-                height={10}
-                className="w-[10px] h-[10px] ml-1"/>
-                <span 
-                  className="md:text-[#238E15] font-[500] md:text-[10px] font-inter">
-                    Verified User
-                 </span>
-            </div>
+              <Link href={`/seller-profile/${sellerId}`} className="underline">
+               <span className="text-[#000000] text-[14px] font-[500] font-inter">
+                  {businessName}
+              </span>
+             </Link>
+           <div className="mt-1 flex items-center gap-2 bg-[#E9F4E8] w-auto h-[16px] rounded-[2px] px-2">
+          <Img
+            src="/profile.svg"
+            alt="Verified Icon"
+            width={10}
+            height={10}
+            className="w-[10px] h-[10px]"
+          />
+          <span className="text-[#238E15] text-[10px] font-[500] font-inter">
+          {userProfile?.isVerified  ? "Verified" : "Unverified"}
+          </span>
+        </div>
             <span className="mt-1 text-[#868686] font-inter font-[400] md:text-[12px]">Last Seen 20h ago</span>
            <span className="mt-1 text-[#868686] text-[10px] font-[400] font-inter"> {userProfile?.createdAt ? ( `Joined Tenaly on ${new Date(userProfile.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}` ) : ( "Joined Tenaly" )} </span>
             </div>
@@ -876,12 +1020,16 @@ export default function HomeListDetails({ sellerId }) {
               </Button>
             </div>
             <div className="mt-2">
-              <MessageSellerButton 
-               sellerId={sellerId}
-               openAuthModal={() => setShowSignInModal(true)}
-              />
+             <MessageSellerButton
+  sellerId={sellerId}
+  productId={productId}
+  productImage={getImageUrl(productImage)}
+  productTitle={productTitle}
+  openAuthModal={openAuthModal}
+/>
 
-             {showSignInModal && (
+
+             {/* {showSignInModal && (
              <SignUpModal 
               onClose={() => setShowSignInModal(false)}
               initialView="signin"
@@ -893,9 +1041,10 @@ export default function HomeListDetails({ sellerId }) {
              onClose={() => setShowSignUpModal(false)}
              initialView="signup"
             />
-           )}
+           )} */}
             </div>
-          </div>
+      </div>
+      )}
 
           <div className="hidden md:block">
           <div 

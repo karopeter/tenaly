@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react";
 import api from "@/services/api";
 import { useParams, useRouter } from "next/navigation";
-import Img from "../Image";
 import { ArrowLeftIcon } from '@heroicons/react/24/solid';
 import BusinessLink from "../navbar/business.link";
 import InputField from "../input";

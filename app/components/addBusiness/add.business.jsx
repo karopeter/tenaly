@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Img from "../Image";
-import { Plus } from "lucide-react";
+import { Plus, MoreVertical } from "lucide-react";
 import Button from "../Button";
 import { useRouter, useSearchParams } from "next/navigation";
 import BusinessLink from "../navbar/business.link";
@@ -56,11 +56,11 @@ function BusinessCard({ biz, index }) {
       <span className="text-[#525252] text-[14px] font-[500] font-inter">
         {addrObj.address}
       </span>
-    </div>
-  </div>
-))}
-       </div>
      </div>
+    </div>
+    ))}
+    </div>
+    </div>
     </div>
    </div>
     </div>
@@ -73,6 +73,7 @@ export default function AddBusiness() {
   const businessId = searchParams.get("businessId");
   const [businesses, setBusinesses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
     const router = useRouter();
 
    
@@ -83,7 +84,7 @@ export default function AddBusiness() {
           setBusinesses(res.data);
         } catch (err) { 
           if (err.response?.status === 404) {
-            setBusinesses([]); // No businesses
+            setBusinesses([]); 
           } else {
             toast.error("Failed to load businesses");
           }
@@ -98,58 +99,82 @@ export default function AddBusiness() {
     if (loading) return <p className="text-center mt-20">Loading....</p>
 
     return (
-     <div className="flex md:flex-row w-full gap-2 min-h-screen mt-10">
+    <div className="relative flex flex-col md:flex-row w-full gap-2 min-h-screen mt-10">
+     {/* Desktop sidebar */}
+    <div className="hidden md:block">
       <BusinessLink />
-      <div className="flex-1">
-        <div className="bg-white shadow p-4 rounded-lg h-auto">
-          {businesses.length === 0 ? (
-            <>
-              <div className="mt-20">
-                <Img
-                  src="/postAds.svg"
-                  width={158}
-                  height={158}
-                  className="mx-auto mb-4"
-                  alt="No Business Post"
-                />
-              </div>
-              <p className="text-[#868686] mt-2 font-inter font-medium md:text-[14px] text-center">
-                No Business added yet
-              </p>
-              <div className="flex justify-center">
-                <Button
-                  onClick={() => router.push("/create-business")}
-                  className="flex items-center gap-2 px-6 py-2 mt-5 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px]"
-                >
-                  <Plus size={20} />
-                  Add a business
-                </Button>
-              </div>
-            </>
-          ) : (
-            <>
-            <div className="flex flex-row justify-between items-center w-full gap-4 mb-4">
-             <h2 className="text-[14px] text-[#525252] font-[500] font-inter whitespace-nowrap">Business Details</h2>
-             <Button className="flex flex-row gap-2">
-             <Img
-              src="/add-circle.svg"
-              alt="Add-Circle"
-              width={20}
-              height={20}
-             className="md:w-[20px] md:h-[20px]" />
-            <Link 
-               href="/create-business"
-              className="whitespace-nowrap text-[#000087] text-[14px] font-[400] font-inter">
-                Add another business</Link>
-           </Button>
+    </div>
+
+  {/* Mobile: 3 dots button on top-right of the card */}
+  <div className="absolute top-0 right-4 z-30 md:hidden">
+    <button
+      onClick={() => setShowMobileMenu(!showMobileMenu)}
+      className="p-1"
+      aria-label="Toggle menu">
+      <MoreVertical size={22} />
+    </button>
+  </div>
+
+  {/* Mobile Menu Dropdown */}
+  {showMobileMenu && (
+    <div className="absolute top-10 left-0 w-full bg-white z-20 shadow-md p-4 md:hidden">
+      <BusinessLink />
+    </div>
+  )}
+
+  {/* Main Content */}
+  <div className="flex-1 px-4 md:px-0 mt-10 md:mt-0">
+    <div className="bg-white shadow-md p-4 rounded-lg w-full">
+      {businesses.length === 0 ? (
+        <>
+          <div className="mt-20">
+            <Img
+              src="/postAds.svg"
+              width={158}
+              height={158}
+              className="mx-auto mb-4"
+              alt="No Business Post"
+            />
           </div>
-            {businesses.map((biz, index) => (
-               <BusinessCard key={biz._id} biz={biz} index={index} />
-            ))}
-          </>
-          )}
-        </div>
+          <p className="text-[#868686] mt-2 font-inter font-medium text-[14px] text-center">
+            No Business added yet
+          </p>
+          <div className="flex justify-center">
+            <Button
+              onClick={() => router.push("/create-business")}
+              className="flex items-center gap-2 px-6 py-2 mt-5 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px]"
+            >
+              <Plus size={20} />
+              Add a business
+            </Button>
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-4 mt-2">
+            <h2 className="text-[14px] text-[#525252] font-[500] font-inter whitespace-nowrap">
+              Business Details
+            </h2>
+            <Link 
+             href="/create-business"
+             className="flex items-center gap-2 text-[#000087] text-[14px] font-[400] font-inter bg-transparent whitespace-nowrap">
+              <Img
+                src="/add-circle.svg"
+                alt="Add-Circle"
+                width={20}
+                height={20}
+                className="md:w-[20px] md:h-[20px]"
+              />
+               Add another business
+            </Link>
+          </div>
+          {businesses.map((biz, index) => (
+            <BusinessCard key={biz._id} biz={biz} index={index} />
+          ))}
+        </>
+      )}
       </div>
     </div>
-    )
+    </div>
+  );
 }
