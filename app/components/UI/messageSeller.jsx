@@ -30,7 +30,7 @@ const MessageSellerButton = ({sellerId, productId,  openAuthModal, productImage,
   return (
     <Button
         onClick={handleClick}
-        className="flex items-center justify-center gap-2 border-[1px] border-[#EDEDED] w-full h-[40px] rounded-[8px] text-[#525252] text-[12px] font-inter font-[500]"
+        className="flex items-center justify-center gap-2 border-[1px] border-[#EDEDED] w-full h-[40px] whitespace-nowrap rounded-[8px] text-[#525252] text-[12px] font-inter font-[500]"
       >
         <Img
           src="/message.svg"

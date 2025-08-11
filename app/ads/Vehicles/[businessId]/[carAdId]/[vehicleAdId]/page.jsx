@@ -6,12 +6,11 @@ import Img from '@/app/components/Image';
 import Link from "next/link";
 import { carColors } from '@/app/lib/carData';
 import Button from '@/app/components/Button';
-import MessageSellerButton from '@/app/components/UI/messageSeller';
 import ReviewsDetailsPage from '@/app/components/features/reviews-details';
 import SignUpModal from '@/app/hooks/signup-modal';
 import { toast } from 'react-toastify';
 
-export default function CarAdDetails({ specs, sellerId }) {
+export default function CarAdDetails() {
   const [activeTab, setActiveTab] = useState("car");
   const [showInput, setShowInput] = useState(false);
   const [offerAmount, setOfferAmount] = useState("");
@@ -84,18 +83,18 @@ export default function CarAdDetails({ specs, sellerId }) {
     return  (
       <div className="md:px-[104px] px-4 md:ml-10">
          <div className="mt-28 flex items-center gap-2 mb-4 text-[#868686] md:text-[14px] font-[400] font-inter flex-nowrap">
-           <Link href="/" className="hover:text-[#000] transition-all whitespace-nowrap">
+           <Link href="/Product-List" className="hover:text-[#000] transition-all whitespace-nowrap">
               Home&nbsp;&rsaquo;
            </Link>
          {carAd && (
-           <Link href="/cars" className="text-[#000087] text-[14px] font-[500] font-inter whitespace-nowrap">
+           <span  className="text-[#000087] text-[14px] font-[500] font-inter whitespace-nowrap">
              {carAd.category}
-           </Link>
+           </span>
          )}
          {vehicleAd && (
-          <Link href="/vehicles" className="text-[#000087] text-[13px] md:text-[14px] font-[500] font-inter whitespace-nowrap">
+          <span className="text-[#000087] text-[13px] md:text-[14px] font-[500] font-inter whitespace-nowrap">
             {vehicleAd.vehicleType} {vehicleAd.model} {vehicleAd.horsePower} {vehicleAd.trim} {vehicleAd.year}  {vehicleAd.color}
-          </Link>
+          </span>
         )}
          </div>
 
@@ -207,11 +206,8 @@ export default function CarAdDetails({ specs, sellerId }) {
            </button>
         </div>
       ): (
-       <Button 
-         onClick={() => setShowInput(true)}
-          className="md:w-[300px] md:h-[53px] md:rounded-[8px] text-[#FFFFFF] font-inter font-[500] md:text-[16px] bg-[#5555DD]">
-         Make Offer
-        </Button>
+      <>
+      </>
       )}
      </div>
    </div>
@@ -637,7 +633,7 @@ export default function CarAdDetails({ specs, sellerId }) {
             className="w-[10px] h-[10px]"
           />
           <span className="text-[#238E15] text-[10px] font-[500] font-inter">
-            Verified User
+            {userProfile?.isVerified ? "Verified" : "Unverified"}
           </span>
         </div>
         <span className="mt-1 text-[#868686] text-[10px] font-[400] font-inter">
@@ -671,22 +667,6 @@ export default function CarAdDetails({ specs, sellerId }) {
       </Button>
     </div>
     <div className="mt-2">
-      <MessageSellerButton 
-      sellerId={sellerId}
-      openAuthModal={() => setShowSignInModal(true)}
-      />
-      {showSignInModal && (
-        <SignUpModal 
-          onClose={() => setShowSignInModal(false)}
-          initialView="signin"
-       />
-      )}
-      {showSignUpModal && (
-        <SignUpModal 
-         onClose={() => setShowSignUpModal(false)}
-         initialView="signup"
-        />
-      )}
     </div>
     <div className="mt-2">
       
@@ -788,11 +768,8 @@ export default function CarAdDetails({ specs, sellerId }) {
            </button>
         </div>
       ): (
-       <Button 
-         onClick={() => setShowInput(true)}
-          className="md:w-[300px] md:h-[53px] md:rounded-[8px] text-[#FFFFFF] font-inter font-[500] md:text-[16px] bg-[#5555DD]">
-         Make Offer
-        </Button>
+      <>
+      </>
       )}
      </div>
    </div>
@@ -823,7 +800,7 @@ export default function CarAdDetails({ specs, sellerId }) {
                 className="w-[10px] h-[10px] ml-1"/>
                 <span 
                   className="md:text-[#238E15] font-[500] md:text-[10px] font-inter">
-                    Verified User
+                  {userProfile?.isVerified ? "Verified" : "Unverified"}
                  </span>
             </div>
             <span className="mt-1 text-[#868686] font-inter font-[400] md:text-[12px]">Last Seen 20h ago</span>
@@ -855,24 +832,6 @@ export default function CarAdDetails({ specs, sellerId }) {
               </Button>
             </div>
             <div className="mt-2">
-              <MessageSellerButton 
-               sellerId={sellerId}
-               openAuthModal={() => setShowSignInModal(true)}
-              />
-
-             {showSignInModal && (
-             <SignUpModal 
-              onClose={() => setShowSignInModal(false)}
-              initialView="signin"
-             />
-            )}
-
-           {showSignUpModal && (
-            <SignUpModal 
-             onClose={() => setShowSignUpModal(false)}
-             initialView="signup"
-            />
-           )}
             </div>
           </div>
 

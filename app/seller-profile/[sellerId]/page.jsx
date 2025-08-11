@@ -174,7 +174,7 @@ export default function SellerProfile() {
             <div className="flex-1">
               <div className="flex items-start justify-between">
                 <div>
-                  <h1 className="text-2xl md:text-3xl font-bold text-[#000000] font-inter mb-2">
+                  <h1 className="text-2xl md:text-3xl font-bold text-[#000000] font-inter mb-2 whitespace-nowrap">
                     {businessData?.businessName || "Business Name"}
                   </h1>
                   
@@ -233,7 +233,10 @@ export default function SellerProfile() {
 
                 {/* Action Buttons */}
                 <div className="flex flex-col gap-2 ml-4">
-                  <Button className="bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2">
+                  <Button 
+                     className="bg-gradient-to-r from-[#00A8DF] to-[#1031AA] 
+                     text-white px-6 py-2 rounded-lg font-medium
+                      transition-colors flex items-center gap-2 whitespace-nowrap">
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
                     </svg>
@@ -372,8 +375,10 @@ export default function SellerProfile() {
                   const plan = adData.plan;
 
                   return (
-                    <Link href={`/Product-List/${adId}`} key={adId}>
-                      <div className="bg-white rounded-xl shadow-sm border hover:shadow-lg transition-all duration-300 overflow-hidden group cursor-pointer">
+                     <div 
+                       className="bg-white rounded-xl shadow-sm border 
+                       hover:shadow-lg transition-all duration-300 
+                       overflow-hidden group cursor-pointer">
                         {/* Image Container */}
                         <div className="relative aspect-[4/3] overflow-hidden">
                           {imageUrl ? (
@@ -448,7 +453,6 @@ export default function SellerProfile() {
                           </div>
                         </div>
                       </div>
-                    </Link>
                   );
                 })}
               </div>

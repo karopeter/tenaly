@@ -5,7 +5,6 @@ import Link from "next/link";
 import Img from "@/app/components/Image";
 import Button from "@/app/components/Button";
 import api from "@/services/api";
-import SignUpModal from "@/app/hooks/signup-modal";
 import MessageSellerButton from "@/app/components/UI/messageSeller";
 import { toast } from "react-toastify";
 import { useAuth } from "@/app/context/AuthContext";
@@ -113,7 +112,7 @@ export default function HomeListDetails() {
       <section className="px-4 md:px-10 mt-10 flex flex-col items-center justify-center min-h-[200px]">
          <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading ad details...</p>
+          <p className="mt-4 text-gray-600 font-inter">Loading Products details...</p>
         </div>
       </section>
     );
@@ -127,6 +126,7 @@ export default function HomeListDetails() {
    
     return <section className="px-4 md:px-10 mt-10 text-center">Ad not found.</section>;
   }
+
 
   const { carAd, vehicleAd, propertyAd, business } = adData;
   const actualBusinessId = carAd?.businessCategory?._id || carAd?.businessCategory;
@@ -142,17 +142,23 @@ export default function HomeListDetails() {
 
 
  
-  const productTitle = carAd 
-    ? `${vehicleAd?.vehicleType || ""} ${vehicleAd?.model || ""} ${
-        vehicleAd?.year || ""
-      }`.trim()
-    : propertyAd?.propertyName || "Product";
+const productTitle =
+  propertyAd?.propertyName ||
+  (vehicleAd ? `${vehicleAd.vehicleType} ${vehicleAd.model}` : "") ||
+  (carAd ? `${carAd.vehicleType} ${carAd.model}` : "");
 
-     const productImage = carAd?.vehicleImage?.[0]
-    ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${carAd.vehicleImage[0].replace(/\\/g, "/")}`
-    : propertyAd?.propertyImage?.[0]
-    ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${propertyAd.propertyImage[0].replace(/\\/g, "/")}`
-    : null;
+// Pick correct product image
+const productImage =
+  propertyAd?.propertyImage?.[0] ||
+  vehicleAd?.vehicleImage?.[0] ||
+  carAd?.vehicleImage?.[0];
+
+
+// Product ID (the ad's own ID)
+const productId =
+  propertyAd?._id ||
+  vehicleAd?._id ||
+  carAd?._id;
 
     // Debug Logs to check the IDS 
     console.log("Business object:", business);
@@ -981,7 +987,6 @@ export default function HomeListDetails() {
                   {businessName}
               </span>
              </Link>
-               {isBusinessVerified && (
            <div className="mt-1 flex items-center gap-2 bg-[#E9F4E8] w-auto h-[16px] rounded-[2px] px-2">
           <Img
             src="/profile.svg"
@@ -991,10 +996,9 @@ export default function HomeListDetails() {
             className="w-[10px] h-[10px]"
           />
           <span className="text-[#238E15] text-[10px] font-[500] font-inter">
-          {isBusinessVerified ? "Verified" : "Unverified"}
+          {userProfile?.isVerified  ? "Verified" : "Unverified"}
           </span>
         </div>
-             )}
             <span className="mt-1 text-[#868686] font-inter font-[400] md:text-[12px]">Last Seen 20h ago</span>
            <span className="mt-1 text-[#868686] text-[10px] font-[400] font-inter"> {userProfile?.createdAt ? ( `Joined Tenaly on ${new Date(userProfile.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}` ) : ( "Joined Tenaly" )} </span>
             </div>
@@ -1016,13 +1020,14 @@ export default function HomeListDetails() {
               </Button>
             </div>
             <div className="mt-2">
-              <MessageSellerButton 
-               sellerId={sellerId}
-               productId={id}
-               productImage={productImage}
-               productTitle={productTitle}
-                openAuthModal={openAuthModal} 
-              />
+             <MessageSellerButton
+  sellerId={sellerId}
+  productId={productId}
+  productImage={getImageUrl(productImage)}
+  productTitle={productTitle}
+  openAuthModal={openAuthModal}
+/>
+
 
              {/* {showSignInModal && (
              <SignUpModal 

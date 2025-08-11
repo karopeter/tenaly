@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import Sidebar from "../components/navbar/sidebar";
 import Content from "./content";
 
@@ -39,18 +39,21 @@ export default function BusinessDelivery() {
         <div className="flex flex-col md:flex-row gap-10">
           {!isMobile && (
             <div>
-             <Sidebar
-              isMobile={isMobile}
-              activeSection={activeSection}
-              setActiveSection={setActiveSection}
-            />
+              <Sidebar
+                isMobile={isMobile}
+                activeSection={activeSection}
+                setActiveSection={setActiveSection}
+              />
             </div>
           )}
-          <Content
-            activeSection={activeSection}
-            setActiveSection={setActiveSection}
-            isMobile={isMobile}
-          />
+          {/* The fix: wrapping Content in a Suspense boundary */}
+          <Suspense fallback={<div>Loading delivery content...</div>}>
+            <Content
+              activeSection={activeSection}
+              setActiveSection={setActiveSection}
+              isMobile={isMobile}
+            />
+          </Suspense>
         </div>
       </div>
     );

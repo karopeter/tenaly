@@ -1,7 +1,5 @@
-
-
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import Sidebar from "../components/navbar/sidebar";
 import Content from "./content";
 
@@ -50,11 +48,14 @@ export default function Profile() {
               setActiveSection={setActiveSection}
             />
           )}
-          <Content
-            activeSection={activeSection}
-            setActiveSection={setActiveSection}
-            isMobile={isMobile}
-          />
+          {/* The fix: wrapping Content in a Suspense boundary */}
+          <Suspense fallback={<div>Loading profile content...</div>}>
+            <Content
+              activeSection={activeSection}
+              setActiveSection={setActiveSection}
+              isMobile={isMobile}
+            />
+          </Suspense>
         </div>
       </div>
     );

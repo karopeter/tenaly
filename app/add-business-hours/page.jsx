@@ -1,11 +1,12 @@
 "use client";
+import { Suspense } from "react";
 import BusinessHoursForm from "../components/BusinessForm/business-hours-form";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import Sidebar from "../components/navbar/sidebar";
 
 export default function BusinessHoursAdd() {
-   const router = useRouter();
+    const router = useRouter();
   
     const handleBack = () => {
       // Navigate back to the dashboard when the back button is clicked
@@ -13,13 +14,13 @@ export default function BusinessHoursAdd() {
     };
 
     return (
-    <div className="md:px-[104px] px-4 md:ml-10 mt-20 md:mt-40">
-          <div className="flex flex-col md:flex-row gap-10">
+      <div className="md:px-[104px] px-4 md:ml-10 mt-20 md:mt-40">
+        <div className="flex flex-col md:flex-row gap-10">
           {/* Sidebar for desktop view */}
           <div className="hidden md:block">
             <Sidebar activeSection="Business Profile" />
           </div>
-            {/* Main content area */}
+          {/* Main content area */}
           <main className="flex-1">
             {/* Back button for mobile view */}
             <button 
@@ -28,9 +29,12 @@ export default function BusinessHoursAdd() {
             >
               <ArrowLeft size={20} /> Back
             </button>
+            {/* The fix: wrapping the form in a Suspense boundary */}
+            <Suspense fallback={<div>Loading business hours form...</div>}>
               <BusinessHoursForm onBack={handleBack} />
+            </Suspense>
           </main>
-          </div>
-    </div>
-  );
+        </div>
+      </div>
+    );
 }

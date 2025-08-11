@@ -210,18 +210,25 @@ export default function NotificationPage() {
                 >
                   {/* Left: Image + Message */}
                   <div className="flex items-center gap-3">
-                    <Img
-                      src={imageUrl}
+                    <Img 
+                      src="/notifUpdate.png"
                       alt="Ad"
                       width={64}
                       height={64}
                       className="w-16 h-16 rounded-md object-cover"
                     />
+                    {/* <Img
+                      src={imageUrl}
+                      alt="Ad"
+                      width={64}
+                      height={64}
+                      className="w-16 h-16 rounded-md object-cover"
+                    /> */}
                     <div className="flex flex-col">
                       <p className="text-[#525252] font-[400] font-inter text-[12px] md:text-[14px] break-words leading-snug">
                         {notif.message}
                         <span>
-                          <Link href="/view-vehicle-add" className="underline block md:inline">
+                          <Link href="/Product-List" className="underline block md:inline">
                             View ad
                           </Link>
                         </span>
