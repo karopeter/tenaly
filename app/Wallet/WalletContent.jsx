@@ -220,7 +220,7 @@ export default function WalletContent() {
             <li
               key={reference}
               className="py-2 flex justify-between font-inter text-sm text-gray-700">
-             <span>{type === "credit" ? "-" : "+"} ₦{amount}</span>
+             <span>{type === "credit" ? "+" : "-"} ₦{amount}</span>
              <span>{paymentDate ? new Date(paymentDate).toLocaleDateString() : "No Date"}</span>
            </li>
            ))}
