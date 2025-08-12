@@ -84,97 +84,101 @@ export default function CreateCarContent() {
     setUploadedImages((prev) => prev.filter((_, i) => i !== index));
   };
 
+  // The isFormValid check has been updated to remove the requirement for the 'link' field.
   const isFormValid =
     category !== "" &&
     location !== "Choose location" &&
-    link.trim() !== "" &&
     uploadedImages.length >= 5 &&
     businessId !== "";
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  if (!isFormValid) {
-    setError("Please complete all fields and upload at least 5 images.");
-    return;
-  }
-
-  setLoading(true);
-  setError("");
-  setMessage("");
-
-  try {
-    const token = localStorage.getItem("token");
-    if (!token) throw new Error("Not authenticated");
-
-    const userRes = await api.get("/profile");
-    const user = userRes.data;
-
-    if (!user.phoneNumber) {
-      setShowPhoneModal(true);
-      setLoading(false);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    // The form now checks for validity without requiring the link.
+    if (!isFormValid) {
+      setError("Please complete all required fields and upload at least 5 images.");
       return;
     }
 
-    const { baseCategory, categoryValue } = getCategoryDetails();
+    setLoading(true);
+    setError("");
+    setMessage("");
 
-    // Create FormData for multipart/form-data
-    const formData = new FormData();
-    
-    // Append text fields
-    formData.append("category", categoryValue);
-    formData.append("location", location);
-    formData.append("link", link);
-    
-    // Append images - make sure this matches your backend expectation
-    uploadedImages.forEach((file, index) => {
-      formData.append("images", file); // This matches cloudUpload.array("images", 10)
-    });
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("Not authenticated");
 
-    // Log for debugging (remove in production)
-    console.log("Submitting form data:");
-    console.log("Category:", categoryValue);
-    console.log("Location:", location);
-    console.log("Link:", link);
-    console.log("Images count:", uploadedImages.length);
-    console.log("Business ID:", businessId);
+      const userRes = await api.get("/profile");
+      const user = userRes.data;
 
-    const res = await api.post(`/carAdd/${businessId}`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-        // Don't manually set Authorization header if api.js already handles it
-      },
-    });
+      if (!user.phoneNumber) {
+        setShowPhoneModal(true);
+        setLoading(false);
+        return;
+      }
 
-    const data = res.data;
-    setMessage(`✅ ${data.message}`);
-    toast.success("Post Ad created successfully!");
+      const { baseCategory, categoryValue } = getCategoryDetails();
 
-    // Reset form after successful submission
-    setCategory("");
-    setLocation("Choose location");
-    setLink("");
-    setUploadedImages([]);
-    setBusinessId("");
+      // Create FormData for multipart/form-data
+      const formData = new FormData();
+      
+      // Append text fields
+      formData.append("category", categoryValue);
+      formData.append("location", location);
 
-    const route = routeMap[categoryValue];
-    if (route) {
-      router.push(route);
-    } else if (baseCategory === "Vehicle") {
-      router.push("/more-post-vehicle");
-    } else if (baseCategory === "Property") {
-      router.push("/more-property-post");
-    } else {
-      throw new Error("Unknown category selected.");
+      // The link field is now only appended if it has a value, making it optional.
+      if (link.trim() !== "") {
+        formData.append("link", link);
+      }
+      
+      // Append images - make sure this matches your backend expectation
+      uploadedImages.forEach((file, index) => {
+        formData.append("images", file);
+      });
+
+      // Log for debugging (remove in production)
+      console.log("Submitting form data:");
+      console.log("Category:", categoryValue);
+      console.log("Location:", location);
+      console.log("Link:", link);
+      console.log("Images count:", uploadedImages.length);
+      console.log("Business ID:", businessId);
+
+      const res = await api.post(`/carAdd/${businessId}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      const data = res.data;
+      setMessage(`✅ ${data.message}`);
+      toast.success("Post Ad created successfully!");
+
+      // Reset form after successful submission
+      setCategory("");
+      setLocation("Choose location");
+      setLink("");
+      setUploadedImages([]);
+      setBusinessId("");
+
+      const route = routeMap[categoryValue];
+      if (route) {
+        router.push(route);
+      } else if (baseCategory === "Vehicle") {
+        router.push("/more-post-vehicle");
+      } else if (baseCategory === "Property") {
+        router.push("/more-property-post");
+      } else {
+        throw new Error("Unknown category selected.");
+      }
+    } catch (err) {
+      console.error("Submit error:", err);
+      const errorMessage = err.response?.data?.message || err.message || "An unexpected error occurred";
+      toast.error(errorMessage);
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    console.error("Submit error:", err);
-    const errorMessage = err.response?.data?.message || err.message || "An unexpected error occurred";
-    toast.error(errorMessage);
-    setError(errorMessage);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   const handleLocationSelect = ({ state: selectedState, lga }) => {
     setState(selectedState);
@@ -210,7 +214,7 @@ const handleSubmit = async (e) => {
           <div className="mb-6 flex justify-center">
             <input
               type="url"
-              placeholder="Link (e.g. YouTube, Facebook…)"
+              placeholder="Link (e.g. YouTube, Facebook…) (Optional)"
               value={link}
               onChange={(e) => setLink(e.target.value)}
               className="w-full md:w-[481px] h-[52px] border border-[#CDCDD7] rounded-[4px] px-3 focus:outline-none"

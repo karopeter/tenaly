@@ -18,8 +18,7 @@ import api from "@/services/api";
 import { format, isSameDay, parseISO } from "date-fns";
 import { useSearchParams } from "next/navigation";
 
-// This is the component that uses the useSearchParams hook.
-// It is now a separate component to be wrapped by Suspense.
+
 function MessageContent() {
   const { token } = useAuth();
   const [profile, setProfile] = useState(null);
@@ -456,46 +455,62 @@ function MessageContent() {
 
         {/* Right Panel */}
         <div className="flex-1 flex flex-col h-full min-h-0 bg-white">
-          <div className="border-b border-gray-200 px-4 py-3 flex items-center justify-between bg-[#FAFAFA]">
-            <div className="flex items-center gap-2">
-              {selectedUser?.img && (
-                <Img
-                  src={selectedUser.img || "/profile-circles1.svg"}
-                  alt={selectedUser.fullName || "User"}
-                  width={40}
-                  height={40}
-                  className="rounded-full"
+          {selectedUser ? (
+            <>
+              <div className="border-b border-gray-200 px-4 py-3 flex items-center justify-between bg-[#FAFAFA]">
+                <div className="flex items-center gap-2">
+                  {selectedUser?.img && (
+                    <Img
+                      src={selectedUser.img || "/profile-circles1.svg"}
+                      alt={selectedUser.fullName || "User"}
+                      width={40}
+                      height={40}
+                      className="rounded-full"
+                    />
+                  )}
+                  <p className="font-medium text-[#525252] text-base">
+                    {selectedUser?.fullName || "Select a chat"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex-1 overflow-y-auto px-4 py-2 space-y-3">
+                {renderMessages()}
+                {typingUser === selectedUser?._id && (
+                  <div className="text-sm text-gray-500 italic">Typing...</div>
+                )}
+              </div>
+
+              {chatRoomId && selectedUser && (
+                <ChatInput
+                  onSend={handleSend}
+                  conversationId={chatRoomId}
+                  recipientId={selectedUser._id}
+                  token={token}
+                  onTyping={() => emitTyping(chatRoomId)}
+                  onStopTyping={() => emitStopTyping(chatRoomId)}
                 />
               )}
-              <p className="font-medium text-[#525252] text-base">
-                {selectedUser?.fullName || "Select a chat"}
-              </p>
+            </>
+          ) : (
+            <div className="flex-1 flex flex-col items-center justify-center text-center text-gray-500 text-lg">
+              <Img 
+                src="/msgImg.svg"
+                alt="No Message"
+                width={64}
+                height={64}
+                className=""
+              />
+               <h3 className="text-center">
+                  See messages here
+               </h3>
             </div>
-          </div>
-
-          <div className="flex-1 overflow-y-auto px-4 py-2 space-y-3">
-            {renderMessages()}
-            {typingUser === selectedUser?._id && (
-              <div className="text-sm text-gray-500 italic">Typing...</div>
-            )}
-          </div>
-
-          {chatRoomId && selectedUser && (
-            <ChatInput
-              onSend={handleSend}
-              conversationId={chatRoomId}
-              recipientId={selectedUser._id}
-              token={token}
-              onTyping={() => emitTyping(chatRoomId)}
-              onStopTyping={() => emitStopTyping(chatRoomId)}
-            />
           )}
         </div>
       </div>
     </div>
   );
 }
-
 
 
 export default function MessagePage() {

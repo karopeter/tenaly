@@ -12,7 +12,7 @@ import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import { useAuth } from "../context/AuthContext";
 
 export default function SignInForm({ onClose }) {
-     const baseURI = process.env.NEXT_PUBLIC_BASE_URL;
+        const baseURI = process.env.NEXT_PUBLIC_BASE_URL;
         const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
         const router = useRouter();
         const [showForgotPasswordModal, setShowForgotPaswordModal] = useState(false)
@@ -101,7 +101,7 @@ export default function SignInForm({ onClose }) {
                 login(data, data.token);
                 toast.success("Login successful!");
                 onClose();
-                router.push("/Add"); 
+                router.push("/Profile"); 
     
                 // setTimeout(() => {
                 //    window.location.reload();
@@ -134,7 +134,7 @@ export default function SignInForm({ onClose }) {
               if (res.ok) {
                 login(data, data.token);
                 toast.success("Google authentication successful!", data.token);
-                 router.push("/Add");
+                 router.push("/Profile");
                  onClose();
               } else {
                 toast.error(data.message || "Google authentication failed");
