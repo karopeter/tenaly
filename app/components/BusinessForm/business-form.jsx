@@ -5,36 +5,56 @@ import { ArrowLeftIcon } from '@heroicons/react/24/solid';
 import Button from "../Button";
 import InputField from "../input";
 import { useRouter } from "next/navigation";
-import { Plus, MoreVertical } from "lucide-react";
+import { Plus, MoreVertical, Loader2, X } from "lucide-react"; // Import X for the remove icon
 import LocationModal from "../UI/locationModal";
 import api from "@/services/api";
 import { toast } from "react-toastify";
 
-const AddressFields = ({ addresses, setAddresses }) => (
-  <>
-    {addresses.map((addr, index) => (
-      <InputField
-        key={index}
-        label={index === 0 ? "Address" : `Address ${index + 1}`}
-        placeholder="24, Shola Martins Street, Ajah Lagos"
-        value={addr}
-        onChange={(e) => {
-          const updated = [...addresses];
-          updated[index] = e.target.value;
-          setAddresses(updated);
-        }}
-      />
-    ))}
-    <div
-      onClick={() => setAddresses([...addresses, ""])}
-      className="flex items-center gap-2 cursor-pointer mt-2 text-[#1031AA] hover:underline"
-    >
-      <Plus size={16} />
-      <span>Add another address</span>
-    </div>
-  </>
-);
+const AddressFields = ({ addresses, setAddresses }) => {
+  // Function to remove an address by index
+  const removeAddress = (indexToRemove) => {
+    setAddresses(addresses.filter((_, index) => index !== indexToRemove));
+  };
 
+  return (
+    <>
+      {addresses.map((addr, index) => (
+        <div key={index} className="flex items-center gap-2">
+          <div className="flex-1">
+            <InputField
+              label={index === 0 ? "Address" : `Address ${index + 1}`}
+              placeholder="24, Shola Martins Street, Ajah Lagos"
+              value={addr}
+              onChange={(e) => {
+                const updated = [...addresses];
+                updated[index] = e.target.value;
+                setAddresses(updated);
+              }}
+            />
+          </div>
+          {/* Only show the remove button for addresses after the first one */}
+          {index > 0 && (
+            <button
+              type="button"
+              onClick={() => removeAddress(index)}
+              className="mt-6 p-2 rounded-full text-gray-500 hover:bg-gray-100"
+              aria-label="Remove address"
+            >
+              <X size={20} />
+            </button>
+          )}
+        </div>
+      ))}
+      <div
+        onClick={() => setAddresses([...addresses, ""])}
+        className="flex items-center gap-2 cursor-pointer mt-2 text-[#1031AA] hover:underline"
+      >
+        <Plus size={16} />
+        <span>Add another address</span>
+      </div>
+    </>
+  );
+};
 
 export default function BusinessForm({ initialData, isEditMode, businessId, mode}) {
     const router = useRouter();
@@ -45,6 +65,7 @@ export default function BusinessForm({ initialData, isEditMode, businessId, mode
     const [location, setLocation] = useState("Choose location");
     const [addresses, setAddresses] = useState([""]);
     const [showMobileMenu, setShowMobileMenu] = useState(false);
+    const [loading, setLoading] = useState(false); // Initialize loading state
     const [businessHours, setBusinessHours] = useState(initialData?.businessHours || []);
 
     useEffect(() => {
@@ -56,69 +77,82 @@ export default function BusinessForm({ initialData, isEditMode, businessId, mode
         setBusinessHours(initialData.businessHours || []);
       }
     }, [initialData]);
- 
-     const handleLocationSelect = ({ state: selectedState, lga }) => {
+  
+    const handleLocationSelect = ({ state: selectedState, lga }) => {
         setState(selectedState);
         setLocation(lga);
         setShowLocationModal(false);
     };
 
-      const handleSubmit = async () => {
-        if (!businessName || !aboutBusiness || location === "Choose location" || addresses.some(addr => !addr.trim())) {
-          toast.error("Please complete all fields and at least one address");
-          return;
-        }
-
-        try {
-          const res = await api.post("/business/add-business", {
-            businessName,
-            aboutBusiness,
-            location,
-            addresses
-          });
-          toast.success("Business added successfully!");
-          router.push("/BusinessHours");
-        } catch(err) {
-          console.error("Add business error:", err);
-          
-          if (err.response?.status === 409) {
-            toast.error("You already created a business with this name.");
-          } else if (err.response?.status === 400) {
-            toast.error("All fields are required.");
-          } else {
-            const message = err.response?.data?.message || "Failed to add business";
-            toast.error(message);
-          }
-        }
+    const handleSubmit = async () => {
+      if (!businessName || !aboutBusiness || location === "Choose location" || addresses.some(addr => !addr.trim())) {
+        toast.error("Please complete all fields and at least one address");
+        return;
       }
-
       
-  return (
-     <>
+      setLoading(true); // Set loading to true when the request starts
+
+      try {
+        const res = await api.post("/business/add-business", {
+          businessName,
+          aboutBusiness,
+          location,
+          addresses
+        });
+        toast.success("Business added successfully!");
+        router.push("/BusinessHours");
+      } catch(err) {
+        console.error("Add business error:", err);
+        
+        if (err.response?.status === 409) {
+          toast.error("You already created a business with this name.");
+        } else if (err.response?.status === 400) {
+          toast.error("All fields are required.");
+        } else {
+          const message = err.response?.data?.message || "Failed to add business";
+          toast.error(message);
+        }
+      } finally {
+        setLoading(false); // Set loading to false when the request is complete
+      }
+    }
+  
+    return (
+      <>
+      {/* Add a simple spinner animation style */}
+      <style>{`
+        .spinner {
+          animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
       <div className="relative flex flex-col md:flex-row w-full gap-2 min-h-screen">
-       {/* Desktop sidebar */ }
-       <div className="hidden md:block">
-           <BusinessLink />
-       </div>
-
-       {/* Mobile 3 dots button on top right of the card */ }
-       <div className="absolute top-0 right-4 z-30 md:hidden">
-         <button
-           onClick={() => setShowMobileMenu(!showMobileMenu)}
-           className="p-1"
-           aria-label="Toggle menu">
-             <MoreVertical size={22} />
-         </button>
-       </div>
-
-       {/* Mobile Menu Dropdown */ }
-       {showMobileMenu && (
-         <div className="absolute top-10 left-0 w-full bg-white z-20 shadow-md p-4 md:hidden">
+        {/* Desktop sidebar */ }
+        <div className="hidden md:block">
             <BusinessLink />
         </div>
-       )}
-       <div className="flex-1 px-4 md:px-0 mt-10 md:mt-0">
-          <div className="bg-white shadow p-4 rounded-lg  h-auto">
+
+        {/* Mobile 3 dots button on top right of the card */ }
+        <div className="absolute top-0 right-4 z-30 md:hidden">
+          <button
+            onClick={() => setShowMobileMenu(!showMobileMenu)}
+            className="p-1"
+            aria-label="Toggle menu">
+              <MoreVertical size={22} />
+          </button>
+        </div>
+
+        {/* Mobile Menu Dropdown */ }
+        {showMobileMenu && (
+          <div className="absolute top-10 left-0 w-full bg-white z-20 shadow-md p-4 md:hidden">
+             <BusinessLink />
+         </div>
+        )}
+        <div className="flex-1 px-4 md:px-0 mt-10 md:mt-0">
+          <div className="bg-white shadow p-4 rounded-lg h-auto">
              <div className="flex items-center gap-2 mb-4">
               <button onClick={() => router.push('/Business')}>
                 <ArrowLeftIcon className="h-5 w-5 text-[#141B34] cursor-pointer" />
@@ -127,10 +161,10 @@ export default function BusinessForm({ initialData, isEditMode, businessId, mode
              </div>
              <div>
                 <InputField 
-                 label="Business Name"
-                 placeholder="Golibe Enterprise"
-                 value={businessName}
-                 onChange={(e) => setBusinessName(e.target.value)}
+                  label="Business Name"
+                  placeholder="Golibe Enterprise"
+                  value={businessName}
+                  onChange={(e) => setBusinessName(e.target.value)}
                 />
                 <textarea
                   placeholder="About Business"
@@ -140,34 +174,49 @@ export default function BusinessForm({ initialData, isEditMode, businessId, mode
                 >
                 </textarea>
                <div 
-                onClick={() => setShowLocationModal(true)}
-               className="w-full mt-2 h-[52px]
-                      border border-[#CDCDD7] rounded-[4px]
-                             flex justify-between items-center px-3 cursor-pointer">
+                 onClick={() => setShowLocationModal(true)}
+                 className="w-full mt-2 h-[52px]
+                   border border-[#CDCDD7] rounded-[4px]
+                   flex justify-between items-center px-3 cursor-pointer">
                    <span className="text-[#525252]">{location}</span>
                    <Plus className="w-5 h-5 text-[#525252]" />
                </div>
                <AddressFields addresses={addresses} setAddresses={setAddresses} />
                <div className="flex justify-center">
-                <Button
-                 type="button"
-                 onClick={handleSubmit}
-                className="flex items-center gap-2 px-6 py-2 mt-5 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px]"
-                >
-              <Plus size={20} /> Add a business 
-            </Button>
-            </div>
+                 <Button
+                   type="button"
+                   onClick={handleSubmit}
+                   // Disable the button while loading
+                   disabled={loading}
+                   className={`flex items-center gap-2 px-6 py-2 mt-5 text-white rounded-[8px] ${
+                    loading ? "bg-gray-400 cursor-not-allowed" : "bg-gradient-to-r from-[#00A8DF] to-[#1031AA]"
+                   }`}
+                 >
+                   {/* Conditionally render the spinner or the plus icon */}
+                   {loading ? (
+                     <>
+                      <Loader2 size={20} className="spinner" />
+                      Adding...
+                     </>
+                   ) : (
+                     <>
+                      <Plus size={20} />
+                      Add a business
+                     </>
+                   )}
+                </Button>
+               </div>
              </div>
           </div>
-       </div>
+        </div>
       </div>
       {showLocationModal && (
         <LocationModal 
-         isOpen
-         onClose={() => setShowLocationModal(false)}
-         onSelectLocation={handleLocationSelect}
+          isOpen
+          onClose={() => setShowLocationModal(false)}
+          onSelectLocation={handleLocationSelect}
         />
       )}  
-    </>
+      </>
     )
 }
