@@ -143,7 +143,7 @@ export default function CarAdDetails() {
           <div className="md:w-2/3 w-full relative">
            {carAd?.vehicleImage?.length > 0 && (
            <Img
-            src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${carAd.vehicleImage[0].replace(/\\/g, "/")}`}
+            src={carAd?.vehicleImage[0]}
             alt="Car Ad Main"
             width={686}
             height={354}
@@ -164,7 +164,7 @@ export default function CarAdDetails() {
          carAd.vehicleImage.slice(1, 5).map((img, idx) => (
           <div key={idx} className="w-full h-full overflow-hidden">
           <Img
-            src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${img.replace(/\\/g, "/")}`}
+            src={img}
             alt={`Car Ad Small ${idx + 2}`}
             width={180}
             height={120}

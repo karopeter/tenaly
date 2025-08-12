@@ -26,6 +26,9 @@ export default function HomeListDetails() {
   const [bookmarkLoading, setBookmarkLoading] = useState(false);
   const { openAuthModal, isLoggedIn, profile } = useAuth();
 
+  // Placeholder image for when a real image fails to load
+  const placeholderImage = "https://placehold.co/400x300/E5E7EB/4B5563?text=Image+Not+Available";
+
    const getImageUrl = (imagePath) => {
     if (!imagePath) return null;
     if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
@@ -131,7 +134,18 @@ export default function HomeListDetails() {
   const { carAd, vehicleAd, propertyAd, business } = adData;
   const actualBusinessId = carAd?.businessCategory?._id || carAd?.businessCategory;
   const sellerId = business?.userId || carAd?.userId || vehicleAd?.userId || propertyAd?.userId;
-  const mainAd = vehicleAd || propertyAd; 
+
+
+  let mainAd = null; 
+  let adDetails = null;
+   if (carAd && vehicleAd) {
+    mainAd = carAd;
+    adDetails = vehicleAd;
+  } else if (propertyAd) {
+    mainAd = propertyAd;
+    adDetails = propertyAd; // For properties, the main ad is also the details
+  }
+
   const businessName = business?.businessName || "Unknown Seller";
   const aboutBusiness = business?.aboutBusiness || "No 'About' section provided.";
   const businessLocation = business?.location || "N/A";
@@ -147,6 +161,15 @@ const productTitle =
   (vehicleAd ? `${vehicleAd.vehicleType} ${vehicleAd.model}` : "") ||
   (carAd ? `${carAd.vehicleType} ${carAd.model}` : "");
 
+    const mainImageArray = carAd
+    ? (carAd.propertyImage?.length > 0 ? carAd.propertyImage : carAd.vehicleImage || [])
+    : [];
+
+     const mainImage = mainImageArray[0];
+    const smallImages = mainImageArray.slice(1, 5);
+
+     const productId = mainAd?._id;
+
 // Pick correct product image
 const productImage =
   propertyAd?.propertyImage?.[0] ||
@@ -155,10 +178,10 @@ const productImage =
 
 
 // Product ID (the ad's own ID)
-const productId =
-  propertyAd?._id ||
-  vehicleAd?._id ||
-  carAd?._id;
+// const productId =
+//   propertyAd?._id ||
+//   vehicleAd?._id ||
+//   carAd?._id;
 
     // Debug Logs to check the IDS 
     console.log("Business object:", business);
@@ -173,9 +196,9 @@ const productId =
         <Link href="/Product-List" className="hover:text-[#000] transition-all whitespace-nowrap">
           Home&nbsp;&rsaquo;
         </Link>
-        {carAd?.category && (
+        {mainAd?.category && (
           <span className="text-[#868686] text-[13px] md:text-[14px] font-[400] font-inter whitespace-nowrap">
-            {carAd.category}
+            {mainAd.category}
           </span>
         )}
         {vehicleAd && (
@@ -236,41 +259,50 @@ const productId =
       <div className="flex flex-col md:flex-row gap-2 mt-6">
         {/* Main Image */}
         <div className="md:w-2/3 w-full relative">
-          {carAd?.vehicleImage?.length > 0 && (
+          {mainImage && (
             <Img
-              src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${carAd.vehicleImage[0].replace(/\\/g, "/")}`}
-              alt="Main Ad"
+              src={mainImage}
+              alt={productTitle}
               width={686}
               height={354}
               className="w-full h-auto md:w-[686px] md:h-[354px] object-cover rounded"
+              onError={(e) => { e.target.src = placeholderImage; }}
             />
           )}
-          {carAd?.propertyImage?.length > 0 && (
+           {!mainImage && (
             <Img
-              src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${carAd.propertyImage[0].replace(/\\/g, "/")}`}
-              alt="Main Property"
-              width={686}
-              height={354}
-              className="w-full h-auto md:w-[686px] md:h-[354px] object-cover rounded"
+              src={placeholderImage}
+              alt="Image not available"
+              fill
+              className="object-cover"
             />
           )}
         </div>
 
         {/* Small Image Grid */}
         <div className="md:w-1/3 w-full grid grid-cols-2 grid-rows-2 gap-2">
-         {(carAd?.propertyImage?.length > 0 ? carAd.propertyImage : carAd?.vehicleImage || [])
-         .slice(1, 5)
-         .map((img, idx) => (
-        <div key={idx} className="w-full h-full overflow-hidden">
+        {smallImages.map((img, idx) => (
+           <div key={idx} className="w-full h-full overflow-hidden">
            <Img
-             src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${img.replace(/\\/g, "/")}`}
-             alt={`Image ${idx + 2}`}
+             src={img}
+            alt={`${productTitle} image ${idx + 2}`}
              width={180}
              height={120}
              className="w-full h-full object-cover rounded"
+             onError={(e) => { e.target.src = placeholderImage; }}
            />
         </div>
-       ))}
+        ))}
+         {smallImages.length === 0 && (
+             <div className="col-span-2 row-span-2 w-full h-full relative overflow-hidden rounded">
+              <Img
+                src={placeholderImage}
+                alt="Image not available"
+                fill
+                className="object-cover"
+              />
+            </div>
+          )}
      </div>
       </div>
 
@@ -835,7 +867,6 @@ const productId =
         openAuthModal={openAuthModal} 
        productImage={productImage}
        productTitle={productTitle}
-       //openAuthModal={() => setShowSignInModal(true)}
      />
       {!sellerId && <p className="text-red-500">Seller ID not found for this product.</p>}
      {/* {showSignInModal && (
@@ -1021,12 +1052,12 @@ const productId =
             </div>
             <div className="mt-2">
              <MessageSellerButton
-  sellerId={sellerId}
-  productId={productId}
-  productImage={getImageUrl(productImage)}
-  productTitle={productTitle}
-  openAuthModal={openAuthModal}
-/>
+                sellerId={sellerId}
+                productId={productId}
+                productImage={getImageUrl(productImage)}
+               productTitle={productTitle}
+               openAuthModal={openAuthModal}
+            /> 
 
 
              {/* {showSignInModal && (

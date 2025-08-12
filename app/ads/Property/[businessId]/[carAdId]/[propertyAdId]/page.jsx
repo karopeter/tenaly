@@ -87,6 +87,18 @@ export default function PropertyDetailsPage() {
     setOfferAmount("");
   }
 
+   // Helper function to handle image source from a full URL or a relative path
+  const getImageSrc = (imagePath) => {
+    if (!imagePath) return '';
+    // Check if the path is a full URL (e.g., from Cloudinary)
+    if (imagePath.startsWith('http') || imagePath.startsWith('https')) {
+      return imagePath;
+    }
+    // Otherwise, assume it's a relative path from the backend
+    return `${process.env.NEXT_PUBLIC_BACKEND_URL}/${imagePath.replace(/\\/g, "/")}`;
+  };
+
+
   if (loading) {
      return (
       <section className="px-4 md:px-10 mt-10 flex flex-col items-center justify-center min-h-[200px]">
@@ -164,7 +176,7 @@ export default function PropertyDetailsPage() {
           <div className="md:w-2/3 w-full relative">
            {carAd?.propertyImage?.length > 0 && (
            <Img
-            src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${carAd.propertyImage[0].replace(/\\/g, "/")}`}
+            src={carAd.propertyImage[0]}
             alt="Car Ad Main"
             width={686}
             height={354}
@@ -182,10 +194,10 @@ export default function PropertyDetailsPage() {
        {/* Smaller Image Grid */}
       <div className="md:w-1/3 w-full grid grid-cols-2 grid-rows-2 gap-2">
        {carAd.propertyImage &&
-         carAd.propertyImage.slice(1, 5).map((img, idx) => (
-          <div key={idx} className="w-full h-full overflow-hidden">
+      carAd.propertyImage.slice(1, 5).map((img, idx) => (
+        <div key={idx} className="w-full h-full overflow-hidden">
           <Img
-            src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${img.replace(/\\/g, "/")}`}
+            src={img}
             alt={`Car Ad Small ${idx + 2}`}
             width={180}
             height={120}

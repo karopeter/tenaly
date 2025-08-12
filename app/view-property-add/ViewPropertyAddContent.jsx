@@ -118,11 +118,7 @@ export default function ViewPropertyAddContent() {
                         <div className="relative w-full md:w-[300px] shrink-0 overflow-hidden">
                           {carAd?.propertyImage?.length > 0 && (
                             <Img
-                              src={
-                                process.env.NEXT_PUBLIC_BACKEND_URL +
-                                "/" +
-                                carAd.propertyImage[0].replace(/\\/g, "/")
-                              }
+                              src={carAd.propertyImage[0]}
                               alt="Ad"
                               width={340}
                               height={210}

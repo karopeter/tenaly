@@ -47,7 +47,7 @@ export default function DropdownPage({ onCategoryChange }) {
   };
 
   return (
-    <div className="flex flex-wrap justify-center items-center gap-4 mt-6 relative z-[20] px-4">
+    <div className="flex flex-wrap justify-center items-center gap-4 mt-6 relative z-50 px-4">
       {/* Property Dropdown */}
       <div className="relative w-full sm:w-auto max-w-[330px] flex-1">
         <div
@@ -80,7 +80,7 @@ export default function DropdownPage({ onCategoryChange }) {
         </div>
 
         {isPropertyDropdownOpen && (
-          <div className="absolute z-[1000] w-full max-w-[330px] max-h-[406px] top-[58px] left-0 rounded-[5px] border border-[#EDEDED] bg-white shadow-lg overflow-auto">
+          <div className="absolute z-50  w-full max-w-[330px] max-h-[406px] top-[58px] left-0 rounded-[5px] border border-[#EDEDED] bg-white shadow-lg overflow-auto">
             <ul className="text-sm">
               {propertyOptions.map((option) => (
                 <li
@@ -106,7 +106,7 @@ export default function DropdownPage({ onCategoryChange }) {
       {/* Vehicle Dropdown */}
       <div className="relative w-full sm:w-auto max-w-[330px] flex-1">
         <div
-          className="absolute left-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+          className="absolute left-3 top-1/2 transform -translate-y-1/2 cursor-pointer z-20"
           onClick={() => setIsVehicleDropdownOpen(!isVehicleDropdownOpen)}
         >
           <Img
