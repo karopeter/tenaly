@@ -186,20 +186,20 @@ export default function SellerProfile() {
                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                          clipRule="evenodd"
                        />
-                     </svg>
-                     Verified Seller
-                  </div>
+                      </svg>
+                      Verified Seller
+                    </div>
                   ): (
-                 <div className="inline-flex items-center gap-2 bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-medium mb-3">
-                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M18 10A8 8 0 11.001 10 8 8 0 0118 10zM9 4a1 1 0 012 0v4a1 1 0 01-2 0V4zm0 8a1 1 0 100 2 1 1 0 000-2z"
-                      clipRule="evenodd"
-                    />
-                   </svg>
-                    Unverified Seller
-                   </div>
+                   <div className="inline-flex items-center gap-2 bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-medium mb-3">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                     <path
+                       fillRule="evenodd"
+                       d="M18 10A8 8 0 11.001 10 8 8 0 0118 10zM9 4a1 1 0 012 0v4a1 1 0 01-2 0V4zm0 8a1 1 0 100 2 1 1 0 000-2z"
+                       clipRule="evenodd"
+                     />
+                    </svg>
+                     Unverified Seller
+                    </div>
                   )}
 
                   <div className="flex items-center gap-4 text-[#868686] font-[400]  font-inter mb-4">
@@ -225,7 +225,7 @@ export default function SellerProfile() {
                   </div>
 
                   {businessData?.aboutBusiness && (
-                    <p className="text-[#868686]   max-w-2xl">
+                    <p className="text-[#868686]  max-w-2xl">
                       {businessData.aboutBusiness}
                     </p>
                   )}
@@ -234,8 +234,8 @@ export default function SellerProfile() {
                 {/* Action Buttons */}
                 <div className="flex flex-col gap-2 ml-4">
                   <Button 
-                     className="bg-gradient-to-r from-[#00A8DF] to-[#1031AA] 
-                     text-white px-6 py-2 rounded-lg font-medium
+                      className="bg-gradient-to-r from-[#00A8DF] to-[#1031AA] 
+                      text-white px-6 py-2 rounded-lg font-medium
                       transition-colors flex items-center gap-2 whitespace-nowrap">
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
@@ -303,11 +303,11 @@ export default function SellerProfile() {
                         <div className="ml-8">
                           <div className="inline-flex items-center gap-2 bg-[#F7F7FF] text-[#000087] border border-[#DFDFF9] px-3 py-1.5 rounded-lg text-sm">
                              <Img 
-                               src="/truck.svg"
-                               alt="Delivery Truck"
-                               width={16} 
-                               height={16}
-                               />
+                                src="/truck.svg"
+                                alt="Delivery Truck"
+                                width={16} 
+                                height={16}
+                                />
                             <span>{addr.deliveryAvailable ? 'Delivery Available' : 'No Delivery'}</span>
                           </div>
                           
@@ -328,141 +328,135 @@ export default function SellerProfile() {
 
           {/* Main Content - Products */}
           <div className="flex-1">
-            {/* Products Header */}
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">Products</h2>
-                <p className="text-gray-600">{marketProducts.length} products available</p>
-              </div>
+       {marketProducts.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {marketProducts.map((item) => {
+              const carAdData = item.carAd;
+             const propertyAdData = item.propertyAd;
+            const vehicleAdData = item.vehicleAd;
+
+            const isVehicleAd = !!vehicleAdData;
+            const isPropertyAd = !!propertyAdData; 
+
+            const adData = carAdData;
+
+             if (!adData) return null;
+
+           const adId = item.adId || adData._id;
+
+      const title = isPropertyAd 
+        ? propertyAdData.propertyName || "Property"
+        : `${vehicleAdData.vehicleType || ''} ${vehicleAdData.model || ''}`.trim() || "Vehicle";
+
+
+       const description = isPropertyAd 
+        ? propertyAdData.description || "No description available"
+        : vehicleAdData?.description || "No description available"; 
+
+      const price = isPropertyAd
+        ? propertyAdData.amount
+        : vehicleAdData.amount;
+
+        const formattedPrice = price ? `₦${price.toLocaleString()}` : "Price not set";
+
+      const imageArray = isPropertyAd ? adData.propertyImage : adData.vehicleImage;
+      const imageUrl = (imageArray && imageArray.length > 0) ? imageArray[0] : null;
+
+      
+      const location = isPropertyAd ? propertyAdData.propertyAddress : adData.location || "Location not specified";
+      const plan = isPropertyAd ? propertyAdData.plan : vehicleAdData.plan;
+
+      return (
+          <div
+          key={adId}
+            className="bg-white rounded-xl shadow-sm border
+            hover:shadow-lg transition-all duration-300
+            overflow-hidden group cursor-pointer">
+            {/* Image Container */}
+            <div className="relative aspect-[4/3] overflow-hidden">
+              {imageUrl ? (
+                <Img
+                  src={imageUrl}
+                  alt={title}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+              ) : (
+                <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                  <span className="text-4xl text-gray-400">📷</span>
+                </div>
+              )}
+
+              {/* Plan Badge */}
+              {plan && (
+                <div className="absolute top-3 left-3">
+                  <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold uppercase flex items-center gap-1">
+                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                    {plan}
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* Products Grid */}
-            {marketProducts.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {marketProducts.map((item) => {
-                  const isCarAd = item.carAd && item.vehicleAd;
-                  const isPropertyAd = item.carAd && item.propertyAd;
-
-                  let adData = null;
-                  let displayAd = null;
-
-                  if (isCarAd) {
-                    adData = item.vehicleAd;
-                    displayAd = item.carAd;
-                  } else if (isPropertyAd) {
-                    adData = item.propertyAd;
-                    displayAd = item.carAd;
-                  }
-
-                  if (!adData || !displayAd) return null;
-
-                  const adId = item.adId || displayAd._id;
-                  const title = isCarAd
-                    ? `${adData.vehicleType || ""} ${adData.model || ""} ${adData.trim || ""} ${adData.year || ""}`.trim()
-                    : adData.propertyName || "Property";
-                  
-                  const description = adData.description || "No description available";
-                  const price = adData.amount ? `₦${adData.amount.toLocaleString()}` : "Price not set";
-                  
-                  const displayImage = isCarAd
-                    ? displayAd.vehicleImage?.[0]
-                    : displayAd.propertyImage?.[0];
-                  const imageUrl = displayImage
-                    ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${displayImage.replace(/\\/g, "/")}`
-                    : null;
-
-                  const location = displayAd.location || "Location not specified";
-                  const plan = adData.plan;
-
-                  return (
-                     <div 
-                       className="bg-white rounded-xl shadow-sm border 
-                       hover:shadow-lg transition-all duration-300 
-                       overflow-hidden group cursor-pointer">
-                        {/* Image Container */}
-                        <div className="relative aspect-[4/3] overflow-hidden">
-                          {imageUrl ? (
-                            <Img
-                              src={imageUrl}
-                              alt={title}
-                              fill
-                              className="object-cover group-hover:scale-105 transition-transform duration-300"
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                              <span className="text-4xl text-gray-400">📷</span>
-                            </div>
-                          )}
-                          
-                          {/* Plan Badge */}
-                          {plan && (
-                            <div className="absolute top-3 left-3">
-                              <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold uppercase flex items-center gap-1">
-                                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                </svg>
-                                {plan}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Content */}
-                        <div className="p-5">
-                          <div className="flex items-start justify-between mb-3">
-                           <p className="text-2xl font-bold text-[#000087] font-inter mb-1">
-                            {price}
-                          </p>
-                          </div>
-                           <h3 className="font-semibold text-[#525252] font-inter text-lg line-clamp-1">
-                              {title}
-                            </h3>
-                        
-
-                          <p className="text-[#8C8C8C] font-inter text-sm line-clamp-2 mb-4">
-                            {description}
-                          </p>
-
-                          <div className="flex items-center gap-1 text-[#8C8C8C] font-inter text-sm mb-4">
-                             <Img src="/location.svg" alt="Location" width={10} height={14} />
-                            <span>{location}</span>
-                          </div>
-
-                          {/* Tags */}
-                          <div className="flex gap-2 flex-wrap">
-                            {isCarAd && adData.carType && (
-                              <span className="bg-[#E8E8FF]  font-inter text-[#525252] px-2 py-1 rounded text-xs">
-                                {adData.carType}
-                              </span>
-                            )}
-                            {isCarAd && adData.transmission && (
-                              <span className="bg-[#E8E8FF] font-inter text-[#525252] px-2 py-1 rounded text-xs">
-                                {adData.transmission}
-                              </span>
-                            )}
-                            {isPropertyAd && adData.propertyType && (
-                              <span className="bg-[#E8E8FF] font-inter text-[#525252] px-2 py-1 rounded text-xs">
-                                {adData.propertyType}
-                              </span>
-                            )}
-                            {isPropertyAd && adData.ownershipStatus && (
-                              <span className="bg-[#E8E8FF]  font-inter text-[#525252] px-2 py-1 rounded text-xs">
-                                {adData.ownershipStatus}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                  );
-                })}
+            {/* Content */}
+            <div className="p-5">
+              <div className="flex items-start justify-between mb-3">
+               <p className="text-2xl font-bold text-[#000087] font-inter mb-1">
+                {formattedPrice}
+              </p>
               </div>
-            ) : (
-              <div className="text-center py-12">
-                <div className="text-gray-400 text-6xl mb-4">📦</div>
-                <p className="text-xl text-gray-600">No products found</p>
-                <p className="text-gray-500">This seller hasn't listed any products yet.</p>
+                <h3 className="font-semibold text-[#525252] font-inter text-lg line-clamp-1">
+                  {title}
+                </h3>
+
+
+              <p className="text-[#8C8C8C] font-inter text-sm line-clamp-2 mb-4">
+                {description}
+              </p>
+
+              <div className="flex items-center gap-1 text-[#8C8C8C] font-inter text-sm mb-4">
+                  <Img src="/location.svg" alt="Location" width={10} height={14} />
+                <span>{location}</span>
               </div>
-            )}
+
+              {/* Tags */}
+              <div className="flex gap-2 flex-wrap">
+                {isVehicleAd && vehicleAdData.vehicleType &&  (
+                  <span className="bg-[#E8E8FF]  font-inter text-[#525252] px-2 py-1 rounded text-xs">
+                    {vehicleAdData.vehicleType}  {vehicleAdData.carType}
+                  </span>
+                )}
+                {isVehicleAd && vehicleAdData.transmission && (
+                  <span className="bg-[#E8E8FF] font-inter text-[#525252] px-2 py-1 rounded text-xs">
+                    {vehicleAdData.transmission}
+                  </span>
+                )}
+                {isPropertyAd && propertyAdData.propertyType && (
+                  <span className="bg-[#E8E8FF] font-inter text-[#525252] px-2 py-1 rounded text-xs">
+                    {propertyAdData.propertyType}
+                  </span>
+                )}
+                {isPropertyAd && propertyAdData.ownershipStatus && (
+                  <span className="bg-[#E8E8FF]  font-inter text-[#525252] px-2 py-1 rounded text-xs">
+                    {propertyAdData.ownershipStatus}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+      );
+    })}
+  </div>
+) : (
+  <div className="text-center py-12">
+    <div className="text-gray-400 text-6xl mb-4">📦</div>
+    <p className="text-xl text-gray-600">No products found</p>
+    <p className="text-gray-500">This seller hasn't listed any products yet.</p>
+  </div>
+)}
+
 
             {/* Pagination */}
             {pagination && pagination.totalPages > 1 && (
