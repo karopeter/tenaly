@@ -128,17 +128,15 @@ export default function  BookMarkedContent() {
     <>
       {userAds.map(({ adId, carAd, vehicleAd, propertyAd }) => {
             // Determine images array and amount to display
-            const images = carAd?.vehicleImage?.length
-              ? carAd.vehicleImage
-              : carAd?.propertyImage?.length
-              ? carAd.propertyImage
-              : [];
+         const images = carAd?.vehicleImage?.length
+    ? carAd.vehicleImage
+    : carAd?.propertyImage?.length
+    ? carAd.propertyImage
+    : [];
 
-            const imageUrl =
-              images.length > 0
-                ? `${backendUrl}/${images[0].replace(/\\/g, "/")}`
-                : "/placeholder-image.svg";
-
+const imageUrl = images.length > 0
+    ? images[0]
+    : "/placeholder-image.svg";
             // Determine product amount
             const amount =
               vehicleAd?.amount || propertyAd?.amount || "N/A";
