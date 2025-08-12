@@ -3,19 +3,132 @@ import { useState, useEffect } from "react";
 import Img from "../Image";
 import Button from "../Button";
 import BusinessLink from "../navbar/business.link";
-import { Plus, MoreVertical } from "lucide-react";
+import { Plus, MoreVertical, MapPin, Clock, Pencil } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import api from "@/services/api";
 import { toast } from "react-toastify";
+import { PencilIcon } from "@heroicons/react/24/solid";
 
-import BusinessList from "../business/businessList";
-import HourSelectionModal from "../business/HourSelectionModal";
+
+function BusinessList({ businesses, onAddHourClick }) {
+  const router = useRouter();
+
+  return (
+    <div className="w-full overflow-x-hidden p-2">
+      <ul className="flex flex-col gap-4 mt-5 w-full">
+        {businesses.map((biz) => {
+          const hasHours = biz.businessHours && biz.businessHours.length > 0;
+
+          return (
+            <li
+              key={biz._id}
+              className="flex flex-col gap-2 p-4"
+            >
+              {/* Business Name and Edit/Add Button */}
+              <div className="flex justify-between items-center w-full">
+                <span className="text-sm font-medium text-[#525252] font-inter">
+                  {biz.businessName}
+                </span>
+
+                <div
+                  className="flex flex-row items-center gap-2 px-3 py-1 bg-[#FAFAFA] rounded-md cursor-pointer"
+                  onClick={() => {
+                    if (hasHours) {
+                      router.push(`/EditBusinessHour?businessId=${biz._id}`);
+                    } else {
+                      onAddHourClick(biz);
+                    }
+                  }}
+                >
+                  {hasHours ? (
+                    <PencilIcon className="w-4 h-4 text-[#000087]" />
+                  ) : (
+                    <Plus size={16} className="w-4 h-4 text-[#000087]" />
+                  )}
+                  <span className="text-[13px] text-[#000087] font-[500] font-inter whitespace-nowrap">
+                    {hasHours ? "Edit" : "Add business hour"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Loop through addresses and display hours */}
+              {biz.addresses.map((addressObj, index) => {
+               
+                const hoursForAddress = biz.businessHours && biz.businessHours[index];
+
+                return (
+                  <div key={addressObj._id} className="mt-2">
+                    {/* Address section */}
+                    <div className="flex items-center justify-between gap-2 overflow-hidden">
+                      <div className="flex items-center gap-4 min-w-0">
+                        <Img 
+                           src="/addressLoc.svg"
+                           alt="Address Location"
+                           width={11.67}
+                           height={11.67}
+                        />
+                        <span className="text-[#868686] font-[400] text-[13px] font-inter truncate">{addressObj.address}</span>
+                      </div>
+                     <div className="flex items-center gap-2 shrink-0">
+                       
+                       {hoursForAddress ? (
+                       <>
+                        <Img 
+                         src="/timeClock.svg"
+                         width={16}
+                         height={16}
+                         className="w-[16px] h-[16px]"
+                       />
+                        <span className="text-[#238E15] font-[500] font-inter text-[10px] whitespace-nowrap">
+                            {hoursForAddress.openingTime} - {hoursForAddress.closingTime}
+                          </span>
+                       </>
+                       ): (
+                        <span>No hour selected</span>
+                       )}
+                     </div>
+                    </div>
+
+                    {/* Business Hours section */}
+                    {hoursForAddress ? (
+                      <>
+                        {/* Days of the week */}
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {hoursForAddress.days.map((day) => (
+                            <span
+                              key={day}
+                              className="bg-[#F7F7FF] rounded-[4px] px-2 py-1 text-[10px] text-[#000087] font-[500] font-inter flex items-center justify-center min-w-[28px]"
+                            >
+                              {day.substring(0, 3)}
+                            </span>
+                          ))}
+                        </div>
+                      </>
+                    ) : (
+                      <span className="text-[12px] text-[#868686] font-inter ml-6">
+                        No hours set for this location.
+                      </span>
+                    )}
+
+                    {/* Separator for multiple addresses within one business */}
+                    {index < biz.addresses.length - 1 && (
+                      <hr className="my-4 border-t border-[#EDEDED]" />
+                    )}
+                  </div>
+                );
+              })}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
 
 export default function AddBusinessHourss() {
   const searchParams = useSearchParams();
   const businessId = searchParams.get("businessId");
   const mode = searchParams.get("mode") || "same";
-
 
   const [businessHours, setBusinessHours] = useState([]);
   const [businesses, setBusinesses] = useState([]);
@@ -72,7 +185,7 @@ export default function AddBusinessHourss() {
     <div className="relative flex flex-col md:flex-row w-full gap-2 min-h-screen">
       {/* Desktop sidebar */}
       <div className="hidden md:block">
-         <BusinessLink />
+        <BusinessLink />
       </div>
 
       {/* Mobile: 3 dots button on top-right of the card */}
@@ -80,20 +193,21 @@ export default function AddBusinessHourss() {
         <button
           onClick={() => setShowMobileMenu(!showMobileMenu)}
           className="p-1"
-          aria-label="Toogle menu">
-           <MoreVertical size={22} />
+          aria-label="Toogle menu"
+        >
+          <MoreVertical size={22} />
         </button>
       </div>
 
       {/* Mobile Menu Dropdown */}
       {showMobileMenu && (
         <div className="absolute top-10 left-0 w-full bg-white z-20 shadow-md p-4 md:hidden">
-           <BusinessLink />
+          <BusinessLink />
         </div>
-       )}
+      )}
 
       <div className="flex-1 px-4 md:px-0 mt-10 md:mt-0">
-        <div className="bg-white shadow-md p-4 rounded-lg w-full max-w-[361px] h-[490px] md:w-full">
+        <div className="bg-white shadow p-4 rounded-lg w-full">
           {businesses.length === 0 ? (
             <>
               <div className="mt-20">
@@ -134,3 +248,4 @@ export default function AddBusinessHourss() {
     </div>
   );
 }
+

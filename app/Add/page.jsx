@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import Sidebar from "../components/navbar/sidebar";
 import Content from "./content";
 
@@ -12,7 +12,7 @@ export default function AddCarPost() {
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
       if (!mobile) {
-         // Reset activeSection on desktop to show full content
+        // Reset activeSection on desktop to show full content
         setActiveSection(null);
       }
     };
@@ -24,30 +24,33 @@ export default function AddCarPost() {
 
   // Conditionally render the entire layout based on mobile state and active section
   const renderLayout = () => {
-     // If it's mobile and no section is active, show the sidebar.
-     if (isMobile && !activeSection) {
-       return (
+    // If it's mobile and no section is active, show the sidebar.
+    if (isMobile && !activeSection) {
+      return (
         <div className="md:px-[104px] px-4 md:ml-10 mt-20 md:mt-40">
           <Sidebar isMobile={isMobile} activeSection={activeSection} setActiveSection={setActiveSection} />
         </div>
       );
-     }
+    }
 
-      // If it's desktop or a mobile section is active, show the main content.
-      return (
-        <div className="md:px-[104px] px-4 md:ml-10 mt-20 md:mt-40">
-          <div className="flex flex-col md:flex-row gap-6">
-            {!isMobile && (
-              <Sidebar isMobile={isMobile} activeSection={activeSection} setActiveSection={setActiveSection} />
-            )}
+    // If it's desktop or a mobile section is active, show the main content.
+    return (
+      <div className="md:px-[104px] px-4 md:ml-10 mt-20 md:mt-40">
+        <div className="flex flex-col md:flex-row gap-6">
+          {!isMobile && (
+            <Sidebar isMobile={isMobile} activeSection={activeSection} setActiveSection={setActiveSection} />
+          )}
+          {/* The fix: wrapping the Content component in a Suspense boundary */}
+          <Suspense fallback={<div>Loading car post content...</div>}>
             <Content
               activeSection={activeSection}
               setActiveSection={setActiveSection}
               isMobile={isMobile}
             />
-          </div>
+          </Suspense>
         </div>
-      );
+      </div>
+    );
   };
 
   return renderLayout();

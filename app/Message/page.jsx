@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, Suspense } from "react";
 import Link from "next/link";
 import Img from "../components/Image";
 import ChatInput from "../components/ChatInput";
@@ -18,7 +18,8 @@ import api from "@/services/api";
 import { format, isSameDay, parseISO } from "date-fns";
 import { useSearchParams } from "next/navigation";
 
-export default function MessagePage() {
+
+function MessageContent() {
   const { token } = useAuth();
   const [profile, setProfile] = useState(null);
   const [conversations, setConversations] = useState([]);
@@ -39,6 +40,7 @@ export default function MessagePage() {
 
   const [initialMessageSent, setInitialMessageSent] = useState(false);
 
+  // Load profile
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -53,6 +55,7 @@ export default function MessagePage() {
     if (token) fetchProfile();
   }, [token]);
 
+  // Load contacts (only those with messages)
   useEffect(() => {
     const fetchContacts = async () => {
       try {
@@ -62,7 +65,7 @@ export default function MessagePage() {
         const formatted = res.data.contacts.map((user) => ({
           ...user,
           img: user.image || "/profile-circles1.svg"
-        }))
+        }));
         setContacts(formatted);
       } catch (err) {
         console.error("Failed to fetch users:", err);
@@ -71,10 +74,30 @@ export default function MessagePage() {
     if (profile && token) fetchContacts();
   }, [profile, token]);
 
+  // Auto-load last selected or open sellerId from URL
   useEffect(() => {
     const autoLoadLastChatOrNew = async () => {
-      if (initialSellerId && !initialMessageSent && contacts.length > 0) {
-        const sellerUser = contacts.find((u) => u._id === initialSellerId);
+      // If sellerId present in URL, try to open that first
+      if (initialSellerId && !initialMessageSent) {
+        // Try to find in contacts
+        let sellerUser = contacts.find((u) => u._id === initialSellerId);
+        // If not found in current contacts, fetch seller by id from backend
+        if (!sellerUser) {
+          try {
+            const res = await api.get(`/profile/users/${initialSellerId}`, {
+              headers: { Authorization: `Bearer ${token}` }
+            });
+            const u = res.data.user;
+            sellerUser = {
+              ...u,
+              img: u.image || "/profile-circles1.svg"
+            };
+          } catch (err) {
+            console.error("Failed to fetch seller by id:", err);
+            // continue and fallback to lastSelectedUser
+          }
+        }
+
         if (sellerUser) {
           await handleUserClick(sellerUser, {
             previewMessage: initialPreviewMessage,
@@ -87,6 +110,7 @@ export default function MessagePage() {
         }
       }
 
+      // fallback to last selected user
       const lastUserId = localStorage.getItem("lastSelectedUserId");
       if (lastUserId && contacts.length > 0) {
         const user = contacts.find((u) => u._id === lastUserId);
@@ -96,7 +120,7 @@ export default function MessagePage() {
       }
     };
 
-    if (profile && contacts.length > 0) {
+    if (profile) {
       autoLoadLastChatOrNew();
     }
   }, [
@@ -108,52 +132,34 @@ export default function MessagePage() {
     initialProductId,
     initialProductTitle,
     initialMessageSent,
+    token
   ]);
 
-  // --- NEW CORRECTED useEffect BLOCK START ---
+  // Socket useEffect for current chatRoomId
   useEffect(() => {
     if (!token || !chatRoomId || !profile) return;
 
     const socket = initialSocket(token);
-    socketRef.current = socket; // Store reference to the current socket instance
+    socketRef.current = socket;
 
-  const handleReceiveMessage = (msg) => {
-  setConversations((prev) => {
-    if (prev.some((existingMsg) => existingMsg._id === msg._id)) {
-      return prev;
-    }
-    return [...prev, msg];
-  });
-  setLastMessages((prev) => ({
-    ...prev,
-    [msg.from._id === profile._id ? msg.to._id : msg.from._id]: msg.text,
-  }));
-};
-
-    
-    // const handleReceiveMessage = (msg) => {
-    //   console.log("Received message via socket:", msg); // For debugging
-    //   setConversations((prev) => {
-    //     // Only add message if it's not already in conversations (deduplication)
-    //     if (prev.some((existingMsg) => existingMsg._id === msg._id)) {
-    //       console.log("Message already exists, skipping:", msg._id); // For debugging
-    //       return prev;
-    //     }
-    //     return [...prev, msg];
-    //   });
-    //   setLastMessages((prev) => ({
-    //     ...prev,
-    //     [msg.from._id === profile._id ? msg.to._id : msg.from._id]: msg.text,
-    //   }));
-    // };
+    const handleReceiveMessage = (msg) => {
+      setConversations((prev) => {
+        if (prev.some((existingMsg) => existingMsg._id === msg._id)) {
+          return prev;
+        }
+        return [...prev, msg];
+      });
+      setLastMessages((prev) => ({
+        ...prev,
+        [msg.from._id === profile._id ? msg.to._id : msg.from._id]: msg.text,
+      }));
+    };
 
     const handleTyping = (userId) => {
       if (userId !== profile._id) setTypingUser(userId);
     };
 
-    const handleStopTyping = () => {
-      setTypingUser(null);
-    };
+    const handleStopTyping = () => setTypingUser(null);
 
     const handleMessagesRead = ({ messageIds, readerId }) => {
       setConversations((prev) =>
@@ -165,21 +171,17 @@ export default function MessagePage() {
       );
     };
 
-    const handleOnlineUsers = (users) => {
-      setOnlineUsers(users);
-    };
+    const handleOnlineUsers = (users) => setOnlineUsers(users);
 
     const joinAndListen = () => {
-      joinRoom(chatRoomId); // Join the specific chat room
+      joinRoom(chatRoomId);
 
-      // CRITICAL: Remove any existing listeners for these events before adding new ones
       socket.off("receiveMessage");
       socket.off("typing");
       socket.off("stopTyping");
       socket.off("messagesRead");
       socket.off("onlineUsers");
 
-      // Add the listeners
       socket.on("receiveMessage", handleReceiveMessage);
       socket.on("typing", handleTyping);
       socket.on("stopTyping", handleStopTyping);
@@ -187,97 +189,41 @@ export default function MessagePage() {
       socket.on("onlineUsers", handleOnlineUsers);
     };
 
-    // If socket is already connected, just join and listen
     if (socket.connected) {
       joinAndListen();
     } else {
-      // Otherwise, wait for connection, then join and listen
       socket.on("connect", joinAndListen);
     }
 
-    // Cleanup function: This runs when the component unmounts
-    // or when the dependencies of useEffect change, before the new effect runs.
     return () => {
-      console.log("🔌 Cleaning up socket listeners for room:", chatRoomId); // For debugging
-      socket.off("connect", joinAndListen); // Remove the specific 'connect' handler
-      socket.off("receiveMessage", handleReceiveMessage); // Remove the specific 'receiveMessage' handler
+      socket.off("connect", joinAndListen);
+      socket.off("receiveMessage", handleReceiveMessage);
       socket.off("typing", handleTyping);
       socket.off("stopTyping", handleStopTyping);
       socket.off("messagesRead", handleMessagesRead);
       socket.off("onlineUsers", handleOnlineUsers);
     };
-  }, [chatRoomId, token, profile]); // Dependencies for useEffect
-  // --- NEW CORRECTED useEffect BLOCK END ---
-
+  }, [chatRoomId, token, profile]);
 
   const handleSend = async ({ text, file, productId, productImageUrl, productTitle }) => {
-  if (!chatRoomId || !selectedUser || !profile) return;
+    if (!chatRoomId || !selectedUser || !profile) return;
 
-  // Build the message data
-  const msgData = {
-    conversationId: chatRoomId,
-    to: selectedUser._id,
-    from: profile._id,
-    text,
-    productId,
-    productImageUrl,
-    productTitle,
-    // If you want to support file upload via socket, handle it here
+    const msgData = {
+      conversationId: chatRoomId,
+      to: selectedUser._id,
+      from: profile._id,
+      text,
+      productId,
+      productImageUrl,
+      productTitle,
+    };
+
+    // send over socket
+    sendMessage(msgData);
+    emitStopTyping(chatRoomId);
   };
 
-  // Send via socket only
-  sendMessage(msgData);
-
-  emitStopTyping(chatRoomId);
-};
-
-  // const handleSend = async ({ text, file, productId, productImageUrl, productTitle }) => {
-  //   if (!chatRoomId || !selectedUser || !profile) return;
-
-  //   try {
-  //     const formData = new FormData();
-  //     formData.append("conversationId", chatRoomId);
-  //     formData.append("to", selectedUser._id);
-  //     if (text) formData.append("text", text);
-  //     if (file) formData.append("file", file);
-
-  //     if (productId) formData.append("productId", productId);
-  //     if (productImageUrl) formData.append("productImageUrl", productImageUrl);
-  //     if (productTitle) formData.append("productTitle", productTitle);
-
-  //     const res = await api.post("/messages", formData, {
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //         "Content-Type": "multipart/form-data",
-  //       },
-  //     });
-
-  //     const msg = res.data; // This is the message object returned by your API
-      
-  //     // Optimistically update UI immediately with the message from the API response
-  //     // setConversations((prev) => {
-  //     //     // Check if this message (by its _id) is already in the list to prevent duplicates
-  //     //     if (prev.some(existingMsg => existingMsg._id === msg._id)) {
-  //     //         return prev;
-  //     //     }
-  //     //     return [...prev, msg];
-  //     // });
-
-  //     setLastMessages((prev) => ({
-  //       ...prev,
-  //       [msg.from._id === profile._id ? msg.to._id : msg.from._id]: msg.text,
-  //     }));
-
-  //    sendMessage(msg); 
-  //     emitStopTyping(chatRoomId);
-  //   } catch (err) {
-  //     console.error(
-  //       "❌ Failed to send message:",
-  //       err.response?.data || err.message
-  //     );
-  //   }
-  // };
-
+  // handleUserClick: create conversation, fetch history, add to contacts immediately
   const handleUserClick = async (
     user,
     initialDetails = { previewMessage: null, productImageUrl: null, productId: null, productTitle: null }
@@ -285,30 +231,55 @@ export default function MessagePage() {
     try {
       localStorage.setItem("lastSelectedUserId", user._id);
 
+      // create or get conversation
       const res = await api.post(
         "/conversation/create-conversation",
         { userId: user._id },
         { headers: { Authorization: `Bearer ${token}` } }
       );
+
       const conversation = res.data?.conversation;
-      if (!conversation?._id) return;
+      if (!conversation?._id) {
+        console.error("No conversation returned");
+        return;
+      }
 
       setSelectedUser(user);
       setChatRoomId(conversation._id);
 
+      // ---- Add seller to contacts immediately if not present ----
+      setContacts(prevContacts => {
+        if (!prevContacts.some(c => c._id === user._id)) {
+          const newContact = {
+            _id: user._id,
+            fullName: user.fullName,
+            email: user.email,
+            phoneNumber: user.phoneNumber,
+            role: user.role,
+            img: user.image || user.img || "/profile-circles1.svg",
+            isVerified: user.isVerified || false,
+            createdAt: user.createdAt
+          };
+          return [...prevContacts, newContact];
+        }
+        return prevContacts;
+      });
+
+      // fetch conversation messages
       const history = await api.get(`/messages/${conversation._id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
       const existingMessages = Array.isArray(history.data?.messages)
         ? history.data.messages
         : [];
       setConversations(existingMessages);
-      let messageIds = [];
-      existingMessages.forEach((message) => {
-         messageIds.push(message._id);
-      });
+
+      // mark messages as read (if any)
+      const messageIds = existingMessages.map(m => m._id);
       emitReadMessage(messageIds, conversation._id);
 
+      // send initial preview message if provided and no existing messages
       if (
         initialDetails.previewMessage &&
         existingMessages.length === 0 &&
@@ -323,7 +294,7 @@ export default function MessagePage() {
         });
       }
     } catch (err) {
-      console.error("Failed to load conversation:", err);
+      console.error("Failed to load/create conversation:", err);
     }
   };
 
@@ -344,7 +315,7 @@ export default function MessagePage() {
         : selectedUser?.img || "/profile-circles1.svg";
 
       const isRead = msg.readBy?.includes(selectedUser?._id);
-      const isDelivered = true; // Assuming messages are delivered once sent
+      const isDelivered = true;
 
       return (
         <div key={msg._id || i}>
@@ -376,16 +347,16 @@ export default function MessagePage() {
             >
               {msg.productImageUrl && msg.productId && (
                 <Link href={`/details/${msg.productId}`} target="_blank" rel="noopener noreferrer">
-                <div className="mb-2 p-2 bg-white rounded-md border border-gray-200 cursor-pointer">
-                  <img
-                    src={msg.productImageUrl}
-                    alt={msg.productTitle || "Product"}
-                    className="w-24 h-24 object-cover rounded-md mx-auto mb-2"
-                  />
-                  <p className="text-xs font-semibold text-center text-blue-600 hover:underline">
-                    {msg.productTitle || "View Product"}
-                  </p>
-                </div>
+                  <div className="mb-2 p-2 bg-white rounded-md border border-gray-200 cursor-pointer">
+                    <img
+                      src={msg.productImageUrl}
+                      alt={msg.productTitle || "Product"}
+                      className="w-24 h-24 object-cover rounded-md mx-auto mb-2"
+                    />
+                    <p className="text-xs font-semibold text-center text-blue-600 hover:underline">
+                      {msg.productTitle || "View Product"}
+                    </p>
+                  </div>
                 </Link>
               )}
 
@@ -455,12 +426,6 @@ export default function MessagePage() {
       <div className="flex bg-white h-[calc(100vh-150px)]">
         {/* Left Panel */}
         <div className="w-[350px] bg-[#FAFAFA] border-r border-gray-300 p-4 overflow-y-auto">
-          {/* <h2 className="md:text-18px text-[#525252] font-[500] font-inter mb-4">
-            My Messages
-            <span className="bg-[#525252] md:w-[27px] md:h-[20px] rounded-full text-white text-xs px-2 py-[2px]">
-              {contacts.length}
-            </span>
-          </h2> */}
           <div className="space-y-4">
             {contacts.map((user, i) => (
               <div
@@ -483,11 +448,6 @@ export default function MessagePage() {
                     {lastMessages[user._id] || "Start Conversation"}
                   </p>
                 </div>
-                {/* <span
-                  className={`w-2 h-2 rounded-full ${
-                    isOnline(user._id) ? "bg-green-500" : "bg-gray-400"
-                  }`}
-                ></span> */}
               </div>
             ))}
           </div>
@@ -495,49 +455,68 @@ export default function MessagePage() {
 
         {/* Right Panel */}
         <div className="flex-1 flex flex-col h-full min-h-0 bg-white">
-          <div className="border-b border-gray-200 px-4 py-3 flex items-center justify-between bg-[#FAFAFA]">
-            <div className="flex items-center gap-2">
-              {selectedUser?.img && (
-                <Img
-                  src={selectedUser.img || "/profile-circles1.svg"}
-                  alt={selectedUser.fullName || "User"}
-                  width={40}
-                  height={40}
-                  className="rounded-full"
+          {selectedUser ? (
+            <>
+              <div className="border-b border-gray-200 px-4 py-3 flex items-center justify-between bg-[#FAFAFA]">
+                <div className="flex items-center gap-2">
+                  {selectedUser?.img && (
+                    <Img
+                      src={selectedUser.img || "/profile-circles1.svg"}
+                      alt={selectedUser.fullName || "User"}
+                      width={40}
+                      height={40}
+                      className="rounded-full"
+                    />
+                  )}
+                  <p className="font-medium text-[#525252] text-base">
+                    {selectedUser?.fullName || "Select a chat"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex-1 overflow-y-auto px-4 py-2 space-y-3">
+                {renderMessages()}
+                {typingUser === selectedUser?._id && (
+                  <div className="text-sm text-gray-500 italic">Typing...</div>
+                )}
+              </div>
+
+              {chatRoomId && selectedUser && (
+                <ChatInput
+                  onSend={handleSend}
+                  conversationId={chatRoomId}
+                  recipientId={selectedUser._id}
+                  token={token}
+                  onTyping={() => emitTyping(chatRoomId)}
+                  onStopTyping={() => emitStopTyping(chatRoomId)}
                 />
               )}
-              <p className="font-medium text-[#525252] text-base">
-                {selectedUser?.fullName}
-              </p>
+            </>
+          ) : (
+            <div className="flex-1 flex flex-col items-center justify-center text-center text-gray-500 text-lg">
+              <Img 
+                src="/msgImg.svg"
+                alt="No Message"
+                width={64}
+                height={64}
+                className=""
+              />
+               <h3 className="text-center">
+                  See messages here
+               </h3>
             </div>
-            {/* <span
-              className={`font-medium text-sm ${
-                isOnline(selectedUser?._id) ? "text-[#238E15]" : "text-gray-500"
-              }`}
-            >
-              {isOnline(selectedUser?._id) ? "ONLINE" : "OFFLINE"}
-            </span> */}
-          </div>
-
-          <div className="flex-1 overflow-y-auto px-4 py-2 space-y-3">
-            {renderMessages()}
-            {typingUser === selectedUser?._id && (
-              <div className="text-sm text-gray-500 italic">Typing...</div>
-            )}
-          </div>
-
-          {chatRoomId && selectedUser && (
-            <ChatInput
-              onSend={handleSend}
-              conversationId={chatRoomId}
-              recipientId={selectedUser._id}
-              token={token}
-              onTyping={() => emitTyping(chatRoomId)}
-              onStopTyping={() => emitStopTyping(chatRoomId)}
-            />
           )}
         </div>
       </div>
     </div>
+  );
+}
+
+
+export default function MessagePage() {
+  return (
+    <Suspense fallback={<div>Loading messages...</div>}>
+      <MessageContent />
+    </Suspense>
   );
 }

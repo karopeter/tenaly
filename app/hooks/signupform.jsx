@@ -6,7 +6,6 @@ import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
 import Button from "../components/Button";
-import Img from "../components/Image";
 import SignInModal from "./signin-modal";
 import api from "@/services/api";
 import { useAuth } from "../context/AuthContext";
@@ -42,7 +41,7 @@ export default function SignUpForm({ onClose }) {
 
   useEffect(() => {
     if (isLoggedIn) {
-      router.push("/Add");
+      router.push("/Profile");
       onClose?.();
     }
   }, [isLoggedIn, router, onClose]);
@@ -113,7 +112,7 @@ export default function SignUpForm({ onClose }) {
 
       login(profileRes.data, authToken);
       toast.success("Google authentication successful! 🎉 Welcome to Tenaly!");
-      router.push("/Add");
+      router.push("/Profile");
       onClose?.();
     } catch (err) {
       console.error("Google auth error:", err.response?.data || err.message);
@@ -161,8 +160,8 @@ export default function SignUpForm({ onClose }) {
             onChange={handleChange}
             className="pt-1 pr-3 pb-1 pl-3 w-[380px] h-[52px] outline-none rounded-[4px] border border-[#CDCDD7] text-sm text-[#525252] bg-white"
           >
-            <option value="customer">Sign up as Customer</option>
-            <option value="seller">Sign up as Seller</option>
+            <option value="customer">I"m buying</option>
+            <option value="seller">I"m selling</option>
           </select>
           {formErrors.role && <p className="text-red-500 text-sm mt-1">{formErrors.role}</p>}
         </div>

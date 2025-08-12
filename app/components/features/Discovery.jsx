@@ -107,7 +107,7 @@ export default function TenalyDiscovery() {
      </div>
    </div>
 
-  <section className="bg-[#F7F7FF] w-full h-auto px-4 sm:px-6 md:px-8 mt-20 pt-20">
+  <section className="bg-[#F7F7FF] w-full h-auto md:h-[800px] px-4 sm:px-6 md:px-8 mt-20 pt-20">
   <div className="text-center flex flex-col items-center">
     <h2 className="text-[#1F1F1F] font-inter font-[500] text-[18px] md:text-[40px]">
       Coming Soon to More Countries!!!

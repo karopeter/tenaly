@@ -211,7 +211,7 @@ const handleSubmit = async () => {
       </div>
      )}
       <div className="flex-1 px-4 md:px-0 mt-10 md:mt-0">
-        <div className="bg-white shadow p-4 rounded-lg w-full max-w-[361px]">
+        <div className="bg-white shadow p-4 rounded-lg w-full">
           <div className="flex items-center gap-2 mb-4">
             <button onClick={() => router.back()} className="flex gap-4 items-center">
               <ArrowLeftIcon className="h-5 w-5 text-[#141B34]" />

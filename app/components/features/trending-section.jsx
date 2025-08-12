@@ -10,7 +10,7 @@ export default function TrendingSection() {
         </h2>
 
         {/* Filter Icons */}
-        <div className="flex items-center space-x-3">
+        {/* <div className="flex items-center space-x-3">
           <button className="cursor-pointer">
             <Img
               src="/filter.svg"
@@ -28,7 +28,7 @@ export default function TrendingSection() {
               height={32}
             />
           </button>
-        </div>
+        </div> */}
       </div>
     </div>
   );

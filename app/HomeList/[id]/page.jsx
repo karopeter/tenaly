@@ -5,7 +5,6 @@ import Link from "next/link";
 import Img from "@/app/components/Image";
 import Button from "@/app/components/Button";
 import api from "@/services/api";
-import SignUpModal from "@/app/hooks/signup-modal";
 import MessageSellerButton from "@/app/components/UI/messageSeller";
 import { toast } from "react-toastify";
 import { useAuth } from "@/app/context/AuthContext";
@@ -26,6 +25,9 @@ export default function HomeListDetails() {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [bookmarkLoading, setBookmarkLoading] = useState(false);
   const { openAuthModal, isLoggedIn, profile } = useAuth();
+
+  // Placeholder image for when a real image fails to load
+  const placeholderImage = "https://placehold.co/400x300/E5E7EB/4B5563?text=Image+Not+Available";
 
    const getImageUrl = (imagePath) => {
     if (!imagePath) return null;
@@ -113,7 +115,7 @@ export default function HomeListDetails() {
       <section className="px-4 md:px-10 mt-10 flex flex-col items-center justify-center min-h-[200px]">
          <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading ad details...</p>
+          <p className="mt-4 text-gray-600 font-inter">Loading Products details...</p>
         </div>
       </section>
     );
@@ -128,10 +130,22 @@ export default function HomeListDetails() {
     return <section className="px-4 md:px-10 mt-10 text-center">Ad not found.</section>;
   }
 
+
   const { carAd, vehicleAd, propertyAd, business } = adData;
   const actualBusinessId = carAd?.businessCategory?._id || carAd?.businessCategory;
   const sellerId = business?.userId || carAd?.userId || vehicleAd?.userId || propertyAd?.userId;
-  const mainAd = vehicleAd || propertyAd; 
+
+
+  let mainAd = null; 
+  let adDetails = null;
+   if (carAd && vehicleAd) {
+    mainAd = carAd;
+    adDetails = vehicleAd;
+  } else if (propertyAd) {
+    mainAd = propertyAd;
+    adDetails = propertyAd; // For properties, the main ad is also the details
+  }
+
   const businessName = business?.businessName || "Unknown Seller";
   const aboutBusiness = business?.aboutBusiness || "No 'About' section provided.";
   const businessLocation = business?.location || "N/A";
@@ -142,17 +156,32 @@ export default function HomeListDetails() {
 
 
  
-  const productTitle = carAd 
-    ? `${vehicleAd?.vehicleType || ""} ${vehicleAd?.model || ""} ${
-        vehicleAd?.year || ""
-      }`.trim()
-    : propertyAd?.propertyName || "Product";
+const productTitle =
+  propertyAd?.propertyName ||
+  (vehicleAd ? `${vehicleAd.vehicleType} ${vehicleAd.model}` : "") ||
+  (carAd ? `${carAd.vehicleType} ${carAd.model}` : "");
 
-     const productImage = carAd?.vehicleImage?.[0]
-    ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${carAd.vehicleImage[0].replace(/\\/g, "/")}`
-    : propertyAd?.propertyImage?.[0]
-    ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${propertyAd.propertyImage[0].replace(/\\/g, "/")}`
-    : null;
+    const mainImageArray = carAd
+    ? (carAd.propertyImage?.length > 0 ? carAd.propertyImage : carAd.vehicleImage || [])
+    : [];
+
+     const mainImage = mainImageArray[0];
+    const smallImages = mainImageArray.slice(1, 5);
+
+     const productId = mainAd?._id;
+
+// Pick correct product image
+const productImage =
+  propertyAd?.propertyImage?.[0] ||
+  vehicleAd?.vehicleImage?.[0] ||
+  carAd?.vehicleImage?.[0];
+
+
+// Product ID (the ad's own ID)
+// const productId =
+//   propertyAd?._id ||
+//   vehicleAd?._id ||
+//   carAd?._id;
 
     // Debug Logs to check the IDS 
     console.log("Business object:", business);
@@ -167,9 +196,9 @@ export default function HomeListDetails() {
         <Link href="/Product-List" className="hover:text-[#000] transition-all whitespace-nowrap">
           Home&nbsp;&rsaquo;
         </Link>
-        {carAd?.category && (
+        {mainAd?.category && (
           <span className="text-[#868686] text-[13px] md:text-[14px] font-[400] font-inter whitespace-nowrap">
-            {carAd.category}
+            {mainAd.category}
           </span>
         )}
         {vehicleAd && (
@@ -230,41 +259,50 @@ export default function HomeListDetails() {
       <div className="flex flex-col md:flex-row gap-2 mt-6">
         {/* Main Image */}
         <div className="md:w-2/3 w-full relative">
-          {carAd?.vehicleImage?.length > 0 && (
+          {mainImage && (
             <Img
-              src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${carAd.vehicleImage[0].replace(/\\/g, "/")}`}
-              alt="Main Ad"
+              src={mainImage}
+              alt={productTitle}
               width={686}
               height={354}
               className="w-full h-auto md:w-[686px] md:h-[354px] object-cover rounded"
+              onError={(e) => { e.target.src = placeholderImage; }}
             />
           )}
-          {carAd?.propertyImage?.length > 0 && (
+           {!mainImage && (
             <Img
-              src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${carAd.propertyImage[0].replace(/\\/g, "/")}`}
-              alt="Main Property"
-              width={686}
-              height={354}
-              className="w-full h-auto md:w-[686px] md:h-[354px] object-cover rounded"
+              src={placeholderImage}
+              alt="Image not available"
+              fill
+              className="object-cover"
             />
           )}
         </div>
 
         {/* Small Image Grid */}
         <div className="md:w-1/3 w-full grid grid-cols-2 grid-rows-2 gap-2">
-         {(carAd?.propertyImage?.length > 0 ? carAd.propertyImage : carAd?.vehicleImage || [])
-         .slice(1, 5)
-         .map((img, idx) => (
-        <div key={idx} className="w-full h-full overflow-hidden">
+        {smallImages.map((img, idx) => (
+           <div key={idx} className="w-full h-full overflow-hidden">
            <Img
-             src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${img.replace(/\\/g, "/")}`}
-             alt={`Image ${idx + 2}`}
+             src={img}
+            alt={`${productTitle} image ${idx + 2}`}
              width={180}
              height={120}
              className="w-full h-full object-cover rounded"
+             onError={(e) => { e.target.src = placeholderImage; }}
            />
         </div>
-       ))}
+        ))}
+         {smallImages.length === 0 && (
+             <div className="col-span-2 row-span-2 w-full h-full relative overflow-hidden rounded">
+              <Img
+                src={placeholderImage}
+                alt="Image not available"
+                fill
+                className="object-cover"
+              />
+            </div>
+          )}
      </div>
       </div>
 
@@ -829,7 +867,6 @@ export default function HomeListDetails() {
         openAuthModal={openAuthModal} 
        productImage={productImage}
        productTitle={productTitle}
-       //openAuthModal={() => setShowSignInModal(true)}
      />
       {!sellerId && <p className="text-red-500">Seller ID not found for this product.</p>}
      {/* {showSignInModal && (
@@ -981,7 +1018,6 @@ export default function HomeListDetails() {
                   {businessName}
               </span>
              </Link>
-               {isBusinessVerified && (
            <div className="mt-1 flex items-center gap-2 bg-[#E9F4E8] w-auto h-[16px] rounded-[2px] px-2">
           <Img
             src="/profile.svg"
@@ -991,10 +1027,9 @@ export default function HomeListDetails() {
             className="w-[10px] h-[10px]"
           />
           <span className="text-[#238E15] text-[10px] font-[500] font-inter">
-          {isBusinessVerified ? "Verified" : "Unverified"}
+          {userProfile?.isVerified  ? "Verified" : "Unverified"}
           </span>
         </div>
-             )}
             <span className="mt-1 text-[#868686] font-inter font-[400] md:text-[12px]">Last Seen 20h ago</span>
            <span className="mt-1 text-[#868686] text-[10px] font-[400] font-inter"> {userProfile?.createdAt ? ( `Joined Tenaly on ${new Date(userProfile.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}` ) : ( "Joined Tenaly" )} </span>
             </div>
@@ -1016,13 +1051,14 @@ export default function HomeListDetails() {
               </Button>
             </div>
             <div className="mt-2">
-              <MessageSellerButton 
-               sellerId={sellerId}
-               productId={id}
-               productImage={productImage}
+             <MessageSellerButton
+                sellerId={sellerId}
+                productId={productId}
+                productImage={getImageUrl(productImage)}
                productTitle={productTitle}
-                openAuthModal={openAuthModal} 
-              />
+               openAuthModal={openAuthModal}
+            /> 
+
 
              {/* {showSignInModal && (
              <SignUpModal 

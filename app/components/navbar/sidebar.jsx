@@ -13,7 +13,7 @@ const sidebarItems = [
   { label: "Analytics", icon: "/chart.svg", href: "/Analytics" },
   { label: "Bookmarked", icon: "/bookmarked1.svg", href: "/Bookmarked" },
   { label: "Customer Reviews", icon: "/star.svg", href: "/CustomerReviews" },
-  { label: "Premium Services", icon: "/crown-2.svg", href: "/PremiumService" },
+ // { label: "Premium Services", icon: "/crown-2.svg", href: "/PremiumService" },
   { label: "Pro Sales", icon: "/presention-chart.svg", href: "/ProSales" },
   { label: "Wallet", icon: "/wallet-money.svg", href: "/Wallet" },
   { label: "Customer Support", icon: "/24-support.svg", href: "/Support" },

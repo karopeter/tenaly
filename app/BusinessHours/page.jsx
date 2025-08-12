@@ -1,10 +1,35 @@
+// app/BusinessHours/page.js
+
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import Sidebar from "../components/navbar/sidebar";
 import Content from "./content";
 
+// A small component that contains the content and sidebar.
+// This is what will be wrapped in Suspense.
+function BusinessHoursSection({ activeSection, setActiveSection, isMobile }) {
+  return (
+    <div className="flex flex-col md:flex-row gap-10">
+      {!isMobile && (
+        <div>
+          <Sidebar
+            isMobile={isMobile}
+            activeSection={activeSection}
+            setActiveSection={setActiveSection}
+          />
+        </div>
+      )}
+      <Content
+        activeSection={activeSection}
+        setActiveSection={setActiveSection}
+        isMobile={isMobile}
+      />
+    </div>
+  );
+}
+
 export default function BusinessHours() {
-  const [activeSection, setActiveSection] = useState("Business Hour"); // Set default to Business Hour
+  const [activeSection, setActiveSection] = useState("Business Hour");
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -18,9 +43,7 @@ export default function BusinessHours() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Conditionally render the entire layout based on mobile state and active section
   const renderLayout = () => {
-    // If it's mobile and no section is active, show the sidebar.
     if (isMobile && !activeSection) {
       return (
         <div className="md:px-[104px] px-4 md:ml-10 mt-20 md:mt-40">
@@ -32,26 +55,16 @@ export default function BusinessHours() {
         </div>
       );
     }
-        
-    // If it's desktop or a mobile section is active, show the main content.
+
     return (
       <div className="md:px-[104px] px-4 md:ml-10 mt-20 md:mt-40">
-        <div className="flex flex-col md:flex-row gap-10">
-          {!isMobile && (
-            <div>
-             <Sidebar
-              isMobile={isMobile}
-              activeSection={activeSection}
-              setActiveSection={setActiveSection}
-            />
-            </div>
-          )}
-          <Content
+        <Suspense fallback={<div>Loading...</div>}>
+          <BusinessHoursSection
             activeSection={activeSection}
             setActiveSection={setActiveSection}
             isMobile={isMobile}
           />
-        </div>
+        </Suspense>
       </div>
     );
   };

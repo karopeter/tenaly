@@ -10,7 +10,7 @@ import MessageSellerButton from '@/app/components/UI/messageSeller';
 import SignUpModal from '@/app/hooks/signup-modal';
 import { toast } from "react-toastify";
 
-export default function PropertyDetailsPage({ sellerId }) {
+export default function PropertyDetailsPage() {
   const [activeTab, setActiveTab] = useState("car");
   const [showInput, setShowInput] = useState(false);
   const [offerAmount, setOfferAmount] = useState("");
@@ -87,13 +87,36 @@ export default function PropertyDetailsPage({ sellerId }) {
     setOfferAmount("");
   }
 
-  if (loading) return <div>Loading...</div>;
+   // Helper function to handle image source from a full URL or a relative path
+  const getImageSrc = (imagePath) => {
+    if (!imagePath) return '';
+    // Check if the path is a full URL (e.g., from Cloudinary)
+    if (imagePath.startsWith('http') || imagePath.startsWith('https')) {
+      return imagePath;
+    }
+    // Otherwise, assume it's a relative path from the backend
+    return `${process.env.NEXT_PUBLIC_BACKEND_URL}/${imagePath.replace(/\\/g, "/")}`;
+  };
+
+
+  if (loading) {
+     return (
+      <section className="px-4 md:px-10 mt-10 flex flex-col items-center justify-center min-h-[200px]">
+         <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600 font-inter">Loading Posted Ads Details</p>
+        </div>
+      </section>
+    );
+  }
+
+
   if (!carAd && !propertyAd) return <div>Ad not found.</div>;
 
   return (
     <div className="md:px-[104px] px-4 md:ml-10">
       <div className="mt-28 flex items-center gap-2 mb-4 text-[#868686] md:text-[14px] font-[400] font-inter flex-nowrap">
-        <Link href="/" className="hover:text-[#000] transition-all whitespace-nowrap">
+        <Link href="/Product-List" className="hover:text-[#000] transition-all whitespace-nowrap">
           Home&nbsp;&rsaquo;
         </Link>
         {/* {carAd && (
@@ -102,9 +125,9 @@ export default function PropertyDetailsPage({ sellerId }) {
           </Link>
         )} */}
         {propertyAd && (
-          <Link href="/properties" className="text-[#000087] text-[13px] md:text-[14px] font-[500] font-inter whitespace-nowrap">
+          <span  className="text-[#000087] text-[13px] md:text-[14px] font-[500] font-inter whitespace-nowrap">
             {propertyAd.propertyName} {propertyAd.furnishing}
-          </Link>
+          </span>
         )}
       </div>
 
@@ -153,7 +176,7 @@ export default function PropertyDetailsPage({ sellerId }) {
           <div className="md:w-2/3 w-full relative">
            {carAd?.propertyImage?.length > 0 && (
            <Img
-            src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${carAd.propertyImage[0].replace(/\\/g, "/")}`}
+            src={carAd.propertyImage[0]}
             alt="Car Ad Main"
             width={686}
             height={354}
@@ -171,10 +194,10 @@ export default function PropertyDetailsPage({ sellerId }) {
        {/* Smaller Image Grid */}
       <div className="md:w-1/3 w-full grid grid-cols-2 grid-rows-2 gap-2">
        {carAd.propertyImage &&
-         carAd.propertyImage.slice(1, 5).map((img, idx) => (
-          <div key={idx} className="w-full h-full overflow-hidden">
+      carAd.propertyImage.slice(1, 5).map((img, idx) => (
+        <div key={idx} className="w-full h-full overflow-hidden">
           <Img
-            src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${img.replace(/\\/g, "/")}`}
+            src={img}
             alt={`Car Ad Small ${idx + 2}`}
             width={180}
             height={120}
@@ -590,7 +613,7 @@ export default function PropertyDetailsPage({ sellerId }) {
             className="w-[10px] h-[10px]"
           />
           <span className="text-[#238E15] text-[10px] font-[500] font-inter">
-            Verified User
+            {userProfile?.isVerified ? "Verified" : "Unverified"}
           </span>
         </div>
         <span className="mt-1 text-[#868686] text-[10px] font-[400] font-inter">
@@ -625,22 +648,6 @@ export default function PropertyDetailsPage({ sellerId }) {
       </Button>
     </div>
     <div className="mt-2">
-      <MessageSellerButton 
-      sellerId={sellerId}
-      openAuthModal={() => setShowSignInModal(true)}
-      />
-      {showSignInModal && (
-        <SignUpModal 
-          onClose={() => setShowSignInModal(false)}
-          initialView="signin"
-       />
-      )}
-      {showSignUpModal && (
-        <SignUpModal 
-         onClose={() => setShowSignUpModal(false)}
-         initialView="signup"
-        />
-      )}
     </div>
     <div className="mt-2">
       
@@ -742,11 +749,8 @@ export default function PropertyDetailsPage({ sellerId }) {
            </button>
         </div>
       ): (
-       <Button 
-         onClick={() => setShowInput(true)}
-          className="md:w-[300px] md:h-[53px] md:rounded-[8px] text-[#FFFFFF] font-inter font-[500] md:text-[16px] bg-[#5555DD]">
-         Make Offer
-        </Button>
+        <>
+        </>
       )}
      </div>
    </div>
@@ -777,10 +781,10 @@ export default function PropertyDetailsPage({ sellerId }) {
                 className="w-[10px] h-[10px] ml-1"/>
                 <span 
                   className="md:text-[#238E15] font-[500] md:text-[10px] font-inter">
-                    Verified User
+                  {userProfile?.isVerified ? "Verified" : "Unverified"}
                  </span>
             </div>
-            <span className="mt-1 text-[#868686] font-inter font-[400] md:text-[12px]">Last Seen 20h ago</span>
+            {/* <span className="mt-1 text-[#868686] font-inter font-[400] md:text-[12px]">Last Seen 20h ago</span> */}
              <span className="mt-1 text-[#868686] text-[10px] font-[400] font-inter">
                {userProfile?.createdAt
                 ? `Joined Tenaly on ${new Date(userProfile.createdAt).toLocaleDateString("en-US", {
@@ -810,24 +814,6 @@ export default function PropertyDetailsPage({ sellerId }) {
               </Button>
             </div>
             <div className="mt-2">
-              <MessageSellerButton 
-               sellerId={sellerId}
-               openAuthModal={() => setShowSignInModal(true)}
-              />
-
-             {showSignInModal && (
-             <SignUpModal 
-              onClose={() => setShowSignInModal(false)}
-              initialView="signin"
-             />
-            )}
-
-           {showSignUpModal && (
-            <SignUpModal 
-             onClose={() => setShowSignUpModal(false)}
-             initialView="signup"
-            />
-           )}
             </div>
           </div>
 
