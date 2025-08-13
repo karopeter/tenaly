@@ -26,7 +26,7 @@ function BusinessList({ businesses, onAddHourClick }) {
             >
               {/* Business Name and Edit/Add Button */}
               <div className="flex justify-between items-center w-full">
-                <span className="text-sm font-medium text-[#525252] font-inter">
+                <span className="text-sm font-medium font-[500] text-[#525252] font-inter">
                   {biz.businessName}
                 </span>
 
