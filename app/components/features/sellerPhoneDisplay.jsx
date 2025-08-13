@@ -57,7 +57,9 @@ const SellerPhoneDisplay = ({ sellerId}) => {
         ? `Call ${sellerDetails.phoneNumber}`
         : "Call"}
        </Button>
-    )
+    );
 }
+
+
 
 export { SellerPhoneDisplay };
