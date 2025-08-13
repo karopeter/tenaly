@@ -10,6 +10,8 @@ import ForgotPassword from "./forgot-password-model";
 import SignUpModal from "./signup-modal";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import { useAuth } from "../context/AuthContext";
+import CompleteProfileModal from "./complete-profile-modal";
+import api from "@/services/api";
 
 export default function SignInForm({ onClose }) {
         const baseURI = process.env.NEXT_PUBLIC_BASE_URL;
@@ -20,6 +22,8 @@ export default function SignInForm({ onClose }) {
         const [showPassword, setShowPassword] = useState(false);
         const {login } = useAuth();
         const [isPhoneSignIn, setIsPhoneSignIn] = useState(false);
+        // Add state for Google complete profile modal
+        const [completeProfileData, setCompleteProfileData] = useState(null);
         const [form, setForm] = useState({
             email: "",
             phone: "",
@@ -143,26 +147,33 @@ export default function SignInForm({ onClose }) {
               const data = await res.json();
           
               if (res.ok) {
-               // Fetch the profile data to get the role 
-               const profileRes = await api.get("/profile", {
-                 headers: {
-                   Authorization: `Bearer ${data.token}`
-                 },
-               });
-               
-               const userProfile = profileRes.data;
-               
-               login(userProfile, data.token);
-               toast.success("Google authentication successful!", data.token);
+                const { token: authToken, isNewGoogleUser, user: newUser, profileComplete } = data;
 
-               // Redirect logic based on the user's role 
-               if (userProfile.role === "seller") {
-                router.push("/Profile");
-               } else {
-                router.push("/Product-List");
-               }
+                if (isNewGoogleUser || !profileComplete) {
+                  // Show the complete profile modal for new Google users or incomplete profiles
+                  toast.success("Google sign-in successful! Please complete your profile.");
+                  // Pass the user's data and token to the modal state
+                  setCompleteProfileData({ user: newUser, token: authToken });
+                } else {
+                  // This is for an existing user with complete profile, so we can log them in directly
+                  const profileRes = await api.get("/profile", {
+                    headers: { Authorization: `Bearer ${authToken}` },
+                  });
+                  
+                  const userProfile = profileRes.data;
+                  
+                  login(userProfile, authToken);
+                  toast.success("Google authentication successful! 🎉 Welcome back!");
 
-               onClose();
+                  // Redirect logic based on the user's role 
+                  if (userProfile.role === "seller") {
+                    router.push("/Profile");
+                  } else {
+                    router.push("/Product-List");
+                  }
+
+                  onClose();
+                }
               } else {
                 toast.error(data.message || "Google authentication failed");
               }
@@ -171,6 +182,11 @@ export default function SignInForm({ onClose }) {
               toast.error("Something went wrong. Please try again.");
             }
           };
+
+        const handleCompleteProfileClose = () => {
+          setCompleteProfileData(null);
+          onClose();
+        };
     
         if (showForgotPasswordModal) {
             return <ForgotPassword onClose={() => setShowForgotPaswordModal(false)} />
@@ -179,6 +195,18 @@ export default function SignInForm({ onClose }) {
         if (showSignUpModal) {
             return <SignUpModal onClose={onClose} />
         }
+
+        // Check if we have data to show the complete profile modal
+        if (completeProfileData) {
+          return (
+            <CompleteProfileModal
+              user={completeProfileData.user}
+              token={completeProfileData.token}
+              onClose={handleCompleteProfileClose}
+            />
+          );
+        }
+
     return (
      <>
        <h2 className="md:text-[20px] font-[500] text-center font-inter mb-4 text-[#525252]">Welcome to Tenaly</h2>
