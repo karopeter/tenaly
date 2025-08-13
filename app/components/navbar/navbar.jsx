@@ -145,7 +145,7 @@ export default function Navbar() {
                      className="w-[32px] h-[32px] md:w-[44px] md:h-[44px]"
                   />
                 </Link>
-                <Link href="/">
+                <Link href="/Profile">
                  <Img 
                    src={profileData?.image || "/profile-circles1.svg"}
                    alt="GF"

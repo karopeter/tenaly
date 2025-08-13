@@ -98,18 +98,29 @@ export default function SignInForm({ onClose }) {
              console.log("📥 Login Response:", data);
     
              if (response.ok) {
-                login(data, data.token);
-                toast.success("Login successful!");
-                onClose();
-                router.push("/Profile"); 
-    
-                // setTimeout(() => {
-                //    window.location.reload();
-                // }, 300);
+               // fetch the profile data to get the role 
+               const profileRes = await api.get("/profile", {
+                headers: {
+                  Authorization: `Bearer ${data.token}`
+                },
+               });
+               const userProfile = profileRes.data;
+
+               login(userProfile, data.token);
+               toast.success("Login successful!");
+               onClose();
+
+               // Redirect logic based on the user's role 
+               if (userProfile.role === "seller") {
+                router.push("/Profile");
+               } else {
+                router.push("/Product-List");
+               }
              } else {
                 toast.error(data.message || "Login failed:");
              }
             } catch (error) {
+              console.error("Login error:", error);
               toast.error("Something went wrong. Please try again.");
             }
         };
@@ -132,14 +143,31 @@ export default function SignInForm({ onClose }) {
               const data = await res.json();
           
               if (res.ok) {
-                login(data, data.token);
-                toast.success("Google authentication successful!", data.token);
-                 router.push("/Profile");
-                 onClose();
+               // Fetch the profile data to get the role 
+               const profileRes = await api.get("/profile", {
+                 headers: {
+                   Authorization: `Bearer ${data.token}`
+                 },
+               });
+               
+               const userProfile = profileRes.data;
+               
+               login(userProfile, data.token);
+               toast.success("Google authentication successful!", data.token);
+
+               // Redirect logic based on the user's role 
+               if (userProfile.role === "seller") {
+                router.push("/Profile");
+               } else {
+                router.push("/Product-List");
+               }
+
+               onClose();
               } else {
                 toast.error(data.message || "Google authentication failed");
               }
             } catch (error) {
+              console.error("Google auth error:", error);
               toast.error("Something went wrong. Please try again.");
             }
           };

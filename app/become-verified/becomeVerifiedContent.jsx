@@ -79,8 +79,8 @@ export default function BecomeVerifiedContent() {
   };
 
   return (
-    <div className="bg-white shadow-phenom md:rounded-[12px] p-4 md:p-8 w-full text-center">
-      <div className="flex justify-start mb-6">
+    <div className="bg-white shadow-phenom md:rounded-[12px] p-4 md:p-8 w-full  text-center">
+      <div className="flex justify-start  mb-6">
         <Button
           onClick={handleGoBack}
           className="flex items-center text-[#1031AA] hover:text-[#00A8DF] font-medium"
@@ -90,7 +90,8 @@ export default function BecomeVerifiedContent() {
         </Button>
       </div>
 
-      <div className="md:px-[40px]">
+      <div className="flex flex-col  justify-start items-start md:justify-center md:items-center">
+        <div>
         <h3 className="text-[#525252] font-[500] font-inter text-[16px] mb-6 text-center md:text-left">
           Become a verified user
         </h3>
@@ -126,27 +127,25 @@ export default function BecomeVerifiedContent() {
                 label="Business Name"
                 value={businessName}
                 onChange={(e) => setBusinessName(e.target.value)}
-                placeholder="Enter business name"
               />
               <FloatingLabelInput
                 label="Business Address"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
-                placeholder="Enter business address"
               />
               <FloatingLabelInput
                 label="Business Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="+234 | Enter your phone number"
               />
               <h3 className="text-left text-[#525252] font-inter font-[500] text-[14px] mt-4 mb-2">
                 Upload Business Registration Certificate
               </h3>
-              <label
+              {!certificate ? (
+                <label
                 htmlFor="certificate-upload"
                 id="dropZone"
-                className="flex flex-col items-center justify-center border-2 border-dashed border-[#5555DD] rounded-[8px] p-10 cursor-pointer w-full md:w-[441px] h-[150px] transition"
+                className="flex flex-col items-center justify-center bg-[#F7F7FF] border-2 border-dashed border-[#5555DD] rounded-[8px] p-10 cursor-pointer w-full h-[150px] transition"
               >
                 <Img
                   src="/document-upload.svg"
@@ -165,13 +164,36 @@ export default function BecomeVerifiedContent() {
                   className="hidden"
                   onChange={handleFileChange}
                 />
-                {certificate && (
-                  <span className="mt-2 text-xs text-[#1031AA] break-all text-center">
-                    {certificate.name}
-                  </span>
-                )}
               </label>
-              <div className="flex justify-center md:justify-start mt-4">
+              ): (
+                <div className="flex flex-col items-center mt-3">
+                  <div className="relative w-32 h-32">
+                    {certificate.type.startsWith("image/") ? (
+                      <Img 
+                        src={URL.createObjectURL(certificate)}
+                        alt="Preview"
+                        width={32}
+                        height={32}
+                        className="w-32 h-32 object-contain rounded border"
+                      />
+                    ): (
+                      <div className="w-32 h-32 flex items-center justify-center bg-[#F7F7FF] rounded border">
+                        <span className="text-[#1031AA] text-xs break-all text-center px-2">
+                            {certificate.name}
+                        </span>
+                      </div>
+                    )}
+                    <button 
+                     type="button"
+                     className="absolute top-1 right-1 bg-white rounded-full p-1 shadow"
+                     onClick={() => setCertificate(null)}
+                       aria-label="Cancel upload">
+                       <Img src="/close-circle.svg" alt="Cancel" width={20} height={20} />
+                    </button>
+                  </div>
+                </div>
+              )}
+              <div className="flex justify-center items-center mt-4">
                 <Button
                   type="button"
                   className="bg-gradient-to-r from-[#00A8DF] to-[#1031AA] px-6 py-2 text-white w-full md:w-[317px] h-[44px] rounded-[8px]"
@@ -185,7 +207,6 @@ export default function BecomeVerifiedContent() {
           {step === 2 && (
             <>
               <FloatingLabelDropdown
-                label="Valid means of ID"
                 value={validId}
                 onChange={(e) => setValidId(e.target.value)}
                 className="w-full"
@@ -199,11 +220,12 @@ export default function BecomeVerifiedContent() {
               {/* Upload Photo Document */}
               <div className="mt-4">
                 <h3 className="text-left text-[#525252] font-inter font-[500] text-[14px] mt-4 mb-2">
-                  Upload Photo ID
+                  Upload valid means of ID
                 </h3>
                 <label
                   htmlFor="photo-upload"
-                  className="flex flex-col items-center justify-center border-2 border-dashed border-[#5555DD] rounded-[8px] p-10 cursor-pointer w-full md:w-[441px] h-[150px] transition relative"
+                  className="flex flex-col items-center justify-center bg-[#F7F7FF] border-2 border-dashed border-[#5555DD] 
+                  rounded-[8px] p-10 cursor-pointer w-full  h-[150px] transition relative"
                 >
                   <Img
                     src="/document-upload.svg"
@@ -267,6 +289,7 @@ export default function BecomeVerifiedContent() {
             </>
           )}
         </form>
+      </div>
       </div>
     </div>
   );
