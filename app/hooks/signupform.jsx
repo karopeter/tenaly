@@ -5,15 +5,18 @@ import { useRouter } from "next/navigation";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
+// These imports assume you have these components in your project structure
+// at the specified relative paths.
 import Button from "../components/Button";
 import SignInModal from "./signin-modal";
 import api from "@/services/api";
 import { useAuth } from "../context/AuthContext";
+import CompleteProfileModal from "./complete-profile-modal";
 
 export default function SignUpForm({ onClose }) {
   const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
   const router = useRouter();
-  const { login, isLoggedIn } = useAuth();
+  const { login } = useAuth();
 
   const [form, setForm] = useState({
     email: "",
@@ -27,6 +30,8 @@ export default function SignUpForm({ onClose }) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [showSignInModal, setShowSignInModal] = useState(false);
+  // Change state to an object to hold user data and token
+  const [completeProfileData, setCompleteProfileData] = useState(null);
 
   const isFormValid = Object.values(form).every((val) => val.trim() !== "");
 
@@ -38,13 +43,6 @@ export default function SignUpForm({ onClose }) {
       setForm((prev) => ({ ...prev, role: roleParam }));
     }
   }, []);
-
-  useEffect(() => {
-    if (isLoggedIn) {
-      router.push("/Profile");
-      onClose?.();
-    }
-  }, [isLoggedIn, router, onClose]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -91,7 +89,13 @@ export default function SignUpForm({ onClose }) {
       const userProfile = profileRes.data;
       login(userProfile, authToken);
       toast.success("Signup successful! 🎉 Welcome to Tenaly!");
-      setShowSignInModal(true);
+      // Redirect logic based on the user's role
+      if (userProfile.role === "seller") {
+        router.push("/Profile");
+      } else {
+        router.push("/Product-List");
+      }
+      onClose?.();
     } catch (err) {
       console.error("Signup error:", err.response?.data || err.message);
       toast.error(err.response?.data?.message || "Signup failed. Please try again.");
@@ -104,23 +108,51 @@ export default function SignUpForm({ onClose }) {
       if (!credential) return toast.error("Google authentication failed: No credential received.");
 
       const authRes = await api.post("/auth/google-auth", { token: credential });
-      const authToken = authRes.data.token;
+      const { token: authToken, isNewGoogleUser, user: newUser, profileComplete } = authRes.data;
 
-      const profileRes = await api.get("/profile", {
-        headers: { Authorization: `Bearer ${authToken}` },
-      });
-
-      login(profileRes.data, authToken);
-      toast.success("Google authentication successful! 🎉 Welcome to Tenaly!");
-      router.push("/Profile");
-      onClose?.();
+      if (isNewGoogleUser || !profileComplete) {
+        // Show the complete profile modal for new Google users or incomplete profiles
+        toast.success("Google sign-up successful! Please complete your profile.");
+        // Pass the new user's data and token to the modal state
+        setCompleteProfileData({ user: newUser, token: authToken });
+      } else {
+        // This is for an existing user with complete profile, so we can log them in directly
+        const profileRes = await api.get("/profile", {
+          headers: { Authorization: `Bearer ${authToken}` },
+        });
+        const userProfile = profileRes.data;
+        login(userProfile, authToken);
+        toast.success("Google authentication successful! 🎉 Welcome to Tenaly!");
+        if (userProfile.role === "seller") {
+          router.push("/Profile");
+        } else {
+          router.push("/Product-List");
+        }
+        onClose?.();
+      }
     } catch (err) {
       console.error("Google auth error:", err.response?.data || err.message);
       toast.error(err.response?.data?.message || "Google login failed. Please try again.");
     }
   };
 
+  const handleCompleteProfileClose = () => {
+    setCompleteProfileData(null);
+    onClose?.();
+  };
+
   if (showSignInModal) return <SignInModal onClose={onClose} />;
+  
+  // Check if we have data to show the complete profile modal
+  if (completeProfileData) {
+    return (
+      <CompleteProfileModal
+        user={completeProfileData.user}
+        token={completeProfileData.token}
+        onClose={handleCompleteProfileClose}
+      />
+    );
+  }
 
   return (
     <>

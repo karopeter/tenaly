@@ -6,7 +6,7 @@ import api from "@/services/api";
 import InputField from "../components/input";
 import { toast } from "react-toastify";
 import Img from "../components/Image";
-import BusinessProfileContent from "./BusinessProfileContent"; // Import the new component
+import BusinessProfileContent from "./BusinessProfileContent";
 
 export default function ProfilePageContent() {
   const [mode, setMode] = useState("personal");
@@ -40,6 +40,14 @@ export default function ProfilePageContent() {
     };
     fetchUserDetails();
   }, []);
+
+  // Reset edit mode when switching to business tab
+  const handleModeChange = (newMode) => {
+    setMode(newMode);
+    if (newMode === "business") {
+      setIsEditable(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -196,16 +204,19 @@ export default function ProfilePageContent() {
             />
           </div>
         </div>
-        <div className="mt-2">
-          <Button
-            type="button"
-            onClick={() => setIsEditable(!isEditable)}
-            className="flex items-center gap-1 border-[1px] border-[#EDEDED] md:h-[36px] md:rounded-[28px] text-[#232323] text-sm font-medium bg-[#F1F1F1]"
-          >
-            <Pencil className="w-4 h-4 text-[#3C3C3C]" />
-            {isEditable ? "Done" : "Edit"}
-          </Button>
-        </div>
+        {/* Edit button only shows on Personal tab */}
+        {mode === "personal" && (
+          <div className="mt-2">
+            <Button
+              type="button"
+              onClick={() => setIsEditable(!isEditable)}
+              className="flex items-center gap-1 border-[1px] border-[#EDEDED] md:h-[36px] md:rounded-[28px] text-[#232323] text-sm font-medium bg-[#F1F1F1]"
+            >
+              <Pencil className="w-4 h-4 text-[#3C3C3C]" />
+              {isEditable ? "Done" : "Edit"}
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* SWITCH ONLY VISIBLE WHEN NOT EDITING */}
@@ -215,7 +226,7 @@ export default function ProfilePageContent() {
           <div className="flex justify-center items-center gap-4 w-full">
             <Button
               type="button"
-              onClick={() => setMode("personal")}
+              onClick={() => handleModeChange("personal")}
               className={`px-6 py-1 rounded-[4px] md:w-[169px] ${
                 mode === "personal"
                   ? "bg-[#DFDFF9] text-[#000087]"
@@ -226,7 +237,7 @@ export default function ProfilePageContent() {
             </Button>
             <Button
               type="button"
-              onClick={() => setMode("business")}
+              onClick={() => handleModeChange("business")}
               className={`px-6 py-1 rounded-[4px] md:w-[169px] ${
                 mode === "business"
                   ? "bg-[#DFDFF9] text-[#000087]"

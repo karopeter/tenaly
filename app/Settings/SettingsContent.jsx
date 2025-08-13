@@ -16,11 +16,11 @@ export default function SettingsContent() {
              </h2>
             <div 
               className="flex flex-col justify-start p-4 items-start
-              bg-[#FFFFFF] md:w-[441px] md:h-[192px] 
-              rounded-[8px] border-[1px]  border-[#EBEBEC]">
+                   bg-[#FFFFFF] md:w-[441px] h-auto 
+                   rounded-[8px] border-[1px] border-[#EBEBEC">
                 <Link href="/become-verified" 
-                 className="flex items-center gap-3  w-full 
-                  transition mb-4 border-b border-[#EBEBEC]">
+                 className="flex items-center gap-3 w-full 
+                  transition mb-2 pb-2 border-b border-[#EBEBEC]">
                   <Img 
                     src="/verified.svg"
                     alt="Verify Icon"
@@ -31,16 +31,16 @@ export default function SettingsContent() {
                 </Link>
                 
                 <Link href="/notification-settings" className="flex items-center gap-3  w-full 
-                 transition mb-4 border-b border-[#EBEBEC]">
+                 transition mb-2 pb-2 border-b border-[#EBEBEC]">
                   <Img 
-                    src="/notification.svg"
+                    src="/settingNotification.svg"
                     alt="Notification Icon"
                     width={24}
                     height={24}
                   />
                   <span className="text-[#525252] font-[400] text-[14px] font-inter">Notification Setting</span>
                 </Link>
-                <Link href="/account-action" className="flex items-center gap-3  w-full 
+                {/* <Link href="/account-action" className="flex items-center gap-3  w-full 
                   transition mb-4 border-b border-[#EBEBEC]">
                   <Img 
                     src="/cpu-setting.svg"
@@ -49,7 +49,7 @@ export default function SettingsContent() {
                     height={24}
                   />
                   <span className="text-[#525252] font-[400] text-[14px] font-inter">Account Action</span>
-                </Link>
+                </Link> */}
                 <button 
                   onClick={() => {
                   logout();
