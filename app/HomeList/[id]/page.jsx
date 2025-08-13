@@ -5,6 +5,7 @@ import Link from "next/link";
 import Img from "@/app/components/Image";
 import Button from "@/app/components/Button";
 import api from "@/services/api";
+import { SellerPhoneDisplay } from "../../components/features/sellerPhoneDisplay";
 import MessageSellerButton from "@/app/components/UI/messageSeller";
 import { toast } from "react-toastify";
 import { useAuth } from "@/app/context/AuthContext";
@@ -845,20 +846,7 @@ const productImage =
       </div>
      </div>
      <div className="mt-5">
-      <Button
-        className="flex items-center justify-center gap-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] w-full h-[40px] rounded-[8px] text-[#FFFFFF] text-[12px] font-inter font-[500]"
-      >
-        <Img
-          src="/call.svg"
-          alt="Call Icon"
-          width={20}
-          height={20}
-          className="w-[20px] h-[20px]"
-        />
-         {userProfile?.phoneNumber 
-          ? `Call ${userProfile.phoneNumber}`
-         : "Call"}
-      </Button>
+       <SellerPhoneDisplay sellerId={sellerId} />
     </div>
     <div className="mt-2">
     <MessageSellerButton
@@ -1035,20 +1023,7 @@ const productImage =
             </div>
             </div>
             <div className="mt-5">
-              <Button 
-               className="flex items-center justify-center 
-               gap-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] md:w-[300px]
-               md:h-[52px] md:rounded-[8px] text-[#FFFFFF] md:text-[16px] font-inter font-[500]">
-               <Img 
-                src="/call.svg"
-                alt="Call Icon"
-                width={19.97}
-                height={20}
-                className="w-[24px] h-[24px]" />
-                 {userProfile?.phoneNumber
-                  ? `Call ${userProfile.phoneNumber}`
-                  : "Call"}
-              </Button>
+              <SellerPhoneDisplay sellerId={sellerId} />
             </div>
             <div className="mt-2">
              <MessageSellerButton
