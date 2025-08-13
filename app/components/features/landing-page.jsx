@@ -6,22 +6,26 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/context/AuthContext";
 import SignInModal from "@/app/hooks/signin-modal";
 import SignUpModal from "@/app/hooks/signup-modal";
+import { useMediaQuery } from "react-responsive";
 import TenalyDiscovery from "./Discovery";
 
 export default function TenalyLandingPage() {
+  const isMobile = useMediaQuery({ maxWidth: 767 });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
   const { isLoggedIn, logout } = useAuth();
   const router = useRouter();
   const backgroundImageUrl = "/circle-bg1.svg";
+    const mobileBackgroundImageUrl  = "/circle-bg1.svg";
 
   return (
     <>
-    <section className="relative w-full min-h-screen flex items-center justify-center overflow-hidden px-4 sm:px-6 md:px-8">
+    <section className="relative w-full min-h-screen flex items-center justify-center 
+    overflow-hidden px-4 sm:px-6 md:px-8">
       {/* Background Image */}
       <div
         className="absolute inset-0 z-0 bg-cover bg-center"
-        style={{ backgroundImage: `url(${backgroundImageUrl})` }}
+        style={{ backgroundImage: `url(${isMobile ? mobileBackgroundImageUrl : backgroundImageUrl})` }}
       ></div>
 
       {/* Content Wrapper */}

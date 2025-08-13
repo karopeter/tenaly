@@ -22,7 +22,8 @@ export default function TenalyDiscovery() {
         </div>
 
         {/* H2 Heading */}
-        <h2 className="text-[#1F1F1F] font-[500] font-inter text-[32px] sm:text-[40px] text-left md:text-center leading-tight">
+        <h2 className="text-[#1F1F1F] font-[500] font-inter text-[32px]
+          sm:text-[40px] text-left md:text-center leading-tight">
           Discover Tenaly Advantage
         </h2>
 
@@ -34,7 +35,7 @@ export default function TenalyDiscovery() {
     </div>
    {/* Verified Listing */}
    <div className="flex flex-col md:flex-row md:justify-center gap-8 mt-10 px-4 md:px-0">
-     <div className="w-[361px] h-auto md:w-[420px] rounded-[8px] p-[2px] border border-[#000087] md:h-[148px]">
+     <div className="w-full h-auto md:w-[420px] rounded-[8px] p-[2px] border border-[#000087] md:h-[148px]">
       <div className="flex flex-col md:flex-row items-center gap-1 w-full h-full p-4 rounded-[8px]">
          <Img 
            src="/searchList.svg"
@@ -51,7 +52,7 @@ export default function TenalyDiscovery() {
            </div>
       </div>
      </div>
-      <div className="w-[361px] h-auto md:w-[420px] rounded-[8px] p-[2px] border border-[#000087] md:h-[148px]">
+      <div className="w-full h-auto md:w-[420px] rounded-[8px] p-[2px] border border-[#000087] md:h-[148px]">
       <div className="flex flex-col md:flex-row items-center gap-1 w-full h-full p-4 rounded-[8px]">
          <Img 
            src="/smart.svg"
@@ -71,7 +72,7 @@ export default function TenalyDiscovery() {
    </div>
 
    <div className="flex flex-col md:flex-row md:justify-center gap-8 mt-5 px-4 md:px-0">
-     <div className="w-[361px] h-auto md:w-[420px] rounded-[8px] p-[2px] border border-[#000087] md:h-[148px]">
+     <div className="w-full h-auto md:w-[420px] rounded-[8px] p-[2px] border border-[#000087] md:h-[148px]">
       <div className="flex flex-col md:flex-row items-center gap-1 w-full h-full p-4 rounded-[8px]">
          <Img 
            src="/direct.svg"
@@ -88,7 +89,7 @@ export default function TenalyDiscovery() {
            </div>
       </div>
      </div>
-      <div className="w-[361px] h-auto md:w-[420px] rounded-[8px] p-[2px] border border-[#000087] md:h-[148px]">
+      <div className="w-full h-auto md:w-[420px] rounded-[8px] p-[2px] border border-[#000087] md:h-[148px]">
       <div className="flex flex-col md:flex-row items-center gap-1 w-full h-full p-4 rounded-[8px]">
          <Img 
            src="/musical.svg"

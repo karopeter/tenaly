@@ -160,8 +160,8 @@ export default function SignUpForm({ onClose }) {
             onChange={handleChange}
             className="pt-1 pr-3 pb-1 pl-3 w-[380px] h-[52px] outline-none rounded-[4px] border border-[#CDCDD7] text-sm text-[#525252] bg-white"
           >
-            <option value="customer">I"m buying</option>
-            <option value="seller">I"m selling</option>
+            <option value="customer">I am buying</option>
+            <option value="seller">I am selling</option>
           </select>
           {formErrors.role && <p className="text-red-500 text-sm mt-1">{formErrors.role}</p>}
         </div>
