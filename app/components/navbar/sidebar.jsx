@@ -3,7 +3,7 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import Img from "../Image";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import api from "@/services/api";
 import { toast } from "react-toastify";
 
@@ -13,7 +13,7 @@ const sidebarItems = [
   { label: "Analytics", icon: "/chart.svg", href: "/Analytics" },
   { label: "Bookmarked", icon: "/bookmarkIcon.svg", href: "/Bookmarked" },
   { label: "Customer Reviews", icon: "/star.svg", href: "/CustomerReviews" },
- // { label: "Premium Services", icon: "/crown-2.svg", href: "/PremiumService" },
+  // { label: "Premium Services", icon: "/crown-2.svg", href: "/PremiumService" },
   { label: "Pro Sales", icon: "/presention-chart.svg", href: "/ProSales" },
   { label: "Wallet", icon: "/wallet-money.svg", href: "/Wallet" },
   { label: "Customer Support", icon: "/24-support.svg", href: "/Support" },
@@ -26,6 +26,7 @@ export default function Sidebar({ isMobile, activeSection, setActiveSection }) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const { logout } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -47,6 +48,13 @@ export default function Sidebar({ isMobile, activeSection, setActiveSection }) {
     fetchUserDetails();
   }, []);
 
+  // Determine active item by route (desktop) or by activeSection (mobile)
+  const getIsActive = (item) => {
+    if (isMobile) return activeSection === item.label;
+    // Normalize paths for comparison
+    return pathname?.toLowerCase().startsWith(item.href.toLowerCase());
+  };
+
   const handleNavClick = (item) => {
     if (isMobile) {
       setActiveSection(item.label);
@@ -57,40 +65,43 @@ export default function Sidebar({ isMobile, activeSection, setActiveSection }) {
 
   const renderNavItems = () => (
     <>
-      {sidebarItems.map((item) => (
-        <div key={item.label}>
-          <button
-            onClick={() => handleNavClick(item)}
-            className={`group flex items-center justify-between gap-3 p-2 transition text-left w-full rounded-[4px] ${
-              activeSection === item.label ? 'bg-[#DFDFF9] text-[#000087]' : 'hover:bg-[#000087] hover:text-white'
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              <img
-                src={item.icon}
-                alt={item.label}
-                className={`w-5 h-5 transition ${activeSection === item.label ? 'filter invert brightness-0 contrast-200' : 'group-hover:filter group-hover:invert group-hover:brightness-0 group-hover:contrast-200'}`}
-              />
-              <span className={`transition ${activeSection === item.label ? 'text-white' : 'group-hover:text-white'}`}>{item.label}</span>
-            </div>
-            {item.label === "Settings" &&
-              (settingsOpen ? (
-                <ChevronDown size={18} />
-              ) : (
-                <ChevronRight size={18} />
-              ))}
-          </button>
-          {item.label === "Settings" && settingsOpen && (
-            <div className="pl-10 pt-1">
-            </div>
-          )}
-        </div>
-      ))}
+      {sidebarItems.map((item) => {
+        const isActive = getIsActive(item);
+        return (
+          <div key={item.label}>
+            <button
+              onClick={() => handleNavClick(item)}
+              className={`group flex items-center justify-between gap-3 p-2 transition text-left w-full rounded-[4px] ${
+                isActive ? 'bg-[#000087] text-white' : 'hover:bg-[#000087] hover:text-white'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <img
+                  src={item.icon}
+                  alt={item.label}
+                  className={`w-5 h-5 transition ${isActive ? 'filter invert brightness-0 contrast-200' : 'group-hover:filter group-hover:invert group-hover:brightness-0 group-hover:contrast-200'}`}
+                />
+                <span className={`transition ${isActive ? 'text-white' : 'group-hover:text-white'}`}>{item.label}</span>
+              </div>
+              {item.label === "Settings" &&
+                (settingsOpen ? (
+                  <ChevronDown size={18} />
+                ) : (
+                  <ChevronRight size={18} />
+                ))}
+            </button>
+            {item.label === "Settings" && settingsOpen && (
+              <div className="pl-10 pt-1">
+              </div>
+            )}
+          </div>
+        );
+      })}
     </>
   );
 
   return (
-    <aside className="flex-shrink-0 w-full md:w-72">
+    <aside className="flex-shrink-0 w-full md:w-72 mt-4">
       <div className="bg-[#F7F7FF] p-4 rounded-[8px] text-center mb-4">
         {profileData !== null ? (
           <>
