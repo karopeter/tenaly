@@ -10,7 +10,6 @@ import ForgotPassword from "./forgot-password-model";
 import SignUpModal from "./signup-modal";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import { useAuth } from "../context/AuthContext";
-// Removed the import for CompleteProfileModal as it is no longer needed in this component
 import api from "@/services/api";
 
 export default function SignInForm({ onClose }) {
@@ -21,7 +20,7 @@ export default function SignInForm({ onClose }) {
   const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
   const [isPhoneSignIn, setIsPhoneSignIn] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false); // New state to prevent multiple form submissions
+  const [isSubmitting, setIsSubmitting] = useState(false); 
 
   const [form, setForm] = useState({
     email: "",

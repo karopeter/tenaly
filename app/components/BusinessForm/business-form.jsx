@@ -170,7 +170,7 @@ export default function BusinessForm({ initialData, isEditMode, businessId, mode
                   placeholder="About Business"
                   value={aboutBusiness}
                   onChange={(e) => setAboutBusiness(e.target.value)}
-                  className="w-full h-[120px] border-[1px] border-[#2C2CCD] rounded-[4px] px-3 py-2 bg-white focus:outline-none resize-none"
+                  className="w-full h-[120px] border-[1px] mt-5 border-[#2C2CCD] rounded-[4px] px-3 py-2 bg-white focus:outline-none resize-none"
                 >
                 </textarea>
                <div 

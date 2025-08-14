@@ -151,7 +151,7 @@ export default function CreateCarContent() {
 
       const data = res.data;
       setMessage(`✅ ${data.message}`);
-      toast.success("Post Ad created successfully!");
+      //toast.success("Post Ad created successfully!");
 
       // Reset form after successful submission
       setCategory("");
@@ -302,7 +302,7 @@ export default function CreateCarContent() {
                   : "bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white"
               }`}
             >
-              {loading ? "Posting…" : "Continue"}
+             Next
             </Button>
           </div>
         </form>

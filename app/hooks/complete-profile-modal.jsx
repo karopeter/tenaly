@@ -2,86 +2,110 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-import { useAuth } from "../context/AuthContext";
 import Button from "../components/Button";
 import api from "@/services/api";
+import { useAuth } from "../context/AuthContext";
 
 export default function CompleteProfileModal({ user, token, onClose }) {
-  const { login } = useAuth();
   const router = useRouter();
+  const { login } = useAuth();
   const [role, setRole] = useState("customer");
-  const [loading, setLoading] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formErrors, setFormErrors] = useState({});
 
-  const handleSaveRole = async () => {
-    setLoading(true);
+  const validateForm = () => {
+    const errors = {};
+    if (!role) {
+      errors.role = "Please select a role.";
+    }
+    if (!phoneNumber) {
+      errors.phoneNumber = "Phone number is required.";
+    } else if (!/^\d{11}$/.test(phoneNumber)) {
+      errors.phoneNumber = "Phone number must be exactly 11 digits.";
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) {
+      return;
+    }
+    
+    setIsSubmitting(true);
     try {
-      // Use the correct endpoint and variable name
-      const response = await api.put("/auth/complete-profile", { role }, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await api.put(
+        "/auth/complete-profile",
+        { role, phoneNumber },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-      // Create updated user profile with the new role
-      const updatedProfile = { 
-        ...user, 
-        role: response.data.user.role 
-      };
-      
-      // Update the context with the new profile data
-      login(updatedProfile, token);
-      toast.success("Profile updated successfully! Welcome to Tenaly! 🎉");
-      
-      // Close the modal first
-      onClose();
-
-      // Redirect to the correct page based on the selected role
-      if (response.data.user.role === "seller") {
-        router.push("/Profile");
-      } else {
-        router.push("/Product-List");
-      }
+      const { token: updatedToken, user: updatedUser } = response.data;
+      onClose(updatedUser, updatedToken);
     } catch (error) {
-      console.error("Failed to update role:", error);
-      toast.error(error.response?.data?.message || "Failed to save role. Please try again.");
+      console.error("Profile update failed:", error);
+      toast.error(error.response?.data?.message || "Failed to update profile. Please try again.");
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full mx-4">
-        <h3 className="text-xl font-semibold mb-2 text-center text-[#525252]">Welcome to Tenaly! 🎉</h3>
-        <p className="mb-6 text-center text-[#868686]">
-          To get started, please tell us how you want to use the platform.
-        </p>
-        <div className="mb-6">
-          <label htmlFor="role-select" className="block text-sm font-medium text-gray-700 mb-3">
-            What do you want to perform?
-          </label>
+    <div className="p-6">
+      <h2 className="md:text-[20px] font-[500] text-center font-inter mb-4 text-[#525252]">
+        Complete Your Profile
+      </h2>
+      <p className="text-[#868686] md:text-[14px] font-[400] font-inter">
+        Please provide your role and phone number to continue.
+      </p>
+
+      <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Role</label>
           <select
-            id="role-select"
+            name="role"
             value={role}
             onChange={(e) => setRole(e.target.value)}
-            className="block w-full px-3 py-3 border border-[#CDCDD7] rounded-md shadow-sm 
-                     focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                     text-[#525252] bg-white"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
           >
             <option value="customer">I am buying</option>
             <option value="seller">I am selling</option>
           </select>
+          {formErrors.role && <p className="text-red-500 text-sm mt-1">{formErrors.role}</p>}
         </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+          <input
+            type="tel"
+            name="phoneNumber"
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            placeholder="+234 | Enter your phone number"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+          />
+          {formErrors.phoneNumber && <p className="text-red-500 text-sm mt-1">{formErrors.phoneNumber}</p>}
+        </div>
+
         <Button
-          onClick={handleSaveRole}
-          disabled={loading}
-          className={`w-full py-3 px-4 rounded-md font-semibold text-white transition-colors ${
-            loading 
-              ? "bg-gray-400 cursor-not-allowed" 
-              : "bg-gradient-to-r from-[#00A8DF] to-[#1031AA] hover:opacity-90"
+          type="submit"
+          disabled={isSubmitting}
+          className={`w-full mt-4 text-white p-3 rounded-md font-inter md:text-[16px] font-[500] ${
+            isSubmitting
+              ? "bg-[#EDEDED] cursor-not-allowed"
+              : "bg-gradient-to-r from-[#00A8DF] to-[#1031AA]"
           }`}
         >
-          {loading ? "Saving..." : "Continue"}
+          {isSubmitting ? "Completing..." : "Complete Profile"}
         </Button>
-      </div>
+      </form>
     </div>
   );
 }
