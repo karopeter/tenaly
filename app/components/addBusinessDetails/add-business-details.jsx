@@ -92,7 +92,7 @@ export default function AddBusinessDetails() {
                        alt="No Business Post"
                       />
                    </div>
-                   <p className="text-[#868686] mt-2 font-inter font-medium md:text-[14px] text-center]">
+                   <p className="text-[#868686] mt-2 font-inter font-medium md:text-[14px] text-center">
                       You can't add delivery option because 
                       <br className="hidden md:block" />
                       you haven't added a business yet
