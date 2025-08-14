@@ -48,7 +48,7 @@ export default function Content({ activeSection, setActiveSection, isMobile }) {
   };
 
   return (
-    <main className="flex-1 mt-6 md:mt-0 space-y-6">
+    <main className="flex-1 mt-6 md:mt-0 space-y-6 gap-2">
       {isMobile && activeSection && (
         <button
           onClick={handleBackToMenu}
