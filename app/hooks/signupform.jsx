@@ -5,8 +5,6 @@ import { useRouter } from "next/navigation";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
-// These imports assume you have these components in your project structure
-// at the specified relative paths.
 import Button from "../components/Button";
 import SignInModal from "./signin-modal";
 import api from "@/services/api";
@@ -30,9 +28,11 @@ export default function SignUpForm({ onClose }) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [showSignInModal, setShowSignInModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false); // New state to prevent multiple submissions
   // Change state to an object to hold user data and token
   const [completeProfileData, setCompleteProfileData] = useState(null);
 
+  // A simple check to see if the form is ready to submit. We'll disable the button if not.
   const isFormValid = Object.values(form).every((val) => val.trim() !== "");
 
   // Optional: support dynamic role via URL
@@ -67,9 +67,11 @@ export default function SignUpForm({ onClose }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    if (!validateForm() || isSubmitting) return;
 
+    setIsSubmitting(true);
     try {
+      // Step 1: Send signup request
       const signupRes = await api.post("/auth/signup", {
         fullName: form.fullName,
         email: form.email,
@@ -79,30 +81,33 @@ export default function SignUpForm({ onClose }) {
         role: form.role,
       });
 
-      const authToken = signupRes.data.token;
+      const { token: authToken, user: userProfile } = signupRes.data;
 
-      // Fetch full user profile using token
-      const profileRes = await api.get("/profile", {
-        headers: { Authorization: `Bearer ${authToken}` },
-      });
-
-      const userProfile = profileRes.data;
+      // Log in the user with the token and profile data directly from the signup response
+      // This is more efficient than making a second API call to `/profile`
       login(userProfile, authToken);
       toast.success("Signup successful! 🎉 Welcome to Tenaly!");
-      // Redirect logic based on the user's role
+      
+      // Step 2: Redirect based on the user's role
       if (userProfile.role === "seller") {
         router.push("/Profile");
       } else {
         router.push("/Product-List");
       }
       onClose?.();
+
     } catch (err) {
       console.error("Signup error:", err.response?.data || err.message);
-      toast.error(err.response?.data?.message || "Signup failed. Please try again.");
+      // Display a more specific error message if available from the backend
+      const errorMessage = err.response?.data?.message || "Signup failed. Please try again.";
+      toast.error(errorMessage);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleGoogleSuccess = async (googleResponse) => {
+
+    const handleGoogleSuccess = async (googleResponse) => {
     try {
       const { credential } = googleResponse;
       if (!credential) return toast.error("Google authentication failed: No credential received.");
@@ -135,6 +140,7 @@ export default function SignUpForm({ onClose }) {
       toast.error(err.response?.data?.message || "Google login failed. Please try again.");
     }
   };
+
 
   const handleCompleteProfileClose = () => {
     setCompleteProfileData(null);
@@ -220,14 +226,14 @@ export default function SignUpForm({ onClose }) {
         {/* Submit Button */}
         <Button
           type="submit"
-          disabled={!isFormValid}
+          disabled={!isFormValid || isSubmitting} // Disable while submitting
           className={`pt-[10px] pr-[16px] pb-[10px] pl-[16px] w-[380px] h-[52px] rounded-[8px] mt-4 font-inter md:text-[16px] font-[500] ${
-            isFormValid
+            isFormValid && !isSubmitting
               ? "bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white"
               : "bg-[#EDEDED] cursor-not-allowed text-[#CDCDD7]"
           }`}
         >
-          Sign Up
+          {isSubmitting ? "Signing Up..." : "Sign Up"}
         </Button>
       </form>
 
