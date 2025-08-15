@@ -38,7 +38,7 @@ export default function HourSelectionModal({ business, onClose, onSelectMode }) 
     <div className="flex flex-col gap-3 mt-4">
       <Button
         className="bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white 
-        w-full p-3 h-auto whitespace-normal rounded-[8px] text-[12px] md:text-[16px] font-[500] font-inter leading-snug"
+        w-full p-3 h-auto whitespace-normal rounded-[8px]  text-[12px] md:text-[16px] font-[500] font-inter leading-snug"
         onClick={() => onSelectMode("same")}
       >
         Yes, they have the same business hours

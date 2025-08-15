@@ -78,7 +78,7 @@ export default function Navbar() {
 
   if (isLoggedIn) {
     fetchNotifications();
-    interval = setInterval(fetchNotifications, 10000); // Poll every 10s
+    interval = setInterval(fetchNotifications, 10000); 
   }
 
   return () => clearInterval(interval);

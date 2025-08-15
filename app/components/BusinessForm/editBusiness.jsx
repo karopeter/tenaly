@@ -6,6 +6,7 @@ import { ArrowLeftIcon } from '@heroicons/react/24/solid';
 import BusinessLink from "../navbar/business.link";
 import InputField from "../input";
 import LocationModal from "../UI/locationModal";
+import { MoreVertical } from "lucide-react";
 import Button from "../Button";
 import { Plus } from "lucide-react";
 import { toast } from "react-toastify";
@@ -43,6 +44,7 @@ export default function EditBussinessPage() {
   const [aboutBusiness, setAboutBusiness] = useState("");
   const [state, setState] = useState("");
   const [location, setLocation] = useState("");
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [addresses, setAddresses] = useState([""]);
   const [loading, setLoading] = useState(true);
@@ -167,9 +169,29 @@ export default function EditBussinessPage() {
 
   return (
     <>
-      <div className="flex md:flex-row w-full gap-2 min-h-screen mt-10">
-        <BusinessLink />
-        <div className="flex-1">
+      <div className="relative flex flex-col md:flex-row w-full gap-2 min-h-screen md:mt-4">
+       {/* Desktop sidebar */}
+        <div className="hidden md:block">
+           <BusinessLink />
+        </div>
+
+         {/* Mobile: 3 dots button on top-right of the card */}
+        <div className="absolute top-0 right-4 z-30 md:hidden">
+          <button 
+            onClick={() => setShowMobileMenu(!showMobileMenu)}
+            className="p-1"
+            aria-label="Toogle menu">
+            <MoreVertical size={22} />
+          </button>
+        </div>
+
+        {/* Mobile Menu Dropdown */}
+        {showMobileMenu && (
+          <div className="absolute top-10 left-0 w-full bg-white z-20 shadow-md p-4 md:hidden">
+             <BusinessLink />
+          </div>
+        )}
+        <div className="flex-1 px-4 md:px-0 mt-10 md:mt-0">
           <div className="bg-white shadow p-4 rounded-lg h-auto">
             <div className="flex items-center gap-2 mb-4">
               <button onClick={() => router.push('/Business')}>
@@ -193,7 +215,7 @@ export default function EditBussinessPage() {
                 placeholder={business.aboutBusiness}
                 value={aboutBusiness}
                 onChange={(e) => setAboutBusiness(e.target.value)}
-                className="w-full h-[120px] border-[1px] border-[#2C2CCD] rounded-[4px] px-3 py-2 bg-white focus:outline-none resize-none"
+                className="w-full h-[120px] border-[1px] mt-4 border-[#2C2CCD] rounded-[4px] px-3 py-2 bg-white focus:outline-none resize-none"
               >
               </textarea>
             </div>

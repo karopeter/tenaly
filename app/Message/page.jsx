@@ -454,7 +454,7 @@ function MessageContent() {
         </div>
 
         {/* Right Panel */}
-        <div className="flex-1 flex flex-col h-full min-h-0 bg-white">
+        <div className="flex-1 flex flex-col h-full min-h-0 bg-white border-r border-t border-b border-gray-200">
           {selectedUser ? (
             <>
               <div className="border-b border-gray-200 px-4 py-3 flex items-center justify-between bg-[#FAFAFA]">

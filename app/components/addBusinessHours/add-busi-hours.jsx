@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Img from "../Image";
+import HourSelectionModal from "../business/HourSelectionModal";
 import Button from "../Button";
 import BusinessLink from "../navbar/business.link";
 import { Plus, MoreVertical, MapPin, Clock, Pencil } from "lucide-react";
@@ -8,6 +9,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import api from "@/services/api";
 import { toast } from "react-toastify";
 import { PencilIcon } from "@heroicons/react/24/solid";
+
 
 
 function BusinessList({ businesses, onAddHourClick }) {
@@ -182,7 +184,7 @@ export default function AddBusinessHourss() {
   if (loading) return <div className="text-center mt-20">Loading...</div>;
 
   return (
-    <div className="relative flex flex-col md:flex-row w-full gap-2 min-h-screen">
+    <div className="relative flex flex-col md:flex-row w-full gap-2 min-h-screen md:mt-4">
       {/* Desktop sidebar */}
       <div className="hidden md:block">
         <BusinessLink />
@@ -207,7 +209,7 @@ export default function AddBusinessHourss() {
       )}
 
       <div className="flex-1 px-4 md:px-0 mt-10 md:mt-0">
-        <div className="bg-white shadow p-4 rounded-lg w-full">
+        <div className="bg-white border border-[#EDEDED]  p-4 rounded-lg w-full">
           {businesses.length === 0 ? (
             <>
               <div className="mt-20">

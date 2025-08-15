@@ -129,7 +129,7 @@ export default function BusinessForm({ initialData, isEditMode, businessId, mode
           to { transform: rotate(360deg); }
         }
       `}</style>
-      <div className="relative flex flex-col md:flex-row w-full gap-2 min-h-screen">
+      <div className="relative flex flex-col md:flex-row w-full gap-2 min-h-screen md:mt-4">
         {/* Desktop sidebar */ }
         <div className="hidden md:block">
             <BusinessLink />
@@ -152,7 +152,7 @@ export default function BusinessForm({ initialData, isEditMode, businessId, mode
          </div>
         )}
         <div className="flex-1 px-4 md:px-0 mt-10 md:mt-0">
-          <div className="bg-white shadow p-4 rounded-lg h-auto">
+          <div className="bg-white border border-[#EDEDED] p-4 rounded-lg h-auto">
              <div className="flex items-center gap-2 mb-4">
               <button onClick={() => router.push('/Business')}>
                 <ArrowLeftIcon className="h-5 w-5 text-[#141B34] cursor-pointer" />

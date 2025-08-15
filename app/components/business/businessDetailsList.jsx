@@ -18,7 +18,7 @@ export default function BusinessDetailsList({ businesses, onAddDeliveryClick }) 
                     return (
                         <li
                             key={biz._id}
-                            className="flex flex-row justify-between items-center gap-2 px-2 py-2 w-full bg-white overflow-hidden"
+                            className="flex flex-row justify-between items-center gap-2 px-2 py-2 w-full bg-white  overflow-hidden"
                         >
                             <span className="text-sm font-medium text-[#525252] font-inter truncate max-w-[60%]">
                                 {biz.businessName}

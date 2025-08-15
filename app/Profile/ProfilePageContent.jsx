@@ -174,7 +174,7 @@ export default function ProfilePageContent() {
         <div className="flex-1 flex justify-center">
           <div className="relative w-32 h-32">
             <img
-              src={imagePreview || fetchedImage || "/profile-circles.svg"}
+              src={imagePreview || fetchedImage || "/profile-circles1.svg"}
               alt="Profile"
               className="w-full h-full object-cover rounded-full"
             />
@@ -182,7 +182,7 @@ export default function ProfilePageContent() {
               <button
                 type="button"
                 onClick={handleRemoveImage}
-                className="absolute top-0 right-0 bg-white rounded-full p-2 shadow hover:bg-gray-100"
+                className="absolute bottom-0 right-0 bg-white rounded-full p-2 shadow hover:bg-gray-100"
               >
                 <XCircle className="w-5 h-5 text-gray-600" />
               </button>
