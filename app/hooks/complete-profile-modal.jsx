@@ -62,7 +62,7 @@ export default function CompleteProfileModal({ user, token, onClose }) {
       <h2 className="md:text-[20px] font-[500] text-center font-inter mb-4 text-[#525252]">
         Complete Your Profile
       </h2>
-      <p className="text-[#868686] md:text-[14px] font-[400] font-inter">
+      <p className="text-[#868686] md:text-[14px] text-center font-[400] font-inter">
         Please provide your role and phone number to continue.
       </p>
 
@@ -73,8 +73,8 @@ export default function CompleteProfileModal({ user, token, onClose }) {
             name="role"
             value={role}
             onChange={(e) => setRole(e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-          >
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:outline-none focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+          > 
             <option value="customer">I am buying</option>
             <option value="seller">I am selling</option>
           </select>
@@ -89,7 +89,7 @@ export default function CompleteProfileModal({ user, token, onClose }) {
             value={phoneNumber}
             onChange={(e) => setPhoneNumber(e.target.value)}
             placeholder="+234 | Enter your phone number"
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:outline-none focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
           />
           {formErrors.phoneNumber && <p className="text-red-500 text-sm mt-1">{formErrors.phoneNumber}</p>}
         </div>
