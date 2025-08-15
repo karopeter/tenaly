@@ -54,10 +54,10 @@ export default function Content({ activeSection, setActiveSection, isMobile }) {
       {isMobile && activeSection && (
         <button
           onClick={handleBackToMenu}
-          className="text-blue-700 mb-4 flex items-center gap-2 md:hidden"
+          className="text-[#525252] mb-4 mt-4 flex items-center gap-2 md:hidden"
         >
           <ArrowLeft size={20} />
-          Back
+          Become Verfied
         </button>
       )}
 

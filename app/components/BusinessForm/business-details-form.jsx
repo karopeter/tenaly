@@ -80,7 +80,7 @@ export default function AddBusinessDetailsForm() {
 };
 
   return (
-    <div className="relative flex flex-col md:flex-row w-full gap-2 min-h-screen mt-10">
+    <div className="relative flex flex-col md:flex-row w-full gap-2 min-h-screen mt-10 md:mt-4">
      {/* Desktop sidebar */}
      <div className="hidden md:block">
         <BusinessLink />

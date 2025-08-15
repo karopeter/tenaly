@@ -144,7 +144,7 @@ export default function HomeListDetails() {
     adDetails = vehicleAd;
   } else if (propertyAd) {
     mainAd = propertyAd;
-    adDetails = propertyAd; // For properties, the main ad is also the details
+    adDetails = propertyAd; 
   }
 
   const businessName = business?.businessName || "Unknown Seller";
@@ -176,19 +176,6 @@ const productImage =
   propertyAd?.propertyImage?.[0] ||
   vehicleAd?.vehicleImage?.[0] ||
   carAd?.vehicleImage?.[0];
-
-
-// Product ID (the ad's own ID)
-// const productId =
-//   propertyAd?._id ||
-//   vehicleAd?._id ||
-//   carAd?._id;
-
-    // Debug Logs to check the IDS 
-    console.log("Business object:", business);
-    console.log("CarAd businessCategory:", carAd?.businessCategory);
-    console.log("Actual Business ID for URl:", actualBusinessId);
-    console.log("Seller ID (user ID):", sellerId);
 
 
   return (
@@ -257,7 +244,7 @@ const productImage =
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-2 mt-6">
+      <div className="w-full flex flex-col items-center md:items-start md:flex-row md:gap-0 mt-6">
         {/* Main Image */}
         <div className="md:w-2/3 w-full relative">
           {mainImage && (
@@ -266,7 +253,7 @@ const productImage =
               alt={productTitle}
               width={686}
               height={354}
-              className="w-full h-auto md:w-[686px] md:h-[354px] object-cover rounded"
+              className="w-full h-auto md:h-[354px] object-cover rounded"
               onError={(e) => { e.target.src = placeholderImage; }}
             />
           )}
@@ -281,7 +268,7 @@ const productImage =
         </div>
 
         {/* Small Image Grid */}
-        <div className="md:w-1/3 w-full grid grid-cols-2 grid-rows-2 gap-2">
+        <div className="md:w-1/3 w-full grid grid-cols-2 grid-rows-2 gap-2 md:h-[354px] md:ml-1">
         {smallImages.map((img, idx) => (
            <div key={idx} className="w-full h-full overflow-hidden">
            <Img
@@ -353,7 +340,7 @@ const productImage =
 
    <div className="flex flex-col md:flex-row gap-x-[20px] md:mt-10">
     {/* Left Section */}
-    <div className="flex-[1.5] p-8">
+    <div className="flex-[1.5] pt-8">
       {/* Toogle Switch */}
       <div className="bg-[#FAFAFA] md:w-[650px] md:h-[44px] md:rounded-[4px]">
         <div className="flex space-x-4 mb-4">
@@ -788,7 +775,7 @@ const productImage =
           </>
         ): (
           <>
-          {/* <p>This is the review section</p> */}
+           <p>This is the review section</p>
           </>
         )}
       </div>
@@ -813,7 +800,7 @@ const productImage =
           </span>
           </Link>
          {userProfile?.isVerified ? (
-           <div className="mt-1 flex items-center gap-2 bg-[#E9F4E8] w-auto h-[16px] rounded-[2px] px-2">
+           <div className="mt-1 flex items-center gap-2 bg-[#E9F4E8] w-[93px] h-[16px] rounded-[2px] px-2">
           <Img
             src="/profile.svg"
             alt="Verified Icon"
@@ -839,9 +826,9 @@ const productImage =
           </span>
         </div>
          )}
-        <span className="mt-1 text-[#868686] text-[10px] font-[400] font-inter">
+        {/* <span className="mt-1 text-[#868686] text-[10px] font-[400] font-inter">
           Last Seen 20h ago
-        </span>
+        </span> */}
         <span className="mt-1 text-[#868686] text-[10px] font-[400] font-inter"> {userProfile?.createdAt ? ( `Joined Tenaly on ${new Date(userProfile.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}` ) : ( "Joined Tenaly" )} </span>
       </div>
      </div>
@@ -1006,7 +993,7 @@ const productImage =
                   {businessName}
               </span>
              </Link>
-           <div className="mt-1 flex items-center gap-2 bg-[#E9F4E8] w-auto h-[16px] rounded-[2px] px-2">
+           <div className="mt-1 flex items-center gap-2 bg-[#E9F4E8] md:w-[93px] h-[16px] rounded-[2px] px-2">
           <Img
             src="/profile.svg"
             alt="Verified Icon"
@@ -1018,7 +1005,7 @@ const productImage =
           {userProfile?.isVerified  ? "Verified" : "Unverified"}
           </span>
         </div>
-            <span className="mt-1 text-[#868686] font-inter font-[400] md:text-[12px]">Last Seen 20h ago</span>
+            {/* <span className="mt-1 text-[#868686] font-inter font-[400] md:text-[12px]">Last Seen 20h ago</span> */}
            <span className="mt-1 text-[#868686] text-[10px] font-[400] font-inter"> {userProfile?.createdAt ? ( `Joined Tenaly on ${new Date(userProfile.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}` ) : ( "Joined Tenaly" )} </span>
             </div>
             </div>

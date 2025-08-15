@@ -207,7 +207,7 @@ export default function BusinessHoursForm() {
           to { transform: rotate(360deg); }
         }
       `}</style>
-      <div className="relative flex flex-col md:flex-row w-full gap-2 min-h-screen">
+      <div className="relative flex flex-col md:flex-row w-full gap-2 min-h-screen md:mt-4">
         {/* Desktop Sidebar */ }
         <div className="hidden md:block">
             <BusinessLink />
@@ -232,7 +232,7 @@ export default function BusinessHoursForm() {
 
         {/* Main Content */ }
         <div className="flex-1 px-4 md:px-0 mt-10 md:mt-0">
-          <div className="bg-white shadow p-4 w-full rounded-lg md:w-full">
+          <div className="bg-white border border-[#EDEDED] p-4 w-full rounded-lg md:w-full">
              <div className="flex items-center gap-2 mb-4">
               <button className="flex items-center gap-2" onClick={() => router.push('/BusinessHours')}>
                 <Img 

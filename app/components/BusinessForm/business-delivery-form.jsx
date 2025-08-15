@@ -91,8 +91,10 @@ export default function BusinessDeliveryForm() {
         isFilled(settings.dayFrom) &&
         isFilled(settings.daysTo) &&
         settings.chargeDelivery !== undefined &&
-        isFilled(settings.feeFrom) &&
-        isFilled(settings.feeTo);
+       (
+        settings.chargeDelivery === "no" || 
+        (settings.chargeDelivery === "yes" && isFilled(settings.feeFrom) && isFilled(settings.feeTo))
+       );
 
       setSubmitEnabled(!!valid);
       return;
@@ -104,8 +106,10 @@ export default function BusinessDeliveryForm() {
         isFilled(settings.dayFrom) &&
         isFilled(settings.daysTo) &&
         settings.chargeDelivery !== undefined &&
-        isFilled(settings.feeFrom) &&
-        isFilled(settings.feeTo)
+        (
+          settings.chargeDelivery === "no" ||
+          (settings.chargeDelivery === "yes" && isFilled(settings.feeFrom) && isFilled(settings.feeTo))
+        )
       );
     });
 
@@ -126,8 +130,8 @@ const handleSubmit = async () => {
           dayFrom: Number(settings.dayFrom),
           daysTo: Number(settings.daysTo),
           chargeDelivery: settings.chargeDelivery,
-          feeFrom: Number(settings.feeFrom),
-          feeTo: Number(settings.feeTo),
+          feeFrom: settings.chargeDelivery === "yes" ? Number(settings.feeFrom) : undefined,
+          feeTo: settings.chargeDelivery === "yes" ? Number(settings.feeTo) : undefined,
         },
       };
       await api.patch(`/business/${businessId}/address/${addressId}`, payload);
@@ -142,8 +146,10 @@ const handleSubmit = async () => {
             settings.dayFrom !== "" &&
             settings.daysTo !== "" &&
             settings.chargeDelivery !== undefined &&
-            settings.feeFrom !== "" &&
-            settings.feeTo !== ""
+            (
+              settings.chargeDelivery === "no"  ||
+              (settings.chargeDelivery === "yes" && settings.feeFrom !== "" && settings.feeTo !== "")
+            )
           );
         })
         .map(([id, settings]) => ({
@@ -152,8 +158,8 @@ const handleSubmit = async () => {
           dayFrom: Number(settings.dayFrom),
           daysTo: Number(settings.daysTo),
           chargeDelivery: settings.chargeDelivery,
-          feeFrom: Number(settings.feeFrom),
-          feeTo: Number(settings.feeTo),
+          feeFrom: settings.chargeDelivery === "yes" ? Number(settings.feeFrom) : undefined,
+          feeTo: settings.chargeDelivery === "yes" ? Number(settings.feeTo) : undefined,
         }));
 
       if (updates.length === 0) {
@@ -188,7 +194,7 @@ const handleSubmit = async () => {
   );
 
   return (
-    <div className="relative flex flex-col md:flex-row w-full gap-2 min-h-screen">
+    <div className="relative flex flex-col md:flex-row w-full gap-2 min-h-screen md:mt-4">
      {/* Desktop sidebar */}
      <div className="hidden md:block">
        <BusinessLink />
@@ -211,7 +217,7 @@ const handleSubmit = async () => {
       </div>
      )}
       <div className="flex-1 px-4 md:px-0 mt-10 md:mt-0">
-        <div className="bg-white shadow p-4 rounded-lg w-full">
+        <div className="bg-white border border-[#EDEDED] p-4 rounded-lg w-full">
           <div className="flex items-center gap-2 mb-4">
             <button onClick={() => router.back()} className="flex gap-4 items-center">
               <ArrowLeftIcon className="h-5 w-5 text-[#141B34]" />
@@ -284,7 +290,7 @@ const handleSubmit = async () => {
 
        {/* Charge Delivery Select */}
         <div className="relative w-full mb-4">
-          <span className="absolute top-1 left-3 text-[10px] text-gray-500 font-medium">
+          <span className="absolute top-1 left-3 text-[10px] text-gray-500 font-medium text-[12px]">
               Do you charge for delivery?
            </span>
           <select
@@ -300,16 +306,18 @@ const handleSubmit = async () => {
            </select>
           </div>
 
-          {/* Fee From-To */}
-          <div>
-           <label className="text-[#525252] text-[14px] font-[500] font-inter mb-1 block">
-            How much will the buyer pay for delivery fee
-          </label>
-        <div className="flex flex-row gap-3 sm:gap-4">
-         {["feeFrom", "feeTo"].map((field, i) => (
-         <div className="relative flex-1 min-w-0" key={field}>
-           <span className="absolute top-1 left-2 text-[11px] sm:text-[12px] text-[#525252] font-inter font-[400]">
-             {i === 0 ? "From" : "To"}
+         
+        {/* Fee From-To */}
+{formStates[addressObj._id]?.chargeDelivery === "yes" && (
+  <div>
+    <label className="text-[#525252] text-[14px] font-[500] font-inter mb-1 block">
+      How much will the buyer pay for delivery fee
+    </label>
+    <div className="flex flex-row gap-3 sm:gap-4">
+      {["feeFrom", "feeTo"].map((field, i) => (
+        <div className="relative flex-1 min-w-0" key={field}>
+          <span className="absolute top-1 left-2 text-[11px] sm:text-[12px] text-[#525252] font-inter font-[400]">
+            {i === 0 ? "From" : "To"}
           </span>
           <input
             type="number"
@@ -321,9 +329,10 @@ const handleSubmit = async () => {
             className="w-full pt-5 pr-10 pb-1 pl-2 focus:outline-none border border-gray-300 rounded-md text-[13px] sm:text-sm"
           />
         </div>
-       ))}
-      </div>
-     </div> 
+      ))}
+    </div>
+  </div>
+)} 
      </div>
      ))}
 
