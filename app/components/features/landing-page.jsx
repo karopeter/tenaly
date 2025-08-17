@@ -20,6 +20,17 @@ export default function TenalyLandingPage() {
 
   return (
     <>
+    <header className="absolute top-0 left-0 w-full z-20 flex items-center px-4 sm:px-8 py-4">
+       <div className="flex items-center">
+         <Img 
+           src="/tenalyLogo.svg"
+           alt="Tenaly Logo"
+           width={120}
+           height={40}
+           className="h-10 w-auto"
+         />
+       </div>
+    </header>
     <section className="relative w-full min-h-screen flex items-center justify-center 
     overflow-hidden px-4 sm:px-6 md:px-8">
       {/* Background Image */}

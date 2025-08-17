@@ -77,7 +77,16 @@ export default function CarAdDetails() {
     }
 
 
-    if (loading) return <div>Loading...</div>;
+     if (loading) {
+    return (
+      <section className="px-4 md:px-10 mt-10 flex flex-col items-center justify-center min-h-[200px]">
+         <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600 font-inter">Loading Vehicle Ads Details...</p>
+        </div>
+      </section>
+    );
+  }
    if (!carAd && !vehicleAd) return <div>Ad not found.</div>;
 
     return  (
@@ -215,7 +224,7 @@ export default function CarAdDetails() {
 
    <div className="flex flex-col md:flex-row gap-x-[20px] md:mt-10">
      {/* Left Section */}
-     <div className="flex-[1.5] p-8">
+     <div className="flex-[1.5] pt-8">
       {/* Toggle Switch */}
       <div className="bg-[#FAFAFA] md:w-[650px] md:h-[44px] md:rounded-[4px]">
         <div className="flex space-x-4 mb-4">
@@ -331,7 +340,10 @@ export default function CarAdDetails() {
              </div>
            </div>
 
-           <div className="bg-[#FAFAFA] md:w-[650px] md:h-[285px] md:rounded-[12px] p-8 mt-4">
+           <div 
+            className={`bg-[#FAFAFA] md:w-[650px] md:rounded-[12px] p-8 mt-4 transition-all duration-300 ${
+              showDetails ? "h-auto" : "h-[70px] overflow-hidden"
+             }`}>
              <div className="flex items-center justify-between">
                <span className="text-[#525252] md:text-[16px] font-inter font-[500]">
                  Car Details
@@ -610,130 +622,63 @@ export default function CarAdDetails() {
     <div className="block md:hidden mt-4">
       {/* Central Auto Cars Section */}
      <div className="border-[1px] border-[#EDEDED] w-full rounded-[8px] p-4">
-       <div className="flex gap-3">
-       <Img
-        src={userProfile?.image || "/profile-placeholder.png"}
-        alt="Profile Image"
-        width={52}
-        height={52}
-        className="w-[40px] h-[40px]"
-      />
-      <div className="flex flex-col">
-       <Link href="/" className="underline">
-          <span className="text-[#000000] text-[14px] font-[500] font-inter">
-           {business?.businessName || "Business Name"}
+  <div className="flex gap-3 items-center">
+    <Img
+      src={userProfile?.image || "/profile-placeholder.png"}
+      alt="Profile Image"
+      width={52}
+      height={52}
+      className="w-[40px] h-[40px] rounded-full"
+    />
+    <div className="flex flex-col justify-center">
+      <Link href="/" className="underline">
+        <span className="text-[#000000] text-[14px] font-[500] font-inter">
+          {business?.businessName || "Business Name"}
         </span>
-       </Link>
-        <div className="mt-1 flex items-center gap-2 bg-[#E9F4E8] w-auto h-[16px] rounded-[2px] px-2">
-          <Img
-            src="/profile.svg"
-            alt="Verified Icon"
-            width={10}
-            height={10}
-            className="w-[10px] h-[10px]"
-          />
-          <span className="text-[#238E15] text-[10px] font-[500] font-inter">
-            {userProfile?.isVerified ? "Verified" : "Unverified"}
-          </span>
-        </div>
-        <span className="mt-1 text-[#868686] text-[10px] font-[400] font-inter">
-          Last Seen 20h ago
-        </span>
-        <span className="mt-1 text-[#868686] text-[10px] font-[400] font-inter">
-          {userProfile?.createdAt
-            ? `Joined Tenaly on ${new Date(userProfile.createdAt).toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric"
-              })}`
-            : "Joined Tenaly"}
+      </Link>
+      <div className="mt-1 flex items-center gap-2 bg-[#E9F4E8] h-[16px] rounded-[2px] px-2 w-fit">
+        <Img
+          src="/profile.svg"
+          alt="Verified Icon"
+          width={10}
+          height={10}
+          className="w-[10px] h-[10px]"
+        />
+        <span className="text-[#238E15] text-[10px] font-[500] font-inter">
+          {userProfile?.isVerified ? "Verified" : "Unverified"}
         </span>
       </div>
-    </div>
-    <div className="mt-5">
-      <Button
-        className="flex items-center justify-center gap-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] w-full h-[40px] rounded-[8px] text-[#FFFFFF] text-[12px] font-inter font-[500]"
-      >
-        <Img
-          src="/call.svg"
-          alt="Call Icon"
-          width={20}
-          height={20}
-          className="w-[20px] h-[20px]"
-        />
-         {userProfile?.phoneNumber 
-          ? `Call ${userProfile.phoneNumber}`
-         : "Call"}
-      </Button>
-    </div>
-    <div className="mt-2">
-    </div>
-    <div className="mt-2">
-      
+      <span className="mt-1 text-[#868686] text-[10px] font-[400] font-inter">
+        Last Seen 20h ago
+      </span>
+      <span className="text-[#868686] text-[10px] font-[400] font-inter">
+        {userProfile?.createdAt
+          ? `Joined Tenaly on ${new Date(userProfile.createdAt).toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric"
+            })}`
+          : "Joined Tenaly"}
+      </span>
     </div>
   </div>
-
-  {/* Safety Tips Section */}
-  <div className="bg-[#F7F7FF] w-full rounded-[8px] border-[1px] border-[#DFDFF9] mt-5 p-4">
-    <span className="text-[#525252] text-[14px] font-[500] font-inter">
-      Safety Tips
-    </span>
-    <div className="flex items-start gap-2 mt-2">
-      <span className="w-[5px] h-[5px] md:w-[6px] md:h-[6px] bg-[#868686] rounded-full mt-[6px]"></span>
-      <span className="text-[#868686] text-[12px] font-[400] font-inter">
-        Always meet the seller in a public, well-lit place area. Avoid secluded
-        places.
-      </span>
-    </div>
-    <div className="flex items-start gap-2 mt-2">
-      <span className="w-[6px] h-[6px] bg-[#868686] rounded-full mt-[6px]"></span>
-      <span className="text-[#868686] text-[12px] font-[400] font-inter">
-        Inspect the vehicle thoroughly (the exterior, interior, engine, tires,
-        and others) for any signs of damage.
-      </span>
-    </div>
-    <div className="flex items-start gap-2 mt-2">
-      <span className="w-[6px] h-[6px] bg-[#868686] rounded-full mt-[6px]"></span>
-      <span className="text-[#868686] text-[12px] font-[400] font-inter">
-        Ensure the seller provides valid registration papers, proof of
-        ownership, and a roadworthiness certificate.
-      </span>
-    </div>
-    <div className="flex items-start gap-2 mt-2">
-      <span className="w-[6px] h-[6px] bg-[#868686] rounded-full mt-[6px]"></span>
-      <span className="text-[#868686] text-[12px] font-[400] font-inter">
-        Do not make full or partial payments before seeing the car and
-        confirming its legitimacy.
-      </span>
-    </div>
-    <div className="flex items-start gap-2 mt-2">
-      <span className="w-[6px] h-[6px] bg-[#868686] rounded-full mt-[6px]"></span>
-      <span className="text-[#868686] text-[12px] font-[400] font-inter">
-        Bring a trusted mechanic to inspect the car for hidden issues before
-        making a decision if you are unsure.
-      </span>
-    </div>
-    <div className="flex items-start gap-2 mt-2">
-      <span className="w-[6px] h-[6px] bg-[#868686] rounded-full mt-[6px]"></span>
-      <span className="text-[#868686] text-[12px] font-[400] font-inter">
-        If you think this listing is a fraud, kindly report it.
-      </span>
-    </div>
-    <div className="mt-4">
-      <Button
-        className="flex items-center justify-center gap-2 bg-[#F8EFEF] w-full h-[40px] rounded-[8px] text-[#CB0D0D] text-[12px] font-inter font-[400]"
-      >
-        <Img
-          src="/flag.svg"
-          alt="Flag Icon"
-          width={20}
-          height={20}
-          className="w-[20px] h-[20px]"
-        />
-        Report this listing
-      </Button>
-    </div>
+  <div className="mt-4">
+    <Button
+      className="flex items-center justify-center gap-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] w-full h-[40px] rounded-[8px] text-[#FFFFFF] text-[12px] font-inter font-[500]"
+    >
+      <Img
+        src="/call.svg"
+        alt="Call Icon"
+        width={20}
+        height={20}
+        className="w-[20px] h-[20px]"
+      />
+      {userProfile?.phoneNumber
+        ? `Call ${userProfile.phoneNumber}`
+        : "Call"}
+    </Button>
   </div>
+</div>
 </div>
 
    {/* Right Section */}
@@ -775,135 +720,69 @@ export default function CarAdDetails() {
    </div>
       </div>
        <div className="hidden md:block">
-      <div 
-        className="border-[1px] border-[#EDEDED] md:w-[330px]
-         md:h-[276px] md:rounded-[8px] mt-5 p-4">
-         <div className="flex  gap-3">
-            <Img 
-             src={userProfile?.image || "/profile-placeholder.png"}
-             alt="Profile Image"
-             width={52}
-             height={52}
-             className="md:w-[52px] md:h-[52px]"/>
-             <div className="flex flex-col">
-              <Link href="/" className="underline">
-                 <span className="text-[#000000] whitespace-nowrap md:text-[18px] font-[500] font-inter">
-                {business?.businessName || "Business Name"}
-             </span>
-              </Link>
-            <div className="mt-1 flex items-center gap-2 bg-[#E9F4E8]  md:w-[93px] md:h-[16px] md:rounded-[2px]">
-              <Img 
-                src="/profile.svg"
-                alt="Verified Icon"
-                width={10}
-                height={10}
-                className="w-[10px] h-[10px] ml-1"/>
-                <span 
-                  className="md:text-[#238E15] font-[500] md:text-[10px] font-inter">
-                  {userProfile?.isVerified ? "Verified" : "Unverified"}
-                 </span>
-            </div>
-            <span className="mt-1 text-[#868686] font-inter font-[400] md:text-[12px]">Last Seen 20h ago</span>
-            <span className="mt-1 text-[#868686] text-[10px] font-[400] font-inter">
-          {userProfile?.createdAt
-          ? `Joined Tenaly on ${new Date(userProfile.createdAt).toLocaleDateString("en-US", {
-           year: "numeric",
-           month: "long",
-           day: "numeric"
-         })}`
-        : "Joined Tenaly"}
+       <div 
+  className="border-[1px] border-[#EDEDED] md:w-[330px] md:rounded-[8px] mt-5 p-4"
+>
+  <div className="flex gap-3 items-center">
+    <Img
+      src={userProfile?.image || "/profile-placeholder.png"}
+      alt="Profile Image"
+      width={52}
+      height={52}
+      className="md:w-[52px] md:h-[52px] rounded-full"
+    />
+    <div className="flex flex-col justify-center">
+      <Link href="/" className="underline">
+        <span className="text-[#000000] whitespace-nowrap md:text-[18px] font-[500] font-inter">
+          {business?.businessName || "Business Name"}
+        </span>
+      </Link>
+      <div className="mt-1 flex items-center gap-2 bg-[#E9F4E8] h-[16px] rounded-[2px] px-2 w-fit">
+        <Img
+          src="/profile.svg"
+          alt="Verified Icon"
+          width={10}
+          height={10}
+          className="w-[10px] h-[10px]"
+        />
+        <span className="text-[#238E15] text-[10px] font-[500] font-inter">
+          {userProfile?.isVerified ? "Verified" : "Unverified"}
+        </span>
+      </div>
+      <span className="mt-1 text-[#868686] font-inter font-[400] md:text-[12px]">
+        Last Seen 20h ago
       </span>
-            </div>
-            </div>
-            <div className="mt-5">
-              <Button 
-               className="flex items-center justify-center 
-               gap-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] md:w-[300px]
-               md:h-[52px] md:rounded-[8px] text-[#FFFFFF] md:text-[16px] font-inter font-[500]">
-               <Img 
-                src="/call.svg"
-                alt="Call Icon"
-                width={19.97}
-                height={20}
-                className="w-[24px] h-[24px]" />
-                 {userProfile?.phoneNumber
-                  ? `Call ${userProfile.phoneNumber}`
-                  : "Call"}
-              </Button>
-            </div>
-            <div className="mt-2">
-            </div>
-          </div>
-
-          <div className="hidden md:block">
-          <div 
-           className="bg-[#F7F7FF] md:w-[330px] h-auto
-           md:rounded-[8px] border-[1px] border-[#DFDFF9] mt-5 p-4">
-            <div>
-               <span className="text-[#525252] md:text-[16px] font-[500] font-inter">
-                 Safety Tips
-              </span>
-              <div className="flex items-start gap-2 mt-2 ml-4">
-                <span className="w-[10px] h-[6px] bg-[#868686] rounded-full mt-[6px]"></span>
-                <span className="text-[#868686] md:text-[14px] font-[400] font-inter">
-                  Always meet the seller in a public, well-lit place area.
-                  Avoid secluded places.
-                </span>
-              </div>
-              <div className="flex items-start gap-2 mt-2 ml-4">
-                <span className="w-[14px] h-[6px] bg-[#868686] rounded-full mt-[6px]"></span>
-                <span className="text-[#868686] md:text-[14px] font-[400] font-inter">
-                  Inspect the vehicle&#39;s thoroughly (the exterior, interior, engine, tires
-                  and others) for any signs of damage.
-                </span>
-              </div>
-              <div className="flex items-start gap-2 mt-2 ml-4">
-                <span className="w-[14px] h-[6px] bg-[#868686] rounded-full mt-[6px]"></span>
-                <span className="text-[#868686] md:text-[14px] font-[400] font-inter">
-                  Ensure the seller provides valid registration papers, proof
-                  of ownership, and a roadworthiness certificate.
-                </span>
-              </div>
-              <div className="flex items-start gap-2 mt-2 ml-4">
-                <span className="w-[12px] h-[6px] bg-[#868686] rounded-full mt-[6px]"></span>
-                <span className="text-[#868686] md:text-[14px] font-[400] font-inter">
-                  Do not make full or partial payments before seeing the 
-                  car and confirming its legitimacy.
-                </span>
-              </div>
-              <div className="flex items-start gap-2 mt-2 ml-4">
-                <span className="w-[18px] h-[6px] bg-[#868686] rounded-full mt-[6px]"></span>
-                <span className="text-[#868686] md:text-[14px] font-[400] font-inter">
-                  Bring a Mechanic if Unsure - Have a trusted mechanic
-                  inspect the car for hidden issues before making a decison if you are unsure 
-                </span>
-              </div>
-              <div className="flex items-start gap-2 mt-2 ml-4">
-                <span className="w-[6px] h-[6px] bg-[#868686] rounded-full mt-[6px]"></span>
-                <span className="text-[#868686] md:text-[14px] font-[400] font-inter">
-                 If you think this listing is a fraud, kindly report it
-                </span>
-              </div>
-              <div className="mt-4">
-            <Button 
-               className="flex items-center justify-center 
-               gap-2 bg-[#F8EFEF] md:w-[300px]
-               md:h-[52px] md:rounded-[8px] text-[#CB0D0D] md:text-[12px] font-inter font-[400]">
-               <Img 
-                 src="/flag.svg"
-                 alt="Flag Icon"
-                 width={24}
-                 height={24}
-                 className="w-[24px] h-[24px]" />
-                 Report this listing
-              </Button>
-            </div>
-            </div>
-          </div>
-          </div>
-         </div>
-     </div>
-   </div>
+      <span className="text-[#868686] text-[10px] font-[400] font-inter">
+        {userProfile?.createdAt
+          ? `Joined Tenaly on ${new Date(userProfile.createdAt).toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric"
+            })}`
+          : "Joined Tenaly"}
+      </span>
+    </div>
   </div>
-    )
+  <div className="mt-4">
+    <Button
+      className="flex items-center justify-center gap-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] w-full md:w-[300px] h-[40px] md:h-[52px] md:rounded-[8px] text-[#FFFFFF] md:text-[16px] font-inter font-[500]"
+    >
+      <Img
+        src="/call.svg"
+        alt="Call Icon"
+        width={20}
+        height={20}
+        className="w-[24px] h-[24px]"
+      />
+      {userProfile?.phoneNumber
+        ? `Call ${userProfile.phoneNumber}`
+        : "Call"}
+    </Button>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+);
 }

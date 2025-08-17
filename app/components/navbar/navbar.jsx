@@ -90,7 +90,7 @@ export default function Navbar() {
       <nav className="fixed top-0 w-full z-50 bg-white shadow-custom-header">
         <div className="container mx-auto px-6 py-3 flex items-center justify-between md:justify-around">
           {/* Logo always on the left */}
-          <Link href="/" className="flex md:items-center">
+          <Link href="/Product-List" className="flex md:items-center">
             <Img src="/tenalyLogo.svg" alt="Tenaly Logo" width={89.95} height={44} />
           </Link>
 

@@ -126,7 +126,7 @@ const handleDelete = async (adId) => {
                           alt="Ad"
                           width={340}
                           height={210}
-                          className="w-full h-full object-cover"
+                          className="w-full h-[160px] md:h-full object-cover rounded-[8px]"
                         />
                       )}
 
@@ -260,7 +260,8 @@ const handleDelete = async (adId) => {
           )}
         </div>
 
-        <div className="flex flex-row justify-between items-center gap-4 mt-6">
+        {ads.length >= 4 && (
+           <div className="flex flex-row justify-between items-center gap-4 mt-6">
           <Button
             disabled={page === 1}
             onClick={() => setPage((p) => Math.max(p - 1, 1))}
@@ -277,6 +278,7 @@ const handleDelete = async (adId) => {
             Next
           </Button>
         </div>
+        )}
       </div>
   );
 }

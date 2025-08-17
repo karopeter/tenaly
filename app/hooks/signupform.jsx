@@ -29,13 +29,11 @@ export default function SignUpForm({ onClose }) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [showSignInModal, setShowSignInModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  // Change state to an object to hold user data and token
   const [completeProfileData, setCompleteProfileData] = useState(null);
 
-  // A simple check to see if the form is ready to submit. We'll disable the button if not.
   const isFormValid = Object.values(form).every((val) => val.trim() !== "");
 
-  // Optional: support dynamic role via URL
+ 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const roleParam = params.get("role");
@@ -115,12 +113,9 @@ export default function SignUpForm({ onClose }) {
       const { token: authToken, user: newUser, profileComplete, isNewGoogleUser} = authRes.data;
 
       if (isNewGoogleUser || !profileComplete) {
-        // Show the complete profile modal for new Google users or incomplete profiles
         toast.success("Google sign-up successful! Please complete your profile.");
-        // Pass the new user's data and token to the modal state
         setCompleteProfileData({ user: newUser, token: authToken });
       } else {
-        // This is for an existing user with a complete profile, so log them in directly
         login(newUser, authToken);
         toast.success("Google authentication successful! 🎉 Welcome back!");
         
@@ -139,9 +134,8 @@ export default function SignUpForm({ onClose }) {
   };
 
   const handleCompleteProfileClose = (updatedUser, authToken) => {
-    // This function now receives the updated user and token from the modal
     if (updatedUser && authToken) {
-      login(updatedUser, authToken); // Log the user in with their new data
+      login(updatedUser, authToken); 
       toast.success("Profile completed successfully! 🎉 Welcome to Tenaly!");
       
       // Redirect based on the role selected in the modal
