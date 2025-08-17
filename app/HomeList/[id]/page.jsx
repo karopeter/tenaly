@@ -971,8 +971,7 @@ const productImage =
        <div className="hidden md:block">
       {business && (
          <div 
-        className="border-[1px] border-[#EDEDED] md:w-[330px]
-         md:h-[276px] md:rounded-[8px] mt-5 p-4">
+        className="border-[1px] border-[#EDEDED] md:w-[330px] md:rounded-[8px] mt-5 p-4">
          <div className="flex  gap-3">
              {businessProfileImage && (
               <Img

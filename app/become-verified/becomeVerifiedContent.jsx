@@ -1,7 +1,6 @@
 "use client";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
 import Button from "../components/Button";
 import FloatingLabelInput from "../components/UI/FloatingLabelInput";
 import api from '@/services/api';
@@ -23,7 +22,45 @@ export default function BecomeVerifiedContent() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [certificate, setCertificate] = useState("");
   const [photoDoc, setPhotoDoc] = useState(null);
-  const { token, isLoggedIn } = useAuth();
+  const [verificationStatus, setVerificationStatus] = useState(null); // null, 'pending', 'verified'
+  const [checkingStatus, setCheckingStatus] = useState(true);
+  const { token, isLoggedIn, profile } = useAuth();
+
+  // Check verification status when component mounts
+  useEffect(() => {
+    const checkVerificationStatus = async () => {
+      if (!isLoggedIn || !token) {
+        setCheckingStatus(false);
+        return;
+      }
+
+      // First check if user is already verified in their profile
+      if (profile?.isVerified) {
+        setVerificationStatus('verified');
+        setCheckingStatus(false);
+        return;
+      }
+
+      try {
+        const response = await api.get('/verification/status', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        
+        if (response.data.hasSubmitted) {
+          setVerificationStatus(response.data.isVerified ? 'verified' : 'pending');
+        }
+      } catch (error) {
+        console.error('Error checking verification status:', error);
+        setVerificationStatus(null);
+      } finally {
+        setCheckingStatus(false);
+      }
+    };
+
+    checkVerificationStatus();
+  }, [isLoggedIn, token, profile]);
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
@@ -56,19 +93,16 @@ export default function BecomeVerifiedContent() {
       formData.append("certificate", certificate);
       formData.append("validId", photoDoc);
 
-      // 🔍 DEBUG: log formData
-      for (let pair of formData.entries()) {
-        console.log(`${pair[0]}:`, pair[1]);
-      }
-
       const res = await api.post("/verification/submit-verification", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
       });
+      
       toast.success("Verification submitted successfully!");
-      router.push("/create-add");
+      setVerificationStatus('pending'); // Update status to pending
+      
     } catch (error) {
       console.error("Verification Error:", error);
       setError(error.response?.data?.message || "Something went wrong.");
@@ -77,6 +111,95 @@ export default function BecomeVerifiedContent() {
       setLoading(false);
     }
   };
+
+  // Loading state while checking verification status
+  if (checkingStatus) {
+    return (
+      <div className="bg-white shadow-phenom md:rounded-[12px] p-4 md:p-8 w-full text-center">
+        <div className="flex flex-col items-center justify-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#000087] mb-4"></div>
+          <p className="text-[#525252] font-inter font-[500] text-[14px]">Checking verification status...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Verification pending state
+ if (verificationStatus === 'pending') {
+    return (
+      <div className="bg-white shadow-phenom md:rounded-[12px] p-4 md:p-8 w-full">
+        <div className="flex items-center mb-6">
+          <button 
+            onClick={handleGoBack}
+            className="flex items-center text-[#525252] hover:text-[#000087] font-medium"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
+              <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <span className="text-[#525252] font-[400] text-[14px] font-inter">Go back</span>
+          </button>
+        </div>
+        
+        <div className="flex flex-col items-center justify-center py-8">
+          <div className="text-center mb-6">
+            <span className="text-[#525252] font-inter font-[400] text-[14px] mr-3">
+              Verification status:
+            </span>
+            <span className="bg-[#CAA416] text-[#FAFAFA] px-3 py-1 rounded-[28px] text-[12px] font-inter font-[500]">
+              Pending
+            </span>
+          </div>
+          
+          <p className="text-[#525252] font-inter font-[400] text-[14px] text-center max-w-md leading-relaxed">
+            Our team is reviewing your information and will get back to you shortly. Thank you for your patience!
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Verification successful state
+ if (verificationStatus === 'verified') {
+    return (
+      <div className="bg-white shadow-phenom md:rounded-[12px] p-4 md:p-8 w-full">
+        <div className="flex items-center mb-6">
+          <button 
+            onClick={handleGoBack}
+            className="flex items-center text-[#525252] hover:text-[#000087] font-medium"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
+              <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <span className="text-[#525252] font-[400] text-[14px] font-inter">Go back</span>
+          </button>
+        </div>
+        
+        <div className="flex flex-col items-center justify-center py-12">
+          {/* Star badge with checkmark */}
+          <div className="relative mb-4">
+            <Img 
+              src="/verifiedSuccess.svg"
+              width={120}
+              height={120}
+            />
+          </div>
+          
+          <h2 className="text-[#525252] font-inter font-[500] text-[16px] mb-4 text-center leading-relaxed">
+            Congratulations, you are now a 
+            <br />
+            verified user of Tenaly
+          </h2>
+          
+          <Button
+            onClick={() => router.push('/dashboard')}
+            className="bg-gradient-to-r from-[#00A8DF] to-[#1031AA] px-8 py-3 text-white rounded-[8px] text-[14px] font-inter font-[500] min-w-[197px]"
+          >
+            Done
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white shadow-phenom md:rounded-[12px] p-4 md:p-8 w-full  text-center">

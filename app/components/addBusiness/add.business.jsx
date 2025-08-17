@@ -33,9 +33,11 @@ function BusinessCard({ biz, index }) {
          {biz.businessName}
        </p>
      </div>
-     <p className="text-sm text-[#555] leading-snug break-words whitespace-pre-wrap max-w-xs ml-2">
+     <div className="w-full">
+        <p className="text-sm text-[#555] leading-snug font-inter font-[400] break-words whitespace-pre-wrap">
        {biz.aboutBusiness}
      </p>
+     </div>
     </div>
 
     <div className="flex flex-col gap-1 mt-4">

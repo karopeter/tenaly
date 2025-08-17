@@ -122,7 +122,7 @@ export default function ViewPropertyAddContent() {
                               alt="Ad"
                               width={340}
                               height={210}
-                              className="w-full h-full object-cover"
+                              className="w-full h-[160px] md:h-[210px] object-cover rounded-[8px]"
                             />
                           )}
 
@@ -159,7 +159,7 @@ export default function ViewPropertyAddContent() {
                             </div>
                           </div>
 
-                          <p className="text-[#8C8C8C] text-[14px] font-[400] font-inter break-words">
+                          <p className="text-[#8C8C8C] text-[14px] font-[400] font-inter break-words line-clamp-2">
                             {propertyAd?.description || "No description provided"}
                           </p>
 
@@ -258,7 +258,8 @@ export default function ViewPropertyAddContent() {
               )}
             </div>
 
-            <div className="flex flex-row justify-between items-center gap-4 mt-6">
+           {ads.length >=4 && (
+             <div className="flex flex-row justify-between items-center gap-4 mt-6">
               <Button
                 disabled={page === 1}
                 onClick={() => setPage((p) => Math.max(p - 1, 1))}
@@ -276,6 +277,7 @@ export default function ViewPropertyAddContent() {
                 Next
               </Button>
             </div>
+           )}
           </div>
   );
 }
