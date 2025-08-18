@@ -49,8 +49,8 @@ export default function ProductList() {
           category={selectedCategory}
           search={searchQuery}
         />
-        <BuyAnything />
       </div>
+       <BuyAnything />
     </>
   );
 }

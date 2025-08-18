@@ -4,6 +4,7 @@ import Img from "../components/Image";
 
 export default function AboutUsPage() {
      return (
+      <>
        <div className="mt-28 px-4 md:px-0">
         <div className="text-center mb-8">
           <h2 className="text-[#525252] font-inter font-[500] text-[18px] md:text-[32px]">Connecting Buyers and Sellers Seamlessly</h2>
@@ -71,7 +72,7 @@ export default function AboutUsPage() {
            md:mt-20
            bg-no-repeat bg-center bg-cover 
            bg-[url('/mobileAdvantage.svg')] 
-           md:bg-[url('/desktopAdvantage.svg')]
+           md:bg-[url('/desktopAdvantage3.svg')]
         `}>
        {/* Add your content here (like text, images, etc.) */}
      </div>
@@ -79,9 +80,10 @@ export default function AboutUsPage() {
      <div className="mt-10">
          <h2 className="text-center text-[#000000] font-inter font-[500] text-[18px] md:text-[32px]">Customers success stories</h2>
      </div>
-      <div className="mt-20">
+    </div>
+     <div className="mt-20">
         <BuyAnything />
       </div>
-    </div>
+    </>
     );
 }

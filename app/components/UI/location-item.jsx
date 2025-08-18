@@ -1,4 +1,5 @@
 "use client";
+import { createPortal } from "react-dom";
 import { useState } from "react";
 import Img from "../Image";
 import LocationModal from "./locationModal";
@@ -72,14 +73,18 @@ export default function LocationSearch({ onSearchChange, onLocationSelect }) {
       </div>
 
       {/* Modal Component */}
-      <LocationModal
+     {typeof window !== "undefined" && 
+     createPortal(
+       <LocationModal
         isOpen={isModalOpen}
         onClose={() => {
           setIsModalOpen(false);
           setSelectedState(null);
         }}
         onSelectLocation={handleLGASelect}
-      />
+      />,
+      document.body
+     )}
     </div>
   );
 }
