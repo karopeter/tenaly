@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import Button from "../components/Button";
+import { useRouter } from "next/navigation";
 import api from "@/services/api";
 import Img from "../components/Image";
 
@@ -13,6 +14,7 @@ export default function WalletContent() {
   const [amount, setAmount] = useState("");
   const [editingAmount, setEditingAmount] = useState(true); // controls input visibility
   const [walletTransactions, setWalletTransactions] = useState([]);
+  const router = useRouter();
 
   // Load Paystack script dynamically
   useEffect(() => {
@@ -125,8 +127,8 @@ export default function WalletContent() {
         alert("Wallet topped up successfully!");
         setWalletBalance(verifyData.walletBalance);
         setAmount("");
-        setEditingAmount(false); // Hide input after successful payment
-        fetchProfile(); // Refresh transactions
+        setEditingAmount(false); 
+        fetchProfile();
       } else {
         alert(verifyData.message || "Payment verification failed");
       }
@@ -135,6 +137,45 @@ export default function WalletContent() {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Handle transaction click
+  const handleTransactionClick = (transaction) => {
+    console.log("Navigate to transaction:", transaction);
+    // router.push(`/wallet-transaction-details/${transaction.reference}`);
+  };
+
+  // Get transaction icon based on type
+  const getTransactionIcon = (type) => {
+    if (type === "credit") {
+      return (
+        <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+          <div className="w-6 h-6 bg-green-500 rounded flex items-center justify-center">
+            <span className="text-white text-xs">↑</span>
+          </div>
+        </div>
+      );
+    } else {
+      return (
+        <div className="w-10 h-10  rounded-lg flex items-center justify-center">
+           <Img 
+            src="/walletIcon.svg"
+            alt="WalletIcon"
+            width={44}
+            height={44}
+           />
+        </div>
+      );
+    }
+  };
+
+  // Get transaction description
+  const getTransactionDescription = (transaction) => {
+    if (transaction.type === "credit") {
+      return "Wallet Topup";
+    } else {
+      return transaction.description || "Premium Service";
     }
   };
 
@@ -155,7 +196,7 @@ export default function WalletContent() {
             Wallet balance
           </h2>
           <p className="text-[#F7F7FF] font-[500] font-inter text-[24px]">
-            ₦{walletBalance}
+            ₦{walletBalance.toLocaleString()}
           </p>
 
           {editingAmount ? (
@@ -189,44 +230,67 @@ export default function WalletContent() {
         </div>
       </div>
 
-      {walletTransactions.length === 0 ? (
-        <div className="mt-8">
-          <h3 className="text-[#525252] font-[500] text-[14px] font-inter text-center">
-            Transaction Details
-          </h3>
-          <div className="flex justify-center mt-4">
-            <Img
-              src="/wallet.svg"
-              width={139.09}
-              height={135}
-              className="w-[139.09px] h-[135px]"
-              alt="Wallet illustration"
-            />
+      <div className="mt-8">
+        <h3 className="text-[#525252] font-[500] text-[14px] font-inter text-center mb-6">
+          Transaction Details
+        </h3>
+        
+        {walletTransactions.length === 0 ? (
+          <div>
+            <div className="flex justify-center mt-4">
+              <Img
+                src="/wallet.svg"
+                width={139.09}
+                height={135}
+                className="w-[139.09px] h-[135px]"
+                alt="Wallet illustration"
+              />
+            </div>
+            <p className="text-[#868686] text-[14px] font-inter text-center font-[500] mt-4">
+              No transactions made yet
+            </p>
           </div>
-          <p className="text-[#868686] text-[14px] font-inter text-center font-[500] mt-4">
-            No transactions made yet
-          </p>
-        </div>
-      ) : (
-        <div className="mt-8 px-4 max-w-md mx-auto">
-          <h3 className="text-[#525252] font-[500] text-[14px] font-inter text-center mb-4">
-            Transaction Details
-          </h3>
-          <ul className="divide-y divide-gray-300">
-           {walletTransactions
-             .slice()
-             .reverse()
-             .map(({ amount, reference, paymentDate, type }) => (
-            <li
-              key={reference}
-              className="py-2 flex justify-between font-inter text-sm text-gray-700">
-             <span>{type === "credit" ? "+" : "-"} ₦{amount}</span>
-             <span>{paymentDate ? new Date(paymentDate).toLocaleDateString() : "No Date"}</span>
-           </li>
-           ))}
-          </ul>
-        </div>
-      )}
+        ) : (
+          <div className="max-w-md mx-auto space-y-3">
+            {walletTransactions
+              .slice()
+              .reverse()
+              .map((transaction) => (
+                <div
+                  key={transaction.reference}
+                  onClick={() => handleTransactionClick(transaction)}
+                  className="bg-white border border-[#140C291A] rounded-[12px] p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors"
+                >
+                  <div className="flex items-center space-x-3">
+                    {getTransactionIcon(transaction.type)}
+                    <div>
+                      <p className="text-[#525252] font-[500] text-[14px] font-inter">
+                        {getTransactionDescription(transaction)}
+                      </p>
+                      <p className="text-[#868686] text-[12px] font-inter">
+                        {transaction.paymentDate 
+                          ? new Date(transaction.paymentDate).toLocaleDateString('en-GB', {
+                              day: '2-digit',
+                              month: 'short',
+                              year: 'numeric'
+                            })
+                          : "No Date"
+                        }
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className={`font-[500] text-[14px] font-inter ${
+                      transaction.type === "credit" ? "text-green-600" : "text-[#525252]"
+                    }`}>
+                      {transaction.type === "credit" ? "" : ""}₦{Number(transaction.amount).toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+              ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
