@@ -132,9 +132,9 @@ export default function PromoteAdModal({
         <div className="p-6 pt-0 flex justify-center gap-2 items-center border-t border-[#F0F0F0] bg-white rounded-b-[24px]">
           <Button
             onClick={onCancel}
-            className="md:w-[121px] md:h-[52px] 
-            md:rounded-[8px] border border-[#CDCDD7] 
-            font-[500] md:text-[14px] text-[#525252] whitespace-nowrap bg-white hover:bg-gray-50"
+            className="flex items-center justify-center w-full md:w-[150px] 
+            h-[44px] md:h-[52px] rounded-[8px] border border-[#CDCDD7] font-[500] 
+            text-[14px] text-[#525252] whitespace-nowrap bg-white hover:bg-gray-50 px-4"
           >
             No, Post for free
           </Button>

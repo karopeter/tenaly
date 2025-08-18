@@ -71,7 +71,7 @@ export default function FreeSuccessModal({ onClose }) {
         onClick={redirect}
           className="mt-4 bg-gradient-to-r md:w-[197px] md:h-[44px] from-[#00A8DF] to-[#1031AA] text-white px-4 py-2 rounded-[8px]"
         >
-          See Add
+          See ads
         </Button>
         </div>
       </div>
