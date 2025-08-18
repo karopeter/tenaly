@@ -213,7 +213,7 @@ export default function ProfilePageContent() {
               className="flex items-center gap-1 border-[1px] border-[#EDEDED] md:h-[36px] md:rounded-[28px] text-[#232323] text-sm font-medium bg-[#F1F1F1]"
             >
               <Pencil className="w-4 h-4 text-[#3C3C3C]" />
-              {isEditable ? "Done" : "Edit"}
+              {isEditable ? "" : "Edit"}
             </Button>
           </div>
         )}

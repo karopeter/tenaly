@@ -15,9 +15,11 @@ export default function AddCarPostContent() {
   const [selectedBusiness, setSelectedBusiness] = useState(null);
   const [vehicleAds, setVehicleAds] = useState([]);
   const [propertyAds, setPropertyAds] = useState([]);
-  const [activeTab, setActiveTab] = useState('vehicles'); // 'vehicles' or 'properties'
+  const [activeTab, setActiveTab] = useState('vehicles'); 
   const [showMenu, setShowMenu] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [businessesLoaded, setBusinessesLoaded] = useState(false);
+  const [adsLoaded, setAdsLoaded] = useState(false);
   const [error, setError] = useState("");
   const machineImage = "/machineGun.svg";
 
@@ -29,21 +31,33 @@ export default function AddCarPostContent() {
         if (res.data.length > 0) {
           setSelectedBusiness(res.data[0]._id);
         }
+        setBusinessesLoaded(true);
       } catch (err) {
         console.error("Error fetching businesses:", err);
+        // Don't set error for business fetch failure - just treat as no businesses
+        setBusinesses([]);
+        setBusinessesLoaded(true);
       }
     };
     fetchBusinesses();
   }, []);
 
   useEffect(() => {
-    if (!selectedBusiness) return;
+    if (!businessesLoaded) return;
+    
+    // If no businesses or no selected business, stop loading
+    if (businesses.length === 0 || !selectedBusiness) {
+      setLoading(false);
+      setAdsLoaded(true);
+      return;
+    }
     
     const fetchAllAds = async () => {
       const token = localStorage.getItem("token");
       if (!token) {
         setError("Not authorized");
         setLoading(false);
+        setAdsLoaded(true);
         return;
       }
 
@@ -60,16 +74,24 @@ export default function AddCarPostContent() {
         );
         setPropertyAds(propertyRes.data.data || []);
 
+        setAdsLoaded(true);
         setLoading(false);
       } catch (err) {
         console.error("Error fetching ads:", err);
-        setError(err.message);
+        // Only set error for critical auth issues
+        if (err.response?.status === 401) {
+          setError("Not authorized - please log in");
+        } else {
+          // For other API errors, just treat as no ads available
+          console.warn("API error, treating as no ads:", err.message);
+        }
+        setAdsLoaded(true);
         setLoading(false);
       }
     };
 
     fetchAllAds();
-  }, [selectedBusiness]);
+  }, [selectedBusiness, businessesLoaded, businesses.length]);
 
   const handleVehicleDelete = async (adId) => {
     const confirmed = window.confirm("Are you sure you want to delete this ad?");
@@ -167,8 +189,8 @@ export default function AddCarPostContent() {
 
   return (
     <div className="p-4 md:p-8 rounded-[12px] bg-white shadow-phenom">
-      {/* Loading state */}
-      {loading && (
+      {/* Loading state - only show when actually loading */}
+      {loading && !adsLoaded && (
         <div className="p-6 md:p-10 text-center rounded-lg">
           <span className="text-[#525252] text-sm md:text-base font-[500] font-inter">
             Loading your ads…
@@ -176,10 +198,10 @@ export default function AddCarPostContent() {
         </div>
       )}
 
-      {/* Error state */}
-      {error && (
+      {/* Error state - only for critical errors like auth issues */}
+      {error && !loading && (
         <div className="w-full h-[490px] p-6 md:p-10 text-center flex flex-col justify-center items-center">
-          <p className="text-red-500 text-sm md:text-base">{error}</p>
+          <p className="text-red-500 text-sm md:text-base mb-4">{error}</p>
           <div className="mt-4">
             <Link href="/create-add" passHref>
               <Button className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px]">
@@ -190,8 +212,8 @@ export default function AddCarPostContent() {
         </div>
       )}
 
-      {/* No ads state */}
-      {!loading && !error && totalAds === 0 && (
+      {/* No ads state - show when not loading, no error, and no total ads */}
+      {!loading && !error && adsLoaded && totalAds === 0 && (
         <div className="w-full h-[490px] p-6 md:p-10 text-center flex flex-col justify-center items-center">
           <Img
             src="/postAds.svg"
@@ -214,7 +236,7 @@ export default function AddCarPostContent() {
       )}
 
       {/* Existing ads state - display actual ads */}
-      {!loading && !error && totalAds > 0 && (
+      {!loading && !error && adsLoaded && totalAds > 0 && (
         <div>
           {/* Header */}
           <div className="flex flex-row justify-between items-center mb-4">
