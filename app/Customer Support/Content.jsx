@@ -9,7 +9,7 @@ import Wallet from "../Wallet/page";
 import AnalyticsContent from "../Analytics/AnalyticsContent";
 import CustomerSupportContent from "./CustomerSupportContent";
 import FrequentlyAskedQuestions from "../Faq/page";
-import BookMarkPage from "../Bookmark/page";
+import Bookmarked from "../Bookmarked/page";
 import Settings from "../Settings/page";    
 import { ArrowLeft } from "lucide-react";
 
@@ -23,7 +23,7 @@ const sectionComponents = {
   "Apartment Sale": <ApartmentSaleContent />,
   "Apartment Rent": <ApartmentRentContent />,
   "Analytics":  <AnalyticsContent />,
-  "Bookmarked": <BookMarkPage />,
+  "Bookmarked": <Bookmarked />,
   "Customer Reviews": <h2 className="text-xl font-bold mb-2">Comming soon</h2>,
   "Pro Sales": <div><h2 className="text-xl font-bold mb-2">Pro Sales</h2><p>Content for Pro Sales not yet implemented.</p></div>,
   "Customer Support": <CustomerSupportContent />,
