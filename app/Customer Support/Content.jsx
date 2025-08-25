@@ -24,7 +24,7 @@ const sectionComponents = {
   "Apartment Rent": <ApartmentRentContent />,
   "Analytics":  <AnalyticsContent />,
   "Bookmarked": <BookMarkPage />,
-  "Customer Reviews": <div><h2 className="text-xl font-bold mb-2">Customer Reviews</h2><p>Content for Customer Reviews not yet implemented.</p></div>,
+  "Customer Reviews": <h2 className="text-xl font-bold mb-2">Comming soon</h2>,
   "Pro Sales": <div><h2 className="text-xl font-bold mb-2">Pro Sales</h2><p>Content for Pro Sales not yet implemented.</p></div>,
   "Customer Support": <CustomerSupportContent />,
   "Wallet": <Wallet />,
@@ -45,8 +45,9 @@ export default function Content({ activeSection, setActiveSection, isMobile }) {
     
     return sectionComponents[activeSection] || (
       <div>
-        <h2 className="text-xl font-bold mb-2">{activeSection}</h2>
-        <p>Content for {activeSection} not yet implemented.</p>
+        <h2 className="text-xl font-bold mb-2">Comming soon</h2>
+        {/* <h2 className="text-xl font-bold mb-2">{activeSection}</h2>
+        <p>Content for {activeSection} not yet implemented.</p> */}
       </div>
     );
   };

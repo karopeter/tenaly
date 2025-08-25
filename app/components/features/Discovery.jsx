@@ -7,8 +7,8 @@ export default function TenalyDiscovery() {
   return (
    <>
     <div className="px-4 md:px-0 mt-10">
-      <div className="flex flex-col items-start md:items-center gap-4 w-full max-w-3xl mx-auto">
-        <div className="flex items-center md:justify-center w-full gap-2">
+      <div className="flex flex-col items-center gap-4 w-full max-w-3xl mx-auto">
+        <div className="flex items-center justify-center w-full gap-2">
           <Img
             src="/startNg.svg"
             alt="Star Icon"
@@ -23,12 +23,12 @@ export default function TenalyDiscovery() {
 
         {/* H2 Heading */}
         <h2 className="text-[#1F1F1F] font-[500] font-inter text-[32px]
-          sm:text-[40px] text-left md:text-center leading-tight">
+          sm:text-[40px] text-center leading-tight">
           Discover Tenaly Advantage
         </h2>
 
         {/* Description Paragraph */}
-        <p className="text-[#868686] text-[15px] font-[400] font-inter mt-1 text-left md:text-center">
+        <p className="text-[#868686] text-[15px] font-[400] font-inter mt-1 text-center">
           Experience a smarter way to buy and sell — fast listings, verified users, and seamless transactions, all in one trusted platform.
         </p>
       </div>

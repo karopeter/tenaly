@@ -11,7 +11,7 @@ import { toast } from "react-toastify";
 
 function BusinessCard({ biz, index }) {
   return (
-   <div className="bg-white mt-2 rounded-lg p-4">
+   <div className="bg-white mt-2 rounded-lg w-full">
         <div
           className="border-b last:border-b-0 border-gray-200 pb-4 mb-4 last:mb-0"
         >
@@ -125,8 +125,8 @@ export default function AddBusiness() {
   )}
 
   {/* Main Content */}
-  <div className="flex-1 px-4 md:px-0 mt-10 md:mt-0">
-    <div className="bg-white border border-[#EDEDED] p-4 rounded-lg w-full">
+  <div className="flex-1 px-0 md:px-4 md:px-0 mt-10 md:mt-0">
+    <div className="bg-white border border-[#EDEDED] p-1 md:p-4 rounded-lg w-full">
       {businesses.length === 0 ? (
         <>
           <div className="mt-20">

@@ -15,7 +15,7 @@ const InputField = ({ label, value, onChange, placeholder, className, type = "te
         value={value}
         onChange={onChange}
         disabled={disabled}
-        className={`w-full h-[52px] border border-[#CDCDD7] rounded-[4px] px-3 text-[#525252] bg-white focus:outline-none ${className}`}
+        className={`w-full h-[52px] border border-[#CDCDD7] rounded-[4px] px-3 text-[#525252] bg-white placeholder-text-[#333333] focus:outline-none ${className}`}
       />
     </div>
   );

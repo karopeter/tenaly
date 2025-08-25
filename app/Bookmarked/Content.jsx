@@ -49,15 +49,15 @@ export default function Content({ activeSection, setActiveSection, isMobile }) {
 
   return (
     <main className="flex-1 mt-6 md:mt-0 space-y-6 gap-2">
-      {isMobile && activeSection && (
+      {isMobile && activeSection && 
         <button
           onClick={handleBackToMenu}
-          className="text-blue-700 mb-4 flex items-center gap-2 md:hidden"
+          className="text-[#000087] mb-4 flex items-center gap-2 md:hidden"
         >
           <ArrowLeft size={20} />
-          Back
+          Go Back
         </button>
-      )}
+      }
 
       <div className="p-4">
         {renderContent()}

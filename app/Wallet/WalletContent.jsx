@@ -12,7 +12,7 @@ export default function WalletContent() {
   const [userEmail, setUserEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [amount, setAmount] = useState("");
-  const [editingAmount, setEditingAmount] = useState(true); // controls input visibility
+  const [editingAmount, setEditingAmount] = useState(true);
   const [walletTransactions, setWalletTransactions] = useState([]);
   const router = useRouter();
 
@@ -140,30 +140,33 @@ export default function WalletContent() {
     }
   };
 
-  // Handle transaction click
+  // Handle transaction click - Fixed navigation
   const handleTransactionClick = (transaction) => {
     console.log("Navigate to transaction:", transaction);
-    // router.push(`/wallet-transaction-details/${transaction.reference}`);
+    router.push(`/wallet-transaction-details/${transaction.reference}`, {
+      state: { transaction }
+    });
   };
 
   // Get transaction icon based on type
   const getTransactionIcon = (type) => {
     if (type === "credit") {
       return (
-        <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-          <div className="w-6 h-6 bg-green-500 rounded flex items-center justify-center">
-            <span className="text-white text-xs">↑</span>
+        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center">
+          <div className="w-6 h-6 sm:w-7 sm:h-7 bg-green-500 rounded flex items-center justify-center">
+            <span className="text-white text-xs sm:text-sm">↑</span>
           </div>
         </div>
       );
     } else {
       return (
-        <div className="w-10 h-10  rounded-lg flex items-center justify-center">
+        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center">
            <Img 
             src="/walletIcon.svg"
             alt="WalletIcon"
             width={44}
             height={44}
+            className="w-10 h-10 sm:w-11 sm:h-11"
            />
         </div>
       );
@@ -180,49 +183,52 @@ export default function WalletContent() {
   };
 
   return (
-    <div className="bg-white shadow-phenom md:rounded-[12px] h-auto p-4 md:p-8 w-full">
-      <div>
-        <h3 className="text-[#525252] font-[500] text-[18px] font-inter text-center">
+    <div className="bg-white shadow-phenom md:rounded-[12px] h-auto p-3 sm:p-4 md:p-8 w-full max-w-full overflow-hidden">
+      {/* Header */}
+      <div className="mb-4 sm:mb-6">
+        <h3 className="text-[#525252] font-[500] text-[16px] sm:text-[18px] font-inter text-center">
           Wallet
         </h3>
-        <p className="text-center mt-3 text-[#525252] font-[400] text-[12px] font-inter">
+        <p className="text-center mt-2 sm:mt-3 text-[#525252] font-[400] text-[11px] sm:text-[12px] font-inter px-2">
           You can top up your wallet and use it to subscribe for Premium Services.
         </p>
       </div>
 
-      <div className="mt-5 flex justify-center">
-        <div className="bg-[#5555DD] rounded-[12px] w-full md:w-[441px] min-h-[200px] flex flex-col items-center p-4">
-          <h2 className="text-[#F7F7FF] font-[400] font-inter text-[12px] text-center md:text-left">
+      {/* Wallet Card */}
+      <div className="mt-4 sm:mt-5 flex justify-center px-2 sm:px-0">
+        <div className="bg-[#5555DD] rounded-[12px] w-full sm:w-[400px] md:w-[441px] min-h-[180px] sm:min-h-[200px] flex flex-col items-center p-4 sm:p-6">
+          <h2 className="text-[#F7F7FF] font-[400] font-inter text-[11px] sm:text-[12px] text-center">
             Wallet balance
           </h2>
-          <p className="text-[#F7F7FF] font-[500] font-inter text-[24px]">
+          <p className="text-[#F7F7FF] font-[500] font-inter text-[20px] sm:text-[24px] mt-2">
             ₦{walletBalance.toLocaleString()}
           </p>
 
           {editingAmount ? (
-            <>
+            <div className="w-full mt-4 space-y-3">
               <input
                 type="number"
                 min="1"
                 placeholder="Enter amount"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="w-full mt-3 rounded px-3 py-2 text-black focus:outline-none"
+                className="w-full rounded-[6px] px-3 py-2.5 sm:py-3 text-black focus:outline-none text-[14px] sm:text-[16px]"
               />
               <Button
                 onClick={handleAddMoney}
                 disabled={loading}
-                className="bg-[#5555DD] mt-4 border border-[#BABAF2] rounded-[8px] 
-                           text-[#E8E8FF] text-[14px] font-[500] font-inter w-full h-[44px]"
+                className="bg-[#5555DD] border border-[#BABAF2] rounded-[8px] 
+                           text-[#E8E8FF] text-[13px] sm:text-[14px] font-[500] font-inter w-full h-[42px] sm:h-[44px]
+                           disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {loading ? "Processing..." : "Add Money"}
               </Button>
-            </>
+            </div>
           ) : (
             <Button
               onClick={() => setEditingAmount(true)}
               className="bg-[#5555DD] mt-4 border border-[#BABAF2] rounded-[8px] 
-                         text-[#E8E8FF] text-[14px] font-[500] font-inter w-full h-[44px]"
+                         text-[#E8E8FF] text-[13px] sm:text-[14px] font-[500] font-inter w-full h-[42px] sm:h-[44px]"
             >
               Update Amount
             </Button>
@@ -230,28 +236,29 @@ export default function WalletContent() {
         </div>
       </div>
 
-      <div className="mt-8">
-        <h3 className="text-[#525252] font-[500] text-[14px] font-inter text-center mb-6">
+      {/* Transactions Section */}
+      <div className="mt-6 sm:mt-8">
+        <h3 className="text-[#525252] font-[500] text-[13px] sm:text-[14px] font-inter text-center mb-4 sm:mb-6">
           Transaction Details
         </h3>
         
         {walletTransactions.length === 0 ? (
-          <div>
+          <div className="px-4">
             <div className="flex justify-center mt-4">
               <Img
                 src="/wallet.svg"
-                width={139.09}
-                height={135}
-                className="w-[139.09px] h-[135px]"
+                width={120}
+                height={115}
+                className="w-[120px] h-[115px] sm:w-[139.09px] sm:h-[135px]"
                 alt="Wallet illustration"
               />
             </div>
-            <p className="text-[#868686] text-[14px] font-inter text-center font-[500] mt-4">
+            <p className="text-[#868686] text-[13px] sm:text-[14px] font-inter text-center font-[500] mt-4">
               No transactions made yet
             </p>
           </div>
         ) : (
-          <div className="max-w-md mx-auto space-y-3">
+          <div className="w-full max-w-lg mx-auto space-y-2 sm:space-y-3 px-2 sm:px-0">
             {walletTransactions
               .slice()
               .reverse()
@@ -259,15 +266,15 @@ export default function WalletContent() {
                 <div
                   key={transaction.reference}
                   onClick={() => handleTransactionClick(transaction)}
-                  className="bg-white border border-[#140C291A] rounded-[12px] p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors"
+                  className="bg-white border border-[#140C291A] rounded-[12px] p-3 sm:p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors active:bg-gray-100"
                 >
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
                     {getTransactionIcon(transaction.type)}
-                    <div>
-                      <p className="text-[#525252] font-[500] text-[14px] font-inter">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[#525252] font-[500] text-[13px] sm:text-[14px] font-inter truncate">
                         {getTransactionDescription(transaction)}
                       </p>
-                      <p className="text-[#868686] text-[12px] font-inter">
+                      <p className="text-[#868686] text-[11px] sm:text-[12px] font-inter">
                         {transaction.paymentDate 
                           ? new Date(transaction.paymentDate).toLocaleDateString('en-GB', {
                               day: '2-digit',
@@ -279,8 +286,8 @@ export default function WalletContent() {
                       </p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className={`font-[500] text-[14px] font-inter ${
+                  <div className="text-right flex-shrink-0">
+                    <p className={`font-[500] text-[13px] sm:text-[14px] font-inter ${
                       transaction.type === "credit" ? "text-green-600" : "text-[#525252]"
                     }`}>
                       {transaction.type === "credit" ? "" : ""}₦{Number(transaction.amount).toLocaleString()}

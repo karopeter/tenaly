@@ -34,7 +34,7 @@ const useSellerDetails = (sellerId) => {
 };
 
 // Component that takes sellerId directly 
-const SellerPhoneDisplay = ({ sellerId}) => {
+const SellerPhoneNumberBookmarked = ({ sellerId}) => {
     const { sellerDetails, loading, error } = useSellerDetails(sellerId);
 
     const handleCall = () => {
@@ -42,24 +42,19 @@ const SellerPhoneDisplay = ({ sellerId}) => {
     };
 
     return (
-       <Button 
+       <button
         onClick={handleCall}
-       className="flex items-center justify-center 
-               gap-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] w-full h-[44px] md:w-[300px]
-               md:h-[52px] md:rounded-[8px] text-[#FFFFFF] md:text-[16px] font-inter font-[500]">
-         <Img 
-         src="/call.svg"
-         alt="Call Icon"
-          width={19.97}
-          height={20}
-          className="w-[24px] h-[24px]" />
+       className="bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white
+                   h-[40px] flex-1 flex items-center justify-center px-4 py-2 rounded-md
+                    font-inter text-sm hover:bg-[#444444] transition">
+        
          {sellerDetails?.phoneNumber
-        ? `Call ${sellerDetails.phoneNumber}`
-        : "Call"}
-       </Button>
+        ? ` ${sellerDetails.phoneNumber}`
+        : ""}
+       </button>
     );
 }
 
 
 
-export { SellerPhoneDisplay };
+export { SellerPhoneNumberBookmarked };

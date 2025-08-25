@@ -13,7 +13,7 @@ import EditDeliveryForm from "../components/BusinessForm/edit-delivery-form";
 
 // This component acts as a sub-router for all business-related views
 export default function BusinessProfileContent() {
-  const [currentView, setCurrentView] = useState("dashboard"); // 'dashboard' or other views
+  const [currentView, setCurrentView] = useState("Business"); // 'dashboard' or other views
   const [selectedBusinessId, setSelectedBusinessId] = useState(null); // State to store the ID of the business being edited
 
   // Centralized function to handle all view changes
@@ -24,15 +24,15 @@ export default function BusinessProfileContent() {
 
   const renderCurrentView = () => {
     switch (currentView) {
-      case "dashboard":
+      case "Business":
         // The dashboard view now passes a function to handle view changes
         return <AddBusiness onViewChange={handleViewChange} />;
       case "addForm":
         // This view is for adding a NEW business, so selectedBusinessId is null
-        return <BusinessForm onBack={() => handleViewChange("dashboard")} />;
+        return <BusinessForm onBack={() => handleViewChange("Business")} />;
       case "addBusinessHours":
         // This view is for adding business hours for a specific business
-        return <AddBusinessHourss businessId={selectedBusinessId} onBack={() => handleViewChange("dashboard")} />;
+        return <AddBusinessHourss businessId={selectedBusinessId} onBack={() => handleViewChange("Business")} />;
       case "businessHoursForm":
         // The business ID is now passed to the form
         return <BusinessHoursForm businessId={selectedBusinessId} onBack={() => handleViewChange("addBusinessHours")} />;

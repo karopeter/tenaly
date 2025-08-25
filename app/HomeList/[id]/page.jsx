@@ -6,6 +6,7 @@ import Img from "@/app/components/Image";
 import Button from "@/app/components/Button";
 import api from "@/services/api";
 import { SellerPhoneDisplay } from "../../components/features/sellerPhoneDisplay";
+import {SellerInfo} from "../../components/features/SellerInfo";
 import MessageSellerButton from "@/app/components/UI/messageSeller";
 import { toast } from "react-toastify";
 import { useAuth } from "@/app/context/AuthContext";
@@ -84,25 +85,58 @@ export default function HomeListDetails() {
   }, [id, userProfile]); 
 
   const handleBookmark = async () => {
-    if (!isLoggedIn) {
-      setShowSignUpModal(true); 
-      return;
-    }
+  if (!isLoggedIn) {
+    setShowSignUpModal(true);
+    return;
+  }
 
-    try {
-      setBookmarkLoading(true);
+  try {
+    setBookmarkLoading(true);
+
+    if (isBookmarked) {
+      // remove bookmark
+      const res = await api.delete(`/bookmark/delete-bookmark/${id}`);
+      if (res.data.success) {
+        setIsBookmarked(false);
+        toast.success("Removed from bookmarks!");
+      }
+    } else {
+      // add bookmark
       const res = await api.post(`/bookmark/bookmarkAd/${id}`);
       if (res.data.success) {
         setIsBookmarked(true);
         toast.success("Added to bookmarks!");
       }
-    } catch (err) {
-      console.error("Error bookmarking:", err);
-      toast.error(err?.response?.data?.message || "Failed to add bookmark");
-    } finally {
-      setBookmarkLoading(false);
     }
-  };
+  } catch (err) {
+    console.error("Error bookmarking:", err);
+    toast.error(err?.response?.data?.message || "Failed to update bookmark");
+  } finally {
+    setBookmarkLoading(false);
+  }
+};
+
+
+  // const handleBookmark = async () => {
+  //   if (!isLoggedIn) {
+  //     setShowSignUpModal(true); 
+  //     return;
+  //   }
+
+  //   try {
+  //     setBookmarkLoading(true);
+  //     const res = await api.post(`/bookmark/bookmarkAd/${id}`);
+  //     if (res.data.success) {
+  //       setIsBookmarked(true);
+  //       toast.success("Added to bookmarks!");
+  //     }
+  //   } catch (err) {
+  //     console.error("Error bookmarking:", err);
+  //     toast.error(err?.response?.data?.message || "Failed to add bookmark");
+  //   } finally {
+  //     setBookmarkLoading(false);
+  //   }
+  // };
 
   const handleSendOffer = () => {
     if (!offerAmount) return toast.error("Please enter an Amount");
@@ -210,7 +244,7 @@ const productImage =
           )}
         </div>
         <div className="flex items-center space-x-3">
-         <button
+         {/* <button
           className={`cursor-pointer transition duration-300 ${
             isBookmarked ? "filter saturate-150 brightness-110" : "filter grayscale"
           }`}
@@ -225,10 +259,22 @@ const productImage =
             height={44}
             className="w-[36px] h-[36px] md:w-[44px] md:h-[44px]"
           />
+        </button> */}
+        <button
+         className={`cursor-pointer transition duration-300 ${
+        isBookmarked ? "saturate-150 brightness-110" : "grayscale" }`}
+        onClick={handleBookmark}
+        disabled={bookmarkLoading}
+        title={isBookmarked ? "Remove from Bookmarks" : "Add to Bookmarks"}>
+        <Img
+          src={isBookmarked ? "/bookmark-filled.svg" : "/bookmark.svg"}
+          alt="Bookmark"
+          width={44}
+         height={44}
+        className="w-[36px] h-[36px] md:w-[44px] md:h-[44px]"
+        />
         </button>
-          <Link href="/Bookmarked">
-            <span className="text-[13px] text-blue-500 underline">Go to Bookmarks</span>
-          </Link>
+
           <button
             className="cursor-pointer"
             onClick={() => {
@@ -330,7 +376,7 @@ const productImage =
       ): (
        <Button 
          onClick={() => setShowInput(true)}
-          className="md:w-[300px] md:h-[53px] md:rounded-[8px] text-[#FFFFFF] font-inter font-[500] md:text-[16px] bg-[#5555DD]">
+          className="w-full md:w-[300px] h-[44px] md:h-[53px] md:rounded-[8px] text-[#FFFFFF] font-inter font-[500] md:text-[16px] bg-[#5555DD]">
          Make Offer
         </Button>
       )}
@@ -518,71 +564,61 @@ const productImage =
 
            {propertyAd && (
             <>
-            <div className="bg-[#FAFAFA] md:w-[650px] h-auto  md:rounded-[12px] p-8 mt-4">
+            <div className="bg-[#FAFAFA] w-full md:w-[650px] h-auto md:rounded-[12px] p-4 md:p-8 mt-4">
+               {/* Header */}
              <div className="flex items-center justify-between">
-              <span className="text-[#525252] md:text-[16px] font-inter font-[500]">
-                 Property Details
-               </span>
-
-               <div className="flex items-center space-x-2">
-                  <span className="text-[#000087] text-[16px] font-[400] font-inter">
-                    Show More
-                  </span>
-                  <button onClick={() => setShowDetails(!showDetails)} aria-expanded={showDetails}>
-                    <Img
-                     src={showDetails ? "/dropup.svg" : "/dropdown.svg"}
-                     alt="Dropdown Icon"
-                     width={8}
-                     height={4}
-                     className="mr-2 mt-[2px] cursor-pointer"
-                    />
-                 </button>
+             <span className="text-[#525252] text-[14px] md:text-[16px] font-inter font-[500]">Property Details</span>
+            <div className="flex items-center space-x-2">
+            <span className="text-[#000087] text-[14px] md:text-[16px] font-[400] font-inter">
+             Show More
+            </span>
+            <button
+            onClick={() => setShowDetails(!showDetails)}
+            aria-expanded={showDetails}>
+            <Img
+              src={showDetails ? "/dropup.svg" : "/dropdown.svg"}
+              alt="Dropdown Icon"
+              width={12}
+              height={6}
+              className="cursor-pointer"
+           />
+         </button>
+        </div>
+       </div> 
+        {/* Details */}
+        {showDetails && (
+         <div className="mt-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-6 gap-x-6">
+           {[
+            { label: "Property Type", value: propertyAd?.propertyType },
+             { label: "Furnishing", value: propertyAd?.furnishing },
+            { label: "Parking Spaces", value: propertyAd?.parking },
+            { label: "Square Meter", value: propertyAd?.squareMeter },
+            { label: "Role", value: propertyAd?.ownershipStatus },
+            { label: "Payment Duration", value: propertyAd?.paymentDuration },
+            { label: "Service Charge", value: propertyAd?.serviceCharge },
+            { label: "Negotiation", value: propertyAd?.negotiation },
+            { label: "Property Condition", value: propertyAd?.propertyCondition },
+            { label: "Property Facilities", value: propertyAd?.propertyFacilities },
+          ].map(
+            (item, index) =>
+              item.value && (
+               <div key={index} className="flex flex-col">
+                 <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+                   {item.label}
+                 </span>
+                 <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+                   {item.value}
+                 </span>
                </div>
-             </div>
-             {showDetails && (
-              <div className="mt-4">
-               <div className="flex flex-wrap justify-between gap-y-4 gap-x-[4%] max-w-[650px] mx-auto">
-                 {[
-                 { label: "Property Type", value: propertyAd?.propertyType },
-                 { label: "Furnishing", value: propertyAd?.furnishing },
-                 { label: "Parking Spaces", value: propertyAd?.parking },
-                 { label: "Square Meter", value: propertyAd?.squareMeter },
-                 { label: "Role", value: propertyAd?.ownershipStatus },
-                 { label: "Payment Duration", value: propertyAd?.paymentDuration },
-                 { label: "Service Charge", value: propertyAd?.serviceCharge },
-                 { label: "Negotiation", value: propertyAd?.negotiation },
-                 { label: "Property Condition", value: propertyAd?.propertyCondition },
-                 { label: "Property Facilities", value: propertyAd?.propertyFacilities },
-                ].map(
-              (item, index) =>
-                item.value && (
-                 <div key={index} className="flex flex-col w-[48%] md:w-[30%]">
-                <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-                 {item.label}
-               </span>
-               <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                 {item.value}
-               </span>
-             </div>
-            )
-           )}
-                </div>
-
-
-                <div className="flex gap-2 mt-4">
-                   <div className="flex flex-col w-[48%] md:w-[33%]">
-                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium  font-inter"></span>
-                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px]  font-medium font-inter"></span>
-                   </div>
-                   <div className="flex flex-col">
-
-                   </div>
-                </div>
-              </div>  
-             )}
-             </div>
-            </>
-           )}
+             )
+          )}
+        </div>
+        </div>
+         )}
+       </div>
+        </>
+      )}
 
            {vehicleAd && (
            <div className="bg-[#FAFAFA] md:w-[650px] h-auto md:rounded-[12px] p-8 mt-4">
@@ -799,33 +835,7 @@ const productImage =
              {businessName}
           </span>
           </Link>
-         {userProfile?.isVerified ? (
-           <div className="mt-1 flex items-center gap-2 bg-[#E9F4E8] w-[93px] h-[16px] rounded-[2px] px-2">
-          <Img
-            src="/profile.svg"
-            alt="Verified Icon"
-            width={10}
-            height={10}
-            className="w-[10px] h-[10px]"
-          />
-          <span className="text-[#238E15] text-[10px] font-[500] font-inter">
-            Verified User
-          </span>
-        </div>
-         ): (
-           <div className="mt-1 flex items-center gap-2 bg-[#E9F4E8] w-auto h-[16px] rounded-[2px] px-2">
-          <Img
-            src="/profile.svg"
-            alt="Verified Icon"
-            width={10}
-            height={10}
-            className="w-[10px] h-[10px]"
-          />
-          <span className="text-[#238E15] text-[10px] font-[500] font-inter">
-            Unverified User
-          </span>
-        </div>
-         )}
+          <SellerInfo sellerId={sellerId} />
         {/* <span className="mt-1 text-[#868686] text-[10px] font-[400] font-inter">
           Last Seen 20h ago
         </span> */}
@@ -992,17 +1002,8 @@ const productImage =
                   {businessName}
               </span>
              </Link>
-           <div className="mt-1 flex items-center gap-2 bg-[#E9F4E8] md:w-[93px] h-[16px] rounded-[2px] px-2">
-          <Img
-            src="/profile.svg"
-            alt="Verified Icon"
-            width={10}
-            height={10}
-            className="w-[10px] h-[10px]"
-          />
-          <span className="text-[#238E15] text-[10px] font-[500] font-inter">
-          {userProfile?.isVerified  ? "Verified" : "Unverified"}
-          </span>
+           <div className="">
+          <SellerInfo sellerId={sellerId} />
         </div>
             {/* <span className="mt-1 text-[#868686] font-inter font-[400] md:text-[12px]">Last Seen 20h ago</span> */}
            <span className="mt-1 text-[#868686] text-[10px] font-[400] font-inter"> {userProfile?.createdAt ? ( `Joined Tenaly on ${new Date(userProfile.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}` ) : ( "Joined Tenaly" )} </span>

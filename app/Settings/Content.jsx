@@ -6,26 +6,45 @@ import CommercialSaleContent from "../commercial-sale/CommercialSaleContent";
 import ApartmentSaleContent from "../apartment-sale/ApartmentSaleContent";
 import Wallet from "../Wallet/page";
 import FrequentlyAskedQuestions from "../Faq/page";
-import BookMarkPage from "../Bookmark/page";
-import SettingsContent from "./SettingsContent";    
+import Bookmarked from "../Bookmarked/page";
+import SettingsContent from "./SettingsContent"; 
 import { ArrowLeft } from "lucide-react";
 
-
 const sectionComponents = {
-  "Profile": <ProfilePageContent />,
+  Profile: <ProfilePageContent />,
   "My Ads": <AddCarPostContent />,
   "Create Car": <CreateCarContent />,
   "Create Vehicle": <MorePostCarContent />,
   "Commercial Sale": <CommercialSaleContent />,
   "Apartment Sale": <ApartmentSaleContent />,
-  "Analytics": <div><h2 className="text-xl font-bold mb-2">Analytics</h2><p>Content for Analytics not yet implemented.</p></div>,
-  "Bookmarked": <BookMarkPage />,
-  "Customer Reviews": <div><h2 className="text-xl font-bold mb-2">Customer Reviews</h2><p>Content for Customer Reviews not yet implemented.</p></div>,
-  "Pro Sales": <div><h2 className="text-xl font-bold mb-2">Pro Sales</h2><p>Content for Pro Sales not yet implemented.</p></div>,
-  "Customer Support": <div><h2 className="text-xl font-bold mb-2">Customer Support</h2><p>Content for Customer Support not yet implemented.</p></div>,
-  "Wallet": <Wallet />,
+  Analytics: (
+    <div>
+      <h2 className="text-xl font-bold mb-2">Analytics</h2>
+      <p>Content for Analytics not yet implemented.</p>
+    </div>
+  ),
+  Bookmarked: <Bookmarked />,
+  "Customer Reviews": (
+    <div>
+      <h2 className="text-xl font-bold mb-2">Customer Reviews</h2>
+      <p>Content for Customer Reviews not yet implemented.</p>
+    </div>
+  ),
+  "Pro Sales": (
+    <div>
+      <h2 className="text-xl font-bold mb-2">Pro Sales</h2>
+      <p>Content for Pro Sales not yet implemented.</p>
+    </div>
+  ),
+  "Customer Support": (
+    <div>
+      <h2 className="text-xl font-bold mb-2">Customer Support</h2>
+      <p>Content for Customer Support not yet implemented.</p>
+    </div>
+  ),
+  Wallet: <Wallet />,
   "Frequently Asked Questions": <FrequentlyAskedQuestions />,
-  "Settings": <SettingsContent />
+  Settings: <SettingsContent />,
 };
 
 export default function Content({ activeSection, setActiveSection, isMobile }) {
@@ -34,16 +53,16 @@ export default function Content({ activeSection, setActiveSection, isMobile }) {
   };
 
   const renderContent = () => {
-    // If no activeSection is selected, show Create Car by default
     if (!activeSection) {
-      return sectionComponents["Settings"];
+      return sectionComponents["Settings"]; // ✅ default section
     }
-    
-    return sectionComponents[activeSection] || (
-      <div>
-        <h2 className="text-xl font-bold mb-2">{activeSection}</h2>
-        <p>Content for {activeSection} not yet implemented.</p>
-      </div>
+    return (
+      sectionComponents[activeSection] || (
+        <div>
+          <h2 className="text-xl font-bold mb-2">{activeSection}</h2>
+          <p>Content for {activeSection} not yet implemented.</p>
+        </div>
+      )
     );
   };
 
@@ -52,14 +71,14 @@ export default function Content({ activeSection, setActiveSection, isMobile }) {
       {isMobile && activeSection && (
         <button
           onClick={handleBackToMenu}
-          className="text-blue-700 mb-4 flex items-center gap-2 md:hidden"
+          className="text-[#000087] mb-4 flex mt-5 items-center gap-2 md:hidden"
         >
+          <ArrowLeft size={20} />
+          {activeSection} {/* ✅ Dynamic section title */}
         </button>
       )}
 
-      <div className="p-4">
-        {renderContent()}
-      </div>
+      <div className="p-4">{renderContent()}</div>
     </main>
   );
 }

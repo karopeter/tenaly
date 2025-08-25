@@ -8,18 +8,19 @@ import api from "@/services/api";
 import { toast } from "react-toastify";
 
 const sidebarItems = [
-  { label: "Profile", icon: "/profile-circle.svg", href: "/Profile" },
-  { label: "My Ads", icon: "/addKai.svg", href: "/Add" },
-  { label: "Analytics", icon: "/chart.svg", href: "/Analytics" },
-  { label: "Bookmarked", icon: "/bookmarkIcon.svg", href: "/Bookmarked" },
-  { label: "Customer Reviews", icon: "/star.svg", href: "/CustomerReviews" },
+    { label: "Profile", icon: "/profile-circle.svg", href: "/Profile" },
+    {label: "Business", icon: "/businessIcon.svg", href: "/Business", },
+    { label: "My Ads", icon: "/addKai.svg", href: "/Add" },
+    { label: "Analytics", icon: "/chart.svg", href: "/Analytics" },
+    { label: "Bookmarked", icon: "/bookmarkIcon.svg", href: "/Bookmarked" },
+    { label: "Customer Reviews", icon: "/star.svg", href: "/CustomerReviews" },
   // { label: "Premium Services", icon: "/crown-2.svg", href: "/PremiumService" },
-  { label: "Pro Sales", icon: "/presention-chart.svg", href: "/ProSales" },
-  { label: "Wallet", icon: "/wallet-money.svg", href: "/Wallet" },
-  { label: "Customer Support", icon: "/24-support.svg", href: "/Support" },
-  { label: "Frequently Asked Questions", icon: "/message-question.svg", href: "/Faq" },
-  { label: "Settings", icon: "/setting-2.svg", href: '/Settings' },
-];
+   { label: "Pro Sales", icon: "/presention-chart.svg", href: "/ProSales" },
+    { label: "Wallet", icon: "/wallet-money.svg", href: "/Wallet" },
+   { label: "Customer Support", icon: "/24-support.svg", href: "/Support" },
+   { label: "Frequently Asked Questions", icon: "/message-question.svg", href: "/Faq" },
+   { label: "Settings", icon: "/setting-2.svg", href: '/Settings' },
+ ];
 
 export default function Sidebar({ isMobile, activeSection, setActiveSection }) {
   const [profileData, setProfileData] = useState(null);
