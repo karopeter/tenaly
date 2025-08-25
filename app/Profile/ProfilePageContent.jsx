@@ -6,10 +6,8 @@ import api from "@/services/api";
 import InputField from "../components/input";
 import { toast } from "react-toastify";
 import Img from "../components/Image";
-import BusinessProfileContent from "./BusinessProfileContent";
 
 export default function ProfilePageContent() {
-  const [mode, setMode] = useState("personal");
   const [fetchedImage, setFetchedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [isEditable, setIsEditable] = useState(false);
@@ -40,14 +38,6 @@ export default function ProfilePageContent() {
     };
     fetchUserDetails();
   }, []);
-
-  // Reset edit mode when switching to business tab
-  const handleModeChange = (newMode) => {
-    setMode(newMode);
-    if (newMode === "business") {
-      setIsEditable(false);
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -94,105 +84,36 @@ export default function ProfilePageContent() {
     setImageFile(null);
   };
 
-  const renderPersonalInfo = () => (
-    <div className="mt-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-        <InputField
-          label="First Name"
-          placeholder="First Name"
-          value={firstName}
-          onChange={(e) => setFirstName(e.target.value)}
-          disabled={!isEditable}
-        />
-        <InputField
-          label="Last Name"
-          placeholder="Last Name"
-          value={lastName}
-          onChange={(e) => setLastName(e.target.value)}
-          disabled={!isEditable}
-        />
-      </div>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-1 mt-4">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-4 w-full">
-          <div className="flex-1">
-            <InputField
-              label="Email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={!isEditable}
-              className="w-full"
-            />
-          </div>
-          {isEditable && (
-            <Button
-              type="button"
-              className="text-[#232323] text-[14px] underline bg-transparent p-0 md:p-2"
-            >
-              Change my email
-            </Button>
-          )}
-        </div>
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-4 w-full">
-          <div className="flex-1">
-            <InputField
-              label="Phone Number"
-              placeholder="Phone Number"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              disabled={!isEditable}
-              className="w-full"
-            />
-          </div>
-          {isEditable && (
-            <Button
-              type="button"
-              className="text-[#232323] text-[14px] underline bg-transparent p-0 md:p-2"
-            >
-              Change my phone number
-            </Button>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderContent = () => {
-    if (mode === "personal") {
-      return renderPersonalInfo();
-    } else if (mode === "business") {
-      return <BusinessProfileContent />;
-    }
-  };
-
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white shadow-phenom rounded-[12px] p-8"
+      className="bg-white shadow-phenom rounded-[12px] p-4 sm:p-6 md:p-8 w-full max-w-2xl mx-auto"
     >
+      {/* Header with Profile Image and Edit Button */}
       <div className="flex justify-between items-start mb-6">
+        {/* Profile Image */}
         <div className="flex-1 flex justify-center">
-          <div className="relative w-32 h-32">
+          <div className="relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32">
             <img
               src={imagePreview || fetchedImage || "/profile-circles1.svg"}
               alt="Profile"
-              className="w-full h-full object-cover rounded-full"
+              className="w-full h-full object-cover rounded-full border-2 border-gray-100"
             />
             {imagePreview && isImageFromUpload ? (
               <button
                 type="button"
                 onClick={handleRemoveImage}
-                className="absolute bottom-0 right-0 bg-white rounded-full p-2 shadow hover:bg-gray-100"
+                className="absolute -bottom-1 -right-1 bg-white rounded-full p-1.5 sm:p-2 shadow-md hover:bg-gray-100 transition-colors"
               >
-                <XCircle className="w-5 h-5 text-gray-600" />
+                <XCircle className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
               </button>
             ) : (
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="absolute bottom-0 right-0 bg-white rounded-full p-2 shadow hover:bg-gray-100"
+                className="absolute -bottom-1 -right-1 bg-white rounded-full p-1.5 sm:p-2 shadow-md hover:bg-gray-100 transition-colors"
               >
-                <Camera className="w-5 h-5 text-gray-600" />
+                <Camera className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
               </button>
             )}
             <input
@@ -204,65 +125,80 @@ export default function ProfilePageContent() {
             />
           </div>
         </div>
-        {/* Edit button only shows on Personal tab */}
-        {mode === "personal" && (
-          <div className="mt-2">
-            <Button
-              type="button"
-              onClick={() => setIsEditable(!isEditable)}
-              className="flex items-center gap-1 border-[1px] border-[#EDEDED] md:h-[36px] md:rounded-[28px] text-[#232323] text-sm font-medium bg-[#F1F1F1]"
-            >
-              <Pencil className="w-4 h-4 text-[#3C3C3C]" />
-              {isEditable ? "" : "Edit"}
-            </Button>
-          </div>
-        )}
+        
+        {/* Edit Button */}
+        <div className="mt-2">
+          <Button
+            type="button"
+            onClick={() => setIsEditable(!isEditable)}
+            className="flex items-center gap-1 sm:gap-2 border border-[#EDEDED] px-3 sm:px-4 py-2 rounded-full text-[#232323] text-xs sm:text-sm font-medium bg-[#F1F1F1] hover:bg-[#E8E8E8] transition-colors"
+          >
+            <Pencil className="w-3 h-3 sm:w-4 sm:h-4 text-[#3C3C3C]" />
+            <span className="hidden sm:inline">{isEditable ? "Cancel" : "Edit"}</span>
+          </Button>
+        </div>
       </div>
 
-      {/* SWITCH ONLY VISIBLE WHEN NOT EDITING */}
-      {!isEditable && (
-       <div className="flex justify-center items-center">
-         <div className="bg-[#FAFAFA] md:rounded-[4px] p-2 md:w-[400px] md:h-[52px] inline-flex gap-2">
-          <div className="flex justify-center items-center gap-4 w-full">
-            <Button
-              type="button"
-              onClick={() => handleModeChange("personal")}
-              className={`px-6 py-1 rounded-[4px] md:w-[169px] ${
-                mode === "personal"
-                  ? "bg-[#DFDFF9] text-[#000087]"
-                  : "bg-transparent text-[#232323]"
-              }`}
-            >
-              Personal
-            </Button>
-            <Button
-              type="button"
-              onClick={() => handleModeChange("business")}
-              className={`px-6 py-1 rounded-[4px] md:w-[169px] ${
-                mode === "business"
-                  ? "bg-[#DFDFF9] text-[#000087]"
-                  : "bg-transparent text-[#232323]"
-              }`}
-            >
-              Business
-            </Button>
-          </div>
+      {/* Form Fields */}
+      <div className="space-y-4 sm:space-y-6">
+        {/* Full Name Field */}
+        <div className="space-y-4">
+          <InputField
+            label="Full Name"
+            placeholder="Full Name"
+            value={`${firstName} ${lastName}`.trim()}
+            onChange={(e) => {
+              const fullName = e.target.value;
+              const [first, ...rest] = fullName.split(" ");
+              setFirstName(first || "");
+              setLastName(rest.join(" ") || "");
+            }}
+            disabled={!isEditable}
+            className="w-full"
+          />
         </div>
-       </div>
-      )}
-      <div>{renderContent()}</div>
+
+        {/* Email Field */}
+        <div className="space-y-4">
+          <InputField
+            label="Email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={!isEditable}
+            className="w-full"
+          />
+        </div>
+
+        {/* Phone Number Field */}
+        <div className="space-y-4">
+          <InputField
+            label="Phone number"
+            placeholder="Phone number"
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            disabled={!isEditable}
+            className="w-full"
+          />
+        </div>
+      </div>
+
+      {/* Save Button - Only shown when editing */}
       {isEditable && (
-        <div className="mt-6 flex justify-center">
+        <div className="mt-6 sm:mt-8 flex justify-center">
           <Button
             type="submit"
             disabled={loading}
-            className="flex items-center justify-center gap-2 md:w-[262px] h-[44px] md:rounded-[8px] font-[500] md:text-[14px] bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white"
+            className="flex items-center justify-center gap-2 w-full sm:w-auto sm:min-w-[200px] md:w-[262px] h-[44px] rounded-[8px] font-[500] text-[14px] bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
-              "Saving..."
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Saving...
+              </div>
             ) : (
               <>
-                <Img src="/tick-circles.svg" alt="Save" width={24} height={24} />
+                <Img src="/tick-circles.svg" alt="Save" width={20} height={20} />
                 Save Changes
               </>
             )}

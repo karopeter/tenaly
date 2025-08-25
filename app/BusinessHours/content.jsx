@@ -2,7 +2,7 @@ import ProfilePageContent from "../Profile/ProfilePageContent";
 import AddCarPostContent from "../Add/AddPageContent";
 import Wallet from "../Wallet/page";
 import FrequentlyAskedQuestions from "../Faq/page";
-import BookMarkPage from "../Bookmark/page";
+import Bookmarked from "../Bookmarked/page";
 import Settings from "../Settings/page";
 import { ArrowLeft } from "lucide-react";
 import BusinessContent from "../Business/BusinessContent";
@@ -18,7 +18,7 @@ const sectionComponents = {
   "Business Hour": <BusinessHourContent />,
   "Delivery": <DeliveryContent />,
   "Analytics": <div><h2 className="text-xl font-bold mb-2">Analytics</h2><p>Coming Soon...</p></div>,
-  "Bookmarked": <BookMarkPage />,
+  "Bookmarked": <Bookmarked />,
   "Customer Reviews": <div><h2 className="text-xl font-bold mb-2">Customer Reviews</h2><p>Coming Soon...</p></div>,
   "Pro Sales": <div><h2 className="text-xl font-bold mb-2">Pro Sales</h2><p>Coming Soon</p></div>,
   "Customer Support": <div><h2 className="text-xl font-bold mb-2">Customer Support</h2><p>Coming Soon...</p></div>,

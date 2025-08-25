@@ -11,21 +11,21 @@ export default function DropdownPage({ onCategoryChange }) {
 
 
   const propertyOptions = [
-    { value: "Commercial Property For Rent", label: "Commercial Property For Rent", ads: "(15,000 ads)" },
-    { value: "Commercial Property For Sale", label: "Commercial Property For Sale", ads: "(15,000 ads)" },
-    { value: "House and Apartment Property For Rent", label: "House and Apartment Property For Rent", ads: "(15,000 ads)" },
-    { value: "House and Apartment Property For Sale", label: "House and Apartment Property For Sale", ads: "(15,000 ads)" },
-    { value: "Land and Plot For Rent", label: "Land and Plot For Rent", ads: "(15,000 ads)" },
-    { value: "Land and Plot For Sale", label: "Land and Plot For Sale", ads: "(15,000 ads)" },
-    { value: "Event Center And Venues", label: "Event Center And Venues", ads: "(15,000 ads)" },
-    { value: "Short Let Property", label: "Short Let Property", ads: "(15,000 ads)" }
+    { value: "Commercial Property For Rent", label: "Commercial Property For Rent" },
+    { value: "Commercial Property For Sale", label: "Commercial Property For Sale" },
+    { value: "House and Apartment Property For Rent", label: "House and Apartment Property For Rent" },
+    { value: "House and Apartment Property For Sale", label: "House and Apartment Property For Sale" },
+    { value: "Land and Plot For Rent", label: "Land and Plot For Rent" },
+    { value: "Land and Plot For Sale", label: "Land and Plot For Sale" },
+    { value: "Event Center And Venues", label: "Event Center And Venues" },
+    { value: "Short Let Property", label: "Short Let Property" }
   ];
 
  
   const vehicleOptions = [
-    { value: "car", label: "Car", ads: "(15,000 ads)" }, 
-    { value: "bus", label: "Bus", ads: "(15,000 ads)" },
-    { value: "tricycle", label: "Tricycle", ads: "(15,000 ads)" },
+    { value: "car", label: "Car" }, 
+    { value: "bus", label: "Bus" },
+    { value: "tricycle", label: "Tricycle" },
   ];
 
   const handlePropertySelect = (option) => {
@@ -47,9 +47,9 @@ export default function DropdownPage({ onCategoryChange }) {
   };
 
   return (
-    <div className="flex flex-wrap justify-center items-center gap-4 mt-6 relative z-50 px-4">
+    <div className="flex flex-wrap justify-center items-center gap-4 mt-6 relative px-4">
       {/* Property Dropdown */}
-      <div className="relative w-full sm:w-auto max-w-[330px] flex-1">
+      <div className="relative w-full sm:w-auto sm:max-w-[330px] flex-1">
         <div
           className="absolute left-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
           onClick={() => setIsPropertyDropdownOpen(!isPropertyDropdownOpen)}
@@ -80,7 +80,7 @@ export default function DropdownPage({ onCategoryChange }) {
         </div>
 
         {isPropertyDropdownOpen && (
-          <div className="absolute z-50  w-full max-w-[330px] max-h-[406px] top-[58px] left-0 rounded-[5px] border border-[#EDEDED] bg-white shadow-lg overflow-auto">
+          <div className="absolute z-50 w-full sm:max-w-[330px] max-h-[406px] top-[58px] left-0 rounded-[5px] border border-[#EDEDED] bg-white shadow-lg overflow-auto">
             <ul className="text-sm">
               {propertyOptions.map((option) => (
                 <li
@@ -104,7 +104,7 @@ export default function DropdownPage({ onCategoryChange }) {
       </div>
 
       {/* Vehicle Dropdown */}
-      <div className="relative w-full sm:w-auto max-w-[330px] flex-1">
+      <div className="relative w-full sm:w-auto sm:max-w-[330px] flex-1">
         <div
           className="absolute left-3 top-1/2 transform -translate-y-1/2 cursor-pointer z-20"
           onClick={() => setIsVehicleDropdownOpen(!isVehicleDropdownOpen)}
@@ -135,7 +135,7 @@ export default function DropdownPage({ onCategoryChange }) {
         </div>
 
         {isVehicleDropdownOpen && (
-          <div className="absolute z-[1000] w-full max-w-[330px] max-h-[406px] top-[58px] left-0 rounded-[5px] border border-[#EDEDED] bg-white shadow-lg overflow-auto">
+          <div className="absolute z-50 w-full sm:max-w-[330px] max-h-[406px] top-[58px] left-0 rounded-[5px] border border-[#EDEDED] bg-white shadow-lg overflow-auto">
             <ul className="text-sm">
               {vehicleOptions.map((option) => (
                 <li

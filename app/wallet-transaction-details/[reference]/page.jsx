@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState, Suspense } from "react";
-import Sidebar from "../components/navbar/sidebar";
-import Content from "./Content";
+import Sidebar from "../../components/navbar/sidebar";
+import Content from "../Content";
 
 export default function TransactionDetails() {
   const [activeSection, setActiveSection] = useState("Wallet Details");

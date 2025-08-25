@@ -35,12 +35,12 @@ export default function LocationSearch({ onSearchChange, onLocationSelect }) {
   };
 
   return (
-    <div className="flex justify-center items-center space-x-4 w-full mt-10">
+    <div className="flex justify-center items-center space-x-1  w-full mt-10">
       {/* Dropdown Button */}
       <div className="flex-shrink-0">
         <button
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center justify-between outline-none w-[185px] h-[52px] rounded-[8px] py-2 px-4 bg-[#E8E8FF] text-[#525252] text-[14px] md:text-[16px] font-[500] font-inter"
+          className="flex items-center justify-between outline-none w-[185px] h-[44px] md:h-[52px] rounded-[8px] py-2 px-4 bg-[#E8E8FF] text-[#525252] text-[14px] md:text-[16px] font-[500] font-inter"
         >
           <span>{selectedLocation}</span>
           <Img

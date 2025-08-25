@@ -1,18 +1,18 @@
 "use client";
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
-import Sidebar from "../components/navbar/sidebar";
 import Img from "../components/Image";
 import { useAuth } from "../context/AuthContext";
 import api from "@/services/api";
+import { SellerPhoneNumberBookmarked } from "../components/features/bookmarkPhone";
 import MessageSellerButton from "../components/UI/messageSeller";
 
-export default function BookMarkedContent() {
+export default function BookMarkedContent({sellerId}) {
   const router = useRouter();
   const [userAds, setUserAds] = useState([]);
   const [error, setError] = useState("");
   const [adData, setAdData] = useState(null);
+  const [sellerDetails, setSellerDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const { id } = useParams();
   const { openAuthModal, isLoggedIn, profile } = useAuth();
@@ -38,20 +38,40 @@ export default function BookMarkedContent() {
       }
     };
 
-    const fetchSellerPhone = async () => {
-      try {
-        const res = await api.get("/profile");
-        if (res?.data?.phoneNumber) {
-          setSellerPhone(res.data.phoneNumber);
-        }
-      } catch (err) {
-        console.error("Error fetching seller phone number:", err);
-      }
-    };
+    // const fetchSellerPhone = async () => {
+    //   try {
+    //     const res = await api.get("/profile");
+    //     if (res?.data?.phoneNumber) {
+    //       setSellerPhone(res.data.phoneNumber);
+    //     }
+    //   } catch (err) {
+    //     console.error("Error fetching seller phone number:", err);
+    //   }
+    // };
 
     fetchUserAds();
-    fetchSellerPhone();
   }, []);
+
+  useEffect(() => {
+    if (!sellerId) return;
+
+    const fetchSellerDetails = async () => {
+      setLoading(true);
+      setError(null);
+
+       try {
+         const response = await api.get(`/profile/seller/${sellerId}`);
+         setSellerDetails(response.data);
+       } catch(err) {
+         console.error("Error fetching seller details:", err);
+         setError(err.response?.data?.message || 'Failed to fetch seller details');
+       } finally {
+        setLoading(false);
+       }
+    };
+
+    fetchSellerDetails();
+  }, [sellerId]);
 
   useEffect(() => {
     const fetchAdAndProfile = async () => {
@@ -180,7 +200,9 @@ export default function BookMarkedContent() {
         return (
           <div
             key={adId}
-            className="bg-white border border-[#EDEDED] rounded-[12px] mb-5 flex flex-col md:flex-row h-auto max-w-[841px] overflow-hidden shadow-sm"
+            className="bg-white border border-[#EDEDED] rounded-[12px] mb-5 
+            flex flex-col md:flex-row h-auto w-full 
+            max-w-[841px] overflow-hidden shadow-sm mt-20 md:mt-0"
           >
             <div className="relative w-full h-[200px] md:w-[300px] md:h-auto shrink-0 overflow-hidden">
               <Img
@@ -212,7 +234,7 @@ export default function BookMarkedContent() {
             <div className="flex-1 p-4 flex flex-col justify-between">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2 mb-2">
                 <div className="flex items-center justify-between sm:block">
-                  <div className="text-[15px] sm:text-[20px] font-[500] font-inter text-[#525252]">
+                  <div className="text-[15px] sm:text-[20px] font-[500] font-inter text-[#525252] leading-snug">
                     {mainInfo}
                   </div>
                   <Img
@@ -270,14 +292,7 @@ export default function BookMarkedContent() {
                       productTitle={mainInfo}
                     />
                   </div>
-                  <a
-                    href={`tel:${sellerPhone}`}
-                    className="bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white
-                      h-[45px] flex-1 flex items-center justify-center px-4 py-2 rounded-md
-                      font-inter text-sm hover:bg-[#444444] transition"
-                  >
-                    {sellerPhone || "No Phone"}
-                  </a>
+                  <SellerPhoneNumberBookmarked sellerId={carAd.userId} />
                 </div>
 
                 <Img

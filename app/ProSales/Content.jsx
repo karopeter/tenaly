@@ -45,8 +45,9 @@ export default function Content({ activeSection, setActiveSection, isMobile }) {
     
     return sectionComponents[activeSection] || (
       <div>
-        <h2 className="text-xl font-bold mb-2">{activeSection}</h2>
-        <p>Content for {activeSection} not yet implemented.</p>
+        <h2 className="text-xl font-bold mb-2">Comming soon</h2>
+        {/* <h2 className="text-xl font-bold mb-2">{activeSection}</h2>
+        <p>Content for {activeSection} not yet implemented.</p> */}
       </div>
     );
   };

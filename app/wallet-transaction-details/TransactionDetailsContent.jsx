@@ -1,125 +1,108 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { useAuth } from "../context/AuthContext";
 import Button from "../components/Button";
+import api from "@/services/api";
+import Img from "../components/Image";
 
-export default function TransactionDetailsContent({ transaction, onBack }) {
-  // Handle share receipt functionality
-  const handleShareReceipt = async () => {
-    const receiptText = `
-Transaction Receipt
-------------------
-Amount: ₦${Number(transaction.amount).toLocaleString()}
-Order Amount: ₦${Number(transaction.amount).toLocaleString()}
-Fee: ₦0.00
-Transaction Type: ${getTransactionType(transaction.type)}
-Date: ${formatDate(transaction.paymentDate)}
-Transaction ID: ${transaction.reference}
-Status: Successful
-    `.trim();
+export default function TransactionDetails() {
+  const { token } = useAuth();
+  const router = useRouter();
+  const params = useParams();
+  const [transaction, setTransaction] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'Transaction Receipt',
-          text: receiptText,
-        });
-      } catch (error) {
-        console.log('Error sharing:', error);
-        fallbackShare(receiptText);
+  const transactionRef = params.reference;
+
+  useEffect(() => {
+    fetchTransactionDetails();
+  }, [transactionRef, token]);
+
+  const fetchTransactionDetails = async () => {
+    if (!token || !transactionRef) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const profileRes = await api.get("/profile", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const walletTransactions = profileRes.data.walletTransactions || [];
+      const foundTransaction = walletTransactions.find(
+        (txn) => txn.reference === transactionRef
+      );
+
+      if (foundTransaction) {
+        setTransaction(foundTransaction);
+      } else {
+        console.error("Transaction not found");
       }
-    } else {
-      fallbackShare(receiptText);
+    } catch (err) {
+      console.error("Error fetching transaction details:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Fallback share method
-  const fallbackShare = (text) => {
-    navigator.clipboard.writeText(text).then(() => {
-      alert('Receipt copied to clipboard!');
-    }).catch(() => {
-      alert('Unable to share receipt');
-    });
+  const handleGoBack = () => {
+    router.back();
   };
 
-  // Handle download receipt functionality
+  const handleShareReceipt = () => {
+    if (navigator.share && transaction) {
+      navigator.share({
+        title: "Transaction Receipt",
+        text: `Transaction Receipt - ₦${Number(transaction.amount).toLocaleString()}`,
+        url: window.location.href,
+      });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      alert("Receipt link copied to clipboard!");
+    }
+  };
+
   const handleDownloadReceipt = () => {
-    const receiptContent = `
-Transaction Receipt
-==================
-Amount: ₦${Number(transaction.amount).toLocaleString()}
-Order Amount: ₦${Number(transaction.amount).toLocaleString()}
-Fee: ₦0.00
-Transaction Type: ${getTransactionType(transaction.type)}
-Date: ${formatDate(transaction.paymentDate)}
-Transaction ID: ${transaction.reference}
-Status: Successful
-Time: ${formatDateTime(transaction.paymentDate)}
-
-Thank you for your transaction!
-    `.trim();
-
-    const blob = new Blob([receiptContent], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `receipt-${transaction.reference}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    const receiptData = {
+      reference: transaction.reference,
+      amount: transaction.amount,
+      type: transaction.type,
+      date: transaction.paymentDate,
+    };
+    
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(receiptData, null, 2));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", `receipt-${transaction.reference}.json`);
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
   };
 
-  // Copy transaction ID to clipboard
-  const copyTransactionId = () => {
-    navigator.clipboard.writeText(transaction.reference).then(() => {
-      alert('Transaction ID copied to clipboard!');
-    }).catch(() => {
-      alert('Unable to copy transaction ID');
-    });
-  };
-
-  // Get transaction type display text
-  const getTransactionType = (type) => {
-    return type === "credit" ? "Wallet Top up" : "Premium Service";
-  };
-
-  // Format date for display
-  const formatDate = (dateString) => {
-    if (!dateString) return "No Date";
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: '2-digit',
-      year: 'numeric'
-    });
-  };
-
-  // Format date and time for receipt
-  const formatDateTime = (dateString) => {
-    if (!dateString) return "No Date";
-    const date = new Date(dateString);
-    return date.toLocaleString('en-US', {
-      month: 'short',
-      day: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    });
-  };
-
-  // Get transaction status
-  const getTransactionStatus = () => {
-    // Assuming successful transactions since they're in the wallet
-    return "Successful";
-  };
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#5555DD] mx-auto"></div>
+          <p className="mt-4 text-[#525252] text-sm">Loading transaction details...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!transaction) {
     return (
-      <div className="bg-white shadow-phenom md:rounded-[12px] h-auto p-4 md:p-8 w-full">
-        <div className="text-center text-[#525252]">
-          <p>Transaction not found</p>
-          <Button onClick={onBack} className="mt-4">
+      <div className="bg-white shadow-phenom md:rounded-[12px] h-auto p-3 sm:p-8 w-full max-w-full">
+        <div className="text-center">
+          <Img src="/wallet.svg" width={100} height={100} alt="No transaction" className="mx-auto mb-4" />
+          <h2 className="text-[#525252] font-[500] text-[18px] mb-2">Transaction Not Found</h2>
+          <p className="text-[#868686] text-[14px] mb-6">The requested transaction could not be found.</p>
+          <Button
+            onClick={handleGoBack}
+            className="bg-[#5555DD] text-white px-6 py-2 rounded-[8px] text-[14px] font-[500]"
+          >
             Go Back
           </Button>
         </div>
@@ -127,142 +110,150 @@ Thank you for your transaction!
     );
   }
 
+  const formatDate = (dateString) => {
+    if (!dateString) return "No Date";
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  };
+
   return (
-    <div className="bg-white shadow-phenom md:rounded-[12px] h-auto p-4 md:p-8 w-full max-w-md mx-auto">
+    <div className="bg-white shadow-phenom md:rounded-[12px] h-auto p-3 sm:p-4 md:p-8 w-full max-w-full overflow-hidden">
       {/* Header */}
-      <div className="flex items-center mb-6">
-        <button
-          onClick={onBack}
-          className="flex items-center text-[#525252] text-[14px] font-inter font-[400] hover:text-[#5555DD] transition-colors"
-        >
-          <span className="mr-2">←</span>
-          Go back
-        </button>
-      </div>
-
-      {/* Title */}
-      <div className="text-center mb-6">
-        <h2 className="text-[#525252] font-[500] text-[18px] font-inter">
-          Transaction Details
-        </h2>
-        <p className="text-[#525252] font-[400] text-[12px] font-inter mt-2">
-          You can top up your wallet and use it to subscribe for Premium Services.
-        </p>
-      </div>
-
-      {/* Success Status and Icon */}
-      <div className="text-center mb-6">
-        <div className="flex justify-center items-center mb-2">
-          <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-          <span className="text-green-600 text-[12px] font-inter font-[500]">
-            Successful
-          </span>
+      <div className="">
+        <div className="flex items-center justify-between max-w-md mx-auto">
+          <button
+            onClick={handleGoBack}
+            className="flex items-center text-[#525252] hover:text-[#5555DD] transition-colors"
+          >
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            <span className="text-[14px] font-[500]">Go back</span>
+          </button>
         </div>
-        
-        {/* Transaction Icon */}
-        <div className="flex justify-center mb-4">
-          <div className="w-16 h-16 bg-[#5555DD] rounded-lg flex items-center justify-center">
-            <div className="w-8 h-8 border-2 border-white rounded flex items-center justify-center">
-              <span className="text-white text-lg">💳</span>
+      </div>
+
+      {/* Main Content */}
+      <div className="px-4 sm:px-6 py-6">
+        <div className="max-w-md mx-auto"> 
+          <div className="text-center py-6 px-6">
+              <h1 className="text-[#525252] font-[600] text-[18px] font-inter mb-2">
+                Transaction Details
+              </h1>
+              <p className="text-[#868686] text-[12px] font-inter">
+                You can view your wallet top up transaction here
+              </p>
+            </div>
+          <div className="bg-[#FAFAFA] rounded-[8px] overflow-hidden">
+            {/* Success Icon */}
+            <div className="flex justify-center mb-6 mt-5">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+            </div>
+
+            {/* Amount */}
+            <div className="text-center mb-8">
+              <p className="text-[#525252] font-[700] text-[32px] font-inter">
+                ₦{Number(transaction.amount).toLocaleString()}
+              </p>
+              <p className="text-[#868686] text-[14px] font-inter mt-1">
+                {transaction.type === "credit" ? "Wallet Topup" : "Premium Service"}
+              </p>
+            </div>
+
+            {/* Transaction Details */}
+            <div className="px-6 pb-6 space-y-4">
+              {/* Status */}
+              <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                <span className="text-[#868686] text-[14px] font-inter">Status</span>
+                <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-[12px] font-[500]">
+                  Successful
+                </span>
+              </div>
+
+              {/* Paid Amount */}
+              <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                <span className="text-[#868686] text-[14px] font-inter">Paid Amount</span>
+                <span className="text-[#525252] text-[14px] font-[500] font-inter">
+                  ₦{Number(transaction.amount).toLocaleString()}
+                </span>
+              </div>
+
+              {/* Payment Date */}
+              <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                <span className="text-[#868686] text-[14px] font-inter">Payment Date</span>
+                <span className="text-[#525252] text-[14px] font-[500] font-inter">
+                  {formatDate(transaction.paymentDate)}
+                </span>
+              </div>
+
+              {/* Payment Type */}
+              <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                <span className="text-[#868686] text-[14px] font-inter">Payment Type</span>
+                <span className="text-[#525252] text-[14px] font-[500] font-inter">
+                  Wallet Top-up
+                </span>
+              </div>
+
+              {/* Transaction ID */}
+              <div className="flex justify-between items-center py-3">
+                <span className="text-[#868686] text-[14px] font-inter">Transaction ID</span>
+                <div className="flex items-center">
+                  <span className="text-[#525252] text-[12px] font-[500] font-inter mr-2">
+                    {transaction.reference}
+                  </span>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(transaction.reference);
+                      alert("Transaction ID copied!");
+                    }}
+                    className="text-[#5555DD] hover:text-[#4444CC] transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Amount */}
-        <p className="text-[#525252] font-[600] text-[24px] font-inter">
-          ₦{Number(transaction.amount).toLocaleString()}
-        </p>
-      </div>
-
-      {/* Transaction Details */}
-      <div className="space-y-4 mb-8">
-        {/* Order Amount */}
-        <div className="flex justify-between items-center py-3 border-b border-gray-100">
-          <span className="text-[#868686] text-[14px] font-inter font-[400]">
-            Order Amount
-          </span>
-          <span className="text-[#525252] text-[14px] font-inter font-[500]">
-            ₦{Number(transaction.amount).toLocaleString()}
-          </span>
-        </div>
-
-        {/* Fee */}
-        <div className="flex justify-between items-center py-3 border-b border-gray-100">
-          <span className="text-[#868686] text-[14px] font-inter font-[400]">
-            Fee
-          </span>
-          <span className="text-[#525252] text-[14px] font-inter font-[500]">
-            ₦0.00
-          </span>
-        </div>
-
-        {/* Transaction Type */}
-        <div className="flex justify-between items-center py-3 border-b border-gray-100">
-          <span className="text-[#868686] text-[14px] font-inter font-[400]">
-            Transaction Type
-          </span>
-          <span className="text-[#525252] text-[14px] font-inter font-[500]">
-            {getTransactionType(transaction.type)}
-          </span>
-        </div>
-
-        {/* Date */}
-        <div className="flex justify-between items-center py-3 border-b border-gray-100">
-          <span className="text-[#868686] text-[14px] font-inter font-[400]">
-            Date
-          </span>
-          <span className="text-[#525252] text-[14px] font-inter font-[500]">
-            {formatDateTime(transaction.paymentDate)}
-          </span>
-        </div>
-
-        {/* Transaction ID */}
-        <div className="flex justify-between items-center py-3 border-b border-gray-100">
-          <span className="text-[#868686] text-[14px] font-inter font-[400]">
-            Transaction ID
-          </span>
-          <div className="flex items-center">
-            <span className="text-[#525252] text-[14px] font-inter font-[500] mr-2">
-              {transaction.reference}
-            </span>
-            <button
-              onClick={copyTransactionId}
-              className="text-[#5555DD] hover:text-[#4444CC] transition-colors"
-              title="Copy Transaction ID"
+          {/* Action Buttons */}
+          <div className="flex gap-3 mt-6">
+            <Button
+              onClick={handleShareReceipt}
+              className="flex-1 bg-white border border-[#5555DD] text-[#5555DD] rounded-[8px] 
+                         text-[14px] font-[500] font-inter h-[44px] flex items-center justify-center
+                         hover:bg-gray-50 transition-colors"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
               </svg>
-            </button>
+              Share Receipt
+            </Button>
+            <Button
+              onClick={handleDownloadReceipt}
+              className="flex-1 bg-[#5555DD] text-white rounded-[8px] 
+                         text-[14px] font-[500] font-inter h-[44px] flex items-center justify-center
+                         hover:bg-[#4444CC] transition-colors"
+            >
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Download Receipt
+            </Button>
           </div>
         </div>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="flex flex-col space-y-3">
-        <Button
-          onClick={handleShareReceipt}
-          className="border border-[#5555DD] text-[#5555DD] bg-white rounded-[8px] 
-                     text-[14px] font-[500] font-inter w-full h-[44px] hover:bg-[#5555DD] 
-                     hover:text-white transition-colors flex items-center justify-center"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="mr-2">
-            <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92S19.61 16.08 18 16.08z"/>
-          </svg>
-          Share Receipt
-        </Button>
-
-        <Button
-          onClick={handleDownloadReceipt}
-          className="bg-[#5555DD] text-white rounded-[8px] text-[14px] font-[500] 
-                     font-inter w-full h-[44px] hover:bg-[#4444CC] transition-colors 
-                     flex items-center justify-center"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="mr-2">
-            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-          </svg>
-          Download Receipt
-        </Button>
       </div>
     </div>
   );
