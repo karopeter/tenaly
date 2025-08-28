@@ -98,6 +98,9 @@ export default function ProfilePageContent() {
               src={imagePreview || fetchedImage || "/profile-circles1.svg"}
               alt="Profile"
               className="w-full h-full object-cover rounded-full border-2 border-gray-100"
+              onError={(e) => {
+                e.currentTarget.src = "/profile-circles1.svg"; 
+              }}
             />
             {imagePreview && isImageFromUpload ? (
               <button

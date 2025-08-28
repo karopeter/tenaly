@@ -30,6 +30,8 @@ function MessageContent() {
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [lastMessages, setLastMessages] = useState({});
   const [typingUser, setTypingUser] = useState(null);
+  const [showContacts, setShowContacts] = useState(true); // For mobile view toggle
+  const [isMobileView, setIsMobileView] = useState(false);
 
   const searchParams = useSearchParams();
   const initialSellerId = searchParams.get("sellerId");
@@ -39,6 +41,18 @@ function MessageContent() {
   const initialProductTitle = searchParams.get("productTitle");
 
   const [initialMessageSent, setInitialMessageSent] = useState(false);
+
+  // Detect mobile view
+  useEffect(() => {
+    const checkMobileView = () => {
+      setIsMobileView(window.innerWidth < 768);
+    };
+    
+    checkMobileView();
+    window.addEventListener('resize', checkMobileView);
+    
+    return () => window.removeEventListener('resize', checkMobileView);
+  }, []);
 
   // Load profile
   useEffect(() => {
@@ -77,6 +91,9 @@ function MessageContent() {
   // Auto-load last selected or open sellerId from URL
   useEffect(() => {
     const autoLoadLastChatOrNew = async () => {
+      // Check if we're on mobile (window width check)
+      const isMobile = window.innerWidth < 768;
+      
       // If sellerId present in URL, try to open that first
       if (initialSellerId && !initialMessageSent) {
         // Try to find in contacts
@@ -110,12 +127,20 @@ function MessageContent() {
         }
       }
 
-      // fallback to last selected user
-      const lastUserId = localStorage.getItem("lastSelectedUserId");
-      if (lastUserId && contacts.length > 0) {
-        const user = contacts.find((u) => u._id === lastUserId);
-        if (user) {
-          await handleUserClick(user);
+      // On desktop, fallback to last selected user
+      // On mobile, only load if there are no contacts (show empty state)
+      if (!isMobile) {
+        const lastUserId = localStorage.getItem("lastSelectedUserId");
+        if (lastUserId && contacts.length > 0) {
+          const user = contacts.find((u) => u._id === lastUserId);
+          if (user) {
+            await handleUserClick(user);
+          }
+        }
+      } else {
+        // On mobile, if no initial seller and no contacts, show empty state
+        if (contacts.length === 0) {
+          setShowContacts(false);
         }
       }
     };
@@ -246,6 +271,7 @@ function MessageContent() {
 
       setSelectedUser(user);
       setChatRoomId(conversation._id);
+      setShowContacts(false); // Hide contacts panel on mobile when chat is selected
 
       // ---- Add seller to contacts immediately if not present ----
       setContacts(prevContacts => {
@@ -298,6 +324,13 @@ function MessageContent() {
     }
   };
 
+  const handleBackToContacts = () => {
+    setShowContacts(true);
+    setSelectedUser(null);
+    setChatRoomId(null);
+    // On mobile, if no contacts exist, keep showing the empty state
+  };
+
   const renderMessages = () => {
     let lastDate = null;
 
@@ -318,15 +351,15 @@ function MessageContent() {
       const isDelivered = true;
 
       return (
-        <div key={msg._id || i}>
+        <div key={msg._id || i} className="mb-4">
           {isNewDate && (
-            <div className="text-center text-gray-400 text-xs my-2">
-              {format(parseISO(msg.createdAt), "eeee, MMMM do yyyy")}
+            <div className="text-center text-gray-400 text-xs my-4 bg-gray-50 py-1 px-3 rounded-full mx-auto w-fit">
+              {format(parseISO(msg.createdAt), "MMM dd, yyyy")}
             </div>
           )}
 
           <div
-            className={`flex items-end space-x-2 ${
+            className={`flex items-end gap-2 px-2 ${
               isFromSelf ? "justify-end" : "justify-start"
             }`}
           >
@@ -334,24 +367,26 @@ function MessageContent() {
               <Img
                 src={senderImg}
                 alt="sender"
-                width={32}
-                height={32}
-                className="rounded-full"
+                width={28}
+                height={28}
+                className="rounded-full flex-shrink-0 mb-2"
               />
             )}
 
             <div
-              className={`max-w-[70%] px-3 py-2 rounded-lg text-sm relative ${
-                isFromSelf ? "bg-gray-100" : "bg-green-200"
+              className={`max-w-[75%] px-3 py-2 rounded-2xl text-sm relative ${
+                isFromSelf 
+                  ? "bg-blue-500 text-white rounded-br-md" 
+                  : "bg-gray-100 text-gray-900 rounded-bl-md"
               }`}
             >
               {msg.productImageUrl && msg.productId && (
                 <Link href={`/details/${msg.productId}`} target="_blank" rel="noopener noreferrer">
-                  <div className="mb-2 p-2 bg-white rounded-md border border-gray-200 cursor-pointer">
+                  <div className="mb-2 p-2 bg-white rounded-lg border border-gray-200 cursor-pointer">
                     <img
                       src={msg.productImageUrl}
                       alt={msg.productTitle || "Product"}
-                      className="w-24 h-24 object-cover rounded-md mx-auto mb-2"
+                      className="w-32 h-32 object-cover rounded-lg mx-auto mb-2"
                     />
                     <p className="text-xs font-semibold text-center text-blue-600 hover:underline">
                       {msg.productTitle || "View Product"}
@@ -366,7 +401,7 @@ function MessageContent() {
                     <img
                       src={`http://localhost:8080/${msg.file.path}`}
                       alt="uploaded"
-                      className="w-40 h-auto rounded-md"
+                      className="w-40 h-auto rounded-lg"
                     />
                   ) : (
                     <a
@@ -381,12 +416,12 @@ function MessageContent() {
                 </div>
               )}
 
-              <div className="text-sm mb-1">{msg.text}</div>
-              <div className="text-[10px] text-right text-gray-500">
+              <div className="text-sm leading-relaxed">{msg.text}</div>
+              <div className={`text-[10px] mt-1 ${isFromSelf ? 'text-blue-100' : 'text-gray-500'}`}>
                 {format(parseISO(msg.createdAt), "hh:mm a")}
               </div>
               {isFromSelf && (
-                <div className="text-[10px] text-right text-gray-400">
+                <div className="text-[10px] text-blue-200 mt-1">
                   {isRead ? "Read" : isDelivered ? "Delivered" : "Sent"}
                 </div>
               )}
@@ -396,9 +431,9 @@ function MessageContent() {
               <Img
                 src={senderImg}
                 alt="you"
-                width={32}
-                height={32}
-                className="rounded-full"
+                width={28}
+                height={28}
+                className="rounded-full flex-shrink-0 mb-2"
               />
             )}
           </div>
@@ -410,8 +445,9 @@ function MessageContent() {
   const isOnline = (userId) => onlineUsers.includes(userId);
 
   return (
-    <div className="md:px-[104px] px-4 md:ml-10">
-      <div className="mt-28 flex items-center gap-2 mb-4 font-[400] font-inter flex-nowrap">
+    <div className="md:px-[104px] px-0 md:ml-10">
+      {/* Breadcrumb - Only show on desktop */}
+      <div className="hidden md:flex mt-28 items-center gap-2 mb-4 font-[400] font-inter flex-nowrap px-4">
         <Link
           href="/"
           className="text-[#868686] md:text-[14px] hover:text-[#000] transition-all whitespace-nowrap"
@@ -423,43 +459,72 @@ function MessageContent() {
         </Link>
       </div>
 
-      <div className="flex bg-white h-[calc(100vh-150px)]">
-        {/* Left Panel */}
-        <div className="w-[350px] bg-[#FAFAFA] border-r border-gray-300 p-4 overflow-y-auto">
-          <div className="space-y-4">
-            {contacts.map((user, i) => (
-              <div
-                key={i}
-                onClick={() => handleUserClick(user)}
-                className="flex items-center gap-3 cursor-pointer hover:bg-gray-100 rounded-lg p-2"
-              >
-                <Img
-                  src={user.img || "/profile-circles1.svg"}
-                  alt={user.fullName}
-                  width={44}
-                  height={44}
-                  className="rounded-full"
-                />
-                <div className="flex-1">
-                  <p className="text-base font-medium text-[#525252] font-inter">
-                    {user.fullName}
-                  </p>
-                  <p className="text-sm text-[#868686] font-inter line-clamp-1">
-                    {lastMessages[user._id] || "Start Conversation"}
-                  </p>
+      <div className="flex bg-white md:h-[calc(100vh-150px)] h-screen">
+        {/* Left Panel - Contacts List */}
+        <div className={`
+          ${showContacts ? 'flex' : 'hidden'} 
+          md:flex md:w-[350px] w-full bg-[#FAFAFA] border-r border-gray-200 flex-col
+        `}>
+          {/* Header for mobile */}
+          <div className="md:hidden p-4 border-b border-gray-200 bg-white">
+            <h2 className="text-lg font-semibold text-gray-900">Messages</h2>
+          </div>
+          
+          <div className="flex-1 p-4 overflow-y-auto">
+            <div className="space-y-2">
+              {contacts.map((user, i) => (
+                <div
+                  key={i}
+                  onClick={() => handleUserClick(user)}
+                  className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 rounded-xl p-3 transition-colors"
+                >
+                  <div className="relative">
+                    <Img
+                      src={user.img || "/profile-circles1.svg"}
+                      alt={user.fullName}
+                      width={48}
+                      height={48}
+                      className="rounded-full"
+                    />
+                    {isOnline(user._id) && (
+                      <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 font-inter truncate">
+                      {user.fullName}
+                    </p>
+                    <p className="text-xs text-gray-500 font-inter truncate mt-1">
+                      {lastMessages[user._id] || "Start Conversation"}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Right Panel */}
-        <div className="flex-1 flex flex-col h-full min-h-0 bg-white border-r border-t border-b border-gray-200">
+        {/* Right Panel - Chat Area */}
+        <div className={`
+          ${showContacts ? 'hidden' : 'flex'} 
+          md:flex flex-1 flex-col  min-h-0 mt-20 md:mt-0 bg-white
+        `}>
           {selectedUser ? (
             <>
-              <div className="border-b border-gray-200 px-4 py-3 flex items-center justify-between bg-[#FAFAFA]">
-                <div className="flex items-center gap-2">
-                  {selectedUser?.img && (
+              {/* Chat Header */}
+              <div className="border-b border-gray-200 px-4 py-3 flex items-center gap-3 bg-white">
+                {/* Back button for mobile */}
+                <button 
+                  onClick={handleBackToContacts}
+                  className="md:hidden flex items-center justify-center w-10 h-10 -ml-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                
+                <div className="flex items-center gap-3 flex-1">
+                  <div className="relative">
                     <Img
                       src={selectedUser.img || "/profile-circles1.svg"}
                       alt={selectedUser.fullName || "User"}
@@ -467,44 +532,87 @@ function MessageContent() {
                       height={40}
                       className="rounded-full"
                     />
-                  )}
-                  <p className="font-medium text-[#525252] text-base">
-                    {selectedUser?.fullName || "Select a chat"}
-                  </p>
+                    {isOnline(selectedUser._id) && (
+                      <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-medium text-gray-900 text-sm">
+                      {selectedUser?.fullName || "Select a chat"}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {isOnline(selectedUser._id) ? "Online" : "Last seen 08:37pm"}
+                    </p>
+                  </div>
                 </div>
               </div>
 
-              <div className="flex-1 overflow-y-auto px-4 py-2 space-y-3">
+              {/* Messages Area */}
+              <div className="flex-1 overflow-y-auto py-4 bg-gray-50">
                 {renderMessages()}
                 {typingUser === selectedUser?._id && (
-                  <div className="text-sm text-gray-500 italic">Typing...</div>
+                  <div className="px-4">
+                    <div className="flex items-center gap-2">
+                      <Img
+                        src={selectedUser.img || "/profile-circles1.svg"}
+                        alt="typing"
+                        width={28}
+                        height={28}
+                        className="rounded-full"
+                      />
+                      <div className="bg-gray-200 px-4 py-2 rounded-2xl rounded-bl-md">
+                        <div className="flex space-x-1">
+                          <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></div>
+                          <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                          <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 )}
               </div>
 
+              {/* Chat Input */}
               {chatRoomId && selectedUser && (
-                <ChatInput
-                  onSend={handleSend}
-                  conversationId={chatRoomId}
-                  recipientId={selectedUser._id}
-                  token={token}
-                  onTyping={() => emitTyping(chatRoomId)}
-                  onStopTyping={() => emitStopTyping(chatRoomId)}
-                />
+                <div className="border-t border-gray-200 bg-white">
+                  <ChatInput
+                    onSend={handleSend}
+                    conversationId={chatRoomId}
+                    recipientId={selectedUser._id}
+                    token={token}
+                    onTyping={() => emitTyping(chatRoomId)}
+                    onStopTyping={() => emitStopTyping(chatRoomId)}
+                  />
+                </div>
               )}
             </>
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-center text-gray-500 text-lg">
-              <Img 
-                src="/msgImg.svg"
-                alt="No Message"
-                width={64}
-                height={64}
-                className=""
-              />
-               <h3 className="text-center">
-                  See messages here
-               </h3>
-            </div>
+            <>
+              {/* Mobile header for no conversation */}
+              <div className="md:hidden border-b border-gray-200 px-4 py-3 bg-white">
+                {/* <button 
+                  onClick={handleBackToContacts}
+                  className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button> */}
+              </div>
+              
+              <div className="flex-1 flex flex-col items-center justify-center text-center text-gray-500 p-8">
+                <Img 
+                  src="/msgImg.svg"
+                  alt="No Message"
+                  width={80}
+                  height={80}
+                  className="mb-4 opacity-50"
+                />
+                <h3 className="text-[14px] font-inter font-[500] font-normal mb-2 text-[#868686]">
+                  No messages yet.
+                </h3>
+              </div>
+            </>
           )}
         </div>
       </div>

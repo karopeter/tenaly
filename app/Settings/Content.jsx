@@ -20,26 +20,26 @@ const sectionComponents = {
   Analytics: (
     <div>
       <h2 className="text-xl font-bold mb-2">Analytics</h2>
-      <p>Content for Analytics not yet implemented.</p>
+      <p>Comming soon.</p>
     </div>
   ),
   Bookmarked: <Bookmarked />,
   "Customer Reviews": (
     <div>
       <h2 className="text-xl font-bold mb-2">Customer Reviews</h2>
-      <p>Content for Customer Reviews not yet implemented.</p>
+      <p>Comming Soon</p>
     </div>
   ),
   "Pro Sales": (
     <div>
       <h2 className="text-xl font-bold mb-2">Pro Sales</h2>
-      <p>Content for Pro Sales not yet implemented.</p>
+      <p>Comming Soon.</p>
     </div>
   ),
   "Customer Support": (
     <div>
       <h2 className="text-xl font-bold mb-2">Customer Support</h2>
-      <p>Content for Customer Support not yet implemented.</p>
+      <p>Comming soon.</p>
     </div>
   ),
   Wallet: <Wallet />,
@@ -54,7 +54,7 @@ export default function Content({ activeSection, setActiveSection, isMobile }) {
 
   const renderContent = () => {
     if (!activeSection) {
-      return sectionComponents["Settings"]; // ✅ default section
+      return sectionComponents["Settings"]; 
     }
     return (
       sectionComponents[activeSection] || (
@@ -73,8 +73,8 @@ export default function Content({ activeSection, setActiveSection, isMobile }) {
           onClick={handleBackToMenu}
           className="text-[#000087] mb-4 flex mt-5 items-center gap-2 md:hidden"
         >
-          <ArrowLeft size={20} />
-          {activeSection} {/* ✅ Dynamic section title */}
+           <ArrowLeft size={20} />
+          {activeSection}  
         </button>
       )}
 

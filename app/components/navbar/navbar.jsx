@@ -152,6 +152,9 @@ export default function Navbar() {
                    width={44}
                    height={44}
                    className="w-[32px] h-[32px] md:w-[44px] md:h-[44px] rounded-[30px]"
+                    onError={(e) => {
+                    e.currentTarget.src = "/profile-circles1.svg";
+                   }}
                    />
                 </Link>
                 <Link href="/Add">

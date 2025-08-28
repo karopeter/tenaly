@@ -13,7 +13,7 @@ function BusinessCard({ biz, index }) {
   return (
    <div className="bg-white mt-2 rounded-lg w-full">
         <div
-          className="border-b last:border-b-0 border-gray-200 pb-4 mb-4 last:mb-0"
+          className="border-b last:border-b-0 border-gray-200 md:pb-4 mb-4 last:mb-0"
         >
           <div className="flex justify-between w-full mt-5 items-center text-[#000087]  gap-2 text-sm font-medium">
               <span className="font-[500] font-inter text-[14px]">Business {index + 1}</span>
@@ -101,7 +101,7 @@ export default function AddBusiness() {
     if (loading) return <p className="text-center mt-20">Loading....</p>
 
     return (
-    <div className="relative flex flex-col md:flex-row w-full gap-2 min-h-screen mt-10 md:mt-4">
+    <div className="relative flex flex-col md:flex-row w-full gap-2 min-h-screen md:mt-4">
      {/* Desktop sidebar */}
     <div className="hidden md:block">
       <BusinessLink />
@@ -125,8 +125,8 @@ export default function AddBusiness() {
   )}
 
   {/* Main Content */}
-  <div className="flex-1 px-0 md:px-4 md:px-0 mt-10 md:mt-0">
-    <div className="bg-white border border-[#EDEDED] p-1 md:p-4 rounded-lg w-full">
+  <div className="flex-1  md:px-4 md:px-0 mt-10 md:mt-0">
+    <div className="bg-white border border-[#EDEDED] md:p-1 md:p-4 rounded-lg w-full">
       {businesses.length === 0 ? (
         <>
           <div className="mt-20">

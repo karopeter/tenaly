@@ -5,6 +5,7 @@ import Button from "../components/Button";
 import FloatingLabelInput from "../components/UI/FloatingLabelInput";
 import api from '@/services/api';
 import { useAuth } from '../context/AuthContext';
+import { ArrowLeft } from 'lucide-react';
 import Img from '../components/Image';
 import { toast } from 'react-toastify';
 import FloatingLabelDropdown from '../components/UI/FloatingDropdown';
@@ -162,17 +163,12 @@ export default function BecomeVerifiedContent() {
  if (verificationStatus === 'verified') {
     return (
       <div className="bg-white shadow-phenom md:rounded-[12px] p-4 md:p-8 mt-20 md:mt-0 w-full">
-        <div className="flex items-center mb-6">
-          <button 
-            onClick={handleGoBack}
-            className="flex items-center hidden md:block text-[#525252] hover:text-[#000087] font-medium"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
-              <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <span className="text-[#525252] font-[400] text-[14px] font-inter">Go back</span>
-          </button>
-        </div>
+         <button
+         onClick={handleGoBack}
+          className="hidden md:flex items-center space-x-2 text-[#525252] hover:text-[#5555DD] transition-colors">
+         <ArrowLeft className="w-5 h-5 text-[#141B34]" />
+         <span className="text-[14px] font-[500]">Go back</span>
+      </button>
         
         <div className="flex flex-col items-center justify-center py-12">
           {/* Star badge with checkmark */}

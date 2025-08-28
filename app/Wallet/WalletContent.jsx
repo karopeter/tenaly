@@ -183,20 +183,20 @@ export default function WalletContent() {
   };
 
   return (
-    <div className="bg-white shadow-phenom md:rounded-[12px] h-auto p-3 sm:p-4 md:p-8 w-full max-w-full overflow-hidden">
+    <div className="bg-white md:shadow-phenom md:rounded-[12px] h-auto p-0 sm:p-4 md:p-8 w-full overflow-hidden">
       {/* Header */}
-      <div className="mb-4 sm:mb-6">
+      <div className="mb-3 sm:mb-6">
         <h3 className="text-[#525252] font-[500] text-[16px] sm:text-[18px] font-inter text-center">
           Wallet
         </h3>
-        <p className="text-center mt-2 sm:mt-3 text-[#525252] font-[400] text-[11px] sm:text-[12px] font-inter px-2">
+        <p className="text-center mt-2 text-[#525252] font-[400] text-[11px] sm:text-[12px] font-inter px-0 sm:px-2">
           You can top up your wallet and use it to subscribe for Premium Services.
         </p>
       </div>
 
       {/* Wallet Card */}
-      <div className="mt-4 sm:mt-5 flex justify-center px-2 sm:px-0">
-        <div className="bg-[#5555DD] rounded-[12px] w-full sm:w-[400px] md:w-[441px] min-h-[180px] sm:min-h-[200px] flex flex-col items-center p-4 sm:p-6">
+      <div className="mt-3 sm:mt-5 flex justify-center px-0">
+        <div className="bg-[#5555DD] rounded-[12px] w-full sm:w-[400px] md:w-[441px] min-h-[180px] sm:min-h-[200px] flex flex-col items-center p-3 sm:p-6">
           <h2 className="text-[#F7F7FF] font-[400] font-inter text-[11px] sm:text-[12px] text-center">
             Wallet balance
           </h2>
@@ -237,8 +237,8 @@ export default function WalletContent() {
       </div>
 
       {/* Transactions Section */}
-      <div className="mt-6 sm:mt-8">
-        <h3 className="text-[#525252] font-[500] text-[13px] sm:text-[14px] font-inter text-center mb-4 sm:mb-6">
+      <div className="mt-5 sm:mt-8">
+        <h3 className="text-[#525252] font-[500] text-[13px] sm:text-[14px] font-inter text-center mb-3 sm:mb-6">
           Transaction Details
         </h3>
         
@@ -258,7 +258,7 @@ export default function WalletContent() {
             </p>
           </div>
         ) : (
-          <div className="w-full max-w-lg mx-auto space-y-2 sm:space-y-3 px-2 sm:px-0">
+          <div className="w-full max-w-lg mx-auto space-y-2 sm:space-y-3 px-0">
             {walletTransactions
               .slice()
               .reverse()

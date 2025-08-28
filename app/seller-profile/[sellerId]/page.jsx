@@ -5,6 +5,7 @@ import Link from "next/link";
 import { SellerPhoneDisplay } from "@/app/components/features/sellerPhoneDisplay";
 import MessageSellerButton from "@/app/components/UI/messageSeller";
 import Img from "@/app/components/Image";
+import { SellerImage } from "@/app/components/features/sellerImage";
 import Button from "@/app/components/Button";
 import { useParams } from "next/navigation";
 
@@ -156,19 +157,7 @@ export default function SellerProfile() {
           <div className="flex flex-col md:flex-row gap-6 items-start">
             {/* Profile Image */}
             <div className="flex-shrink-0">
-              {businessProfileImage ? (
-                <Img
-                  src={businessProfileImage}
-                  alt="Business Profile"
-                  width={120}
-                  height={120}
-                  className="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover border-4 border-white shadow-lg"
-                />
-              ) : (
-                <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-gray-200 flex items-center justify-center">
-                  <span className="text-2xl text-gray-400">📦</span>
-                </div>
-              )}
+             <SellerImage sellerId={sellerId} />
             </div>
 
             {/* Business Info */}
