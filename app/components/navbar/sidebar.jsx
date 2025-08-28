@@ -112,6 +112,9 @@ export default function Sidebar({ isMobile, activeSection, setActiveSection }) {
               height={83.33}
               className="w-20 h-20 rounded-full mx-auto mb-2 object-cover"
               alt="Profile Picture"
+               onError={(e) => {
+                e.currentTarget.src = "/profile-circles1.svg"; 
+              }}
             />
             <h3 className="text-[#525252] font-[500] font-inter">
               {profileData.firstName} {profileData.lastName}

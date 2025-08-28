@@ -281,7 +281,7 @@ export default function BookMarkedContent({sellerId}) {
               </div>
 
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-4">
-                <div className="flex flex-row gap-3 sm:gap-4 w-full sm:w-auto">
+                <div className="flex flex-col md:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
                   <div>
                     {/* The MessageSellerButton now receives all the necessary props */}
                     <MessageSellerButton

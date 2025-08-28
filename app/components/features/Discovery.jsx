@@ -1,5 +1,6 @@
 import Button from "../Button";
 import Img from "../Image";
+import ComingSoonSection from "./comingSoon";
 
 export default function TenalyDiscovery() {
     const backgroundImageUrl = "/wait.svg";
@@ -8,7 +9,7 @@ export default function TenalyDiscovery() {
    <>
     <div className="px-4 md:px-0 mt-10">
       <div className="flex flex-col items-center gap-4 w-full max-w-3xl mx-auto">
-        <div className="flex items-center justify-center w-full gap-2">
+        <div className="flex items-center justify-center w-full gap-2 mt-5">
           <Img
             src="/startNg.svg"
             alt="Star Icon"
@@ -148,7 +149,9 @@ export default function TenalyDiscovery() {
 
 
     <section 
-      className="relative w-full flex items-center justify-center bg-cover bg-no-repeat bg-center md:mt-20 min-h-[591px] md:min-h-[662px] px-4 sm:px-6 md:px-8"
+      className="relative w-full flex items-center justify-center bg-cover 
+      bg-no-repeat bg-center md:mt-0 
+      min-h-[591px] md:min-h-[662px] px-4 sm:px-6 md:px-8"
       style={{ 
         backgroundImage: `url(${mobileBackgroundImageUrl})` 
       }}>
@@ -159,41 +162,7 @@ export default function TenalyDiscovery() {
        backgroundImage: `url(${backgroundImageUrl})` 
       }}></div>
      <div className="relative z-10">
-      <div className="flex flex-col md:flex-row items-center md:items-start gap-8 md:gap-20 px-4 sm:px-6 md:px-8 py-12">
-    {/* Left content */}
-    <div className="w-full md:w-1/2 flex flex-col items-start md:mt-40 text-left">
-      <h3 className="text-[24px] md:text-[40px] font-[500] text-[#FFFFFF] font-inter leading-tight">
-        Coming Soon to <br className="hidden md:block" />
-        Mobile App
-      </h3>
-       <p className="text-[#EDEDED] font-[400] font-inter mt-4 text-[15px] max-w-md">
-         Be the first to know when our app launches. Join the wait for early access and exclusive updates.
-       </p>
-      <Button
-        className="flex justify-center items-center gap-2 mt-6 px-6 py-3 bg-[#000087] w-full md:w-[370px] md:h-[64px] 
-         rounded-[8px] text-[#FFFFFF] text-[16px] rounded-md text-sm hover:bg-opacity-90 transition">
-        Join our waitlist
-        <Img 
-          src="/arrow-right.svg"
-          alt="arrow-right"
-          width={24}
-          height={24}
-          className="w-[24px] h-[24px]"
-        />
-      </Button>
-    </div>
-
-    {/* Right image */}
-    <div className="w-full md:w-1/2 flex justify-center md:justify-end">
-      <Img
-        src="/tenalyWait.svg"
-        alt="Mobile App Preview"
-        width={590}
-        height={296}
-        className="w-[250px] h-auto md:w-[590px] object-contain"
-      />
-     </div>
-    </div>
+      <ComingSoonSection />
     </div>
    </section>
 

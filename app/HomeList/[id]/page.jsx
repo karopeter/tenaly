@@ -8,6 +8,7 @@ import api from "@/services/api";
 import { SellerPhoneDisplay } from "../../components/features/sellerPhoneDisplay";
 import {SellerInfo} from "../../components/features/SellerInfo";
 import MessageSellerButton from "@/app/components/UI/messageSeller";
+import { SellerImage } from "@/app/components/features/sellerImage";
 import { toast } from "react-toastify";
 import { useAuth } from "@/app/context/AuthContext";
 
@@ -822,13 +823,7 @@ const productImage =
       {/* Central Auto Cars Section */}
      <div className="border-[1px] border-[#EDEDED] w-full rounded-[8px] p-4">
      <div className="flex gap-3">
-       <Img
-        src={userProfile?.image || "/profile-circles1.svg"}
-        alt="Profile Image"
-        width={52}
-        height={52}
-        className="w-[40px] h-[40px] rounded-[30px]"
-      />
+      <SellerImage sellerId={sellerId} />
       <div className="flex flex-col">
          <Link href={`/seller-profile/${sellerId}`} className="underline">
             <span className="text-[#000000] text-[14px] font-[500] font-inter">
@@ -983,19 +978,7 @@ const productImage =
          <div 
         className="border-[1px] border-[#EDEDED] md:w-[330px] md:rounded-[8px] mt-5 p-4">
          <div className="flex  gap-3">
-             {businessProfileImage && (
-              <Img
-                src={
-                  businessProfileImage
-                  ? getImageUrl(businessProfileImage)
-                  : "/profile-circles1.svg"
-                }
-                alt="Business Profile"
-                width={52}
-                height={52}
-                className="w-[52px] h-[52px] rounded-full object-cover"
-              />
-            )}
+            <SellerImage sellerId={sellerId} />
              <div className="flex flex-col">
               <Link href={`/seller-profile/${sellerId}`} className="underline">
                <span className="text-[#000000] text-[14px] font-[500] font-inter">

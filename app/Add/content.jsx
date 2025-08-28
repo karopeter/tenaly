@@ -21,6 +21,8 @@ const sectionComponents = {
 };
 
 export default function Content({ activeSection, setActiveSection, isMobile }) {
+    const router = useRouter();
+    
     const handleBackToMenu = () => {
         router.push("/Profile");
     };

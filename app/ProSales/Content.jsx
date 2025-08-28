@@ -24,9 +24,9 @@ const sectionComponents = {
   "Apartment Rent": <ApartmentRentContent />,
   "Analytics":  <AnalyticsContent />,
   "Bookmarked": <Bookmarked />,
-  "Customer Reviews": <div><h2 className="text-xl font-bold mb-2">Customer Reviews</h2><p>Content for Customer Reviews not yet implemented.</p></div>,
+  "Customer Reviews": <div><h2 className="text-xl font-bold mb-2">Comming Soon</h2></div>,
   "Pro Sales": <ProSalesContent />,
-  "Customer Support": <div><h2 className="text-xl font-bold mb-2">Customer Support</h2><p>Content for Customer Support not yet implemented.</p></div>,
+  "Customer Support": <div><h2 className="text-xl font-bold mb-2">Coming Soon</h2></div>,
   "Wallet": <Wallet />,
   "Frequently Asked Questions": <FrequentlyAskedQuestions />,
   "Settings": <Settings />

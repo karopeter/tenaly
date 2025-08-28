@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Plus, SendHorizonal, X } from "lucide-react";
 
 export default function ChatInput({ onSend, onTyping, onStopTyping }) {
@@ -21,17 +21,41 @@ export default function ChatInput({ onSend, onTyping, onStopTyping }) {
   const clearFile = () => {
     setSelectedFile(null);
     setPreview(null);
-    fileInputRef.current.value = null;
+    if (fileInputRef.current) {
+        fileInputRef.current.value = null;
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!message.trim() && !selectedFile) return;
 
+    // Send the message and the file object
     await onSend({ text: message.trim(), file: selectedFile });
+    
+    // Reset state after successful send
     setMessage("");
     clearFile();
   };
+
+  const handleMessageChange = (e) => {
+    setMessage(e.target.value);
+    if (e.target.value.trim() || selectedFile) onTyping?.();
+    else onStopTyping?.();
+  };
+  
+  // Re-enable typing indicator when file is selected
+  useEffect(() => {
+    if (selectedFile) {
+        onTyping?.();
+    }
+    // Cleanup function to revoke the URL when the component unmounts
+    return () => {
+      if (preview) {
+        URL.revokeObjectURL(preview);
+      }
+    };
+  }, [selectedFile, preview, onTyping]);
 
   return (
     <div className="px-4 py-3 bg-white border-t border-gray-200">
@@ -51,11 +75,7 @@ export default function ChatInput({ onSend, onTyping, onStopTyping }) {
           type="text"
           placeholder="Type your message"
           value={message}
-          onChange={(e) => {
-            setMessage(e.target.value);
-            if (e.target.value.trim()) onTyping?.();
-            else onStopTyping?.();
-          }}
+          onChange={handleMessageChange}
           className="flex-1 p-2 bg-[#FAFAFA] border border-gray-200 rounded-lg text-sm outline-none"
         />
         <button type="submit" className="p-2 rounded-full text-[#4C4C4C] hover:bg-gray-100">

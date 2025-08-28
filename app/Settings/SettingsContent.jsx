@@ -9,7 +9,8 @@ export default function SettingsContent() {
   const { logout } = useAuth();
 
   return (
-    <div className="bg-white shadow-phenom md:rounded-[12px] p-4 md:p-8 w-full max-w-[600px] mx-auto mt-20 md:mt-0">
+    <div 
+      className="bg-white shadow-phenom md:rounded-[12px] md:p-4 w-full mx-auto md:max-w-[600px] mt-20 md:mt-0">
       {/* Heading */}
       <h2 className="text-[#525252] font-[500] font-inter text-[18px] md:text-[24px] mb-6">
         Settings
@@ -27,22 +28,6 @@ export default function SettingsContent() {
             Become a verified user
           </span>
         </Link>
-
-        {/* Notification settings */}
-        {/* <Link
-          href="/notification-settings"
-          className="flex items-center gap-3 w-full transition mb-2 pb-2 border-b border-[#EBEBEC]"
-        >
-          <Img
-            src="/settingNotification.svg"
-            alt="Notification Icon"
-            width={24}
-            height={24}
-          />
-          <span className="text-[#525252] font-[400] text-[14px] font-inter">
-            Notification Setting
-          </span>
-        </Link> */}
 
         {/* Logout */}
         <button
