@@ -14,7 +14,7 @@ export default function BusinessHoursAdd() {
     };
 
     return (
-      <div className="md:px-[104px] px-4 md:ml-10 mt-20 md:mt-40">
+      <div className="md:px-[104px] md:px-4 md:ml-10 mt-20 md:mt-40">
         <div className="flex flex-col md:flex-row gap-10">
           {/* Sidebar for desktop view */}
           <div className="hidden md:block">

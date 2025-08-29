@@ -173,7 +173,7 @@ export default function FrequentlyAskedQuestionsContent() {
       </div>
 
       {/* FAQ Section */}
-      <div className="space-y-6">
+      <div className="mt-5 flex flex-col items-start space-y-6">
         <div className="mt-5 mx-auto md:ml-28">
           {faqData.map((section, sectionIndex) => (
             <div key={sectionIndex}>
