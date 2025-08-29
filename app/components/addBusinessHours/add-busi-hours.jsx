@@ -208,8 +208,8 @@ export default function AddBusinessHourss() {
         </div>
       )}
 
-      <div className="flex-1 px-4 md:px-0 mt-10 md:mt-0">
-        <div className="bg-white border border-[#EDEDED]  p-4 rounded-lg w-full">
+      <div className="flex-1 md:px-4 md:px-0 mt-10 md:mt-0">
+        <div className="bg-white md:border md:border-[#EDEDED] p-0 md:p-4 rounded-lg w-full">
           {businesses.length === 0 ? (
             <>
               <div className="mt-20">

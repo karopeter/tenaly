@@ -231,10 +231,10 @@ export default function BusinessHoursForm() {
         )}
 
         {/* Main Content */ }
-        <div className="flex-1 px-4 md:px-0 mt-10 md:mt-0">
-          <div className="bg-white border border-[#EDEDED] p-4 w-full rounded-lg md:w-full">
+        <div className="flex-1 md:px-4 md:px-0 mt-10 md:mt-0">
+          <div className="bg-white md:border md:border-[#EDEDED] p-4 w-full rounded-lg md:w-full">
              <div className="flex items-center gap-2 mb-4">
-              <button className="flex items-center gap-2" onClick={() => router.push('/BusinessHours')}>
+              <button className="flex hidden md:block items-center gap-2" onClick={() => router.push('/BusinessHours')}>
                 <Img 
                   src="/doc.svg"
                   alt="Arrow Left"

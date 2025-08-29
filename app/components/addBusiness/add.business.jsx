@@ -11,7 +11,7 @@ import { toast } from "react-toastify";
 
 function BusinessCard({ biz, index }) {
   return (
-   <div className="bg-white mt-2 rounded-lg w-full">
+   <div className="bg-white border border-[#EDEDED] mt-2 rounded-lg w-full">
         <div
           className="border-b last:border-b-0 border-gray-200 md:pb-4 mb-4 last:mb-0"
         >
