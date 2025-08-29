@@ -53,8 +53,8 @@ export default function Content({ activeSection, setActiveSection, isMobile }) {
           onClick={handleBackToMenu}
           className="text-blue-700 mb-4 flex items-center gap-2 md:hidden"
         >
-          <ArrowLeft size={20} />
-          Back
+          {/* <ArrowLeft size={20} />
+          Back */}
         </button>
       )}
 

@@ -23,7 +23,7 @@ export default function BecomeVerifiedContent() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [certificate, setCertificate] = useState("");
   const [photoDoc, setPhotoDoc] = useState(null);
-  const [verificationStatus, setVerificationStatus] = useState(null); // null, 'pending', 'verified'
+  const [verificationStatus, setVerificationStatus] = useState(null); 
   const [checkingStatus, setCheckingStatus] = useState(true);
   const { token, isLoggedIn, profile } = useAuth();
 
@@ -35,7 +35,7 @@ export default function BecomeVerifiedContent() {
         return;
       }
 
-      // First check if user is already verified in their profile
+    
       if (profile?.isVerified) {
         setVerificationStatus('verified');
         setCheckingStatus(false);
@@ -162,7 +162,7 @@ export default function BecomeVerifiedContent() {
   // Verification successful state
  if (verificationStatus === 'verified') {
     return (
-      <div className="bg-white shadow-phenom md:rounded-[12px] p-4 md:p-8 mt-20 md:mt-0 w-full">
+      <div className="bg-white  shadow-phenom md:rounded-[12px] p-4 md:p-8 mt-5 md:mt-0 w-full">
          <button
          onClick={handleGoBack}
           className="hidden md:flex items-center space-x-2 text-[#525252] hover:text-[#5555DD] transition-colors">
