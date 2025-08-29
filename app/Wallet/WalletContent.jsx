@@ -195,8 +195,8 @@ export default function WalletContent() {
       </div>
 
       {/* Wallet Card */}
-      <div className="mt-5 sm:mt-5 flex justify-center px-4">
-        <div className="bg-[#5555DD] rounded-[12px] w-full min-h-[220px]  md:w-[441px]  flex flex-col items-center p-6">
+      <div className="md:px-4 mb-6">
+        <div className="bg-[#5555DD] rounded-xl w-full p-6 flex flex-col items-center mt-4">
           <h2 className="text-[#F7F7FF] font-[400] font-inter text-[11px] sm:text-[12px] text-center">
             Wallet balance
           </h2>
@@ -237,8 +237,8 @@ export default function WalletContent() {
       </div>
 
       {/* Transactions Section */}
-      <div className="mt-8 px-4">
-        <h3 className="text-[#525252] font-[500] text-[13px] sm:text-[14px] font-inter text-center mb-3 sm:mb-6">
+      <div className="mt-4 md:mt-8 md:px-4">
+        <h3 className="text-[#525252] font-[500] text-[13px] sm:text-[14px] font-inter text-left md:text-center mb-3 sm:mb-6">
           Transaction Details
         </h3>
         

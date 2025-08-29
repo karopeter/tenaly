@@ -167,9 +167,9 @@ export default function FrequentlyAskedQuestionsContent() {
   };
 
   return (
-    <div className="bg-white shadow-phenom md:rounded-[12px] h-auto p-8">
-      <div className="text-center">
-        <h2 className="text-[#525252] font-inter text-[24px] font-[500]">Frequently Questions</h2>
+    <div className="bg-white md:shadow-phenom md:rounded-[12px] h-auto md:p-8">
+      <div>
+        <h2 className="text-[#525252] font-inter text-center text-[16px] md:text-[24px] font-[500]">Frequently Questions</h2>
       </div>
 
       {/* FAQ Section */}
