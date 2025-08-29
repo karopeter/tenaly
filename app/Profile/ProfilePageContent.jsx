@@ -87,7 +87,7 @@ export default function ProfilePageContent() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white shadow-phenom rounded-[12px] p-4 sm:p-6 md:p-8 w-full max-w-2xl mx-auto"
+      className="bg-white md:shadow-phenom rounded-[12px] p-4 sm:p-6 md:p-8 w-full max-w-2xl mx-auto"
     >
       {/* Header with Profile Image and Edit Button */}
       <div className="flex justify-between items-start mb-6">
@@ -130,7 +130,19 @@ export default function ProfilePageContent() {
         </div>
         
         {/* Edit Button */}
-        <div className="mt-2">
+        {!isEditable && (
+  <div className="mt-2">
+    <Button
+      type="button"
+      onClick={() => setIsEditable(true)}
+      className="flex items-center gap-1 sm:gap-2 border border-[#EDEDED] px-3 sm:px-4 py-2 rounded-full text-[#232323] text-xs sm:text-sm font-medium bg-[#F1F1F1] hover:bg-[#E8E8E8] transition-colors"
+    >
+      <Pencil className="w-3 h-3 sm:w-4 sm:h-4 text-[#3C3C3C]" />
+      <span className="hidden sm:inline">Edit</span>
+    </Button>
+  </div>
+)}
+        {/* <div className="mt-2">
           <Button
             type="button"
             onClick={() => setIsEditable(!isEditable)}
@@ -139,7 +151,7 @@ export default function ProfilePageContent() {
             <Pencil className="w-3 h-3 sm:w-4 sm:h-4 text-[#3C3C3C]" />
             <span className="hidden sm:inline">{isEditable ? "Cancel" : "Edit"}</span>
           </Button>
-        </div>
+        </div> */}
       </div>
 
       {/* Form Fields */}
