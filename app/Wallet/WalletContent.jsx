@@ -183,9 +183,9 @@ export default function WalletContent() {
   };
 
   return (
-    <div className="bg-white md:shadow-phenom md:rounded-[12px] h-auto p-0 sm:p-4 md:p-8 w-full overflow-hidden">
+    <div className="bg-white md:shadow-phenom md:rounded-[12px] min-h-screen h-auto p-0  md:p-8 w-full overflow-hidden">
       {/* Header */}
-      <div className="mb-3 sm:mb-6">
+      <div className="md:mb-6 px-4 pt-8">
         <h3 className="text-[#525252] font-[500] text-[16px] sm:text-[18px] font-inter text-center">
           Wallet
         </h3>
@@ -195,17 +195,17 @@ export default function WalletContent() {
       </div>
 
       {/* Wallet Card */}
-      <div className="mt-3 sm:mt-5 flex justify-center px-0">
-        <div className="bg-[#5555DD] rounded-[12px] w-full sm:w-[400px] md:w-[441px] min-h-[180px] sm:min-h-[200px] flex flex-col items-center p-3 sm:p-6">
+      <div className="mt-5 sm:mt-5 flex justify-center px-4">
+        <div className="bg-[#5555DD] rounded-[12px] w-full min-h-[220px]  md:w-[441px]  flex flex-col items-center p-6">
           <h2 className="text-[#F7F7FF] font-[400] font-inter text-[11px] sm:text-[12px] text-center">
             Wallet balance
           </h2>
-          <p className="text-[#F7F7FF] font-[500] font-inter text-[20px] sm:text-[24px] mt-2">
+          <p className="text-[#F7F7FF] font-[500] font-inter text-[20px] md:text-[24px] mt-2">
             ₦{walletBalance.toLocaleString()}
           </p>
 
           {editingAmount ? (
-            <div className="w-full mt-4 space-y-3">
+            <div className="w-full mt-6 space-y-3">
               <input
                 type="number"
                 min="1"
@@ -237,7 +237,7 @@ export default function WalletContent() {
       </div>
 
       {/* Transactions Section */}
-      <div className="mt-5 sm:mt-8">
+      <div className="mt-8 px-4">
         <h3 className="text-[#525252] font-[500] text-[13px] sm:text-[14px] font-inter text-center mb-3 sm:mb-6">
           Transaction Details
         </h3>
@@ -258,7 +258,7 @@ export default function WalletContent() {
             </p>
           </div>
         ) : (
-          <div className="w-full max-w-lg mx-auto space-y-2 sm:space-y-3 px-0">
+          <div className="w-full max-w-lg mx-auto space-y-3">
             {walletTransactions
               .slice()
               .reverse()
