@@ -212,14 +212,14 @@ const handleSubmit = async () => {
 
      {/* Mobile Menu Dropdown */ }
      {showMobileMenu && (
-      <div className="absolute top-10 left-0 w-full bg-white z-20 shadow-md p-4 md:hidden">
+      <div className="absolute top-10 left-0 w-full bg-white z-20 p-4 md:hidden">
          <BusinessLink />
       </div>
      )}
-      <div className="flex-1 px-4 md:px-0 mt-10 md:mt-0">
-        <div className="bg-white border border-[#EDEDED] p-4 rounded-lg w-full">
+      <div className="flex-1 md:px-4 md:px-0 mt-10 md:mt-0">
+        <div className="bg-white md:border md:border-[#EDEDED] p-4 rounded-lg w-full">
           <div className="flex items-center gap-2 mb-4">
-            <button onClick={() => router.back()} className="flex gap-4 items-center">
+            <button onClick={() => router.back()} className="hidden md:block flex gap-4 items-center">
               <ArrowLeftIcon className="h-5 w-5 text-[#141B34]" />
               <span className="text-[#525252] font-inter text-[14px] font-[500]">
                 Go Back
