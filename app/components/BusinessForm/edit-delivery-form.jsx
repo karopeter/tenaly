@@ -62,8 +62,8 @@ export default function EditDeliveryForm() {
             <BusinessLink />
          </div>
        )}
-       <div className="flex-1 px-4 md:px-0 mt-10 md:mt-0">
-         <div className="bg-white border border-[#EDEDED] p-4 rounded-lg h-auto md:h-[429px]">
+       <div className="flex-1 md:px-4 md:px-0 mt-10 md:mt-0">
+         <div className="bg-white md:border md:border-[#EDEDED] p-4 rounded-lg h-auto md:h-[429px]">
            <div className='flex items-center justify-between mb-6'>
              <span className="text-[#525252] text-[14px] font-[500] font-inter">
                 {business.businessName}

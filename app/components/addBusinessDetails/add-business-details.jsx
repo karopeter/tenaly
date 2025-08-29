@@ -57,7 +57,7 @@ export default function AddBusinessDetails() {
 
     
     return (
-      <div className="relative flex flex-col md:flex-row w-full gap-2 md:mt-4 min-h-screen">
+      <div className="relative flex flex-col md:flex-row w-full gap-2 mt-4 min-h-screen">
        {/* Desktop sidebar */}
        <div className="hidden md:block">
           <BusinessLink />
@@ -79,8 +79,8 @@ export default function AddBusinessDetails() {
            <BusinessLink />
         </div>
        )}
-        <div className="flex-1 px-4 md:px-0 mt-10 md:mt-0">
-          <div className="bg-white border border-[#EDEDED] p-4 rounded-lg w-full">
+        <div className="flex-1 md:px-4 md:px-0 mt-10 md:mt-0">
+          <div className="bg-white md:border md:border-[#EDEDED] p-0 md:p-4 rounded-lg w-full">
               {businesses.length === 0 ? (
                  <>
                    <div className="mt-20">
