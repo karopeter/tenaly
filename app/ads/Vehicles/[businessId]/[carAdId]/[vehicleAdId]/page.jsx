@@ -6,8 +6,6 @@ import Img from '@/app/components/Image';
 import Link from "next/link";
 import { carColors } from '@/app/lib/carData';
 import Button from '@/app/components/Button';
-import ReviewsDetailsPage from '@/app/components/features/reviews-details';
-import SignUpModal from '@/app/hooks/signup-modal';
 import { toast } from 'react-toastify';
 
 export default function CarAdDetails() {
@@ -116,15 +114,6 @@ export default function CarAdDetails() {
             )}
           </div>
           <div className="flex items-center space-x-3">
-         {/* <button className="cursor-pointer">
-               <Img 
-                 src="/bookmark.svg"
-                 alt="BookMark"
-                 width={44}
-                 height={44}
-                 className="w-[36px] h-[36px] md:w-[44px] md:h-[44px]"
-              />
-            </button> */}
             <button 
              className="cursor-pointer"
              onClick={() => {
@@ -622,13 +611,16 @@ export default function CarAdDetails() {
     <div className="block md:hidden mt-4">
       {/* Central Auto Cars Section */}
      <div className="border-[1px] border-[#EDEDED] w-full rounded-[8px] p-4">
-  <div className="flex gap-3 items-center">
+  <div className="flex gap-3">
     <Img
       src={userProfile?.image || "/profile-placeholder.png"}
       alt="Profile Image"
       width={52}
       height={52}
       className="w-[40px] h-[40px] rounded-full"
+       onError={(e) => {
+         e.currentTarget.src = "/profile-circles1.svg"; 
+       }}
     />
     <div className="flex flex-col justify-center">
       <Link href="/" className="underline">
@@ -723,13 +715,16 @@ export default function CarAdDetails() {
        <div 
   className="border-[1px] border-[#EDEDED] md:w-[330px] md:rounded-[8px] mt-5 p-4"
 >
-  <div className="flex gap-3 items-center">
+  <div className="flex gap-3">
     <Img
       src={userProfile?.image || "/profile-placeholder.png"}
       alt="Profile Image"
       width={52}
       height={52}
       className="md:w-[52px] md:h-[52px] rounded-full"
+       onError={(e) => {
+        e.currentTarget.src = "/profile-circles1.svg"; 
+      }}
     />
     <div className="flex flex-col justify-center">
       <Link href="/" className="underline">

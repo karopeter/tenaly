@@ -21,6 +21,7 @@ export default function AddCarPostContent() {
   const [businessesLoaded, setBusinessesLoaded] = useState(false);
   const [adsLoaded, setAdsLoaded] = useState(false);
   const [error, setError] = useState("");
+  const [markingSold, setMarkingSold] = useState(null);
   const machineImage = "/machineGun.svg";
 
   useEffect(() => {
@@ -143,47 +144,138 @@ export default function AddCarPostContent() {
     }
   };
 
-  const handleMarkVehicleAsSold = async (vehicleId) => {
-    const confirmed = window.confirm("Are you sure you want to mark this vehicle as sold?");
-    if (!confirmed) return;
+const handleMarkVehicleAsSold = async (vehicleId, carAdId) => {
+  const confirmed = window.confirm("Are you sure you want to mark this vehicle as sold?");
+  if (!confirmed) return;
 
-    try {
-      await api.patch(`/vehicles/mark-vehicle-as-sold/${vehicleId}`);
-      setVehicleAds((prev) =>
-        prev.map(({ adId, carAd, vehicleAd }) => 
-          vehicleAd?._id === vehicleId 
-            ? { adId, carAd, vehicleAd: { ...vehicleAd, status: 'sold' } }
-            : { adId, carAd, vehicleAd }
-        )
-      );
-      toast.success("Vehicle marked as sold successfully.");
-      setShowMenu(null);
-    } catch (error) {
-      console.error("Error marking vehicle as sold:", error);
-      toast.error("Failed to mark vehicle as sold.");
+  try {
+    setMarkingSold(vehicleId);
+    setShowMenu(null);
+
+    await api.patch(`/vehicles/mark-vehicle-as-sold/${vehicleId}`);
+
+    if (carAdId) {
+      try {
+        await api.delete(`/carAdd/delete-car-ad/${carAdId}`);
+      } catch (delErr) {
+        console.warn("Failed to delete linked carAd:", delErr);
+      }
     }
-  };
 
-  const handleMarkPropertyAsSold = async (propertyId) => {
-    const confirmed = window.confirm("Are you sure you want to mark this property as sold?");
-    if (!confirmed) return;
+    setVehicleAds((prev) =>
+      prev.map(({ adId, carAd, vehicleAd }) =>
+        vehicleAd?._id === vehicleId
+          ? { adId, carAd: null, vehicleAd: { ...vehicleAd, status: "sold" } }
+          : { adId, carAd, vehicleAd }
+      )
+    );
 
-    try {
-      await api.patch(`/property/mark-property-as-sold/${propertyId}`);
-      setPropertyAds((prev) =>
-        prev.map(({ adId, carAd, propertyAd }) => 
-          propertyAd?._id === propertyId 
-            ? { adId, carAd, propertyAd: { ...propertyAd, status: 'sold' } }
-            : { adId, carAd, propertyAd }
-        )
-      );
-      toast.success("Property marked as sold successfully.");
-      setShowMenu(null);
-    } catch (error) {
-      console.error("Error marking property as sold:", error);
-      toast.error("Failed to mark property as sold.");
+    toast.success("Vehicle marked as sold.");
+  } catch (error) {
+    console.error("Error marking vehicle as sold:", error);
+    const message =
+      error?.response?.data?.message || error?.message || "Failed to mark vehicle as sold.";
+    toast.error(message);
+  } finally {
+    setMarkingSold(null);
+  }
+};
+
+  const handleMarkPropertyAsSold = async (propertyId, carAdId) => {
+  const confirmed = window.confirm("Are you sure you want to mark this property as sold?");
+  if (!confirmed) return;
+
+  // mark which ad is being processed so UI can show spinner / disable button
+  setMarkingSold(propertyId);
+  setShowMenu(null);
+
+  try {
+    console.log("Marking property as sold with propertyId:", propertyId);
+
+    // call API to mark property as sold
+    const response = await api.patch(`/property/mark-property-as-sold/${propertyId}`);
+
+    // if there is a linked carAd, delete it (optional - remove if not desired)
+    if (carAdId) {
+      try {
+        await api.delete(`/carAdd/delete-car-ad/${carAdId}`);
+      } catch (delErr) {
+        console.warn("Failed to delete linked carAd:", delErr);
+        // not fatal — continue
+      }
     }
-  };
+
+    // update local state so UI reflects "sold"
+    setPropertyAds((prev) =>
+      prev.map(({ adId, carAd, propertyAd }) =>
+        propertyAd?._id === propertyId
+          ? { adId, carAd: null, propertyAd: { ...propertyAd, status: "sold" } }
+          : { adId, carAd, propertyAd }
+      )
+    );
+
+    toast.success("Property marked as sold.");
+  } catch (error) {
+    console.error("Error marking property as sold:", error);
+    const message =
+      error?.response?.data?.message || error?.message || "Failed to mark property as sold.";
+    toast.error(message);
+  } finally {
+    setMarkingSold(null);
+  }
+};
+
+
+  // const handleMarkPropertyAsSold = async (propertyId, carAdId) => {
+  //    const confirmed = window.confirm("Are you sure you want to mark this property as sold?");
+  //    if (!confirmed) return;
+
+  //    setMarkingSold(adId);
+  //    setShowMenu(null);
+
+  //    try {
+  //     console.log("Marking property as sold with adId:", propertyId);
+
+  //     const response = await api.patch(`/property/mark-property-as-sold/${propertyId}`);
+
+  //     // Delete linked carAd if exists 
+  //     if (carAdId) {
+  //       await api.delete(`/carAdd/delete-car-ad/${carAdId}`);
+  //     }
+
+  //     // Update state
+  //     setPropertyAds((prev) => 
+  //       prev.map(({ adId, carAd, propertyAd }) => 
+  //         propertyAd?._id === propertyId 
+  //         ? { adId, carAd: null, propertyAd: { ...propertyAd, status: "sold" }}
+  //         : { adId, carAd, propertyAd }));
+
+  //         toast.success("Property marked as sold and carAd deleted.");
+
+  //     // if (response.data.success) {
+  //     //   setPropertyAds((prev) => 
+  //     //   prev.map(({ adId: currentAdId, carAd, propertyAd}) => {
+  //     //     if (currentAdId === adId && propertyAd) {
+  //     //       return {
+  //     //         adId: currentAdId,
+  //     //         carAd,
+  //     //         propertyAd: {...propertyAd, status: 'sold' } 
+  //     //       };
+  //     //     }
+  //     //     return { adId: currentAdId, carAd, propertyAd };
+  //     //   }));
+
+  //     //   toast.success("Property marked as sold successfully");
+  //     // } else {
+  //     //   toast.error(response.data.message || "Failed to mark property as sold.");
+  //     // }
+  //    } catch (error) {
+  //       console.error("Error marking property as sold:", error);
+  //       toast.error(response.data.message || "Failed to mark property as sold.");
+  //    } finally {
+  //      setMarkingSold(null);
+  //    }
+  // };
 
   const totalAds = vehicleAds.length + propertyAds.length;
 
@@ -419,7 +511,7 @@ export default function AddCarPostContent() {
                                   {vehicleAd?.status !== 'sold' && (
                                     <button
                                       className="flex items-center w-full px-4 py-2 text-[16px] font-inter font-[400] text-[#525252] hover:bg-[#F7F7FF]"
-                                      onClick={() => handleMarkVehicleAsSold(vehicleAd?._id)}
+                                      onClick={() => handleMarkVehicleAsSold(vehicleAd?._id, carAd?._id)}
                                     >
                                       <FiCheck className="mr-2" /> Mark As Sold
                                     </button>
@@ -466,6 +558,7 @@ export default function AddCarPostContent() {
                   {propertyAds.map(({ adId, carAd, propertyAd }) => {
                     const businessId = carAd?.businessCategory?._id || propertyAd?.businessCategory;
                     const propertyId = propertyAd?._id;
+                    const isMarkingSold = markingSold === adId;
 
                     return (
                       <div
@@ -581,10 +674,11 @@ export default function AddCarPostContent() {
 
                                   {propertyAd?.status !== 'sold' && (
                                     <button
-                                      className="flex items-center w-full px-4 py-2 text-[16px] font-inter font-[400] text-[#525252] hover:bg-[#F7F7FF]"
-                                      onClick={() => handleMarkPropertyAsSold(propertyAd?._id)}
-                                    >
-                                      <FiCheck className="mr-2" /> Mark As Sold
+                                    className="flex items-center w-full px-4 py-2 text-[16px] font-inter font-[400] text-[#525252] hover:bg-[#F7F7FF]"
+                                      onClick={() => handleMarkPropertyAsSold(propertyAd?._id, carAd?._id)}
+                                      disabled={markingSold === adId}  
+                                      >
+                                      {markingSold === adId ? <Spinner/> : <><FiCheck className="mr-2" /> Mark As Sold</>}
                                     </button>
                                   )}
 
