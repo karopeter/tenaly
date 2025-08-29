@@ -34,7 +34,6 @@ export default function Content({ activeSection, setActiveSection, isMobile }) {
   };
 
   const renderContent = () => {
-    // If no activeSection is selected, show Create Car by default
     if (!activeSection) {
       return sectionComponents["Apartment Sale"];
     }

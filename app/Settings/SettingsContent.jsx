@@ -10,9 +10,9 @@ export default function SettingsContent() {
 
   return (
     <div 
-      className="bg-white shadow-phenom md:rounded-[12px] md:p-4 w-full mx-auto md:max-w-[600px] mt-20 md:mt-0">
+      className="bg-white w-full max-w-full shadow-phenom md:rounded-[12px] mt-20 md:p-4 md:max-w-[600px] md:mx-auto md:mt-0">
       {/* Heading */}
-      <h2 className="text-[#525252] font-[500] font-inter text-[18px] md:text-[24px] mb-6">
+      <h2 className="hidden md:block text-[#525252] font-[500] font-inter text-[18px] md:text-[24px] mb-6">
         Settings
       </h2>
 
