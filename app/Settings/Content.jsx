@@ -73,8 +73,8 @@ export default function Content({ activeSection, setActiveSection, isMobile }) {
           onClick={handleBackToMenu}
           className="text-[#000087] mb-4 flex mt-5 items-center gap-2 md:hidden"
         >
-           <ArrowLeft size={20} />
-          {activeSection}  
+           {/* <ArrowLeft size={20} />
+          {activeSection}   */}
         </button>
       )}
 
