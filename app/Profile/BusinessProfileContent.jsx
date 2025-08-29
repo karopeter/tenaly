@@ -10,10 +10,9 @@ import EditBussinessPage from "../components/BusinessForm/editBusiness";
 import AddBusinessDetails from "../components/addBusinessDetails/add-business-details";
 import EditDeliveryForm from "../components/BusinessForm/edit-delivery-form";
 
-
 export default function BusinessProfileContent() {
-  const [currentView, setCurrentView] = useState("Business");
-  const [selectedBusinessId, setSelectedBusinessId] = useState(null); 
+  const [currentView, setCurrentView] = useState("addBusiness");
+  const [selectedBusinessId, setSelectedBusinessId] = useState(null);
 
   const handleViewChange = (view, businessId = null) => {
     setSelectedBusinessId(businessId);
@@ -22,34 +21,70 @@ export default function BusinessProfileContent() {
 
   const renderCurrentView = () => {
     switch (currentView) {
-      case "Business":
+      case "addBusiness":
         return <AddBusiness onViewChange={handleViewChange} />;
       case "addForm":
-        return <BusinessForm onBack={() => handleViewChange("Business")} />;
+        return <BusinessForm onBack={() => handleViewChange("addBusiness")} />;
       case "addBusinessHours":
-        return <AddBusinessHourss businessId={selectedBusinessId} onBack={() => handleViewChange("Business")} />;
+        return (
+          <AddBusinessHourss
+            businessId={selectedBusinessId}
+            onBack={() => handleViewChange("Business")}
+          />
+        );
       case "businessHoursForm":
-        return <BusinessHoursForm businessId={selectedBusinessId} onBack={() => handleViewChange("addBusinessHours")} />;
+        return (
+          <BusinessHoursForm
+            businessId={selectedBusinessId}
+            onBack={() => handleViewChange("addBusinessHours")}
+          />
+        );
       case "editBusinessHour":
-        return <EditBusinessForm businessId={selectedBusinessId} onBack={() => handleViewChange("addBusinessHours")} />;
+        return (
+          <EditBusinessForm
+            businessId={selectedBusinessId}
+            onBack={() => handleViewChange("addBusinessHours")}
+          />
+        );
       case "editBusinessDetails":
-        return <EditBussinessPage businessId={selectedBusinessId} onBack={() => handleViewChange("dashboard")} />;
+        return (
+          <EditBussinessPage
+            businessId={selectedBusinessId}
+            onBack={() => handleViewChange("dashboard")}
+          />
+        );
       case "addBusinessDetails":
-        return <AddBusinessDetails businessId={selectedBusinessId} onBack={() => handleViewChange("dashboard")} />;
+        return (
+          <AddBusinessDetails
+            businessId={selectedBusinessId}
+            onBack={() => handleViewChange("dashboard")}
+          />
+        );
       case "addBusinessDetailsForm":
-        return <AddBusinessDetails onBack={() => handleViewChange("addBusinessDetails")} businessId={selectedBusinessId} />;
+        return (
+          <AddBusinessDetails
+            onBack={() => handleViewChange("addBusinessDetails")}
+            businessId={selectedBusinessId}
+          />
+        );
       case "addBussinessDelivery":
-        return <BusinessDeliveryForm businessId={selectedBusinessId} onBack={() => handleViewChange("addBusinessDetails")} />;
+        return (
+          <BusinessDeliveryForm
+            businessId={selectedBusinessId}
+            onBack={() => handleViewChange("addBusinessDetails")}
+          />
+        );
       case "editDeliveryForm":
-        return <EditDeliveryForm businessId={selectedBusinessId} onBack={() => handleViewChange("addBusinessDetails")} />;
+        return (
+          <EditDeliveryForm
+            businessId={selectedBusinessId}
+            onBack={() => handleViewChange("addBusinessDetails")}
+          />
+        );
       default:
         return <AddBusiness onViewChange={handleViewChange} />;
     }
   };
 
-  return (
-    <div>
-      {renderCurrentView()}
-    </div>
-  );
+  return <div>{renderCurrentView()}</div>;
 }

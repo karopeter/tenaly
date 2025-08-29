@@ -4,11 +4,7 @@ import { useParams } from "next/navigation";
 import api from '@/services/api';
 import Img from '@/app/components/Image';
 import Link from "next/link";
-import { carColors } from '@/app/lib/carData';
 import Button from '@/app/components/Button';
-import MessageSellerButton from '@/app/components/UI/messageSeller';
-import SignUpModal from '@/app/hooks/signup-modal';
-import { toast } from "react-toastify";
 
 export default function PropertyDetailsPage() {
   const [activeTab, setActiveTab] = useState("car");
@@ -82,19 +78,17 @@ export default function PropertyDetailsPage() {
 
   const handleSendOffer = () => {
     if (!offerAmount) return toast.error("Please enter an Amount!");
-    console.log("Offer sent:", offerAmount); // replace with actual API call 
+    console.log("Offer sent:", offerAmount); 
     setShowInput(false);
     setOfferAmount("");
   }
 
-   // Helper function to handle image source from a full URL or a relative path
+   
   const getImageSrc = (imagePath) => {
     if (!imagePath) return '';
-    // Check if the path is a full URL (e.g., from Cloudinary)
     if (imagePath.startsWith('http') || imagePath.startsWith('https')) {
       return imagePath;
     }
-    // Otherwise, assume it's a relative path from the backend
     return `${process.env.NEXT_PUBLIC_BACKEND_URL}/${imagePath.replace(/\\/g, "/")}`;
   };
 
@@ -117,11 +111,6 @@ export default function PropertyDetailsPage() {
         <Link href="/Product-List" className="hover:text-[#000] transition-all whitespace-nowrap">
           Home&nbsp;&rsaquo;
         </Link>
-        {/* {carAd && (
-          <Link href="/cars" className="text-[#868686] text-[13px] md:text-[14px] font-[400] font-inter whitespace-nowrap">
-            {carAd.category}
-          </Link>
-        )} */}
         {propertyAd && (
           <span  className="text-[#000087] text-[13px] md:text-[14px] font-[500] font-inter whitespace-nowrap">
             {propertyAd.propertyName} {propertyAd.furnishing}
@@ -138,15 +127,6 @@ export default function PropertyDetailsPage() {
             )}
          </div>
          <div className="flex items-center space-x-3">
-            {/* <button className="cursor-pointer">
-               <Img 
-                 src="/bookmark.svg"
-                 alt="BookMark"
-                 width={44}
-                 height={44}
-                 className="w-[36px] h-[36px] md:w-[44px] md:h-[44px]"
-              />
-            </button> */}
             <button 
              className="cursor-pointer"
              onClick={() => {
@@ -592,13 +572,16 @@ export default function PropertyDetailsPage() {
     <div className="block md:hidden mt-4">
       {/* Central Auto Cars Section */}
     <div className="border-[1px] border-[#EDEDED] w-full rounded-[8px] p-4">
-  <div className="flex gap-3 items-center">
+  <div className="flex gap-3">
     <Img
       src={userProfile?.image || "/profile-placeholder.png"}
       alt="Profile Image"
       width={52}
       height={52}
       className="w-[40px] h-[40px] rounded-full"
+       onError={(e) => {
+         e.currentTarget.src = "/profile-circles1.svg"; 
+       }}
     />
     <div className="flex flex-col justify-center">
       <Link href="/" className="underline">
@@ -690,17 +673,18 @@ export default function PropertyDetailsPage() {
    </div>
       </div>
        <div className="hidden md:block">
-       <div 
-  className="border-[1px] border-[#EDEDED] md:w-[330px] md:rounded-[8px] mt-5 p-4"
->
-  <div className="flex gap-3 items-center">
-    <Img
-      src={userProfile?.image || "/profile-placeholder.png"}
-      alt="Profile Image"
-      width={52}
-      height={52}
-      className="md:w-[52px] md:h-[52px] rounded-full"
-    />
+       <div  className="border-[1px] border-[#EDEDED] md:w-[330px] md:rounded-[8px] mt-5 p-4">
+        <div className="flex gap-3">
+       <Img
+         src={userProfile?.image || "/profile-placeholder.png"}
+         alt="Profile Image"
+         width={52}
+        height={52}
+       className="md:w-[52px] md:h-[52px] rounded-full"
+       onError={(e) => {
+         e.currentTarget.src = "/profile-circles1.svg"; 
+       }}
+     />
     <div className="flex flex-col justify-center">
       <Link href="/" className="underline">
         <span className="text-[#000000] whitespace-nowrap md:text-[18px] font-[500] font-inter">
