@@ -174,7 +174,7 @@ export default function FrequentlyAskedQuestionsContent() {
 
       {/* FAQ Section */}
       <div className="mt-5 flex flex-col items-start space-y-6">
-        <div className="mt-5 mx-auto md:ml-28">
+        <div className="w-full">
           {faqData.map((section, sectionIndex) => (
             <div key={sectionIndex}>
               <h3 className="text-[#000087] text-[16px] font-[500] font-inter mb-2">
@@ -184,7 +184,7 @@ export default function FrequentlyAskedQuestionsContent() {
               {section.faqs.map((item, index) => (
                 <div key={index}>
                   <div
-                    className="flex justify-between items-center mb-4 cursor-pointer border-b border-[#ccc] py-3"
+                    className="flex justify-between items-center mb-4 cursor-pointer border-b border-[#ccc] py-4"
                     onClick={() => toggleFAQ(section.heading, index)}
                   >
                     <span className="text-[#525252] font-[500] font-inter text-[14px]">
