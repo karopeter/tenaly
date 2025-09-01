@@ -9,6 +9,8 @@ import { SellerPhoneDisplay } from "../../components/features/sellerPhoneDisplay
 import {SellerInfo} from "../../components/features/SellerInfo";
 import MessageSellerButton from "@/app/components/UI/messageSeller";
 import { SellerImage } from "@/app/components/features/sellerImage";
+import ReportListingModal from "@/app/components/ReportListingModal/page";
+import { reportService } from "@/services/reportService";
 import { toast } from "react-toastify";
 import { useAuth } from "@/app/context/AuthContext";
 
@@ -27,6 +29,7 @@ export default function HomeListDetails() {
   const [showSignInModal, setShowSignInModal] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [bookmarkLoading, setBookmarkLoading] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
   const { openAuthModal, isLoggedIn, profile } = useAuth();
 
   // Placeholder image for when a real image fails to load
@@ -117,27 +120,34 @@ export default function HomeListDetails() {
   }
 };
 
+const handleReportSubmit = async (reportData) => {
+   try {
+       const response = await reportService.submitReport(reportData);
 
-  // const handleBookmark = async () => {
-  //   if (!isLoggedIn) {
-  //     setShowSignUpModal(true); 
-  //     return;
-  //   }
+       if (response.success) {
+        toast.success(response.message || 'Report submitted successfully. Thank you for helping keep our platform safe.');
+        setShowReportModal(false);
+       } else {
+        throw new Error(response.message || 'Failed to submit report');
+       }
+   } catch (error) {
+      console.error("Error submitting report:", error);
 
-  //   try {
-  //     setBookmarkLoading(true);
-  //     const res = await api.post(`/bookmark/bookmarkAd/${id}`);
-  //     if (res.data.success) {
-  //       setIsBookmarked(true);
-  //       toast.success("Added to bookmarks!");
-  //     }
-  //   } catch (err) {
-  //     console.error("Error bookmarking:", err);
-  //     toast.error(err?.response?.data?.message || "Failed to add bookmark");
-  //   } finally {
-  //     setBookmarkLoading(false);
-  //   }
-  // };
+      let errorMessage = 'Failed to submit report. Please try again.';
+
+      if (error.response?.status === 400) {
+        errorMessage = error.response.data.message || 'Invalid report data. Please check Your inputs.';
+      } else if (error.response?.status === 404) {
+        errorMessage = 'Product not found. It may have been removed.';
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      }
+
+      toast.error(errorMessage);
+
+      throw error;
+   }
+};
 
   const handleSendOffer = () => {
     if (!offerAmount) return toast.error("Please enter an Amount");
@@ -214,7 +224,8 @@ const productImage =
 
 
   return (
-    <div className="md:px-[104px] px-4 md:ml-10">
+    <>
+       <div className="md:px-[104px] px-4 md:ml-10">
       <div className="mt-28 flex items-center gap-2 mb-4 text-[#868686] md:text-[14px] font-[400] font-inter flex-nowrap">
         <Link href="/Product-List" className="hover:text-[#000] transition-all whitespace-nowrap">
           Home&nbsp;&rsaquo;
@@ -914,7 +925,10 @@ const productImage =
     </div>
     <div className="mt-4">
       <Button
-        className="flex items-center justify-center gap-2 bg-[#F8EFEF] w-full h-[40px] rounded-[8px] text-[#CB0D0D] text-[12px] font-inter font-[400]"
+       onClick={() => setShowReportModal(true)}
+        className="flex items-center justify-center gap-2
+         bg-[#F8EFEF] w-full h-[40px] rounded-[8px] t
+         ext-[#CB0D0D] text-[12px] font-inter font-[400]"
       >
         <Img
           src="/flag.svg"
@@ -1073,6 +1087,7 @@ const productImage =
               </div>
               <div className="mt-4">
             <Button 
+               onClick={() => setShowReportModal(true)}
                className="flex items-center justify-center 
                gap-2 bg-[#F8EFEF] md:w-[300px]
                md:h-[52px] md:rounded-[8px] text-[#CB0D0D] md:text-[12px] font-inter font-[400]">
@@ -1092,5 +1107,13 @@ const productImage =
      </div>
    </div>
     </div>
+     
+     <ReportListingModal
+      isOpen={showReportModal}
+      onClose={() => setShowReportModal(false)}
+      productId={id}
+      onSubmit={handleReportSubmit}
+     />
+    </>
   );
 }

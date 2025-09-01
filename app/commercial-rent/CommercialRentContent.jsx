@@ -362,12 +362,13 @@ const handlePaystackPayment = useCallback(async () => {
       console.log("Using existing paid plan:", highestPlan);
       toast.success(`Post created successfully Using your existing ${highestPlan} plan to post this ad.`);
       router.push('/view-property-add');
-      await submitAd(highestPlan, false); // Use existing plan, no payment needed
+      await submitAd(highestPlan, false); 
     } else {
       // User has no paid plans, show promote modal
       console.log("No paid plans found, showing promote modal");
       setSelectedPlan("basic");
       setShowModalPromote(true);
+      return;
     }
   }, [profile, submitAd, propertyName, propertyAddress, propertyType, amount]);
 

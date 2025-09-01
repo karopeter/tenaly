@@ -347,8 +347,9 @@ export default function MorePostCarContent() {
     setSelectedPlan(highestPlan === "free" ? "basic" : highestPlan);
 
     if (highestPlan === "free") {
-      // Show promote modal for users without paid plans
+      setSelectedPlan("basic");
       setShowModalPromote(true);
+      return;
     } else {
       // User has existing paid plan - use it directly
       const planCost = planAmounts[highestPlan] || 0;
