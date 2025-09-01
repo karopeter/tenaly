@@ -136,9 +136,9 @@ export default function Navbar() {
                   )}
                 </Link>
                 </div>
-                <Link href="/">
+                <Link href="/Premium">
                   <Img 
-                    src="/crown.svg"
+                    src="/crown2.svg"
                     alt="Crown"
                     width={44}
                     height={44}

@@ -123,7 +123,7 @@ export default function WalletContent() {
       });
       const verifyData = verifyRes.data;
 
-      if (verifyRes.status === 200) {
+      if (verifyData.status === 200) {
         alert("Wallet topped up successfully!");
         setWalletBalance(verifyData.walletBalance);
         setAmount("");
