@@ -281,9 +281,9 @@ const productImage =
         <Img
           src={isBookmarked ? "/bookmark-filled.svg" : "/bookmark.svg"}
           alt="Bookmark"
-          width={44}
-         height={44}
-        className="w-[36px] h-[36px] md:w-[44px] md:h-[44px]"
+          width={20}
+         height={20}
+        className="w-5 h-5 md:w-10 md:h-10"
         />
         </button>
 

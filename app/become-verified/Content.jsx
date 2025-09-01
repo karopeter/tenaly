@@ -56,8 +56,8 @@ export default function Content({ activeSection, setActiveSection, isMobile }) {
           onClick={handleBackToMenu}
           className="text-[#525252] mb-4 mt-5 flex items-center gap-2 md:hidden"
         >
-          <ArrowLeft size={20} />
-          Become Verfied
+          {/* <ArrowLeft size={20} />
+          Become Verfied */}
         </button>
       )}
 

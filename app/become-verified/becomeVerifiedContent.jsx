@@ -162,7 +162,7 @@ export default function BecomeVerifiedContent() {
   // Verification successful state
  if (verificationStatus === 'verified') {
     return (
-      <div className="bg-white  shadow-phenom md:rounded-[12px] p-4 md:p-8 mt-5 md:mt-0 w-full">
+      <div className="bg-white shadow-phenom md:rounded-[12px] p-4 md:p-8 mt-5 md:mt-0 w-full">
          <button
          onClick={handleGoBack}
           className="hidden md:flex items-center space-x-2 text-[#525252] hover:text-[#5555DD] transition-colors">

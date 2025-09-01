@@ -188,7 +188,7 @@ export default function CreateCarContent() {
 
   return (
     <div className="">
-      <div className="bg-white shadow-phenom md:rounded-[12px] p-10 text-center">
+      <div className="bg-white md:shadow-phenom md:rounded-[12px] p-10 text-center">
         <h2 className="text-[#525252] font-[500] md:text-[16px] mb-6">Post your Ad</h2>
 
         <form onSubmit={handleSubmit}>

@@ -48,7 +48,7 @@ export default function MainCategoryDropdown({ value, onChange }) {
           setOpen((prev) => !prev);
           setType(null);
         }}
-        className="border border-[#CDCDD7] h-[52px] rounded-[4px] px-3 flex justify-between items-center cursor-pointer bg-white"
+        className="border border-[#CDCDD7] w-full h-[52px] rounded-[4px] px-3 flex justify-between items-center cursor-pointer bg-white"
       >
         <span className="text-[#525252]">{value || "Select Category"}</span>
         {open ? (
