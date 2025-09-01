@@ -121,32 +121,7 @@ export default function HomeListDetails() {
 };
 
 const handleReportSubmit = async (reportData) => {
-   try {
-       const response = await reportService.submitReport(reportData);
-
-       if (response.success) {
-        toast.success(response.message || 'Report submitted successfully. Thank you for helping keep our platform safe.');
-        setShowReportModal(false);
-       } else {
-        throw new Error(response.message || 'Failed to submit report');
-       }
-   } catch (error) {
-      console.error("Error submitting report:", error);
-
-      let errorMessage = 'Failed to submit report. Please try again.';
-
-      if (error.response?.status === 400) {
-        errorMessage = error.response.data.message || 'Invalid report data. Please check Your inputs.';
-      } else if (error.response?.status === 404) {
-        errorMessage = 'Product not found. It may have been removed.';
-      } else if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      }
-
-      toast.error(errorMessage);
-
-      throw error;
-   }
+   console.log("Report submitted", reportData);
 };
 
   const handleSendOffer = () => {
