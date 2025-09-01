@@ -9,7 +9,7 @@ import { SellerPhoneDisplay } from "../../components/features/sellerPhoneDisplay
 import {SellerInfo} from "../../components/features/SellerInfo";
 import MessageSellerButton from "@/app/components/UI/messageSeller";
 import { SellerImage } from "@/app/components/features/sellerImage";
-import ReportListingModal from "@/app/components/ReportListingModal/page";
+import ReportListingModal from "@/app/components/ReportListingModal/reportListingModal";
 import { reportService } from "@/services/reportService";
 import { toast } from "react-toastify";
 import { useAuth } from "@/app/context/AuthContext";
