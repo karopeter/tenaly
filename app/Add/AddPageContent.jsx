@@ -185,7 +185,6 @@ const handleMarkVehicleAsSold = async (vehicleId, carAdId) => {
   const confirmed = window.confirm("Are you sure you want to mark this property as sold?");
   if (!confirmed) return;
 
-  // mark which ad is being processed so UI can show spinner / disable button
   setMarkingSold(propertyId);
   setShowMenu(null);
 
@@ -224,58 +223,6 @@ const handleMarkVehicleAsSold = async (vehicleId, carAdId) => {
     setMarkingSold(null);
   }
 };
-
-
-  // const handleMarkPropertyAsSold = async (propertyId, carAdId) => {
-  //    const confirmed = window.confirm("Are you sure you want to mark this property as sold?");
-  //    if (!confirmed) return;
-
-  //    setMarkingSold(adId);
-  //    setShowMenu(null);
-
-  //    try {
-  //     console.log("Marking property as sold with adId:", propertyId);
-
-  //     const response = await api.patch(`/property/mark-property-as-sold/${propertyId}`);
-
-  //     // Delete linked carAd if exists 
-  //     if (carAdId) {
-  //       await api.delete(`/carAdd/delete-car-ad/${carAdId}`);
-  //     }
-
-  //     // Update state
-  //     setPropertyAds((prev) => 
-  //       prev.map(({ adId, carAd, propertyAd }) => 
-  //         propertyAd?._id === propertyId 
-  //         ? { adId, carAd: null, propertyAd: { ...propertyAd, status: "sold" }}
-  //         : { adId, carAd, propertyAd }));
-
-  //         toast.success("Property marked as sold and carAd deleted.");
-
-  //     // if (response.data.success) {
-  //     //   setPropertyAds((prev) => 
-  //     //   prev.map(({ adId: currentAdId, carAd, propertyAd}) => {
-  //     //     if (currentAdId === adId && propertyAd) {
-  //     //       return {
-  //     //         adId: currentAdId,
-  //     //         carAd,
-  //     //         propertyAd: {...propertyAd, status: 'sold' } 
-  //     //       };
-  //     //     }
-  //     //     return { adId: currentAdId, carAd, propertyAd };
-  //     //   }));
-
-  //     //   toast.success("Property marked as sold successfully");
-  //     // } else {
-  //     //   toast.error(response.data.message || "Failed to mark property as sold.");
-  //     // }
-  //    } catch (error) {
-  //       console.error("Error marking property as sold:", error);
-  //       toast.error(response.data.message || "Failed to mark property as sold.");
-  //    } finally {
-  //      setMarkingSold(null);
-  //    }
-  // };
 
   const totalAds = vehicleAds.length + propertyAds.length;
 
