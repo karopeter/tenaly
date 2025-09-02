@@ -1347,7 +1347,7 @@ export const footerData = [
     title: "Company",
     links: [
       { label: "About Us", href: "/About-Us"},
-      { label: "Terms & Conditions", href: "/Terms" },
+      { label: "Terms & Conditions", href: "/terms-condition" },
       { label: "Privacy Policy", href: "/privacy-policy" },
       { label: "Billing Policy", href: "/billings" },
     ]

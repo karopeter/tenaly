@@ -5,9 +5,6 @@ export default function TrendingSection() {
   return (
     <div className="mt-6 md:mt-10">
       <div className="container mx-auto px-4 sm:px-6 md:px-8 py-3 flex flex-wrap items-center justify-between gap-4">
-        <h2 className="text-[#2E2E2E] font-inter text-[16px] md:text-[20px] font-[500]">
-          Trending
-        </h2>
 
         {/* Filter Icons */}
         {/* <div className="flex items-center space-x-3">
