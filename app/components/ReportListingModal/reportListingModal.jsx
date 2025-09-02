@@ -80,25 +80,22 @@ const ReportListingModal = ({ isOpen, onClose, productId, onSubmit }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg w-full max-w-md mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between p-4">
-          <div>
-            <h2 className="text-[14px] font-medium text-[#525252] mb-2">
+        <div className="p-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-[14px] font-medium text-[#525252]">
               Report this listing
             </h2>
-            <p className="text-[#767676] text-[12px]">
-              Help us keep Tenaly safe and trustworthy
-            </p>
+            <button
+              onClick={onClose}
+             disabled={loading}
+             className="text-gray-400 hover:text-gray-600 transition-colors">
+             <X size={20} />
+            </button>
           </div>
-          <button
-            onClick={onClose}
-            disabled={loading}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            <X size={24} />
-          </button>
+          <p className="text-[#767676] text-[12px] mt-1 md:mt-4">
+           Help us keep Tenaly safe and trustworthy
+          </p>
         </div>
-
         {/* Form Content */}
         <div className="p-4">
           {/* Select Report Reason */}
