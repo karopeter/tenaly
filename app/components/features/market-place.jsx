@@ -338,7 +338,7 @@ export default function MarketPlace({ category, search, location }) {
         {propertyNewlyPosted.length > 0 && (
           <div>
             <h2 className="text-[14px] md:text-[20px] font-inter font-[500] font-normal text-[#2E2E2E]  mb-4">
-              Property New Posted
+              Property Newly Posted
             </h2>
             <ul className="grid gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {propertyNewlyPosted.map((item, index) =>
