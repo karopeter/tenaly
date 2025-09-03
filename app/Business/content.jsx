@@ -6,13 +6,14 @@ import FrequentlyAskedQuestions from "../Faq/page";
 import Bookmarked from "../Bookmarked/page";
 import Settings from "../Settings/page";
 import BusinessContent from "./BusinessContent";
-import CreateBusinessContent from "../create-business/CreateBusinessContent";
+import AddBusiness from "../components/addBusiness/add.business";
 import BusinessHourContent from "../BusinessHours/BusinessHourContent";
+import { ArrowLeft } from "lucide-react";
 
 const sectionComponents = {
   "Profile": <ProfilePageContent />,
   "My Ads": <AddCarPostContent />,
-  "Business": <CreateBusinessContent />,
+  "Business": <AddBusiness />,
   "Business Page": <BusinessContent />,
   "Business Hour": <BusinessHourContent />,
   "Analytics": <div><h2 className="text-xl font-bold mb-2">Analytics</h2><p>Comming Soon...</p></div>,
@@ -47,9 +48,9 @@ export default function Content({ activeSection, setActiveSection, isMobile }) {
             {isMobile && activeSection && (
                 <button
                     onClick={handleBackToMenu}
-                    className="text-blue-700 mb-4 flex items-center gap-2"
+                    className="text-[#525252]  mb-4 flex items-center gap-2"
                 >
-                    &larr; Back to Menu
+                 <ArrowLeft size={20} /> Go Back
                 </button>
             )}
 

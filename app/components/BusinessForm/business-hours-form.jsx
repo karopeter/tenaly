@@ -194,7 +194,16 @@ export default function BusinessHoursForm() {
       }
     };
 
-    if (loading) return <p className="text-center mt-20">Loading...</p>;
+    if (loading) {
+       return (
+       <section className="px-4 md:px-10 mt-10 flex flex-col items-center justify-center min-h-[200px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600 font-inter">Loading...</p>
+        </div>
+      </section>
+     );
+    }
 
     return (
       <>
@@ -234,16 +243,21 @@ export default function BusinessHoursForm() {
         <div className="flex-1 px-4 md:px-0 mt-10 md:mt-0">
           <div className="bg-white md:border md:border-[#EDEDED] p-4 w-full rounded-lg md:w-full">
              <div className="flex items-center gap-2 mb-4">
-              <button className="flex hidden md:block items-center gap-2" onClick={() => router.push('/BusinessHours')}>
-                <Img 
-                  src="/doc.svg"
-                  alt="Arrow Left"
-                  width={8}
-                  height={12}
-                  className="w-[8px] height-[12px]" />
-                  <span className="text-[#525252] font-[500] font-inter text-[14px]">Go Back</span>
-                </button>
-             </div>
+               <button
+                 onClick={() => router.push('/BusinessHours')}
+                 className="flex items-center gap-2 hidden md:flex">
+                <Img
+                 src="/doc.svg"
+                 alt="Arrow Left"
+                 width={8}
+                height={12}
+                className="w-[8px] h-[12px]"  
+              />
+             <span className="text-[#525252] font-[500] font-inter text-[14px]">
+               Go Back
+             </span>
+           </button>
+            </div>
 
              {mode === "same" && (
              <>

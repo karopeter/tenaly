@@ -230,11 +230,12 @@ const handleMarkVehicleAsSold = async (vehicleId, carAdId) => {
     <div className="p-4 md:p-8 rounded-[12px] bg-white shadow-phenom">
       {/* Loading state - only show when actually loading */}
       {loading && !adsLoaded && (
-        <div className="p-6 md:p-10 text-center rounded-lg">
-          <span className="text-[#525252] text-sm md:text-base font-[500] font-inter">
-            Loading your ads…
-          </span>
+         <section className="px-4 md:px-10 mt-10 flex flex-col items-center justify-center min-h-[200px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600 font-inter">Loading Ads..</p>
         </div>
+      </section>
       )}
 
       {/* Error state - only for critical errors like auth issues */}
