@@ -240,7 +240,7 @@ export default function MarketPlace({ category, search, location }) {
                     width={24}
                     height={24}
                   />
-                  <span className="text-[#000087] text-[12px] font-[400] font-inter uppercase truncate">
+                  <span className="text-[#000087] text-[10px] font-[400] font-inter uppercase">
                     {plan}
                   </span>
                 </div>
