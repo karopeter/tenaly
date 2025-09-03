@@ -4,7 +4,7 @@ import Img from "../Image";
 import HourSelectionModal from "../business/HourSelectionModal";
 import Button from "../Button";
 import BusinessLink from "../navbar/business.link";
-import { Plus, MoreVertical, MapPin, Clock, Pencil } from "lucide-react";
+import { Plus, MoreVertical, MapPin, Clock, Pencil, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import api from "@/services/api";
 import { toast } from "react-toastify";
@@ -181,7 +181,16 @@ export default function AddBusinessHourss() {
     }
   };
 
-  if (loading) return <div className="text-center mt-20">Loading...</div>;
+  if (loading) {
+    return (
+       <section className="px-4 md:px-10 mt-10 flex flex-col items-center justify-center min-h-[200px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600 font-inter">Loading Business Hour...</p>
+        </div>
+      </section>
+    )
+  }
 
   return (
     <div className="relative flex flex-col md:flex-row w-full gap-2 min-h-screen md:mt-4">

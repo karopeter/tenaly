@@ -12,7 +12,6 @@ export default function Bookmarked() {
     const handleResize = () => {
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
-      // Don't reset activeSection on desktop - keep it as "Create Car"
     };
 
     handleResize();

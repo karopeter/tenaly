@@ -11,9 +11,9 @@ import { toast } from "react-toastify";
 
 function BusinessCard({ biz, index }) {
   return (
-   <div className="bg-white border border-[#EDEDED] mt-2 rounded-lg w-full">
+   <div className="bg-white md:border md:border-[#EDEDED] mt-2 rounded-lg w-full">
         <div
-          className="border-b last:border-b-0 border-gray-200 md:pb-4 mb-4 last:mb-0"
+          className="border-b last:border-b-0 border-gray-200 md:p-4 md:pb-4 mb-4 last:mb-0"
         >
           <div className="flex justify-between w-full mt-5 items-center text-[#000087]  gap-2 text-sm font-medium">
               <span className="font-[500] font-inter text-[14px]">Business {index + 1}</span>
@@ -98,7 +98,16 @@ export default function AddBusiness() {
       fetchBusinesses();
     }, [businessId]);
 
-    if (loading) return <p className="text-center mt-20">Loading....</p>
+    if (loading) {
+      return (
+       <section className="px-4 md:px-10 mt-10 flex flex-col items-center justify-center min-h-[200px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600 font-inter">Loading Business Details</p>
+        </div>
+       </section>
+      );
+    }
 
     return (
     <div className="relative flex flex-col md:flex-row w-full gap-2 min-h-screen md:mt-4">
