@@ -481,11 +481,22 @@ const handleMarkVehicleAsSold = async (vehicleId, carAdId) => {
 
                           <div className="flex items-center gap-2 mt-2">
                             <Img src="/approval.svg" alt="Approval" width={18} height={21} />
-                            <span className={`text-[14px] font-[500] font-inter ${
-                              vehicleAd?.status === 'sold' ? 'text-[#10B981]' : 'text-[#FDBA40]'
-                            }`}>
-                              {vehicleAd?.status === 'sold' ? 'SOLD' : 'Awaiting approval'}
-                            </span>
+                            <span
+                              className={`text-[14px] font-[500] font-inter ${
+                              vehicleAd?.status === "sold"
+                                ? "text-[#10B981]" 
+                                : vehicleAd?.status === "rejected"
+                                ? "text-[#EF4444]" 
+                                : "text-[#FDBA40]" 
+                              }`}>
+                            {vehicleAd?.status === "sold"
+                              ? "SOLD"
+                               : vehicleAd?.status === "pending"
+                               ? "Awaiting approval"
+                               : vehicleAd?.status === "rejected"
+                               ? "Rejected"
+                               : "Unknown"}
+                             </span>
                           </div>
                         </div>
                       </div>
@@ -647,9 +658,19 @@ const handleMarkVehicleAsSold = async (vehicleId, carAdId) => {
                           <div className="flex items-center gap-2 mt-2">
                             <Img src="/approval.svg" alt="Approval" width={18} height={21} />
                             <span className={`text-[14px] font-[500] font-inter ${
-                              propertyAd?.status === 'sold' ? 'text-[#10B981]' : 'text-[#FDBA40]'
+                              propertyAd?.status === 'sold' 
+                              ? 'text-[#10B981]' 
+                              : propertyAd?.status === 'rejected'
+                              ? 'text-[#EF4444]'
+                              :  'text-[#FDBA40]'
                             }`}>
-                              {propertyAd?.status === 'sold' ? 'SOLD' : 'Awaiting approval'}
+                              {propertyAd?.status === "sold" 
+                              ? "SOLD" 
+                              : propertyAd?.status === "pending"
+                              ? "Awaiting Approval"
+                              : propertyAd?.status === "rejected"
+                              ? "Rejected"
+                              : "Unknown"}
                             </span>
                           </div>
                         </div>
