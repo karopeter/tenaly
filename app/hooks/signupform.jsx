@@ -10,6 +10,7 @@ import SignInModal from "./signin-modal";
 import api from "@/services/api";
 import { useAuth } from "../context/AuthContext";
 import CompleteProfileModal from "./complete-profile-modal";
+import BusinessOnbardingModal from "../components/BusinessOnboarding/BusinessOnboardingModal";
 
 export default function SignUpForm({ onClose }) {
   const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
@@ -86,6 +87,7 @@ export default function SignUpForm({ onClose }) {
       
       // Step 2: Redirect based on the user's role
       if (userProfile.role === "seller") {
+         localStorage.setItem("newSeller", "true");
         router.push("/Profile");
       } else {
         router.push("/Product-List");
@@ -121,6 +123,7 @@ export default function SignUpForm({ onClose }) {
         
         // Redirect based on the user's role
         if (newUser.role === "seller") {
+          localStorage.setItem("newSeller", "true");
           router.push("/Profile");
         } else {
           router.push("/Product-List");

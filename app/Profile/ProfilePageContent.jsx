@@ -4,8 +4,10 @@ import Button from "../components/Button";
 import { Camera, Pencil, XCircle } from "lucide-react";
 import api from "@/services/api";
 import InputField from "../components/input";
+import BusinessOnboardingModal from "../components/BusinessOnboarding/BusinessOnboardingModal";
 import { toast } from "react-toastify";
 import Img from "../components/Image";
+import { useRouter } from "next/navigation";
 
 export default function ProfilePageContent() {
   const [fetchedImage, setFetchedImage] = useState(null);
@@ -18,7 +20,18 @@ export default function ProfilePageContent() {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+     // Check localStorage or query flat if user is new seller 
+     const isNewSeller = localStorage.getItem("newSeller");
+     if (isNewSeller === "true") {
+       setShowOnboarding(true);
+       //localStorage.removeItem("newSeller");
+     }
+  }, []);
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -84,8 +97,20 @@ export default function ProfilePageContent() {
     setImageFile(null);
   };
 
+  const handleClose = () => {
+    setShowOnboarding(false);
+    localStorage.removeItem("newSeller"); 
+  };
+
+  const handleContinue = () => {
+    setShowOnboarding(false);
+    localStorage.removeItem("newSeller"); 
+    router.push("/create-business");
+  };
+
   return (
-    <form
+   <>
+      <form
       onSubmit={handleSubmit}
       className="bg-white md:shadow-phenom rounded-[12px] p-4 sm:p-6 md:p-8 w-full max-w-2xl mx-auto"
     >
@@ -211,5 +236,13 @@ export default function ProfilePageContent() {
         </div>
       )}
     </form>
+
+    {showOnboarding && (
+      <BusinessOnboardingModal
+        onClose={handleClose}
+        onContinue={handleContinue}
+      />
+    )}
+   </>
   );
 }

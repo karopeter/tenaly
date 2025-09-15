@@ -8,8 +8,10 @@ import Button from "../components/Button";
 import Img from "../components/Image";
 import ForgotPassword from "./forgot-password-model";
 import SignUpModal from "./signup-modal";
+import CompleteProfileModal from "./complete-profile-modal";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import { useAuth } from "../context/AuthContext";
+import BusinessOnbardingModal from "../components/BusinessOnboarding/BusinessOnboardingModal";
 import api from "@/services/api";
 
 export default function SignInForm({ onClose }) {
@@ -21,6 +23,8 @@ export default function SignInForm({ onClose }) {
   const { login } = useAuth();
   const [isPhoneSignIn, setIsPhoneSignIn] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false); 
+  const [completeProfileData, setCompleteProfileData] = useState(null);
+  const [businessOnboardingData, setBusinessOnboardingData] = useState(null);
 
   const [form, setForm] = useState({
     email: "",
@@ -110,38 +114,63 @@ export default function SignInForm({ onClose }) {
     }
   };
   
-  const handleGoogleSuccess = async (response) => {
-    try {
-      const { credential } = response; 
-      
-      if (!credential) {
-        toast.error("Google authentication failed: No credential received.");
-        return;
-      }
-      
-      // Use the API service to post the token
-      const authRes = await api.post("/auth/google-auth", { token: credential });
-      const { token: authToken, user: userProfile } = authRes.data;
 
-      // Directly log the user in. The CompleteProfileModal is for signup, not sign-in.
+  const handleGoogleSuccess = async (response) => {
+  try {
+    const { credential } = response; 
+    if (!credential) {
+      toast.error("Google authentication failed: No credential received.");
+      return;
+    }
+
+    // Call backend
+    const authRes = await api.post("/auth/google-auth", { token: credential });
+    const {
+      token: authToken,
+      user: userProfile,
+      profileComplete,
+      isNewGoogleUser
+    } = authRes.data;
+
+    if (isNewGoogleUser || !profileComplete) {
+      // First time Google signup → show Complete Profile
+      toast.success("Welcome! Please complete your profile to continue.");
+      setCompleteProfileData({ user: userProfile, token: authToken });
+    } else {
+      // Returning user → normal login
       login(userProfile, authToken);
       toast.success("Google authentication successful! 🎉 Welcome back!");
 
-      // Redirect logic based on the user's role
       if (userProfile.role === "seller") {
+         localStorage.setItem("newSeller", "true");
         router.push("/Profile");
       } else {
         router.push("/Product-List");
       }
-
-      onClose();
-      
-    } catch (error) {
-      console.error("Google auth error:", error);
-      toast.error(error.response?.data?.message || "Something went wrong with Google Sign-in. Please try again.");
+      onClose?.();
     }
-  };
+  } catch (error) {
+    console.error("Google auth error:", error);
+    toast.error(error.response?.data?.message || "Something went wrong with Google Sign-in. Please try again.");
+  }
+};
 
+
+ const handleCompleteProfileClose = (updatedUser, authToken) => {
+    if (updatedUser && authToken) {
+      login(updatedUser, authToken); 
+      toast.success("Profile completed successfully! 🎉 Welcome to Tenaly!");
+      
+      // Redirect based on the role selected in the modal
+      if (updatedUser.role === "seller") {
+        router.push("/Profile");
+      } else {
+        router.push("/Product-List");
+      }
+    }
+    setCompleteProfileData(null);
+    onClose?.();
+  };
 
   
   if (showForgotPasswordModal) {
@@ -150,6 +179,36 @@ export default function SignInForm({ onClose }) {
 
   if (showSignUpModal) {
     return <SignUpModal onClose={onClose} />;
+  }
+
+
+  if (completeProfileData) {
+    return (
+      <CompleteProfileModal
+         user={completeProfileData.user}
+         token={completeProfileData.token}
+         onClose={handleCompleteProfileClose}
+      />
+    )
+  }
+
+  if (businessOnboardingData) {
+    return (
+      <BusinessOnbardingModal
+         user={businessOnboardingData.user}
+         token={businessOnboardingData.token}
+         onClose={(finalUser, finalToken) => {
+          if (finalUser && finalToken) {
+             login(finalUser, finalToken);
+             toast.success("Business registered successfully! 🎉");
+
+             router.push("/create-business");
+          }
+          setBusinessOnboardingData(null);
+          onClose?.();
+         }}
+      />
+    );
   }
 
   return (
