@@ -193,7 +193,7 @@ export default function MarketPlace({ category, search, location }) {
       price = item.propertyAd?.amount
         ? `₦${item.propertyAd.amount.toLocaleString()}`
         : "Price not set.";
-      adLocation = item.propertyAd?.location || "Unknown";
+      adLocation = item.carAd?.location || "Unknown";
       plan = item.propertyAd?.plan;
       propertyType = item.propertyAd?.propertyType;
       propertyCondition = item.propertyAd?.propertyCondition;

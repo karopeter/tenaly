@@ -263,7 +263,7 @@ const buildPayload = (planType, useWallet = false) => {
         console.error("Failed to refresh profile:", profileError);
       }
       
-      router.push('/view-property-add');
+      router.push('/Add');
     } else if (res.data.data?.paymentStatus === "free") {
       toast.success(res.data.message || "Free property ad posted successfully!");
       setShowModalPromote(false);
@@ -388,9 +388,6 @@ const handlePost = useCallback(async () => {
           className="flex items-center hidden md:block text-[#1031AA] hover:text-[#00A8DF] font-medium mb-4"
         >
           <ArrowLeft className="w-5 h-5 mr-2 text-[#141B34]" />
-          <span className="text-[#525252] font-[500] text-[14px] font-inter">
-            Go Back
-          </span>
         </button>
 
         <h3 className="text-[#525252] font-[500] font-inter text-[14px] md:text-[16px] mb-4 text-left md:text-center">
