@@ -230,7 +230,7 @@ const handleSubmit = async () => {
           <div className="flex items-center gap-2 mb-4">
             <button 
                onClick={() => router.back()}
-               className="hidden md:flex flex items-center gap-2">
+               className="hidden md:block md:flex flex items-center gap-2">
                <Img
                 src="/doc.svg"
                 alt="Arrow Left"

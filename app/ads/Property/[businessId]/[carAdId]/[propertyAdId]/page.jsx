@@ -601,9 +601,9 @@ export default function PropertyDetailsPage() {
           {userProfile?.isVerified ? "Verified" : "Unverified"}
         </span>
       </div>
-      <span className="mt-1 text-[#868686] text-[10px] font-[400] font-inter">
+      {/* <span className="mt-1 text-[#868686] text-[10px] font-[400] font-inter">
         Last Seen 20h ago
-      </span>
+      </span> */}
       <span className="text-[#868686] text-[10px] font-[400] font-inter">
         {userProfile?.createdAt
           ? `Joined Tenaly on ${new Date(userProfile.createdAt).toLocaleDateString("en-US", {
@@ -703,9 +703,9 @@ export default function PropertyDetailsPage() {
           {userProfile?.isVerified ? "Verified" : "Unverified"}
         </span>
       </div>
-      <span className="mt-1 text-[#868686] font-inter font-[400] md:text-[12px]">
+      {/* <span className="mt-1 text-[#868686] font-inter font-[400] md:text-[12px]">
         Last Seen 20h ago
-      </span>
+      </span> */}
       <span className="text-[#868686] text-[10px] font-[400] font-inter">
         {userProfile?.createdAt
           ? `Joined Tenaly on ${new Date(userProfile.createdAt).toLocaleDateString("en-US", {
