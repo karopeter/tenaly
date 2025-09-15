@@ -185,7 +185,7 @@ export default function WalletContent() {
   return (
     <div className="bg-white md:shadow-phenom md:rounded-[12px] min-h-screen h-auto p-0  md:p-8 w-full overflow-hidden">
       {/* Header */}
-      <div className="md:mb-6 px-4 pt-8">
+      <div className="md:mb-6 px-4 pt-2">
         <h3 className="text-[#525252] font-[500] text-[16px] sm:text-[18px] font-inter text-center">
           Wallet
         </h3>

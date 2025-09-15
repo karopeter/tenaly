@@ -75,9 +75,9 @@ export default function TenalyLandingPage() {
           </div>
 
           {/* Image Section */}
-          <div>
+          <div className="md:ml-20">
             <Img
-              src="/excitedMan.svg"
+              src="/long2.svg"
               alt="Excited man"
               width={844}
               height={716.59}
