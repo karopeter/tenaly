@@ -15,7 +15,7 @@ const sidebarItems = [
     { label: "Bookmarked", icon: "/bookmarkIcon.svg", href: "/Bookmarked" },
     { label: "Customer Reviews", icon: "/star.svg", href: "/CustomerReviews" },
   // { label: "Premium Services", icon: "/crown-2.svg", href: "/PremiumService" },
-   { label: "Pro Sales", icon: "/presention-chart.svg", href: "/ProSales" },
+   //{ label: "Pro Sales", icon: "/presention-chart.svg", href: "/ProSales" },
     { label: "Wallet", icon: "/wallet-money.svg", href: "/Wallet" },
    { label: "Customer Support", icon: "/24-support.svg", href: "/Support" },
    { label: "Frequently Asked Questions", icon: "/message-question.svg", href: "/Faq" },
