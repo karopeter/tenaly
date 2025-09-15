@@ -508,13 +508,6 @@ export default function MorePostCarContent() {
 
           {/* Post Button */}
           <div className="flex justify-center mt-5">
-            {/* <Button
-              type="button"
-              onClick={handlePost}
-              className="w-full md:w-[262px] h-[44px] md:rounded-[8px] font-[500] text-[14px] bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white"
-            >
-              Post Ad
-            </Button> */}
             <Button
               type="button"
               onClick={handlePost}
