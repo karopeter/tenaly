@@ -480,24 +480,24 @@ const handleMarkVehicleAsSold = async (vehicleId, carAdId) => {
                           </div>
                       <div className="flex items-center gap-2 mt-2">
                       {vehicleAd?.status === "pending" && (
-                    <Img src="/pending.svg" alt="Pending" width={18} height={21} />
+                    <Img src="/approval.svg" alt="Pending" width={18} height={21} />
                   )}
                  {vehicleAd?.status === "approved" && (
-                   <Img src="/approved.svg" alt="Approved" width={18} height={21} />
+                   <Img src="/approved1.png" alt="Approved" width={18} height={21} />
                  )}
                 {vehicleAd?.status === "rejected" && (
-                   <Img src="/rejected.svg" alt="Rejected" width={18} height={21} />
+                   <Img src="/rejected.png" alt="Rejected" width={18} height={21} />
                 )}
                {vehicleAd?.status === "sold" && (
-                 <Img src="/sold.svg" alt="Sold" width={18} height={21} />
+                 <Img src="/sold1.png" alt="Sold" width={18} height={21} />
                 )}
               <span
                className={`text-[14px] font-[500] font-inter ${
                 vehicleAd?.status === "sold" || vehicleAd?.status === "approved"
-                 ? "text-[#10B981]" // green
+                 ? "text-[#10B981]" 
                : vehicleAd?.status === "rejected"
-                ? "text-[#EF4444]" // red
-               : "text-[#FDBA40]" // yellow
+                ? "text-[#EF4444]" 
+               : "text-[#FDBA40]" 
               }`}>
             {vehicleAd?.status === "sold"
               ? "SOLD"
@@ -673,13 +673,13 @@ const handleMarkVehicleAsSold = async (vehicleId, carAdId) => {
               <Img src="/approval.svg" alt="Pending" width={18} height={21} />
              )}
             {propertyAd?.status === "approved" && (
-             <Img src="/approved.svg" alt="Approved" width={18} height={21} />
+             <Img src="/approved1.png" alt="Approved" width={18} height={21} />
            )}
            {propertyAd?.status === "rejected" && (
-             <Img src="/rejected.svg" alt="Rejected" width={18} height={21} />
+             <Img src="/rejected.png" alt="Rejected" width={18} height={21} />
            )}
            {propertyAd?.status === "sold" && (
-             <Img src="/sold.svg" alt="Sold" width={18} height={21} />
+             <Img src="/sold1.png" alt="Sold" width={18} height={21} />
            )}
 
           <span
