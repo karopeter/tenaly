@@ -478,26 +478,40 @@ const handleMarkVehicleAsSold = async (vehicleId, carAdId) => {
                               )}
                             </div>
                           </div>
+                      <div className="flex items-center gap-2 mt-2">
+                      {vehicleAd?.status === "pending" && (
+                    <Img src="/pending.svg" alt="Pending" width={18} height={21} />
+                  )}
+                 {vehicleAd?.status === "approved" && (
+                   <Img src="/approved.svg" alt="Approved" width={18} height={21} />
+                 )}
+                {vehicleAd?.status === "rejected" && (
+                   <Img src="/rejected.svg" alt="Rejected" width={18} height={21} />
+                )}
+               {vehicleAd?.status === "sold" && (
+                 <Img src="/sold.svg" alt="Sold" width={18} height={21} />
+                )}
+              <span
+               className={`text-[14px] font-[500] font-inter ${
+                vehicleAd?.status === "sold" || vehicleAd?.status === "approved"
+                 ? "text-[#10B981]" // green
+               : vehicleAd?.status === "rejected"
+                ? "text-[#EF4444]" // red
+               : "text-[#FDBA40]" // yellow
+              }`}>
+            {vehicleAd?.status === "sold"
+              ? "SOLD"
+           : vehicleAd?.status === "approved"
+              ? "Approved"
+             : vehicleAd?.status === "pending"
+           ? "Awaiting approval"
+          : vehicleAd?.status === "rejected"
+           ? "Rejected"
+         : "Unknown"}
+        </span>
+         </div>
 
-                          <div className="flex items-center gap-2 mt-2">
-                            <Img src="/approval.svg" alt="Approval" width={18} height={21} />
-                            <span
-                              className={`text-[14px] font-[500] font-inter ${
-                              vehicleAd?.status === "sold"
-                                ? "text-[#10B981]" 
-                                : vehicleAd?.status === "rejected"
-                                ? "text-[#EF4444]" 
-                                : "text-[#FDBA40]" 
-                              }`}>
-                            {vehicleAd?.status === "sold"
-                              ? "SOLD"
-                               : vehicleAd?.status === "pending"
-                               ? "Awaiting approval"
-                               : vehicleAd?.status === "rejected"
-                               ? "Rejected"
-                               : "Unknown"}
-                             </span>
-                          </div>
+
                         </div>
                       </div>
                     );
@@ -654,35 +668,49 @@ const handleMarkVehicleAsSold = async (vehicleId, carAdId) => {
                               )}
                             </div>
                           </div>
+                <div className="flex items-center gap-2 mt-2">
+             {propertyAd?.status === "pending" && (
+              <Img src="/approval.svg" alt="Pending" width={18} height={21} />
+             )}
+            {propertyAd?.status === "approved" && (
+             <Img src="/approved.svg" alt="Approved" width={18} height={21} />
+           )}
+           {propertyAd?.status === "rejected" && (
+             <Img src="/rejected.svg" alt="Rejected" width={18} height={21} />
+           )}
+           {propertyAd?.status === "sold" && (
+             <Img src="/sold.svg" alt="Sold" width={18} height={21} />
+           )}
 
-                          <div className="flex items-center gap-2 mt-2">
-                            <Img src="/approval.svg" alt="Approval" width={18} height={21} />
-                            <span className={`text-[14px] font-[500] font-inter ${
-                              propertyAd?.status === 'sold' 
-                              ? 'text-[#10B981]' 
-                              : propertyAd?.status === 'rejected'
-                              ? 'text-[#EF4444]'
-                              :  'text-[#FDBA40]'
-                            }`}>
-                              {propertyAd?.status === "sold" 
-                              ? "SOLD" 
-                              : propertyAd?.status === "pending"
-                              ? "Awaiting Approval"
-                              : propertyAd?.status === "rejected"
-                              ? "Rejected"
-                              : "Unknown"}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      )}
+          <span
+          className={`text-[14px] font-[500] font-inter ${
+             propertyAd?.status === "sold" || propertyAd?.status === "approved"
+           ? "text-[#10B981]" // green
+           : propertyAd?.status === "rejected"
+            ? "text-[#EF4444]" // red
+           : "text-[#FDBA40]" // yellow
+        }`}>
+        {propertyAd?.status === "sold"
+         ? "SOLD"
+         : propertyAd?.status === "approved"
+         ? "Approved"
+         : propertyAd?.status === "pending"
+         ? "Awaiting Approval"
+         : propertyAd?.status === "rejected"
+         ? "Rejected"
+         : "Unknown"}
+         </span>
+         </div>
     </div>
+    </div>
+        );
+     })}
+    </div>
+  )}
+  </div>
+  )}
+  </div>
+  )}
+  </div>
   );
 }
