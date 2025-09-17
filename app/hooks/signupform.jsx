@@ -143,6 +143,7 @@ export default function SignUpForm({ onClose }) {
       
       // Redirect based on the role selected in the modal
       if (updatedUser.role === "seller") {
+        localStorage.setItem("newSeller", "true");
         router.push("/Profile");
       } else {
         router.push("/Product-List");
