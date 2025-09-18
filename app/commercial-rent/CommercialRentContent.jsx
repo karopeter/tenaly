@@ -523,19 +523,9 @@ return (
                  className={`w-full md:w-[262px] h-[44px] md:rounded-[8px] font-[500] text-[14px] ${
                   isPosting ? "opacity-70 cursor-wait" : "bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white"
                     }`}>
-                    {isPosting ? (
-                       <div className="flex items-center justify-center">
-                         <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z"></path>
-                          </svg>
-                         <span>Posting...</span>
-                       </div>
-                         ): (
-                          "Post Ad"
-                         )}
-                        </Button>
-                   </div>
+                     Post Ad
+                    </Button>
+                </div>
 
           <div className="text-center mt-5 font-[400] font-inter text-sm leading-relaxed px-2 md:px-4">
             <p className="text-[#767676]">
