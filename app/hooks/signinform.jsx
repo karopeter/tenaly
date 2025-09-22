@@ -97,7 +97,7 @@ export default function SignInForm({ onClose }) {
       console.log("📥 Login Response:", response.data);
       
       login(userProfile, authToken);
-      toast.success("Login successful! 🎉 Welcome back!");
+      toast.success("Login successful! Welcome back!");
       onClose();
 
       // Redirect logic based on the user's role
@@ -116,66 +116,94 @@ export default function SignInForm({ onClose }) {
   
 
   const handleGoogleSuccess = async (response) => {
-  try {
-    const { credential } = response; 
-    if (!credential) {
-      toast.error("Google authentication failed: No credential received.");
-      return;
-    }
-
-    // Call backend
-    const authRes = await api.post("/auth/google-auth", { token: credential });
-    const {
-      token: authToken,
-      user: userProfile,
-      profileComplete,
-      isNewGoogleUser
-    } = authRes.data;
-
-    if (isNewGoogleUser || !profileComplete) {
-      // First time Google signup → show Complete Profile
-      toast.success("Welcome! Please complete your profile to continue.");
-      setCompleteProfileData({ user: userProfile, token: authToken });
-    } else {
-      // Returning user → normal login
-      login(userProfile, authToken);
-      toast.success("Google authentication successful! 🎉 Welcome back!");
-
-      if (userProfile.role === "seller") {
-        // localStorage.setItem("newSeller", "true");
-        router.push("/Profile");
-      } else {
-        router.push("/Product-List");
+    try {
+      const { credential } = response; 
+      if (!credential) {
+        toast.error("Google authentication failed: No credential received.");
+        return;
       }
-      onClose?.();
+
+      // Call backend
+      const authRes = await api.post("/auth/google-auth", { token: credential });
+      const {
+        token: authToken,
+        user: userProfile,
+        profileComplete,
+        isNewGoogleUser
+      } = authRes.data;
+
+      if (isNewGoogleUser || !profileComplete) {
+        // First time Google signup → show Complete Profile
+        toast.success("Welcome! Please complete your profile to continue.");
+        setCompleteProfileData({ user: userProfile, token: authToken });
+      } else {
+        // Returning user → normal login
+        login(userProfile, authToken);
+        toast.success("Google authentication successful! Welcome back!");
+
+        if (userProfile.role === "seller") {
+          router.push("/Profile");
+        } else {
+          router.push("/Product-List");
+        }
+        onClose?.();
+      }
+    } catch (error) {
+      console.error("Google auth error:", error);
+      toast.error(error.response?.data?.message || "Something went wrong with Google Sign-in. Please try again.");
     }
-  } catch (error) {
-    console.error("Google auth error:", error);
-    toast.error(error.response?.data?.message || "Something went wrong with Google Sign-in. Please try again.");
-  }
-};
+  };
 
-
- const handleCompleteProfileClose = (updatedUser, authToken) => {
+  const handleCompleteProfileClose = (updatedUser, authToken) => {
     if (updatedUser && authToken) {
       login(updatedUser, authToken); 
-      toast.success("Profile completed successfully! 🎉 Welcome to Tenaly!");
+      toast.success("Profile completed successfully! Welcome to Tenaly!");
       
-      // Redirect based on the role selected in the modal
+      // Check if user selected seller role and show business onboarding
       if (updatedUser.role === "seller") {
-        router.push("/Profile");
-
-         setTimeout(() => {
-          setBusinessOnboardingData({ user: updatedUser, token: authToken });
-        }, 500);
+        // Show business onboarding modal for sellers
+        setBusinessOnboardingData({ user: updatedUser, token: authToken });
       } else {
+        // For customers, redirect directly to product list
         router.push("/Product-List");
+        onClose?.();
       }
+    } else {
+      // If no user data, just close
+      onClose?.();
     }
     setCompleteProfileData(null);
+  };
+
+  const handleBusinessOnboardingClose = (finalUser, finalToken) => {
+    if (finalUser && finalToken) {
+      login(finalUser, finalToken);
+      toast.success("Business registered successfully!");
+      router.push("/create-business");
+    }
+    setBusinessOnboardingData(null);
     onClose?.();
   };
 
+  const handleBusinessOnboardingContinue = () => {
+    // User chose to continue with business registration
+    if (businessOnboardingData) {
+      router.push("/create-business");
+      setBusinessOnboardingData(null);
+      onClose?.();
+    }
+  };
+
+  const handleBusinessOnboardingCancel = () => {
+    // User chose to skip business registration for now
+    if (businessOnboardingData) {
+      // Set a flag in localStorage to show the modal later in Profile page
+      localStorage.setItem("newSeller", "true");
+      router.push("/Profile");
+      setBusinessOnboardingData(null);
+      onClose?.();
+    }
+  };
   
   if (showForgotPasswordModal) {
     return <ForgotPassword onClose={() => setShowForgotPaswordModal(false)} />;
@@ -185,7 +213,6 @@ export default function SignInForm({ onClose }) {
     return <SignUpModal onClose={onClose} />;
   }
 
-
   if (completeProfileData) {
     return (
       <CompleteProfileModal
@@ -193,24 +220,14 @@ export default function SignInForm({ onClose }) {
          token={completeProfileData.token}
          onClose={handleCompleteProfileClose}
       />
-    )
+    );
   }
 
   if (businessOnboardingData) {
     return (
       <BusinessOnbardingModal
-         user={businessOnboardingData.user}
-         token={businessOnboardingData.token}
-         onClose={(finalUser, finalToken) => {
-          if (finalUser && finalToken) {
-             login(finalUser, finalToken);
-             toast.success("Business registered successfully! 🎉");
-
-             router.push("/create-business");
-          }
-          setBusinessOnboardingData(null);
-          onClose?.();
-         }}
+         onClose={handleBusinessOnboardingCancel}
+         onContinue={handleBusinessOnboardingContinue}
       />
     );
   }
