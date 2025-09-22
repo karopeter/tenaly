@@ -12,7 +12,9 @@ import { SellerImage } from "@/app/components/features/sellerImage";
 import ReportListingModal from "@/app/components/ReportListingModal/reportListingModal";
 import { reportService } from "@/services/reportService";
 import { toast } from "react-toastify";
+import { sendOffer } from "@/app/utils/socket";
 import { useAuth } from "@/app/context/AuthContext";
+
 
 export default function HomeListDetails() {
  const [activeTab, setActiveTab] = useState("car");
@@ -20,6 +22,7 @@ export default function HomeListDetails() {
   const [offerAmount, setOfferAmount] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [conversations, setConversations] = useState([]);
   const { businessId, id } = useParams();
 
   const [adData, setAdData] = useState(null);
@@ -124,11 +127,58 @@ const handleReportSubmit = async (reportData) => {
    console.log("Report submitted", reportData);
 };
 
-  const handleSendOffer = () => {
-    if (!offerAmount) return toast.error("Please enter an Amount");
-    console.log("Offer sent:", offerAmount);
-    setOfferAmount("");
-  };
+
+
+const handleSendOffer = async () => {
+  const offerMessage = encodeURIComponent(
+      `Hi, I'm interested in "${productTitle}". I would like to make an offer of ₦${parseInt(offerAmount).toLocaleString()} for this product. Are you willing to negotiate?`
+  );
+
+  if (!isLoggedIn) {
+    toast.error("You need to log in to make an offer");
+    return;
+  }
+
+  if (!offerAmount) {
+    return toast.error("Please enter an amount");
+  }
+
+  try {
+    setLoading(true);
+  
+    const res = await api.post(`/offer/make-offer/${productId}`, { offerAmount });
+
+    console.log(res)
+
+    if (res.data.success) {
+      const { offer, conversationId, chatMessage } = res.data.data;
+
+
+      sendOffer({
+        conversationId: conversationId,
+        offerId: offer._id
+      });
+      
+      console.log(offer, conversationId, chatMessage);
+
+      toast.success(`Offer of ₦${offerAmount.toLocaleString()} sent successfully`);
+      setOfferAmount("");
+      setShowInput(false);
+      
+      setTimeout(() => {
+        window.location.href = `/Message?sellerId=${chatMessage.to}&productId=${productId}&productTitle=${productTitle}&previewMessage=${offerMessage}`;
+      }, 1500); 
+      
+    } else {
+      toast.error(res.data.message || "Failed to send offer");
+    }
+  } catch (err) {
+    console.error("Error sending offer:", err);
+    toast.error(err?.response?.data?.message || "Something went wrong");
+  } finally {
+    setLoading(false);
+  }
+};
 
   // Loading and Error States
   if (loading) {

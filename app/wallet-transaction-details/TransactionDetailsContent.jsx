@@ -82,11 +82,12 @@ export default function TransactionDetails() {
     doc.setFontSize(12);
   doc.text(`Reference: ${transaction.reference}`, 20, 40);
   doc.text(`Amount: ₦${Number(transaction.amount).toLocaleString()}`, 20, 50);
-  doc.text(
-    `Type: ${transaction.type === "credit" ? "Wallet Topup" : "Premium Service"}`,
-    20,
-    60
-  );
+   doc.text(`Description: ${transaction.description || "N/A"}`, 20, 60);
+  // doc.text(
+  //   `Type: ${transaction.transactionType === "credit" ? "Wallet Topup" : "Premium Service"}`,
+  //   20,
+  //   60
+  // );
 
    doc.text(`Date: ${formatDate(transaction.paymentDate)}`, 20, 70);
   doc.text(`Status: Successful`, 20, 80);
@@ -220,7 +221,7 @@ export default function TransactionDetails() {
               <div className="flex justify-between items-center py-3 border-b border-gray-100">
                 <span className="text-[#868686] text-[13px] sm:text-[14px] font-inter">Payment Type</span>
                 <span className="text-[#525252] text-[13px] sm:text-[14px] font-[500] font-inter">
-                  Wallet Top-up
+                 {transaction.description || (transaction.type === "credit" ? "Wallet Topup" : "Withdrawal")}
                 </span>
               </div>
 

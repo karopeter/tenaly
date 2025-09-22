@@ -6,7 +6,10 @@ import { useAuth } from "../context/AuthContext";
 
 export default function SettingsContent() {
   const router = useRouter();
-  const { logout } = useAuth();
+  const { logout, verificationStatus } = useAuth();
+
+  const shouldShowVerification = 
+    !verificationStatus?.isVerified && !verificationStatus?.hasSubmitted;
 
   return (
     <div 
@@ -19,7 +22,8 @@ export default function SettingsContent() {
       {/* Settings card */}
       <div className="flex flex-col justify-start p-4 items-start bg-[#FFFFFF] w-full rounded-[8px] border border-[#EBEBEC]">
         {/* Become verified */}
-        <Link
+        {shouldShowVerification && (
+          <Link
           href="/become-verified"
           className="flex items-center gap-3 w-full transition mb-2 pb-2 border-b border-[#EBEBEC]"
         >
@@ -28,6 +32,7 @@ export default function SettingsContent() {
             Become a verified user
           </span>
         </Link>
+        )}
 
         {/* Logout */}
         <button

@@ -5,7 +5,7 @@ let socket;
 export const initialSocket = (token) => {
   if (socket && socket.connected) return socket;
 
-  socket = io("https://api.tenaly.com", {
+  socket = io("http://localhost:8080", {
     auth: { token },
   });
 
@@ -46,13 +46,30 @@ export const disconnectSocket = () => {
 
 
 export const emitTyping = (roomId) => {
-  socket.emit("typing", roomId);
+  if (socket && socket.connected) {
+     socket.emit("typing", { conversationId: roomId});
+  }
 };
 
 export const emitStopTyping = (roomId) => {
-  socket.emit("stopTyping", roomId);
+  if (socket && socket.connected) {
+    socket.emit("stopTyping", { conversationId: roomId });
+  }
 };
 
 export const emitReadMessage = (messageIds, conversationId) => {
-    socket.emit("markAsRead", {messageIds, conversationId});
-}
+  if (socket && socket.connected) {
+    socket.emit("markAsRead", { messageIds, conversationId });
+  }
+};
+
+
+
+export const sendOffer = ({ conversationId, offerId }) => {
+  if (socket && socket.connected) {
+    socket.emit("sendOffer", { conversationId, offerId });
+    console.log("📤 Offer sent via socket:", { conversationId, offerId });
+  } else {
+    console.warn("⚠️ Socket not connected, cannot send offer");
+  }
+};

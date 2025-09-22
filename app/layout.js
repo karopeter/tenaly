@@ -2,6 +2,7 @@
 import "./globals.css";
 import Script from "next/script";
 import { Inter } from "next/font/google";
+import { Work_Sans  } from "next/font/google";
 import { AuthProvider } from "./context/AuthContext";
 import Navbar from "./components/navbar/navbar";
 import Footer from "./components/footer/footer";
@@ -14,9 +15,14 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
+const workSans = Work_Sans({
+  subsets: ["latin"],
+  variable: "--font-worksans",
+})
+
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={inter.variable} suppressHydrationWarning>
+    <html lang="en" className={workSans.variable} suppressHydrationWarning>
       <head>
         <link rel="icon" href="/favicon.svg" sizes="any" />
         <Script src="https://js.paystack.co/v1/inline.js" strategy="beforeInteractive" />

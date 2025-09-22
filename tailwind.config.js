@@ -16,10 +16,11 @@ module.exports = {
         377: '377px',
       },
       fontFamily: {
-        roboto: ["var(--font-roboto)", ...fontFamily.sans],
+        roboto: ["var(--font-roboto)", "sans-serif"],
         shadows: "var(--font-shadows)",
         rubik: "var(--font-rubik)",
-        inter: ["var(--font-inter)", ...fontFamily.sans],
+        inter: ["var(--font-inter)", "sans-serif"],
+        sans: ["var(--font-worksans)", "sans-serif"],
       }
     },
   },
