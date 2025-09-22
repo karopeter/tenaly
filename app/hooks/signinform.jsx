@@ -142,7 +142,7 @@ export default function SignInForm({ onClose }) {
       toast.success("Google authentication successful! 🎉 Welcome back!");
 
       if (userProfile.role === "seller") {
-         localStorage.setItem("newSeller", "true");
+        // localStorage.setItem("newSeller", "true");
         router.push("/Profile");
       } else {
         router.push("/Product-List");
@@ -164,6 +164,10 @@ export default function SignInForm({ onClose }) {
       // Redirect based on the role selected in the modal
       if (updatedUser.role === "seller") {
         router.push("/Profile");
+
+         setTimeout(() => {
+          setBusinessOnboardingData({ user: updatedUser, token: authToken });
+        }, 500);
       } else {
         router.push("/Product-List");
       }
