@@ -33,6 +33,7 @@ import { toast } from "react-toastify";
 import PromoteAdModal from "../components/PromoteModal/promote-modal";
 import WalletPaymentModal from "../components/WalletModal/walletModal";
 import FreeSuccessModal from "../components/free-success-modal";
+import Link from "next/link";
 
 // Define plan amounts
 const planAmounts = {
@@ -511,7 +512,7 @@ export default function MorePostCarContent() {
 
           {/* Post Button */}
           <div className="flex justify-center mt-5">
-            <Button
+             <Button
               type="button"
               onClick={handlePost}
               disabled={isPosting}
@@ -528,7 +529,7 @@ export default function MorePostCarContent() {
         <div className="text-center mt-5 font-[400] font-inter text-sm md:text-[12px] leading-relaxed px-4">
           <p className="text-[#767676]">
             By clicking on <strong>Post Ad</strong>, you accept to{" "}
-            <span className="text-[#000087]">Terms of Use</span>, confirm that you will abide by the Safety Tips, and declare that this posting does not include any Prohibited items.
+            <Link href="/terms-condition" className="text-[#000087]">Terms of Use</Link>, confirm that you will abide by the Safety Tips, and declare that this posting does not include any Prohibited items.
           </p>
         </div>
       </div>
