@@ -6,6 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import api from "@/services/api";
 import { SellerPhoneNumberBookmarked } from "../components/features/bookmarkPhone";
 import MessageSellerButton from "../components/UI/messageSeller";
+import { toast } from "react-toastify";
 
 export default function BookMarkedContent({sellerId}) {
   const router = useRouter();
@@ -37,17 +38,6 @@ export default function BookMarkedContent({sellerId}) {
         setLoading(false);
       }
     };
-
-    // const fetchSellerPhone = async () => {
-    //   try {
-    //     const res = await api.get("/profile");
-    //     if (res?.data?.phoneNumber) {
-    //       setSellerPhone(res.data.phoneNumber);
-    //     }
-    //   } catch (err) {
-    //     console.error("Error fetching seller phone number:", err);
-    //   }
-    // };
 
     fetchUserAds();
   }, []);
@@ -102,6 +92,24 @@ export default function BookMarkedContent({sellerId}) {
 
     fetchAdAndProfile();
   }, [id]);
+
+
+  const handleUnbookmark = async (adId) => {
+    try {
+       const res = await api.delete(`/bookmark/delete-bookmark/${adId}`);
+     if (res.data.success) {
+       // Remove unbookmarked ad from state 
+       setUserAds((prev) => prev.filter((ad) => ad.adId !== adId));
+       toast.success("Ad unbookmarked successfully and deleted from bookmarked");
+     } else {
+      setError(res.data.message || "Failed to unbookmark ad");
+     } 
+    } catch (err) {
+      console.error("Error unbookmarking ad:", err);
+      toast.error("Error unbookmarking ad");
+      setError("Server error while unbookmarking Ad.");
+    }
+  }
 
   if (loading) {
     return (
@@ -242,7 +250,8 @@ export default function BookMarkedContent({sellerId}) {
                     alt="Bookmarked"
                     width={24}
                     height={24}
-                    className="w-[24px] h-[24px] ml-2 block md:hidden"
+                    className="w-[24px] h-[24px] cursour-pointer ml-2 block md:hidden"
+                    onClick={() => handleUnbookmark(adId)}
                   />
                 </div>
                 <div className="text-[14px] sm:text-[18px] font-[500] font-inter text-[#000087]">
@@ -300,7 +309,8 @@ export default function BookMarkedContent({sellerId}) {
                   alt="Bookmarked"
                   width={35}
                   height={35}
-                  className="w-[35px] h-[35px] self-end sm:self-auto hidden md:block"
+                  className="w-[35px] h-[35px] self-end cursor-pointer sm:self-auto hidden md:block"
+                  onClick={() => handleUnbookmark(adId)}
                 />
               </div>
             </div>
