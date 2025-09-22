@@ -31,10 +31,10 @@ export default function SignUpForm({ onClose }) {
   const [showSignInModal, setShowSignInModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [completeProfileData, setCompleteProfileData] = useState(null);
+  const [businessOnboardingData, setBusinessOnboardingData] = useState(null);
 
   const isFormValid = Object.values(form).every((val) => val.trim() !== "");
 
- 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const roleParam = params.get("role");
@@ -83,16 +83,16 @@ export default function SignUpForm({ onClose }) {
       const { token: authToken, user: userProfile } = signupRes.data;
 
       login(userProfile, authToken);
-      toast.success("Signup successful! 🎉 Welcome to Tenaly!");
+      toast.success("Signup successful! Welcome to Tenaly!");
       
-      // Step 2: Redirect based on the user's role
+      // Step 2: Check if user is a seller and show business onboarding
       if (userProfile.role === "seller") {
-         localStorage.setItem("newSeller", "true");
-        router.push("/Profile");
+        setBusinessOnboardingData({ user: userProfile, token: authToken });
       } else {
+        // For customers, redirect directly
         router.push("/Product-List");
+        onClose?.();
       }
-      onClose?.();
 
     } catch (err) {
       console.error("Signup error:", err.response?.data || err.message);
@@ -119,11 +119,10 @@ export default function SignUpForm({ onClose }) {
         setCompleteProfileData({ user: newUser, token: authToken });
       } else {
         login(newUser, authToken);
-        toast.success("Google authentication successful! 🎉 Welcome back!");
+        toast.success("Google authentication successful! Welcome back!");
         
         // Redirect based on the user's role
         if (newUser.role === "seller") {
-          localStorage.setItem("newSeller", "true");
           router.push("/Profile");
         } else {
           router.push("/Product-List");
@@ -139,18 +138,37 @@ export default function SignUpForm({ onClose }) {
   const handleCompleteProfileClose = (updatedUser, authToken) => {
     if (updatedUser && authToken) {
       login(updatedUser, authToken); 
-      toast.success("Profile completed successfully! 🎉 Welcome to Tenaly!");
+      toast.success("Profile completed successfully! Welcome to Tenaly!");
       
-      // Redirect based on the role selected in the modal
+      // Check if user selected seller role and show business onboarding
       if (updatedUser.role === "seller") {
-        localStorage.setItem("newSeller", "true");
-        router.push("/Profile");
+        setBusinessOnboardingData({ user: updatedUser, token: authToken });
       } else {
         router.push("/Product-List");
+        onClose?.();
       }
+    } else {
+      onClose?.();
     }
     setCompleteProfileData(null);
-    onClose?.();
+  };
+
+  const handleBusinessOnboardingContinue = () => {
+    if (businessOnboardingData) {
+      router.push("/create-business");
+      setBusinessOnboardingData(null);
+      onClose?.();
+    }
+  };
+
+  const handleBusinessOnboardingCancel = () => {
+    if (businessOnboardingData) {
+      // Set localStorage flag to show modal later in Profile page
+      localStorage.setItem("newSeller", "true");
+      router.push("/Profile");
+      setBusinessOnboardingData(null);
+      onClose?.();
+    }
   };
 
   if (showSignInModal) return <SignInModal onClose={onClose} />;
@@ -161,6 +179,15 @@ export default function SignUpForm({ onClose }) {
         user={completeProfileData.user}
         token={completeProfileData.token}
         onClose={handleCompleteProfileClose}
+      />
+    );
+  }
+
+  if (businessOnboardingData) {
+    return (
+      <BusinessOnbardingModal
+        onClose={handleBusinessOnboardingCancel}
+        onContinue={handleBusinessOnboardingContinue}
       />
     );
   }
@@ -231,7 +258,7 @@ export default function SignUpForm({ onClose }) {
         {/* Submit Button */}
         <Button
           type="submit"
-          disabled={!isFormValid || isSubmitting} // Disable while submitting
+          disabled={!isFormValid || isSubmitting}
           className={`pt-[10px] pr-[16px] pb-[10px] pl-[16px] w-[380px] h-[52px] rounded-[8px] mt-4 font-inter md:text-[16px] font-[500] ${
             isFormValid && !isSubmitting
               ? "bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white"
