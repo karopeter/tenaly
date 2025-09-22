@@ -458,7 +458,18 @@ const handlePost = useCallback(async () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <PostDropdown label="Duration" value={propertyDuration} onChange={setPropertyDuration} options={propertyDurationOptions} />
-            <InputField label="Amount" placeholder="₦| Enter your amount" value={amount} onChange={(e) => setAmount(e.target.value)} />
+            <InputField
+              label="Amount" 
+              placeholder="₦| Enter your amount" 
+              value={amount} 
+              onChange={(e) => {
+                const value = e.target.value;
+                if (/^\d*\.?\d*$/.test(value)) {
+                   setAmount(value);
+                }
+              }} 
+              type="text"
+              />
           </div>
 
           {/* Business Select with Label Left on Desktop */}

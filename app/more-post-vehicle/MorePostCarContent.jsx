@@ -470,10 +470,13 @@ export default function MorePostCarContent() {
               label="Amount"
               placeholder="₦ Enter your amount"
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              type="number"
-              min="0"
-              step="any"
+              onChange={(e) => {
+                const value = e.target.value;
+                if (/^\d*\.?\d*$/.test(value)) {
+                  setAmount(value);
+                }
+              }}
+              type="text"
             />
             <PostDropdown
               label="Are you opened for negotiation"
