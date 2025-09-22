@@ -118,12 +118,14 @@ export default function WalletContent() {
   // Verify payment and refresh wallet info
   const verifyPayment = async (reference) => {
     try {
+      // Fixed endpoint URL
       const verifyRes = await api.get(`/wallet/top/verify/${reference}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const verifyData = verifyRes.data;
 
-      if (verifyData.status === 200) {
+      // Check for successful verification
+      if (verifyData.status === 200 || verifyRes.status === 200) {
         alert("Wallet topped up successfully!");
         setWalletBalance(verifyData.walletBalance);
         setAmount("");
@@ -149,37 +151,45 @@ export default function WalletContent() {
   };
 
   // Get transaction icon based on type
-  const getTransactionIcon = (type) => {
-    if (type === "credit") {
-      return (
-        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center">
-          <div className="w-6 h-6 sm:w-7 sm:h-7 bg-green-500 rounded flex items-center justify-center">
-            <span className="text-white text-xs sm:text-sm">↑</span>
-          </div>
+ const getTransactionIcon = (type) => {
+  if (type === "credit") {
+    return (
+      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center">
+        <div className="w-6 h-6 sm:w-7 sm:h-7 bg-green-500 rounded flex items-center justify-center">
+          <span className="text-white text-xs sm:text-sm font-bold">↑</span>
         </div>
-      );
+      </div>
+    );
+  } else {
+    return (
+      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-red-100 rounded-lg flex items-center justify-center">
+        <div className="w-6 h-6 sm:w-7 sm:h-7 bg-red-500 rounded flex items-center justify-center">
+          <span className="text-white text-xs sm:text-sm font-bold">↓</span>
+        </div>
+      </div>
+    );
+  }
+};
+  // Get transaction description based on type
+  const getTransactionDescription = (transaction) => {
+    if (transaction.transactionType === "credit") {
+      return transaction.description || "Wallet Top-up";
     } else {
-      return (
-        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center">
-           <Img 
-            src="/walletIcon.svg"
-            alt="WalletIcon"
-            width={44}
-            height={44}
-            className="w-10 h-10 sm:w-11 sm:h-11"
-           />
-        </div>
-      );
+      return transaction.description || "Wallet Withdrawal";
     }
   };
 
-  // Get transaction description
-  const getTransactionDescription = (transaction) => {
-    if (transaction.type === "credit") {
-      return "Wallet Topup";
-    } else {
-      return transaction.description || "Premium Service";
-    }
+  // Get transaction status display
+  const getTransactionStatus = (transaction) => {
+    const statusText = transaction.transactionType === "credit" ? "Credit" : "Debit";
+    const statusColor = transaction.transactionType === "credit" ? "text-green-600" : "text-red-600";
+    const amountPrefix = transaction.transactionType === "credit" ? "+" : "-";
+    
+    return {
+      statusText,
+      statusColor,
+      amountPrefix
+    };
   };
 
   return (
@@ -262,39 +272,41 @@ export default function WalletContent() {
             {walletTransactions
               .slice()
               .reverse()
-              .map((transaction) => (
-                <div
-                  key={transaction.reference}
-                  onClick={() => handleTransactionClick(transaction)}
-                  className="bg-white border border-[#140C291A] rounded-[12px] p-3 sm:p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors active:bg-gray-100"
-                >
-                  <div className="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
-                    {getTransactionIcon(transaction.type)}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[#525252] font-[500] text-[13px] sm:text-[14px] font-inter truncate">
-                        {getTransactionDescription(transaction)}
-                      </p>
-                      <p className="text-[#868686] text-[11px] sm:text-[12px] font-inter">
-                        {transaction.paymentDate 
-                          ? new Date(transaction.paymentDate).toLocaleDateString('en-GB', {
-                              day: '2-digit',
-                              month: 'short',
-                              year: 'numeric'
-                            })
-                          : "No Date"
-                        }
+              .map((transaction) => {
+                const { statusText, statusColor, amountPrefix } = getTransactionStatus(transaction);
+                
+                return (
+                  <div
+                    key={transaction.reference}
+                    onClick={() => handleTransactionClick(transaction)}
+                    className="bg-white border border-[#140C291A] rounded-[12px] p-3 sm:p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors active:bg-gray-100"
+                  >
+                    <div className="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
+                      {getTransactionIcon(transaction.transactionType)}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[#525252] font-[500] text-[13px] sm:text-[14px] font-inter truncate">
+                          {getTransactionDescription(transaction)}
+                        </p>
+                        <p className="text-[#868686] text-[11px] sm:text-[12px] font-inter">
+                          {transaction.paymentDate 
+                            ? new Date(transaction.paymentDate).toLocaleDateString('en-GB', {
+                                day: '2-digit',
+                                month: 'short',
+                                year: 'numeric'
+                              })
+                            : "No Date"
+                          }
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <p className={`font-[500] text-[13px] sm:text-[14px] font-inter ${statusColor}`}>
+                        {statusText} • {amountPrefix}₦{Number(transaction.amount).toLocaleString()}
                       </p>
                     </div>
                   </div>
-                  <div className="text-right flex-shrink-0">
-                    <p className={`font-[500] text-[13px] sm:text-[14px] font-inter ${
-                      transaction.type === "credit" ? "text-green-600" : "text-[#525252]"
-                    }`}>
-                      {transaction.type === "credit" ? "" : ""}₦{Number(transaction.amount).toLocaleString()}
-                    </p>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
           </div>
         )}
       </div>
