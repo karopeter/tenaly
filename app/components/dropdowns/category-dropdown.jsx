@@ -7,38 +7,35 @@ import Img from "../Image";
 
 export default function MainCategoryDropdown({ value, onChange }) {
   const [open, setOpen] = useState(false);
-  const [type, setType] = useState(null); // "vehicle" or "property"
+  const [type, setType] = useState(null); 
+  const [displayValue, setDisplayValue] = useState("");
 
   // Reset internal state when parent clears value
   useEffect(() => {
     if (!value) {
       setType(null);
       setOpen(false);
+      setDisplayValue("");
+    } else {
+      setDisplayValue(value);
     }
   }, [value]);
-
+  
   const handleTypeSelect = (selectedType) => {
     setType(selectedType);
   };
 
-  // const handleSubSelect = (subCategory) => {
-  //   const capitalizedType = type.charAt(0).toUpperCase() + type.slice(1); // "Vehicle" or "Property"
-  //   onChange(subCategory); // Do not alter subCategory
-  //   setType(null);
-  //   setOpen(false);
-  // };
-
   const handleSubSelect = (subCategory) => {
-  const cleanCategory = subCategory.includes(" - ")
-    ? subCategory.split(" - ")[1].trim()
-    : subCategory;
+    const cleanCategory = subCategory.includes(" - ")
+      ? subCategory.split(" - ")[1].trim()
+      : subCategory;
 
-  onChange(cleanCategory); 
-  setType(null);
-  setOpen(false);
-  console.log("Sending category:", cleanCategory);
-};
-
+    onChange(cleanCategory); 
+    setDisplayValue(subCategory);
+    setType(null);
+    setOpen(false);
+    console.log("Sending category:", cleanCategory);
+  };
 
   return (
     <div className="relative w-full md:w-[481px]">
@@ -50,19 +47,21 @@ export default function MainCategoryDropdown({ value, onChange }) {
         }}
         className="border border-[#CDCDD7] w-full h-[52px] rounded-[4px] px-3 flex justify-between items-center cursor-pointer bg-white"
       >
-        <span className="text-[#525252]">{value || "Select Category"}</span>
-        {open ? (
-          <IoIosArrowUp className="w-5 h-5 text-gray-500" />
-        ) : (
-          <IoIosArrowDown className="w-5 h-5 text-gray-500" />
-        )}
+       <span className={displayValue ? "text-black" : "text-gray-500"}>
+          {displayValue || "Select Category"}
+       </span>
+       {open ? (
+        <IoIosArrowUp className="text-[#525252]" />
+       ): (
+         <IoIosArrowDown className="w-5 h-5 text-gray-500" />
+       )}
       </div>
 
       {/* Main category options */}
       {open && !type && (
-        <div className="absolute bg-white shadow-md w-full z-10 border border-[#CDCDD7] rounded-[4px] mt-1">
+        <div className="absolute top-[52px] left-0 right-0 bg-white border border-[#CDCDD7] border-t-0 rounded-b-[4px] z-10 max-h-60 overflow-y-auto">
           <div
-            className="flex items-center px-4 py-2 hover:bg-gray-100 cursor-pointer"
+            className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
             onClick={() => handleTypeSelect("vehicle")}
           >
             <Img
@@ -70,12 +69,12 @@ export default function MainCategoryDropdown({ value, onChange }) {
               alt="Vehicle Icon"
               width={24}
               height={24}
-              className="mr-2"
+              className="w-5 h-5"
             />
             Vehicle
           </div>
           <div
-            className="flex items-center px-4 py-2 hover:bg-gray-100 cursor-pointer"
+            className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
             onClick={() => handleTypeSelect("property")}
           >
             <Img
@@ -83,7 +82,7 @@ export default function MainCategoryDropdown({ value, onChange }) {
               alt="Property Icon"
               width={24}
               height={24}
-              className="mr-2"
+              className="w-5 h-5"
             />
             Property
           </div>
@@ -92,21 +91,15 @@ export default function MainCategoryDropdown({ value, onChange }) {
 
       {/* Vehicle dropdown */}
       {type === "vehicle" && (
-        <div className="absolute bg-white w-full mt-1 z-10">
-          <VehicleDropdown
-            value={value?.split(" - ")[1] || ""}
-            onChange={handleSubSelect}
-          />
+        <div className="absolute top-[52px] left-0 right-0 bg-white border border-[#CDCDD7] border-t-0 rounded-b-[4px] z-10 max-h-60 overflow-y-auto">
+          <VehicleDropdown onSelect={handleSubSelect} />
         </div>
       )}
 
       {/* Property dropdown */}
       {type === "property" && (
-        <div className="absolute bg-white w-full mt-1 z-10">
-          <PropertyDropdown
-            value={value?.split(" - ")[1] || ""}
-            onChange={handleSubSelect}
-          />
+        <div className="absolute top-[52px] left-0 right-0 bg-white border border-[#CDCDD7] border-t-0 rounded-b-[4px] z-10 max-h-60 overflow-y-auto">
+          <PropertyDropdown onSelect={handleSubSelect} />
         </div>
       )}
     </div>
