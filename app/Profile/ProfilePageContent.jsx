@@ -59,7 +59,7 @@ export default function ProfilePageContent() {
       const formData = new FormData();
       formData.append("firstName", firstName);
       formData.append("lastName", lastName);
-      formData.append("email", email);
+     // formData.append("email", email);
       formData.append("phoneNumber", phoneNumber);
       if (imageFile) {
         formData.append("image", imageFile);
@@ -194,9 +194,9 @@ export default function ProfilePageContent() {
             label="Email"
             placeholder="Email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            disabled={!isEditable}
-            className="w-full"
+            onChange={() => {}}
+            disabled={true}
+            className="w-full bg-gray-100 cursor-not-allowed"
           />
         </div>
 
