@@ -474,7 +474,13 @@ const onPlanSelect = (plan) => {
                          placeholder="₦| Enter your amount"
                          className="bg-transparent"
                          value={developmentFee}
-                         onChange={(e) => setDevelopmentFee(e.target.value)}
+                         onChange={(e) => {
+                           const value = e.target.value;
+                           if (/^\d*\.?\d*$/.test(value)) {
+                            setDevelopmentFee(value);
+                           }
+                         }}
+                         type="text"
                        />
                    </div>
                    <div className="grid md:grid-cols-2 gap-x-6 gap-y-4">
@@ -482,7 +488,13 @@ const onPlanSelect = (plan) => {
                           label="Survey fee"
                           placeholder="₦| Enter your survey fee"
                           value={surveyFee}
-                          onChange={(e) => setSurveyFee(e.target.value)}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            if (/^\d*\.?\d*$/.test(value)) {
+                              setSurveyFee(value);
+                            }
+                          }}
+                          type="text"
                         />
                         <PostDropdown
                           label="Legal fee"
@@ -503,7 +515,14 @@ const onPlanSelect = (plan) => {
                       label="Amount"
                       placeholder="₦| Enter your amount"
                       value={amount}
-                      onChange={(e) => setAmount(e.target.value)}
+                      onChange={(e) => {
+                        // Only allow numbers and optional decimal point 
+                        const value = e.target.value;
+                        if (/^\d*\.?\d*$/.test(value)) {
+                          setAmount(value);
+                        }
+                       }}
+                      type="text"
                      />
                  </div>
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">

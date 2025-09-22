@@ -483,7 +483,13 @@ return (
               label="Amount"
               placeholder="₦| Enter your amount"
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+              if (/^\d*\.?\d*$/.test(value)) {
+                  setAmount(value);
+                }
+              }}
+              type="text"
             />
           </div>
 
