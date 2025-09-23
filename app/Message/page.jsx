@@ -11,13 +11,13 @@ import {
   sendMessage,
   emitTyping,
   emitStopTyping,
-  emitReadMessage,
+  emitReadMessage
 } from "../utils/socket";
 import { useAuth } from "../context/AuthContext";
 import api from "@/services/api";
 import { format, isSameDay, parseISO } from "date-fns";
 import { useSearchParams } from "next/navigation";
-import { toast } from "react-toastify";
+
 
 function MessageContent() {
   const { token } = useAuth();
@@ -30,19 +30,19 @@ function MessageContent() {
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [lastMessages, setLastMessages] = useState({});
   const [typingUser, setTypingUser] = useState(null);
-  const [showContacts, setShowContacts] = useState(true);
+  const [showContacts, setShowContacts] = useState(true); // For mobile view toggle
   const [isMobileView, setIsMobileView] = useState(false);
 
   const searchParams = useSearchParams();
   const initialSellerId = searchParams.get("sellerId");
   const initialProductId = searchParams.get("productId");
   const initialPreviewMessage = searchParams.get("previewMessage");
-  const initialOfferMessage = searchParams.get("offerMessage");
   const initialProductImageUrl = searchParams.get("productImageUrl");
   const initialProductTitle = searchParams.get("productTitle");
 
   const [initialMessageSent, setInitialMessageSent] = useState(false);
 
+  // Detect mobile view
   useEffect(() => {
     const checkMobileView = () => {
       setIsMobileView(window.innerWidth < 768);
@@ -54,6 +54,7 @@ function MessageContent() {
     return () => window.removeEventListener('resize', checkMobileView);
   }, []);
 
+  // Load profile
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -90,10 +91,14 @@ function MessageContent() {
   // Auto-load last selected or open sellerId from URL
   useEffect(() => {
     const autoLoadLastChatOrNew = async () => {
+      // Check if we're on mobile (window width check)
       const isMobile = window.innerWidth < 768;
       
+      // If sellerId present in URL, try to open that first
       if (initialSellerId && !initialMessageSent) {
+        // Try to find in contacts
         let sellerUser = contacts.find((u) => u._id === initialSellerId);
+        // If not found in current contacts, fetch seller by id from backend
         if (!sellerUser) {
           try {
             const res = await api.get(`/profile/users/${initialSellerId}`, {
@@ -106,6 +111,7 @@ function MessageContent() {
             };
           } catch (err) {
             console.error("Failed to fetch seller by id:", err);
+            // continue and fallback to lastSelectedUser
           }
         }
 
@@ -115,13 +121,14 @@ function MessageContent() {
             productImageUrl: initialProductImageUrl,
             productId: initialProductId,
             productTitle: initialProductTitle,
-            previewOffer: initialOfferMessage,
           });
           setInitialMessageSent(true);
           return;
         }
       }
 
+      // On desktop, fallback to last selected user
+      // On mobile, only load if there are no contacts (show empty state)
       if (!isMobile) {
         const lastUserId = localStorage.getItem("lastSelectedUserId");
         if (lastUserId && contacts.length > 0) {
@@ -131,6 +138,7 @@ function MessageContent() {
           }
         }
       } else {
+        // On mobile, if no initial seller and no contacts, show empty state
         if (contacts.length === 0) {
           setShowContacts(false);
         }
@@ -145,7 +153,6 @@ function MessageContent() {
     contacts,
     initialSellerId,
     initialPreviewMessage,
-    initialOfferMessage,
     initialProductImageUrl,
     initialProductId,
     initialProductTitle,
@@ -161,34 +168,20 @@ function MessageContent() {
     socketRef.current = socket;
 
     const handleReceiveMessage = (msg) => {
-      if (msg.messageType === "offer") {
-        console.log("📩 New Offer received:", msg.offerDetails);
-        toast.info(`New offer received: ₦${msg.offerDetails?.amount?.toLocaleString()}`);
-      } else {
-        console.log("📩 New message received:", msg.text);
-      }
-      
       setConversations((prev) => {
         if (prev.some((existingMsg) => existingMsg._id === msg._id)) {
           return prev;
         }
         return [...prev, msg];
       });
-      
-      // Update last messages for contacts list
-      const otherUserId = msg.from._id === profile._id ? msg.to._id : msg.from._id;
-      const messagePreview = msg.messageType === "offer" 
-        ? `Offer: ₦${msg.offerDetails?.amount?.toLocaleString()}`
-        : msg.text || "[file]";
-        
       setLastMessages((prev) => ({
         ...prev,
-        [otherUserId]: messagePreview,
+        [msg.from._id === profile._id ? msg.to._id : msg.from._id]: msg.text,
       }));
     };
 
-    const handleTyping = (data) => {
-      if (data.userId !== profile._id) setTypingUser(data.userId);
+    const handleTyping = (userId) => {
+      if (userId !== profile._id) setTypingUser(userId);
     };
 
     const handleStopTyping = () => setTypingUser(null);
@@ -237,60 +230,7 @@ function MessageContent() {
     };
   }, [chatRoomId, token, profile]);
 
-  // Handle offer actions
-  const handleAcceptOffer = async (offerId) => {
-    try {
-      const res = await api.put(`/offer/accept-offer/${offerId}`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      
-      if (res.data.success) {
-        toast.success("Offer accepted!");
-        // Update the conversation to reflect the accepted status
-        setConversations((prev) =>
-          prev.map((msg) =>
-            msg.offerDetails?.offerId === offerId
-              ? {
-                  ...msg,
-                  offerDetails: { ...msg.offerDetails, status: "accepted" }
-                }
-              : msg
-          )
-        );
-      }
-    } catch (err) {
-      console.error("Error accepting offer:", err);
-      toast.error(err?.response?.data?.message || "Failed to accept offer");
-    }
-  };
-
-  const handleRejectOffer = async (offerId) => {
-    try {
-      const res = await api.put(`/offer/reject-offer/${offerId}`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      
-      if (res.data.success) {
-        toast.success("Offer rejected!");
-        // Update the conversation to reflect the rejected status
-        setConversations((prev) =>
-          prev.map((msg) =>
-            msg.offerDetails?.offerId === offerId
-              ? {
-                  ...msg,
-                  offerDetails: { ...msg.offerDetails, status: "rejected" }
-                }
-              : msg
-          )
-        );
-      }
-    } catch (err) {
-      console.error("Error rejecting offer:", err);
-      toast.error(err?.response?.data?.message || "Failed to reject offer");
-    }
-  };
-
-  const handleSend = async ({ text, file, productId, productImageUrl, productTitle, offer }) => {
+  const handleSend = async ({ text, file, productId, productImageUrl, productTitle }) => {
     if (!chatRoomId || !selectedUser || !profile) return;
 
     const msgData = {
@@ -301,7 +241,6 @@ function MessageContent() {
       productId,
       productImageUrl,
       productTitle,
-      createdAt: new Date().toISOString(),
     };
 
     // send over socket
@@ -312,7 +251,7 @@ function MessageContent() {
   // handleUserClick: create conversation, fetch history, add to contacts immediately
   const handleUserClick = async (
     user,
-    initialDetails = { previewMessage: null, productImageUrl: null, productId: null, productTitle: null, previewOffer: null, }
+    initialDetails = { previewMessage: null, productImageUrl: null, productId: null, productTitle: null }
   ) => {
     try {
       localStorage.setItem("lastSelectedUserId", user._id);
@@ -332,9 +271,9 @@ function MessageContent() {
 
       setSelectedUser(user);
       setChatRoomId(conversation._id);
-      setShowContacts(false);
+      setShowContacts(false); // Hide contacts panel on mobile when chat is selected
 
-      // Add seller to contacts immediately if not present
+      // ---- Add seller to contacts immediately if not present ----
       setContacts(prevContacts => {
         if (!prevContacts.some(c => c._id === user._id)) {
           const newContact = {
@@ -362,6 +301,7 @@ function MessageContent() {
         : [];
       setConversations(existingMessages);
 
+      // mark messages as read (if any)
       const messageIds = existingMessages.map(m => m._id);
       emitReadMessage(messageIds, conversation._id);
 
@@ -369,8 +309,7 @@ function MessageContent() {
       if (
         initialDetails.previewMessage &&
         existingMessages.length === 0 &&
-        profile?._id !== user._id && 
-        initialDetails.offerMessage 
+        profile?._id !== user._id
       ) {
         await handleSend({
           text: initialDetails.previewMessage,
@@ -378,7 +317,6 @@ function MessageContent() {
           productId: initialDetails.productId,
           productImageUrl: initialDetails.productImageUrl,
           productTitle: initialDetails.productTitle,
-          offerText: initialDetails.previewOffer
         });
       }
     } catch (err) {
@@ -390,6 +328,7 @@ function MessageContent() {
     setShowContacts(true);
     setSelectedUser(null);
     setChatRoomId(null);
+    // On mobile, if no contacts exist, keep showing the empty state
   };
 
   const renderMessages = () => {
@@ -436,18 +375,13 @@ function MessageContent() {
 
             <div
               className={`max-w-[75%] px-3 py-2 rounded-2xl text-sm relative ${
-                isFromSelf
-                  ? "bg-blue-500 text-white rounded-br-md"
+                isFromSelf 
+                  ? "bg-blue-500 text-white rounded-br-md" 
                   : "bg-gray-100 text-gray-900 rounded-bl-md"
               }`}
             >
-              {/* Product preview */}
               {msg.productImageUrl && msg.productId && (
-                <Link
-                  href={`/details/${msg.productId}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+                <Link href={`/details/${msg.productId}`} target="_blank" rel="noopener noreferrer">
                   <div className="mb-2 p-2 bg-white rounded-lg border border-gray-200 cursor-pointer">
                     <img
                       src={msg.productImageUrl}
@@ -461,90 +395,6 @@ function MessageContent() {
                 </Link>
               )}
 
-              {/* Offer message */}
-              {msg.messageType === "offer" && msg.offerDetails ? (
-                <div className={`p-3 border rounded-lg ${
-                  msg.offerDetails.status === 'accepted' 
-                    ? 'bg-green-50 border-green-200' 
-                    : msg.offerDetails.status === 'rejected'
-                    ? 'bg-red-50 border-red-200'
-                    : 'bg-yellow-50 border-yellow-200'
-                } text-gray-800`}>
-                  
-                  {/* Product info if available */}
-                  {msg.offerDetails.productTitle && (
-                    <div className="mb-3 p-2 bg-white bg-opacity-60 rounded text-sm">
-                      <span className="text-gray-600">Product: </span>
-                      <span className="font-medium">{msg.offerDetails.productTitle}</span>
-                      {msg.offerDetails.originalPrice && (
-                        <div className="text-xs text-gray-500 mt-1">
-                          Original Price: ₦{msg.offerDetails.originalPrice.toLocaleString()}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                  
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="font-semibold text-base">
-                      Offer: ₦{msg.offerDetails.amount?.toLocaleString()}
-                    </p>
-                    <span className={`px-2 py-1 text-xs rounded-full capitalize ${
-                      msg.offerDetails.status === 'accepted' 
-                        ? 'bg-green-100 text-green-800' 
-                        : msg.offerDetails.status === 'rejected'
-                        ? 'bg-red-100 text-red-800'
-                        : 'bg-yellow-100 text-yellow-800'
-                    }`}>
-                      {msg.offerDetails.status}
-                    </span>
-                  </div>
-                  
-                  {msg.offerDetails.expiresAt && msg.offerDetails.status === 'pending' && (
-                    <p className="text-xs text-gray-500 mb-2">
-                      Expires: {format(parseISO(msg.offerDetails.expiresAt), "MMM dd, yyyy hh:mm a")}
-                    </p>
-                  )}
-                  
-                  {/* Seller actions - only show if user is the seller and offer is pending */}
-                  {!isFromSelf &&
-                    msg.to === profile?._id &&
-                    msg.offerDetails.status === "pending" && (
-                      <div className="flex gap-2 mt-3">
-                        <button
-                          onClick={() => handleAcceptOffer(msg.offerDetails.offerId)}
-                          className="flex-1 px-3 py-2 text-sm bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-colors"
-                        >
-                          Accept Offer
-                        </button>
-                        <button
-                          onClick={() => handleRejectOffer(msg.offerDetails.offerId)}
-                          className="flex-1 px-3 py-2 text-sm bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-colors"
-                        >
-                          Reject Offer
-                        </button>
-                      </div>
-                    )}
-                    
-                  {/* Show status message for accepted/rejected offers */}
-                  {msg.offerDetails.status === 'accepted' && (
-                    <div className="mt-2 p-2 bg-green-100 rounded text-sm text-green-800">
-                      ✅ Offer accepted! Please proceed with the transaction.
-                    </div>
-                  )}
-                  {msg.offerDetails.status === 'rejected' && (
-                    <div className="mt-2 p-2 bg-red-100 rounded text-sm text-red-800">
-                      ❌ Offer was rejected.
-                    </div>
-                  )}
-                </div>
-              ) : (
-                // Regular text message
-                msg.text && (
-                  <div className="text-sm leading-relaxed">{msg.text}</div>
-                )
-              )}
-
-              {/* File attachments */}
               {msg.file && msg.file.path && (
                 <div className="mt-1">
                   {msg.file.mimetype?.startsWith("image/") ? (
@@ -566,16 +416,10 @@ function MessageContent() {
                 </div>
               )}
 
-              {/* Timestamp */}
-              <div
-                className={`text-[10px] mt-1 ${
-                  isFromSelf ? "text-blue-100" : "text-gray-500"
-                }`}
-              >
+              <div className="text-sm leading-relaxed">{msg.text}</div>
+              <div className={`text-[10px] mt-1 ${isFromSelf ? 'text-blue-100' : 'text-gray-500'}`}>
                 {format(parseISO(msg.createdAt), "hh:mm a")}
               </div>
-
-              {/* Read receipt */}
               {isFromSelf && (
                 <div className="text-[10px] text-blue-200 mt-1">
                   {isRead ? "Read" : isDelivered ? "Delivered" : "Sent"}
@@ -745,15 +589,15 @@ function MessageContent() {
           ) : (
             <>
               {/* Mobile header for no conversation */}
-              <div className="md:hidden block border-b border-gray-200 px-4 py-3 bg-white">
-                <button 
+              <div className="md:hidden border-b border-gray-200 px-4 py-3 bg-white">
+                {/* <button 
                   onClick={handleBackToContacts}
                   className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
-                </button>
+                </button> */}
               </div>
               
               <div className="flex-1 flex flex-col items-center justify-center text-center text-gray-500 p-8">
@@ -775,6 +619,7 @@ function MessageContent() {
     </div>
   );
 }
+
 
 export default function MessagePage() {
   return (
