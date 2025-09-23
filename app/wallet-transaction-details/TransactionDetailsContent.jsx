@@ -54,16 +54,162 @@ export default function TransactionDetails() {
     router.back();
   };
 
-  const handleShareReceipt = () => {
-    if (navigator.share && transaction) {
-      navigator.share({
-        title: "Transaction Receipt",
-        text: `Transaction Receipt - ₦${Number(transaction.amount).toLocaleString()}`,
-        url: window.location.href,
+  const generateReceiptHTML = () => {
+    return `
+      <div style="padding: 24px; background: white; border-radius: 12px;">
+        <!-- Header -->
+        <div style="text-align: center; margin-bottom: 32px;">
+          <h2 style="font-size: 18px; font-weight: 600; color: #6B7280; margin: 0; margin-bottom: 8px;">Transaction Receipt</h2>
+        </div>
+
+        <!-- Logo -->
+        <div style="text-align: left; margin-bottom: 32px;">
+          <div style="display: inline-flex; align-items: left; gap: 8px;">
+              <img src="/tenalyLogo.svg" alt="TenalyLogo" style="width: 123px; height: 60px;"  />
+          </div>
+        </div>
+
+        <!-- Amount -->
+        <div style="text-align: center; margin-bottom: 32px;">
+          <div style="font-size: 32px; font-weight: bold; color: #1F2937; margin-bottom: 8px;">
+            ₦${Number(transaction.amount).toLocaleString()}
+          </div>
+          <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <div style="width: 8px; height: 8px; background: #10B981; border-radius: 50%;"></div>
+            <span style="font-size: 14px; color: #10B981; font-weight: 500;">Successful</span>
+          </div>
+        </div>
+
+        <!-- Details Table -->
+        <div style="border: 1px solid #E5E7EB; border-radius: 8px; overflow: hidden; margin-bottom: 24px;">
+          <!-- Order Amount -->
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid #E5E7EB; background: #F9FAFB;">
+            <span style="font-size: 14px; color: #6B7280;">Order Amount</span>
+            <span style="font-size: 14px; color: #1F2937; font-weight: 500;">₦${Number(transaction.amount).toLocaleString()}</span>
+          </div>
+
+          <!-- Fee -->
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid #E5E7EB; background: #F9FAFB;">
+            <span style="font-size: 14px; color: #6B7280;">Fee</span>
+            <span style="font-size: 14px; color: #1F2937; font-weight: 500;">₦100</span>
+          </div>
+
+          <!-- Transaction Type -->
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid #E5E7EB;">
+            <span style="font-size: 14px; color: #6B7280;">Transaction Type</span>
+            <span style="font-size: 14px; color: #1F2937; font-weight: 500;">Wallet Top up</span>
+          </div>
+
+          <!-- Date -->
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid #E5E7EB;">
+            <span style="font-size: 14px; color: #6B7280;">Date</span>
+            <span style="font-size: 14px; color: #1F2937; font-weight: 500;">${formatDate(transaction.paymentDate)}</span>
+          </div>
+
+          <!-- Transaction ID -->
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px;">
+            <span style="font-size: 14px; color: #6B7280;">Transaction ID</span>
+            <span style="font-size: 12px; color: #1F2937; font-weight: 500; font-family: monospace;">${transaction.reference}</span>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="text-align: center; margin-top: 24px;">
+          <p style="font-size: 12px; color: #6B7280; margin: 0;">Thank you for choosing Tenaly</p>
+        </div>
+      </div>
+    `;
+  };
+
+  const handleShareReceipt = async () => {
+    if (!transaction) return;
+
+    try {
+      // Create a temporary receipt container
+      const receiptContainer = document.createElement('div');
+      receiptContainer.id = 'share-receipt-container';
+      receiptContainer.style.position = 'absolute';
+      receiptContainer.style.left = '-9999px';
+      receiptContainer.style.top = '-9999px';
+      receiptContainer.style.width = '400px';
+      receiptContainer.style.backgroundColor = 'white';
+      receiptContainer.style.fontFamily = 'Arial, sans-serif';
+
+      receiptContainer.innerHTML = generateReceiptHTML();
+
+      // Append to body temporarily
+      document.body.appendChild(receiptContainer);
+
+      // Wait a moment for the DOM to update
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Capture as Canvas
+      const canvas = await html2canvas(receiptContainer, { 
+        scale: 2,
+        useCORS: true,
+        backgroundColor: 'white'
       });
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      alert("Receipt link copied to clipboard!");
+
+      // Convert canvas to blob
+      canvas.toBlob(async (blob) => {
+        if (navigator.share && navigator.canShare) {
+          const file = new File([blob], `receipt-${transaction.reference}.png`, { type: 'image/png' });
+          
+          // Check if files can be shared
+          if (navigator.canShare({ files: [file] })) {
+            try {
+              await navigator.share({
+                title: "Transaction Receipt",
+                text: `Transaction Receipt - ₦${Number(transaction.amount).toLocaleString()}`,
+                files: [file]
+              });
+            } catch (shareError) {
+              if (shareError.name !== 'AbortError') {
+                console.error('Error sharing receipt:', shareError);
+                fallbackShare(canvas);
+              }
+            }
+          } else {
+            fallbackShare(canvas);
+          }
+        } else {
+          fallbackShare(canvas);
+        }
+      }, 'image/png');
+
+      // Clean up
+      document.body.removeChild(receiptContainer);
+
+    } catch (error) {
+      console.error("Error generating receipt for sharing:", error);
+      alert("Error generating receipt. Please try again.");
+    }
+  };
+
+  const fallbackShare = (canvas) => {
+    // Fallback: Create a download link or copy image to clipboard
+    try {
+      // Try to copy image to clipboard
+      canvas.toBlob(async (blob) => {
+        try {
+          await navigator.clipboard.write([
+            new ClipboardItem({ 'image/png': blob })
+          ]);
+          alert("Receipt image copied to clipboard!");
+        } catch (clipboardError) {
+          // Final fallback: download the image
+          const link = document.createElement('a');
+          link.download = `receipt-${transaction.reference}.png`;
+          link.href = canvas.toDataURL();
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          alert("Receipt image downloaded!");
+        }
+      });
+    } catch (error) {
+      console.error("Fallback share failed:", error);
+      alert("Unable to share receipt. Please try downloading instead.");
     }
   };
 
@@ -89,7 +235,7 @@ export default function TransactionDetails() {
 
         <!-- Logo -->
         <div style="text-align: left; margin-bottom: 32px;">
-          <div style="display: inline-flex; align-items: left; gap: 8px;">
+           <div style="display: inline-flex; align-items: left; gap: 8px;">
               <img src="/tenalyLogo.svg" alt="TenalyLogo" style="width: 123px; height: 60px;"  />
           </div>
         </div>
@@ -236,6 +382,9 @@ export default function TransactionDetails() {
               <h1 className="text-[#525252] font-[600] text-[18px] font-inter mb-2">
                 Transaction Details
               </h1>
+              <p className="text-[#868686] text-[12px] font-inter">
+                You can view your wallet top up transaction here
+              </p>
             </div>
       
           <div className="bg-[#FAFAFA] w-full rounded-none sm:rounded-[8px] overflow-hidden">
