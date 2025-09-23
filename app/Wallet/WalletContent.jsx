@@ -217,11 +217,16 @@ export default function WalletContent() {
           {editingAmount ? (
             <div className="w-full mt-6 space-y-3">
               <input
-                type="number"
+                type="text"
                 min="1"
                 placeholder="Enter amount"
                 value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (/^\d*\.?\d*$/.test(value)) {
+                    setAmount(value);
+                  }
+                }}
                 className="w-full rounded-[6px] px-3 py-2.5 sm:py-3 text-black focus:outline-none text-[14px] sm:text-[16px]"
               />
               <Button

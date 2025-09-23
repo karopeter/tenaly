@@ -6,6 +6,7 @@ import Button from "../components/Button";
 import api from "@/services/api";
 import { ArrowLeft } from "lucide-react";
 import Img from "../components/Image";
+import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
 export default function TransactionDetails() {
@@ -66,45 +67,114 @@ export default function TransactionDetails() {
     }
   };
 
-  const handleDownloadReceipt = () => {
-    const receiptData = {
-      reference: transaction.reference,
-      amount: transaction.amount,
-      type: transaction.type,
-      date: transaction.paymentDate,
-    };
+  const handleDownloadReceipt = async () => {
+    if (!transaction) return;
 
+    // Create a temporary receipt container
+    const receiptContainer = document.createElement('div');
+    receiptContainer.id = 'receipt-container';
+    receiptContainer.style.position = 'absolute';
+    receiptContainer.style.left = '-9999px';
+    receiptContainer.style.top = '-9999px';
+    receiptContainer.style.width = '400px';
+    receiptContainer.style.backgroundColor = 'white';
+    receiptContainer.style.fontFamily = 'Arial, sans-serif';
 
-    
-     const doc = new jsPDF();
-      doc.setFontSize(16);
-  doc.text("Transaction Receipt", 20, 20);
-    doc.setFontSize(12);
-  doc.text(`Reference: ${transaction.reference}`, 20, 40);
-  doc.text(`Amount: ₦${Number(transaction.amount).toLocaleString()}`, 20, 50);
-   doc.text(`Description: ${transaction.description || "N/A"}`, 20, 60);
-  // doc.text(
-  //   `Type: ${transaction.transactionType === "credit" ? "Wallet Topup" : "Premium Service"}`,
-  //   20,
-  //   60
-  // );
+    receiptContainer.innerHTML = `
+      <div style="padding: 24px; background: white; border-radius: 12px;">
+        <!-- Header -->
+        <div style="text-align: center; margin-bottom: 32px;">
+          <h2 style="font-size: 18px; font-weight: 600; color: #6B7280; margin: 0; margin-bottom: 8px;">Transaction Receipt</h2>
+        </div>
 
-   doc.text(`Date: ${formatDate(transaction.paymentDate)}`, 20, 70);
-  doc.text(`Status: Successful`, 20, 80);
+        <!-- Logo -->
+        <div style="text-align: left; margin-bottom: 32px;">
+          <div style="display: inline-flex; align-items: left; gap: 8px;">
+              <img src="/tenalyLogo.svg" alt="TenalyLogo" style="width: 123px; height: 60px;"  />
+          </div>
+        </div>
 
-   doc.setFontSize(10);
-  doc.text("Thank you for using our service.", 20, 100);
+        <!-- Amount -->
+        <div style="text-align: center; margin-bottom: 32px;">
+          <div style="font-size: 32px; font-weight: bold; color: #1F2937; margin-bottom: 8px;">
+            ₦${Number(transaction.amount).toLocaleString()}
+          </div>
+          <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <div style="width: 8px; height: 8px; background: #10B981; border-radius: 50%;"></div>
+            <span style="font-size: 14px; color: #10B981; font-weight: 500;">Successful</span>
+          </div>
+        </div>
 
-  // Save file
-  doc.save(`receipt-${transaction.reference}.pdf`);
-    
-    // const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(receiptData, null, 2));
-    // const downloadAnchorNode = document.createElement('a');
-    // downloadAnchorNode.setAttribute("href", dataStr);
-    // downloadAnchorNode.setAttribute("download", `receipt-${transaction.reference}.json`);
-    // document.body.appendChild(downloadAnchorNode);
-    // downloadAnchorNode.click();
-    // downloadAnchorNode.remove();
+        <!-- Details Table -->
+        <div style="border: 1px solid #E5E7EB; border-radius: 8px; overflow: hidden; margin-bottom: 24px;">
+          <!-- Order Amount -->
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid #E5E7EB; background: #F9FAFB;">
+            <span style="font-size: 14px; color: #6B7280;">Order Amount</span>
+            <span style="font-size: 14px; color: #1F2937; font-weight: 500;">₦${Number(transaction.amount).toLocaleString()}</span>
+          </div>
+
+          <!-- Fee -->
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid #E5E7EB; background: #F9FAFB;">
+            <span style="font-size: 14px; color: #6B7280;">Fee</span>
+            <span style="font-size: 14px; color: #1F2937; font-weight: 500;">₦100</span>
+          </div>
+
+          <!-- Transaction Type -->
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid #E5E7EB;">
+            <span style="font-size: 14px; color: #6B7280;">Transaction Type</span>
+            <span style="font-size: 14px; color: #1F2937; font-weight: 500;">Wallet Top up</span>
+          </div>
+
+          <!-- Date -->
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid #E5E7EB;">
+            <span style="font-size: 14px; color: #6B7280;">Date</span>
+            <span style="font-size: 14px; color: #1F2937; font-weight: 500;">${formatDate(transaction.paymentDate)}</span>
+          </div>
+
+          <!-- Transaction ID -->
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px;">
+            <span style="font-size: 14px; color: #6B7280;">Transaction ID</span>
+            <span style="font-size: 12px; color: #1F2937; font-weight: 500; font-family: monospace;">${transaction.reference}</span>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="text-align: center; margin-top: 24px;">
+          <p style="font-size: 12px; color: #6B7280; margin: 0;">Thank you for choosing Tenaly</p>
+        </div>
+      </div>
+    `;
+
+    // Append to body temporarily
+    document.body.appendChild(receiptContainer);
+
+    try {
+      // Wait a moment for the DOM to update
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Capture as Canvas
+      const canvas = await html2canvas(receiptContainer, { 
+        scale: 2,
+        useCORS: true,
+        backgroundColor: 'white'
+      });
+      
+      const imgData = canvas.toDataURL("image/png");
+
+      // Create PDF
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`receipt-${transaction.reference}.pdf`);
+    } catch (error) {
+      console.error("Error generating receipt:", error);
+      alert("Error generating receipt. Please try again.");
+    } finally {
+      // Clean up - remove the temporary element
+      document.body.removeChild(receiptContainer);
+    }
   };
 
   if (loading) {
@@ -159,7 +229,6 @@ export default function TransactionDetails() {
          <span className="text-[14px] font-[500]">Go back</span>
       </button>
 
-
       {/* Main Content */}
       <div className="px-4 sm:px-6 py-6">
         <div className="max-w-md mx-auto"> 
@@ -167,10 +236,8 @@ export default function TransactionDetails() {
               <h1 className="text-[#525252] font-[600] text-[18px] font-inter mb-2">
                 Transaction Details
               </h1>
-              <p className="text-[#868686] text-[12px] font-inter">
-                You can view your wallet top up transaction here
-              </p>
             </div>
+      
           <div className="bg-[#FAFAFA] w-full rounded-none sm:rounded-[8px] overflow-hidden">
             {/* Success Icon */}
             <div className="flex justify-center mb-6 mt-5">
@@ -187,7 +254,7 @@ export default function TransactionDetails() {
                 ₦{Number(transaction.amount).toLocaleString()}
               </p>
               <p className="text-[#868686] text-[13px] sm:text-[14px] font-inter mt-1">
-                {transaction.type === "credit" ? "Wallet Topup" : "Premium Service"}
+                {transaction.type === "credit" ? "Wallet Topup" : ""}
               </p>
             </div>
 
