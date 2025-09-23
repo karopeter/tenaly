@@ -19,7 +19,7 @@ export default function BecomeVerifiedContent() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [validId, setValidId] = useState("");
+  const [validId, setValidId] = useState("nin");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [certificate, setCertificate] = useState("");
   const [photoDoc, setPhotoDoc] = useState(null);
@@ -70,17 +70,13 @@ export default function BecomeVerifiedContent() {
   };
 
   const handleSubmit = async (e) => {
+    
     e.preventDefault();
 
     if (!isLoggedIn) {
       toast.error("You must be logged in to submit verification.");
       return;
     }
-
-    // if (!certificate || !photoDoc || !validId || !businessName || !email || !address) {
-    //   toast.error("Please fill out all fields and upload documents.");
-    //   return;
-    // }
 
     if (step === 1) {
       if (!businessName || !address || !email || !certificate) {
@@ -117,6 +113,7 @@ export default function BecomeVerifiedContent() {
         },
       });
       
+   
       toast.success("Verification submitted successfully!");
       setVerificationStatus('pending'); // Update status to pending
       
@@ -330,7 +327,7 @@ export default function BecomeVerifiedContent() {
                 onChange={(e) => setValidId(e.target.value)}
                 className="w-full"
               >
-                <option value="national">National Identification Number (NIN)</option>
+                <option value="nin">National Identification Number (NIN)</option>
                 <option value="driverlicense">Driver License</option>
                 <option value="passport">Passport</option>
                 <option value="voterscard">Voters Card</option>
@@ -341,59 +338,56 @@ export default function BecomeVerifiedContent() {
                 <h3 className="text-left text-[#525252] font-inter font-[500] text-[14px] mt-4 mb-2">
                   Upload valid means of ID
                 </h3>
-                <label
-                  htmlFor="photo-upload"
-                  className="flex flex-col items-center justify-center bg-[#F7F7FF] border-2 border-dashed border-[#5555DD] 
-                  rounded-[8px] p-10 cursor-pointer w-full  h-[150px] transition relative"
-                >
-                  <Img
-                    src="/document-upload.svg"
-                    alt="Document Icon"
-                    width={24}
-                    height={24}
-                    className="mx-auto mb-2"
-                  />
-                  <span className="text-[#525252] text-[14px] font-inter font-[500]">
-                    Upload Document
-                  </span>
-                  <input
-                    id="photo-upload"
-                    type="file"
-                    accept=".jpg,.jpeg,.png,.pdf,.webp,.bmp,.tiff,.gif"
-                    className="hidden"
-                    onChange={(e) => setPhotoDoc(e.target.files[0])}
-                  />
-                </label>
-                {photoDoc && (
-                  <div className="flex flex-col items-center mt-3">
-                    <div className="relative w-32 h-32">
-                      {photoDoc.type.startsWith("image/") ? (
-                        <Img
-                          src={URL.createObjectURL(photoDoc)}
-                          alt="Preview"
-                          width={32}
-                          height={32}
-                          className="w-32 h-32 object-contain rounded border"
-                        />
-                      ) : (
-                        <div className="w-32 h-32 flex items-center justify-center bg-[#F7F7FF] rounded border">
-                          <span className="text-[#1031AA] text-xs break-all text-center px-2">
-                            {photoDoc.name}
-                          </span>
-                        </div>
-                      )}
-                      <button
-                        type="button"
-                        className="absolute top-1 right-1 bg-white rounded-full p-1 shadow"
-                        onClick={() => setPhotoDoc(null)}
-                        aria-label="Cancel upload"
-                      >
-                        <Img src="/close-circle.svg" alt="Cancel" width={20} height={20} />
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
+               {!photoDoc ? (
+               <label
+                 htmlFor="photo-upload"
+                className="flex flex-col items-center justify-center bg-[#F7F7FF] border-2 border-dashed border-[#5555DD] 
+                rounded-[8px] p-10 cursor-pointer w-full h-[150px] transition relative">
+                <Img
+                 src="/document-upload.svg"
+                 alt="Document Icon"
+                 width={24}
+                 height={24}
+                className="mx-auto mb-2"/>
+                 <span className="text-[#525252] text-[14px] font-inter font-[500]">
+                 Upload Document
+               </span>
+              <input
+                id="photo-upload"
+                type="file"
+               accept=".jpg,.jpeg,.png,.pdf,.webp,.bmp,.tiff,.gif"
+               className="hidden"
+              onChange={(e) => setPhotoDoc(e.target.files[0])}/>
+            </label>
+          ) : (
+          <div className="flex flex-col items-center mt-3">
+           <div className="relative w-32 h-32">
+          {photoDoc.type.startsWith("image/") ? (
+           <Img
+             src={URL.createObjectURL(photoDoc)}
+             alt="Preview"
+             width={32}
+            height={32}
+            className="w-32 h-32 object-contain rounded border"
+          />
+         ) : (
+          <div className="w-32 h-32 flex items-center justify-center bg-[#F7F7FF] rounded border">
+             <span className="text-[#1031AA] text-xs break-all text-center px-2">
+              {photoDoc.name}
+           </span>
+        </div>
+       )}
+       <button
+         type="button"
+         className="absolute top-1 right-1 bg-white rounded-full p-1 shadow"
+         onClick={() => setPhotoDoc(null)}
+         aria-label="Cancel upload">
+        <Img src="/close-circle.svg" alt="Cancel" width={20} height={20} />
+       </button>
+       </div>
+      </div>
+       )}
+      </div>
               <div className="flex justify-center mt-5">
                 <Button
                   type="submit"
