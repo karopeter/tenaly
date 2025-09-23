@@ -77,9 +77,25 @@ export default function BecomeVerifiedContent() {
       return;
     }
 
-    if (!certificate || !photoDoc || !validId || !businessName || !email || !address) {
-      toast.error("Please fill out all fields and upload documents.");
+    // if (!certificate || !photoDoc || !validId || !businessName || !email || !address) {
+    //   toast.error("Please fill out all fields and upload documents.");
+    //   return;
+    // }
+
+    if (step === 1) {
+      if (!businessName || !address || !email || !certificate) {
+        toast.error("Please complete all required fields");
+        return;
+      }
+      setStep(2);
       return;
+    }
+
+    if (step === 2) {
+      if (!validId || !photoDoc) {
+        toast.error("Please select ID type and upload document");
+        return;
+      }
     }
 
     setLoading(true);
@@ -192,15 +208,6 @@ export default function BecomeVerifiedContent() {
 
   return (
     <div className="bg-white shadow-phenom md:rounded-[12px] p-4 md:p-8 w-full  text-center">
-      <div className="flex justify-start  mb-6">
-        {/* <Button
-          onClick={handleGoBack}
-          className="flex items-center text-[#1031AA] hover:text-[#00A8DF] font-medium"
-        >
-          <ArrowLeft className="w-5 h-5 mr-2 text-[#141B34]" />
-          <span className="text-[#525252] font-[500] text-[14px] font-inter">Go Back</span>
-        </Button> */}
-      </div>
 
       <div className="flex flex-col  justify-start items-start md:justify-center md:items-center">
         <div>
@@ -272,7 +279,7 @@ export default function BecomeVerifiedContent() {
                 <input
                   id="certificate-upload"
                   type="file"
-                  accept=".pdf,.jpg,.jpeg,.png"
+                  accept=".pdf,.jpg,.jpeg,.png,.webp,.bmp,.tiff,.gif"
                   className="hidden"
                   onChange={handleFileChange}
                 />
@@ -352,7 +359,7 @@ export default function BecomeVerifiedContent() {
                   <input
                     id="photo-upload"
                     type="file"
-                    accept=".jpg,.jpeg,.png,.pdf"
+                    accept=".jpg,.jpeg,.png,.pdf,.webp,.bmp,.tiff,.gif"
                     className="hidden"
                     onChange={(e) => setPhotoDoc(e.target.files[0])}
                   />

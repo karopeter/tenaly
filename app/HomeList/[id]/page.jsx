@@ -281,22 +281,6 @@ const productImage =
           )}
         </div>
         <div className="flex items-center space-x-3">
-         {/* <button
-          className={`cursor-pointer transition duration-300 ${
-            isBookmarked ? "filter saturate-150 brightness-110" : "filter grayscale"
-          }`}
-          onClick={handleBookmark}
-          disabled={bookmarkLoading}
-          title={isBookmarked ? "Already Bookmarked" : "Add to Bookmarks"}
-        >
-          <Img
-            src="/bookmark.svg"
-            alt="Bookmark"
-            width={44}
-            height={44}
-            className="w-[36px] h-[36px] md:w-[44px] md:h-[44px]"
-          />
-        </button> */}
         <button
          className={`cursor-pointer transition duration-300 ${
         isBookmarked ? "saturate-150 brightness-110" : "grayscale" }`}
