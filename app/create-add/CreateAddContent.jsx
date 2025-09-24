@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Img from "../components/Image";
 import MainCategoryDropdown from "../components/dropdowns/category-dropdown";
 import LocationModal from "../components/UI/locationModal";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import Button from "../components/Button";
 import { toast } from "react-toastify";
 import api from "@/services/api";
@@ -19,6 +20,15 @@ const routeMap = {
   "Short Let Property": "/shortlet",
   "Event Center And Venues": "/event-center",
 };
+
+  // Helper to reorder array 
+  const reorder = (list, startIndex, endIndex) => {
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+    return result;
+  }
+
 
 export default function CreateCarContent() {
   const router = useRouter();
@@ -35,6 +45,14 @@ export default function CreateCarContent() {
   const [message, setMessage] = useState("");
   const [businesses, setBusinesses] = useState([]);
   const [businessId, setBusinessId] = useState("");
+
+
+  // Handle drag end
+  const onDragEnd = (result) => {
+    if (!result.destination) return;
+    setUploadedImages((prev) => reorder(prev, result.source.index, result.destination.index));
+  };
+
 
   useEffect(() => {
     const fetchBusinesses = async () => {
@@ -266,27 +284,45 @@ export default function CreateCarContent() {
               />
               <Img src="/upload.svg" alt="Upload" width={24} height={24} />
             </div>
-            <div className="flex flex-wrap gap-4">
-              {uploadedImages.map((img, i) => (
-                <div
-                  key={i}
-                  className="w-24 h-24 rounded-md overflow-hidden relative border border-[#EDEDED]"
+           <DragDropContext onDragEnd={onDragEnd}>
+            <Droppable droppableId="images" direction="horizontal">
+              {(provided) => (
+                <div className="flex flex-wrap gap-4"
+                 ref={provided.innerRef}
+                 {...provided.droppableProps}
                 >
-                  <img
-                    src={URL.createObjectURL(img)}
-                    alt={`Preview ${i}`}
-                    className="w-full h-full object-cover"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeImage(i)}
-                    className="absolute top-1 right-1 bg-white rounded-full p-1"
-                  >
-                    <X className="w-4 h-4 text-gray-600" />
-                  </button>
+                 {uploadedImages.map((img, i) => (
+                  <Draggable 
+                    key={img.name + 1} 
+                    draggableId={img.name + i} 
+                    index={i}>
+                     {(dragProvided, snapshot) => (
+                      <div
+                        className={`w-24 h-24 rounded-md overflow-hidden relative border border-[#EDEDED] bg-white ${snapshot.isDragging ? "dragging" : ""}`}
+                        ref={dragProvided.innerRef}
+                        {...dragProvided.draggableProps}
+                        {...dragProvided.dragHandleProps}>
+                         <img 
+                          src={URL.createObjectURL(img)}
+                          alt={`Preview ${i}`}
+                          className="w-full h-full object-cover"
+                         />
+                         <button
+                           type="button"
+                           onClick={() => removeImage(i)}
+                           className="absolute top-1 right-1 bg-white rounded-full p-1"
+                         >
+                           <X className="w-4 h-4 text-gray-600" />
+                         </button>
+                      </div>
+                     )}
+                  </Draggable>
+                 ))}
+                 {provided.placeholder}
                 </div>
-              ))}
-            </div>
+              )}
+            </Droppable>
+           </DragDropContext>
           </div>
 
           {error && <p className="text-red-500 text-center mt-4">{error}</p>}
