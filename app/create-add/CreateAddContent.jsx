@@ -310,8 +310,7 @@ export default function CreateCarContent() {
                          <button
                            type="button"
                            onClick={() => removeImage(i)}
-                           className="absolute top-1 right-1 bg-white rounded-full p-1"
-                         >
+                           className="absolute top-1 right-1 bg-white rounded-full p-1">
                            <X className="w-4 h-4 text-gray-600" />
                          </button>
                       </div>
