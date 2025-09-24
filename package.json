@@ -7,8 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "clear-cache": "rmdir /s /q .next",
-    "postinstall": "npm install --legacy-peer-deps"
+    "clear-cache": "rmdir /s /q .next"
   },
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",
