@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Img from "../components/Image";
 import MainCategoryDropdown from "../components/dropdowns/category-dropdown";
 import LocationModal from "../components/UI/locationModal";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import Button from "../components/Button";
 import { toast } from "react-toastify";
 import api from "@/services/api";
