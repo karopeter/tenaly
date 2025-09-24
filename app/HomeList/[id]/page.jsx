@@ -10,7 +10,6 @@ import {SellerInfo} from "../../components/features/SellerInfo";
 import MessageSellerButton from "@/app/components/UI/messageSeller";
 import { SellerImage } from "@/app/components/features/sellerImage";
 import ReportListingModal from "@/app/components/ReportListingModal/reportListingModal";
-import { reportService } from "@/services/reportService";
 import { toast } from "react-toastify";
 import { sendOffer } from "@/app/utils/socket";
 import { useAuth } from "@/app/context/AuthContext";
@@ -24,6 +23,7 @@ export default function HomeListDetails() {
   const [error, setError] = useState(null);
   const [conversations, setConversations] = useState([]);
   const { businessId, id } = useParams();
+  const [zoomedImage, setZoomedImage] = useState(null);
 
   const [adData, setAdData] = useState(null);
   const [showDetails, setShowDetails] = useState(false); 
@@ -315,14 +315,21 @@ const productImage =
         {/* Main Image */}
         <div className="md:w-2/3 w-full relative">
           {mainImage && (
-            <Img
+           <button
+             type="button"
+             className="w-full"
+             onClick={() => setZoomedImage(mainImage)}
+             aria-label="Zoom main image"
+           >
+             <Img
               src={mainImage}
               alt={productTitle}
               width={686}
               height={354}
-              className="w-full h-auto md:h-[354px] object-cover rounded"
+              className="w-full h-auto md:h-[354px] object-cover rounded transition-transform duration-200 hover:scale-105 cursor-zoom-in"
               onError={(e) => { e.target.src = placeholderImage; }}
             />
+           </button>
           )}
            {!mainImage && (
             <Img
@@ -337,7 +344,13 @@ const productImage =
         {/* Small Image Grid */}
         <div className="md:w-1/3 w-full grid grid-cols-2 grid-rows-2 gap-2 md:h-[354px] md:ml-1">
         {smallImages.map((img, idx) => (
-           <div key={idx} className="w-full h-full overflow-hidden">
+           <button 
+            key={idx} 
+            type="button"
+            className="w-full h-full overflow-hidden"
+            onClick={() => setZoomedImage(img)}
+            aria-label={`Zoom image ${idx + 2}`}
+            >
            <Img
              src={img}
             alt={`${productTitle} image ${idx + 2}`}
@@ -346,7 +359,7 @@ const productImage =
              className="w-full h-full object-cover rounded"
              onError={(e) => { e.target.src = placeholderImage; }}
            />
-        </div>
+        </button>
         ))}
          {smallImages.length === 0 && (
              <div className="col-span-2 row-span-2 w-full h-full relative overflow-hidden rounded">
@@ -358,8 +371,32 @@ const productImage =
               />
             </div>
           )}
-     </div>
+       </div>
       </div>
+
+      {/* Zoom Modal */}
+      {zoomedImage && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
+          <button
+           type="button"
+           className="absolute top-6 right-8 text-white text-3xl font-bold"
+           onClick={() => setZoomedImage(null)}
+           aria-label="Close zoom"
+          >
+            &times;
+          </button>
+          <div className="max-w-[90vw] max-h-[90vh] flex items-center justify-center">
+            <Img 
+             src={zoomedImage}
+             alt="Zoomed"
+             width={900}
+             height={600}
+             className="max-w-full max-h-[80vh] rounded-lg shadow-lg object-contain"
+             onError={(e) => { e.target.src = placeholderImage }}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Price and Make Offer Section for Mobile View */ }
    <div className="block md:hidden mt-4">
