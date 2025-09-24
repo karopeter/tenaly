@@ -88,11 +88,6 @@ export default function TransactionDetails() {
             <span style="font-size: 14px; color: #1F2937; font-weight: 500;">₦${Number(transaction.amount).toLocaleString()}</span>
           </div>
 
-          <!-- Fee -->
-          <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid #E5E7EB; background: #F9FAFB;">
-            <span style="font-size: 14px; color: #6B7280;">Fee</span>
-            <span style="font-size: 14px; color: #1F2937; font-weight: 500;">₦100</span>
-          </div>
 
           <!-- Transaction Type -->
           <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid #E5E7EB;">
@@ -257,12 +252,6 @@ export default function TransactionDetails() {
           <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid #E5E7EB; background: #F9FAFB;">
             <span style="font-size: 14px; color: #6B7280;">Order Amount</span>
             <span style="font-size: 14px; color: #1F2937; font-weight: 500;">₦${Number(transaction.amount).toLocaleString()}</span>
-          </div>
-
-          <!-- Fee -->
-          <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid #E5E7EB; background: #F9FAFB;">
-            <span style="font-size: 14px; color: #6B7280;">Fee</span>
-            <span style="font-size: 14px; color: #1F2937; font-weight: 500;">₦100</span>
           </div>
 
           <!-- Transaction Type -->
