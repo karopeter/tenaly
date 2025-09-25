@@ -2,24 +2,26 @@
 import { useState, useRef } from "react";
 import Img from "../components/Image";
 import Button from "../components/Button";
+import api from "@/services/api";
+import ResetPasswordModal from "./resett-password-modal";
+import { toast } from "react-toastify";
 
 export default function VerifyModal({ onClose }) {
-  const [codeDigits, setCodeDigits] = useState(["", "", "", ""]);
+  const [codeDigits, setCodeDigits] = useState(["", "", "", "", ""]);
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
   const inputsRef = useRef([]);
 
   // Check if all digits are filled
   const isCodeValid = codeDigits.every((digit) => digit !== "");
 
-  const handleInputChange = (e, index) => {
+ const handleInputChange = (e, index) => {
     const value = e.target.value.replace(/\D/g, "");
     if (!value) return;
-
     const newDigits = [...codeDigits];
     newDigits[index] = value;
     setCodeDigits(newDigits);
-
-    // Move to next input
-    if (index < 3 && value) {
+    if (index < 4 && value) {
       inputsRef.current[index + 1]?.focus();
     }
   };
@@ -36,6 +38,31 @@ export default function VerifyModal({ onClose }) {
     }
   };
 
+
+   const handleSubmit = async (e) => {
+    e.preventDefault();
+    const otp = codeDigits.join("");
+    try {
+      await api.post("/auth/mock-verify-otp", { email, otpCode: otp });
+      setOtpCode(otp);
+      toast.success("OTP verified successfully!");
+      setShowResetModal(true);
+    } catch (error) {
+      console.log(error.response?.data?.message || "OTP verification failed");
+      toast.success("Error verifying otp");
+    }
+  };
+
+
+    if (showResetModal) {
+    return (
+      <ResetPasswordModal
+        email={email}
+        otp={otpCode}
+        onBack={onClose}
+      />
+    );
+  }
   return (
     <div className="fixed inset-0 z-50 flex justify-center items-center bg-black bg-opacity-50 transition-opacity duration-300">
       <div className="bg-white w-[411px] max-w-md rounded-[24px] shadow-lg p-6 relative max-h-[259px] overflow-y-auto">
@@ -48,10 +75,11 @@ export default function VerifyModal({ onClose }) {
           />
         </button>
         
-        <h2 className="text-center text-[20px] font-semibold text-[#525252] mb-2">Let's verify it's you</h2>
+        <h2 className="text-center text-[20px] font-semibold text-[#525252] mb-2">Let's verify it's youuuu</h2>
         <p className="text-center text-[#868686] mb-6">Enter code sent to your email address</p>
 
-        <div className="flex flex-row justify-center gap-4 items-center">
+       <form onSubmit={handleSubmit}>
+         <div className="flex flex-row justify-center gap-4 items-center">
           {codeDigits.map((digit, index) => (
             <input
               key={index}
@@ -76,6 +104,7 @@ export default function VerifyModal({ onClose }) {
           Submit
         </Button>
         </div>
+       </form>
       </div>
     </div>
   );

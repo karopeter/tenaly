@@ -2,12 +2,15 @@
 import { useState, useRef } from "react";
 import Img from "../components/Image";
 import Button from "../components/Button";
+import api from "@/services/api";
 import ResetPasswordModal from "./resett-password-modal";
 
-export default function ForgotPasswordVerifyModal({ onClose }) {
-  const [codeDigits, setCodeDigits] = useState(["", "", "", ""]);
+export default function ForgotPasswordVerifyModal({ email, onClose, onPasswordResetSuccess }) {
+  const [codeDigits, setCodeDigits] = useState(["", "", "", "", ""]); // 5 inputs
   const inputsRef = useRef([]);
   const [showResetPasswordModal, setShowResetPasswordModal] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Check if all digits are filled
   const isCodeValid = codeDigits.every((digit) => digit !== "");
@@ -20,8 +23,8 @@ export default function ForgotPasswordVerifyModal({ onClose }) {
     newDigits[index] = value;
     setCodeDigits(newDigits);
 
-    // Move to next input
-    if (index < 3 && value) {
+    // Move to next input (changed from index < 3 to index < 4 for 5 inputs)
+    if (index < 4 && value) {
       inputsRef.current[index + 1]?.focus();
     }
   };
@@ -38,16 +41,41 @@ export default function ForgotPasswordVerifyModal({ onClose }) {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-   
-      // Open the ReseetPasswordModal 
+    if (!isCodeValid || isSubmitting) return;
+
+    const otp = codeDigits.join("");
+    setIsSubmitting(true);
+
+    try {
+      await api.post("/auth/mock-verify-otp", { email, otpCode: otp });
+      setOtpCode(otp);
       setShowResetPasswordModal(true);
-  
-  }
+    } catch (error) {
+      console.error("OTP verification failed:", error);
+      alert(error.response?.data?.message || "OTP verification failed. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   if (showResetPasswordModal) {
-    return <ResetPasswordModal onClose={() => setShowResetPasswordModal(false)} />
+    return (
+      <ResetPasswordModal 
+        email={email}
+        otp={otpCode}
+        onClose={() => setShowResetPasswordModal(false)} 
+       onBack={() => setShowResetPasswordModal(false)}
+       onPasswordResetSuccess={() => {
+         setShowResetPasswordModal(false);
+         onClose();
+         if (onPasswordResetSuccess) {
+          onPasswordResetSuccess();
+         }
+       }}
+      />
+    );
   }
 
   return (
@@ -77,18 +105,22 @@ export default function ForgotPasswordVerifyModal({ onClose }) {
               onChange={(e) => handleInputChange(e, index)}
               onKeyDown={(e) => handleKeyDown(e, index)}
               className="w-[52px] h-[52px] text-center text-xl border border-[#CDCDD7] rounded-[8px] outline-none placeholder:text-[#CDCDD7]"
+              disabled={isSubmitting}
             />
           ))}
         </div>
 
         <div className="flex justify-center items-center">
           <Button
-            disabled={!isCodeValid}
+            type="submit"
+            disabled={!isCodeValid || isSubmitting}
             className={`mt-6 w-[197px] h-[44px] border border-[#EDEDED] rounded-[8px] pt-[10px] pr-[16px] pb-[10px] pl-[16px] font-[500] text-[14px] ${
-              isCodeValid ? "bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white" : "bg-[#EDEDED] cursor-not-allowed text-[#CDCDD7]"
+              isCodeValid && !isSubmitting 
+                ? "bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white" 
+                : "bg-[#EDEDED] cursor-not-allowed text-[#CDCDD7]"
             }`}
           >
-            Submit
+            {isSubmitting ? "Verifying..." : "Submit"}
           </Button>
         </div>
         </form>

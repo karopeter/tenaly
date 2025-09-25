@@ -2,21 +2,50 @@
 import { useState } from "react";
 import Button from "../components/Button";
 import ForgotPasswordVerifyModal from "./forgotpassword-verify-modal";
+import { toast } from "react-toastify";
+import api from "@/services/api";
 
-export default function ForgotPassword({ onClose }) {
+export default function ForgotPassword({ onClose, onPasswordResetSuccess }) {
   const [email, setEmail] = useState("");
   const [showVerifyModal, setShowVerifyModal] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit =  async (e) => {
     e.preventDefault();
     if (email.trim() === "") return;
-    
-    setShowVerifyModal(true);
+
+    try {
+     await api.post("/auth/mock-request-otp", { email });
+     toast.success("Otp generated successfully");
+     setShowVerifyModal(true);
+    } catch (error) {
+      console.error(error.response?.data?.message || "Failed to request OTP");
+      toast.error("Failed to generate OTP");
+    }
+  };
+
+   const handleVerifyModalClose = () => {
+    setShowVerifyModal(false);
+    onClose(); 
+  };
+
+   const handlePasswordResetSuccess = () => {
+    setShowVerifyModal(false);
+    onClose(); 
+    if (onPasswordResetSuccess) {
+      onPasswordResetSuccess(); 
+    }
+  };
+
+   if (showVerifyModal) {
+    return (
+      <ForgotPasswordVerifyModal 
+        email={email}
+        onClose={handleVerifyModalClose}
+        onPasswordResetSuccess={handlePasswordResetSuccess}
+      />
+    );
   }
 
-  if (showVerifyModal) {
-    return <ForgotPasswordVerifyModal onClose={() => setShowVerifyModal(false)} />
-  }
     return (
         <div className="fixed inset-0 z-50 flex justify-center items-center bg-black bg-opacity-50 transition-opacity duration-300">
         <div className="bg-white w-[497px] max-w-md max-h-[90vh] overflow-y-auto rounded-[24px] shadow-lg p-6 relative">
