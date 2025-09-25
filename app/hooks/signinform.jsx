@@ -75,6 +75,11 @@ export default function SignInForm({ onClose }) {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const handlePasswordResetSuccess = () => {
+  toast.success("Password reset successfully. You can now log in.");
+  setShowForgotPaswordModal(false);
+};
+
   const isFormValid = form.password.trim() !== "" && (form.email.trim() !== "" || form.phone.trim() !== "");
 
   const handleSignIn = async (e) => {
