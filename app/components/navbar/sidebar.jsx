@@ -41,6 +41,8 @@ export default function Sidebar({ isMobile, activeSection, setActiveSection }) {
           phoneNumber: data.phoneNumber || "",
           createdAt: data.createdAt || "",
           image: data.image || "",
+          isVerified: data.isVerified || false,
+          paidPlan: data.paidPlans?.[0]?.planType || null,
         });
       } catch (error) {
         toast.error("Failed to fetch user details:", error.message);
@@ -106,16 +108,27 @@ export default function Sidebar({ isMobile, activeSection, setActiveSection }) {
       <div className="bg-[#F7F7FF] p-4 rounded-[8px] text-center mb-4">
         {profileData !== null ? (
           <>
-            <Img
+           <div className="relative w-20 h-20 mx-auto mb-2">
+             <Img
               src={profileData?.image || "/profile-circles1.svg"}
               width={83.33}
               height={83.33}
-              className="w-20 h-20 rounded-full mx-auto mb-2 object-cover"
+              className="w-20 h-20 rounded-full object-cover"
               alt="Profile Picture"
                onError={(e) => {
                 e.currentTarget.src = "/profile-circles1.svg"; 
               }}
             />
+
+            {profileData?.isVerified && (
+              <Img
+                src="/profile-verified.svg"
+                width={31.67}
+                height={33.33}
+                className="absolute top-0 right-0"
+              />
+            )}
+           </div>
             <h3 className="text-[#525252] font-[500] font-inter">
               {profileData.firstName} {profileData.lastName}
             </h3>
@@ -124,6 +137,21 @@ export default function Sidebar({ isMobile, activeSection, setActiveSection }) {
                 ? `Joined since ${new Date(profileData.createdAt).toLocaleDateString()}`
                 : ""}
             </p>
+
+            {profileData?.paidPlan && (
+              <>
+              <hr className="my-2 border-t border-[#EDEDED]" />
+              <p className="text-[#868686] text-sm font-[500] flex items-center justify-center gap-2 mt-2">
+                <Img 
+                  src="/plan-crown.svg"
+                  width={20}
+                  height={20}
+                />
+                You are on the {" "}
+                {profileData.paidPlan.charAt(0).toUpperCase() + profileData.paidPlan.slice(1)} plan
+              </p> 
+              </>
+            )}
           </>
         ) : (
           <div>Loading...</div>
