@@ -148,13 +148,20 @@ export default function CarAdDetails() {
            className="w-full h-auto md:w-[686px] md:h-[354px] object-cover rounded"
           />
           )}
-          {/* Preparing for the admin side to know if it is sold or not */}
-          {/* <div className="absolute top-5 left-[-10px] bg-[#F8EFEF] w-[100px] md:w-[120px] h-[40px] md:rounded-[8px] rounded-[4px] transform -rotate-45 flex items-center justify-center">
-            <Img src="/tick-circle.svg" alt="Tick Circle" width={16} height={16} className="mr-2" />
-             <span className="text-[#CB0D0D] text-[12px] md:text-[14px] font-[500] font-inter">
-               Sold
-             </span>
-          </div> */}
+          {vehicleAd?.status && (
+           <div className="absolute top-5 left-[-10px] bg-[#F8EFEF] w-[100px] md:w-[120px] h-[40px] md:rounded-[8px] rounded-[4px] transform -rotate-45 flex items-center justify-center shadow-md">
+            <Img
+             src="/tick-circle.svg"
+             alt="Tick Circle"
+             width={16}
+            height={16}
+            className="mr-2"
+           />
+           <span className="text-[#CB0D0D] text-[12px] md:text-[14px] font-[500] font-inter">
+            Sold
+          </span>
+          </div>
+          )}
         </div>
        {/* Smaller Image Grid */}
       <div className="md:w-1/3 w-full grid grid-cols-2 grid-rows-2 gap-2">

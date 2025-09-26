@@ -154,18 +154,26 @@ const handleMarkVehicleAsSold = async (vehicleId, carAdId) => {
 
     await api.patch(`/vehicles/mark-vehicle-as-sold/${vehicleId}`);
 
-    if (carAdId) {
-      try {
-        await api.delete(`/carAdd/delete-car-ad/${carAdId}`);
-      } catch (delErr) {
-        console.warn("Failed to delete linked carAd:", delErr);
-      }
-    }
+    // if (carAdId) {
+    //   try {
+    //     await api.delete(`/carAdd/delete-car-ad/${carAdId}`);
+    //   } catch (delErr) {
+    //     console.warn("Failed to delete linked carAd:", delErr);
+    //   }
+    // }
 
+    // setVehicleAds((prev) =>
+    //   prev.map(({ adId, carAd, vehicleAd }) =>
+    //     vehicleAd?._id === vehicleId
+    //       ? { adId, carAd: null, vehicleAd: { ...vehicleAd, status: "sold" } }
+    //       : { adId, carAd, vehicleAd }
+    //   )
+    // );
+     // Update local state to reflect sold status
     setVehicleAds((prev) =>
       prev.map(({ adId, carAd, vehicleAd }) =>
         vehicleAd?._id === vehicleId
-          ? { adId, carAd: null, vehicleAd: { ...vehicleAd, status: "sold" } }
+          ? { adId, carAd, vehicleAd: { ...vehicleAd, status: "sold" } } // Keep carAd
           : { adId, carAd, vehicleAd }
       )
     );
@@ -195,20 +203,29 @@ const handleMarkVehicleAsSold = async (vehicleId, carAdId) => {
     const response = await api.patch(`/property/mark-property-as-sold/${propertyId}`);
 
     // if there is a linked carAd, delete it (optional - remove if not desired)
-    if (carAdId) {
-      try {
-        await api.delete(`/carAdd/delete-car-ad/${carAdId}`);
-      } catch (delErr) {
-        console.warn("Failed to delete linked carAd:", delErr);
-        // not fatal — continue
-      }
-    }
+    // if (carAdId) {
+    //   try {
+    //     await api.delete(`/carAdd/delete-car-ad/${carAdId}`);
+    //   } catch (delErr) {
+    //     console.warn("Failed to delete linked carAd:", delErr);
+    //     // not fatal — continue
+    //   }
+    // }
 
     // update local state so UI reflects "sold"
+    // setPropertyAds((prev) =>
+    //   prev.map(({ adId, carAd, propertyAd }) =>
+    //     propertyAd?._id === propertyId
+    //       ? { adId, carAd: null, propertyAd: { ...propertyAd, status: "sold" } }
+    //       : { adId, carAd, propertyAd }
+    //   )
+    // );
+
+     // Update local state to reflect sold status
     setPropertyAds((prev) =>
       prev.map(({ adId, carAd, propertyAd }) =>
         propertyAd?._id === propertyId
-          ? { adId, carAd: null, propertyAd: { ...propertyAd, status: "sold" } }
+          ? { adId, carAd, propertyAd: { ...propertyAd, status: "sold" } } // Keep carAd
           : { adId, carAd, propertyAd }
       )
     );
@@ -350,13 +367,30 @@ const handleMarkVehicleAsSold = async (vehicleId, carAdId) => {
                       >
                         <div className="relative w-full md:w-[300px] shrink-0 overflow-hidden">
                           {carAd?.vehicleImage?.length > 0 && (
-                            <Img
+                           <>
+                             <Img
                               src={carAd.vehicleImage[0]}
                               alt="Ad"
                               width={340}
                               height={210}
                               className="w-full h-[160px] md:h-full object-cover rounded-[8px]"
                             />
+                            {/* SOLD Badge */}
+                             {vehicleAd?.status === "sold" && (
+                             <div className="absolute top-5 left-[-10px] bg-[#F8EFEF] w-[100px] md:w-[120px] h-[40px] md:rounded-[8px] rounded-[4px] transform -rotate-45 flex items-center justify-center shadow-md z-40">
+                              <Img 
+                                 src="/tick-circle.svg"
+                                 alt="Tick Circle"
+                                 width={16}
+                                 height={16}
+                                 className="mr-2"
+                              />
+                              <span className="text-[#CB0D0D] text-[12px] md:text-[14px] font-[500] font-inter">
+                                SOLD
+                               </span>
+                             </div>
+                            )}
+                           </>
                           )}
 
                           {vehicleAd?.plan && (
@@ -540,6 +574,7 @@ const handleMarkVehicleAsSold = async (vehicleId, carAdId) => {
                       >
                         <div className="relative w-full md:w-[300px] shrink-0 overflow-hidden">
                           {carAd?.propertyImage?.length > 0 && (
+                           <>
                             <Img
                               src={carAd.propertyImage[0]}
                               alt="Ad"
@@ -547,6 +582,23 @@ const handleMarkVehicleAsSold = async (vehicleId, carAdId) => {
                               height={210}
                               className="w-full h-[160px] md:h-[210px] object-cover rounded-[8px]"
                             />
+
+                           {/* SOLD Badge */}
+                          {propertyAd?.status === "sold" && (
+                             <div className="absolute top-5 left-[-10px] bg-[#F8EFEF] w-[100px] md:w-[120px] h-[40px] md:rounded-[8px] rounded-[4px] transform -rotate-45 flex items-center justify-center shadow-md z-40">
+                              <Img 
+                                 src="/tick-circle.svg"
+                                 alt="Tick Circle"
+                                 width={16}
+                                 height={16}
+                                 className="mr-2"
+                              />
+                              <span className="text-[#CB0D0D] text-[12px] md:text-[14px] font-[500] font-inter">
+                                SOLD
+                               </span>
+                             </div>
+                          )}
+                           </>
                           )}
 
                           {propertyAd?.plan && (
