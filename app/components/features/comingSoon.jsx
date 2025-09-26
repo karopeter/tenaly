@@ -11,10 +11,13 @@ const Form = () => {
     const [email, setEmail] = useState("");
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState(null);
+    const [hasJoined, setHasJoined] = useState(false);
 
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (hasJoined) return;
+
         setLoading(true);
         setMessage(null);
 
@@ -24,6 +27,7 @@ const Form = () => {
           if (res.status === 200 || res.status === 201) {
            setMessage({ type: "success", text: res.data.message }); 
             toast.success(res.data.message || "Your waitlist has been added successfully.");
+            setHasJoined(true);
             setName("");
             setEmail("");
           } 
@@ -54,6 +58,7 @@ const Form = () => {
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Enter your name"
                 required
+                disabled={hasJoined}
                 className="w-full px-4 py-3 bg-white text-gray-900 
                 border border-gray-300 rounded-md
                  focus:outline-none focus:ring-2 focus:ring-[#000087]"
@@ -70,6 +75,7 @@ const Form = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
                 required
+                disabled={hasJoined}
                 className="w-full px-4 py-3 bg-white text-gray-900 
                 border border-gray-300 rounded-md focus:outline-none 
                 focus:ring-2 focus:ring-[#000087]"
@@ -77,21 +83,18 @@ const Form = () => {
         </div>
         <button 
            type="submit"
-           disabled={loading}
+           disabled={loading || hasJoined}
            className="flex justify-center items-center mt-4 px-6 
            py-3 bg-[#000087] w-full text-[#FFFFFF] text-[16px] 
            rounded-md hover:bg-opacity-90 transition">
-            {loading ? "Joining..." : "Join"}
+             {loading ? "Joining..." : hasJoined ? "Already Joined" : "Join"}
         </button>
         {message && (
-        <p
-          className={`text-sm mt-2 ${
-            message.type === "success" ? "text-green-300" : "text-red-300"
-          }`}
-        >
-          {message.text}
-        </p>
-      )}
+         <p 
+          className={`text-sm mt-2 ${message.type === "success" ? "text-green-300" : "text-red-300"}`}>
+           {message.text}
+         </p>
+        )}
     </form>
     );
 };
