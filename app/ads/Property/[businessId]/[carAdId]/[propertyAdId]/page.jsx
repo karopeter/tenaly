@@ -161,7 +161,7 @@ export default function PropertyDetailsPage() {
            className="w-full h-auto md:w-[686px] md:h-[354px] object-cover rounded"
           />
           )}
-          {propertyAd?.status && (
+          {/* {propertyAd?.status && (
             <div className="absolute top-5 left-[-10px] bg-[#F8EFEF] w-[100px] md:w-[120px] h-[40px] md:rounded-[8px] rounded-[4px] transform -rotate-45 flex items-center justify-center shadow-md">
             <Img
              src="/tick-circle.svg"
@@ -174,7 +174,7 @@ export default function PropertyDetailsPage() {
             Sold
           </span>
           </div>
-          )}
+          )} */}
         </div>
        {/* Smaller Image Grid */}
       <div className="md:w-1/3 w-full grid grid-cols-2 grid-rows-2 gap-2">
