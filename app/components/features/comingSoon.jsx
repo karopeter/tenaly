@@ -141,7 +141,7 @@ export default function ComingSoonSection() {
             {/* Right image */}
             <div className="w-full md:w-1/2 flex justify-center md:justify-end">
                 <Img
-                    src="/tenalyWait.svg"
+                    src="/waitlistImg.png"
                     alt="Mobile App Preview"
                     width={590}
                     height={296}

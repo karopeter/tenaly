@@ -3,10 +3,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Img from "../components/Image";
 import { useAuth } from "../context/AuthContext";
+import { useState } from "react";
+import ForgotPassword from "../hooks/forgot-password-model";
 
 export default function SettingsContent() {
   const router = useRouter();
   const { logout, verificationStatus } = useAuth();
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   const shouldShowVerification = 
     !verificationStatus?.isVerified && !verificationStatus?.hasSubmitted;
@@ -34,6 +37,22 @@ export default function SettingsContent() {
         </Link>
         )}
 
+        {/* Change Password */ }
+        <button 
+        onClick={() => setShowForgotPassword(true)}
+        className="flex items-center gap-3 w-full transition mb-2 pb-2 border-b border-[#EBEBEC]"
+        >
+          <Img 
+            src="/security-safe.svg"
+            alt="ChangePassword Icon"
+            width={17.83}
+            height={17.83}
+          />
+          <span className="text-[#525252] font-[400] text-[14px] font-inter">
+            Change Password
+          </span>
+        </button>
+
         {/* Logout */}
         <button
           onClick={() => {
@@ -48,6 +67,14 @@ export default function SettingsContent() {
           </span>
         </button>
       </div>
+
+      {/* Forgot password modal */}
+      {showForgotPassword && (
+        <ForgotPassword
+           onClose={() => setShowForgotPassword(false)}
+           onPasswordResetSuccess={() => setShowForgotPassword(false)}
+        />
+      )}
     </div>
   );
 }
