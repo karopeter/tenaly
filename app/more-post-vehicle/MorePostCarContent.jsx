@@ -118,7 +118,9 @@ export default function MorePostCarContent() {
   const [showFreeSuccessModal, setShowFreeSuccessModal] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  const [isPosting, setIsPosting] = useState(false);
+ const [editingCarAd, setEditingCarAd] = useState(null);
+
+
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -135,6 +137,63 @@ export default function MorePostCarContent() {
     diamond: 4,
     enterprise: 5,
   };
+
+
+ // Check if we editing an incomplete Ad 
+useEffect(() => {
+  const carAdId = localStorage.getItem('editingCarAdId');
+  const carAdDataStr = localStorage.getItem('editingCarAdData');
+  const adType = localStorage.getItem('editingAdType');
+
+  if (carAdId && carAdDataStr && adType === 'vehicle') {
+    try {
+      const carAdData = JSON.parse(carAdDataStr);
+
+      setEditingCarAd({
+        carAdId,
+        businessId: carAdData.businessCategory._id,
+        category: carAdData.category,
+        location: carAdData.location,
+        images: carAdData.images,
+      });
+
+      // 🔥 Pre-fill form fields here
+      setSelectedMake(carAdData.make || "");
+      setSelectedModel(carAdData.model || "");
+      setSelectedYear(carAdData.year || "");
+      setSelectedTrim(carAdData.trim || "");
+      setSelectedColor(carAdData.color || "");
+      setSelectedInteriorColor(carAdData.interiorColor || "");
+      setTransmission(carAdData.transmission || "");
+      setVin(carAdData.vinChassisNumber || "");
+      setRegistered(carAdData.carRegistered || "");
+      setExchange(carAdData.exchangePossible || "");
+      setCarFeatures(carAdData.carKeyFeatures || "");
+      setCarType(carAdData.carType || "");
+      setVehicleBody(carAdData.carBody || "");
+      setFuel(carAdData.fuel || "");
+      setSeat(carAdData.seat || "");
+      setDriveTrain(carAdData.driveTrain || "");
+      setCylinders(carAdData.numberOfCylinders || "");
+      setEngineSize(carAdData.engineSizes || "");
+      setHorzePower(carAdData.horsePower || "");
+      setAmount(carAdData.amount?.toString() || "");
+      setNegotiation(carAdData.negotiation || "");
+      setBusiness(carAdData.businessCategory._id || "");
+      setDescription(carAdData.description || "");
+
+      toast.info("Complete your vehicle details. Images are already uploaded");
+    } catch (error) {
+      console.error("Error loading CarAd data:", error);
+
+      // Clear invalid data
+      localStorage.removeItem('editingCarAdId');
+      localStorage.removeItem('editingCarAdData');
+      localStorage.removeItem('editingAdType');
+    }
+  }
+}, []);
+
 
   // Set mounted to true after the component has mounted
   useEffect(() => {
@@ -229,7 +288,79 @@ export default function MorePostCarContent() {
     setSelectedTrim("");
   };
 
-  const buildPayload = (planType, useWallet = false) => ({
+  // const buildPayload = (planType, useWallet = false) => ({
+  //   vehicleType: selectedMake,
+  //   model: selectedModel,
+  //   year: selectedYear,
+  //   trim: selectedTrim,
+  //   color: selectedColor,
+  //   interiorColor: selectedInteriorColor,
+  //   transmission,
+  //   vinChassisNumber: vin,
+  //   carRegistered: registerd,
+  //   exchangePossible: exchange,
+  //   carKeyFeatures: carFeatures,
+  //   carType,
+  //   carBody: vehicleBody,
+  //   fuel,
+  //   seat,
+  //   driveTrain,
+  //   numberOfCylinders: cylinders,
+  //   engineSizes: engineSize,
+  //   horsePower,
+  //   amount: parseFloat(amount),
+  //   negotiation,
+  //   businessCategory: business,
+  //   description,
+  //   plan: planType,
+  //   promotionAmount: planAmounts[planType] || 0,
+  //   useWalletBalance: useWallet
+  // });
+
+  // const submitAd = useCallback(async (planToSubmit, useWallet = false) => {
+  //   try {
+  //     const payload = buildPayload(planToSubmit, useWallet);
+  //     const res = await api.post("/vehicles/post-vehicle-ad", payload);
+
+  //     // Handle different response scenarios
+  //     if (res.data.data && res.data.data.paymentUrl && !useWallet) {
+  //       toast.info("Redirecting to Paystack for payment...");
+  //       setShowModalPromote(false);
+  //       setShowWalletModal(false);
+  //       window.location.href = res.data.data.paymentUrl;
+  //     } else if (res.data.data && res.data.data.paymentStatus === 'success') {
+  //       toast.success(res.data.message || "Ad posted successfully!");
+  //       setShowModalPromote(false);
+  //       setShowWalletModal(false);
+  //       router.push('/view-vehicle-add');
+        
+  //       // Refresh profile
+  //       const profileRes = await api.get("/profile");
+  //       login(profileRes.data, token);
+  //     } else if (res.data.data && res.data.data.paymentStatus === "free") {
+  //       toast.success(res.data.message || "Free ad posted successfully!");
+  //       setShowModalPromote(false);
+  //       setShowWalletModal(false);
+  //       setShowFreeSuccessModal(true);
+  //     } else {
+  //       toast.success(res.data.message || "Ad posted successfully");
+  //       setShowModalPromote(false);
+  //       setShowWalletModal(false);
+  //       setShowFreeSuccessModal(true);
+        
+  //       // Refresh profile
+  //       const profileRes = await api.get("/profile");
+  //       login(profileRes.data, token);
+  //     }
+  //   } catch (error) {
+  //     console.error("Ad submission error:", error.response?.data || error.message);
+  //     toast.error(error.response?.data?.error || "Something went wrong posting your ad. Please try again.");
+  //   }
+  // }, [selectedMake, selectedModel, selectedYear, selectedTrim, selectedColor, selectedInteriorColor, transmission, vin, registerd, exchange, carFeatures, carType, vehicleBody, fuel, seat, driveTrain, cylinders, engineSize, horsePower, amount, negotiation, business, description, token, login, router]);
+
+
+  const buildPayload = (planType, useWallet = false) => {
+  const payload = {
     vehicleType: selectedMake,
     model: selectedModel,
     year: selectedYear,
@@ -255,49 +386,138 @@ export default function MorePostCarContent() {
     description,
     plan: planType,
     promotionAmount: planAmounts[planType] || 0,
-    useWalletBalance: useWallet
-  });
+    useWalletBalance: useWallet,
+  };
 
-  const submitAd = useCallback(async (planToSubmit, useWallet = false) => {
-    try {
-      const payload = buildPayload(planToSubmit, useWallet);
-      const res = await api.post("/vehicles/post-vehicle-ad", payload);
+  // carAdId if editing
+  if (editingCarAd?.carAdId) {
+    payload.carAdId = editingCarAd.carAdId;
+  } else if (carAdId) {
+    payload.carAdId = carAdId; // fallback if passed via query
+  }
 
-      // Handle different response scenarios
-      if (res.data.data && res.data.data.paymentUrl && !useWallet) {
-        toast.info("Redirecting to Paystack for payment...");
-        setShowModalPromote(false);
-        setShowWalletModal(false);
-        window.location.href = res.data.data.paymentUrl;
-      } else if (res.data.data && res.data.data.paymentStatus === 'success') {
-        toast.success(res.data.message || "Ad posted successfully!");
-        setShowModalPromote(false);
-        setShowWalletModal(false);
-        router.push('/view-vehicle-add');
-        
-        // Refresh profile
-        const profileRes = await api.get("/profile");
-        login(profileRes.data, token);
-      } else if (res.data.data && res.data.data.paymentStatus === "free") {
-        toast.success(res.data.message || "Free ad posted successfully!");
-        setShowModalPromote(false);
-        setShowWalletModal(false);
-        setShowFreeSuccessModal(true);
-      } else {
-        toast.success(res.data.message || "Ad posted successfully");
-        setShowModalPromote(false);
-        setShowWalletModal(false);
-        setShowFreeSuccessModal(true);
-        
-        // Refresh profile
-        const profileRes = await api.get("/profile");
-        login(profileRes.data, token);
-      }
-    } catch (error) {
-      console.error("Ad submission error:", error.response?.data || error.message);
-      toast.error(error.response?.data?.error || "Something went wrong posting your ad. Please try again.");
+  return payload;
+};
+
+// const submitAd = useCallback(async (planToSubmit, useWallet = false) => {
+//   try {
+//     const payload = buildPayload(planToSubmit, useWallet);
+
+//     const res = await api.post("/vehicles/post-vehicle-ad", payload);
+
+//     // ✅ Handle responses
+//     if (res.data.data?.paymentUrl && !useWallet) {
+//       toast.info("Redirecting to Paystack for payment...");
+//       setShowModalPromote(false);
+//       setShowWalletModal(false);
+//       window.location.href = res.data.data.paymentUrl;
+//     } else if (res.data.data?.paymentStatus === "success") {
+//       toast.success(res.data.message || "Ad posted successfully!");
+//       setShowModalPromote(false);
+//       setShowWalletModal(false);
+//       router.push("/view-vehicle-add");
+
+//       // Refresh profile
+//       const profileRes = await api.get("/profile");
+//       login(profileRes.data, token);
+//     } else if (res.data.data?.paymentStatus === "free") {
+//       toast.success(res.data.message || "Free ad posted successfully!");
+//       setShowModalPromote(false);
+//       setShowWalletModal(false);
+//       setShowFreeSuccessModal(true);
+//     } else {
+//       toast.success(res.data.message || "Ad posted successfully");
+//       setShowModalPromote(false);
+//       setShowWalletModal(false);
+//       setShowFreeSuccessModal(true);
+
+//       // Refresh profile
+//       const profileRes = await api.get("/profile");
+//       login(profileRes.data, token);
+//     }
+//   } catch (error) {
+//     console.error("Ad submission error:", error.response?.data || error.message);
+//     toast.error(
+//       error.response?.data?.error ||
+//       "Something went wrong posting your ad. Please try again."
+//     );
+//   }
+// }, [
+//   selectedMake, selectedModel, selectedYear, selectedTrim,
+//   selectedColor, selectedInteriorColor, transmission, vin,
+//   registerd, exchange, carFeatures, carType, vehicleBody,
+//   fuel, seat, driveTrain, cylinders, engineSize, horsePower,
+//   amount, negotiation, business, description,
+//   token, login, router, editingCarAd, carAdId
+// ]);
+
+const submitAd = useCallback(async (planToSubmit, useWallet = false) => {
+  try {
+    const payload = buildPayload(planToSubmit, useWallet);
+
+    const res = await api.post("/vehicles/post-vehicle-ad", payload);
+
+    // ✅ Success handlers
+    if (res.data.data?.paymentUrl && !useWallet) {
+      toast.info("Redirecting to Paystack for payment...");
+      setShowModalPromote(false);
+      setShowWalletModal(false);
+      window.location.href = res.data.data.paymentUrl;
+
+      // ⬅️ Don’t clear localStorage yet (wait for payment success callback)
+    } else if (res.data.data?.paymentStatus === "success") {
+      toast.success(res.data.message || "Ad posted successfully!");
+      setShowModalPromote(false);
+      setShowWalletModal(false);
+
+      // 🔑 Clear incomplete ad tracking
+      localStorage.removeItem("editingCarAdId");
+      localStorage.removeItem("editingAdData");
+
+      router.push("/Add");
+
+      // Refresh profile
+      const profileRes = await api.get("/profile");
+      login(profileRes.data, token);
+    } else if (res.data.data?.paymentStatus === "free") {
+      toast.success(res.data.message || "Free ad posted successfully!");
+      setShowModalPromote(false);
+      setShowWalletModal(false);
+      setShowFreeSuccessModal(true);
+
+      // 🔑 Clear incomplete ad tracking
+      localStorage.removeItem("editingCarAdId");
+      localStorage.removeItem("editingAdData");
+    } else {
+      toast.success(res.data.message || "Ad posted successfully");
+      setShowModalPromote(false);
+      setShowWalletModal(false);
+      setShowFreeSuccessModal(true);
+
+      // 🔑 Clear incomplete ad tracking
+      localStorage.removeItem("editingCarAdId");
+      localStorage.removeItem("editingAdData");
+
+      // Refresh profile
+      const profileRes = await api.get("/profile");
+      login(profileRes.data, token);
     }
-  }, [selectedMake, selectedModel, selectedYear, selectedTrim, selectedColor, selectedInteriorColor, transmission, vin, registerd, exchange, carFeatures, carType, vehicleBody, fuel, seat, driveTrain, cylinders, engineSize, horsePower, amount, negotiation, business, description, token, login, router]);
+  } catch (error) {
+    console.error("Ad submission error:", error.response?.data || error.message);
+    toast.error(
+      error.response?.data?.error ||
+      "Something went wrong posting your ad. Please try again."
+    );
+  }
+}, [
+  selectedMake, selectedModel, selectedYear, selectedTrim,
+  selectedColor, selectedInteriorColor, transmission, vin,
+  registerd, exchange, carFeatures, carType, vehicleBody,
+  fuel, seat, driveTrain, cylinders, engineSize, horsePower,
+  amount, negotiation, business, description,
+  token, login, router, editingCarAd, carAdId
+]);
+
 
   const postAdForFree = useCallback(async () => {
     await submitAd("free");
@@ -515,10 +735,7 @@ export default function MorePostCarContent() {
              <Button
               type="button"
               onClick={handlePost}
-              disabled={isPosting}
-              className={`w-full md:w-[262px] h-[44px] md:rounded-[8px] font-[500] text-[14px] ${
-                isPosting ? "opacity-70 cursor-wait" : "bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white"
-              }`}
+              className="w-full md:w-[262px] h-[44px] md:rounded-[8px] font-[500] text-[14px] bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white"
             >
              Post Ad
             </Button>
