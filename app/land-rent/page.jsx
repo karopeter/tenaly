@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import Sidebar from "../components/navbar/sidebar";
 import Content from "./Content";
 
@@ -45,11 +45,13 @@ export default function MorePropertyPost() {
                        setActiveSection={setActiveSection} 
                      />
                    )}
-                    <Content
-                     activeSection={activeSection}
-                     setActiveSection={setActiveSection}
-                     isMobile={isMobile}
-                   />
+                    <Suspense fallback={<div>Loading property post content...</div>}>
+                      <Content
+                        activeSection={activeSection}
+                        setActiveSection={setActiveSection}
+                        isMobile={isMobile}
+                      />
+                    </Suspense>
                  </div>
                </div>
              )

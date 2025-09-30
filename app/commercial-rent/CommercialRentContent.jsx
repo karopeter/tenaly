@@ -324,10 +324,6 @@ const submitAd = useCallback(async (planToSubmit, useWallet = false) => {
         localStorage.removeItem("editingAdData");
 
         router.push("/Add");
-
-       // Refresh profile 
-        const profileRes = await api.get("/profile");
-        login(profileRes.data, token);
       } else if (res.data.data?.paymentStatus === "free") {
         toast.success(res.data.message || "Free ad posted successfully!");
         setShowModalPromote(false);
@@ -346,10 +342,6 @@ const submitAd = useCallback(async (planToSubmit, useWallet = false) => {
          // 🔑 Clear incomplete ad tracking
          localStorage.removeItem("editingCarAdId");
          localStorage.removeItem("editingAdData");
-
-        // Refresh profile
-       const profileRes = await api.get("/profile");
-       login(profileRes.data, token);
       }
     } catch(error) {
      console.error("Ad submission error:", error.response?.data || error.message);

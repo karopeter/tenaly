@@ -399,57 +399,7 @@ useEffect(() => {
   return payload;
 };
 
-// const submitAd = useCallback(async (planToSubmit, useWallet = false) => {
-//   try {
-//     const payload = buildPayload(planToSubmit, useWallet);
 
-//     const res = await api.post("/vehicles/post-vehicle-ad", payload);
-
-//     // ✅ Handle responses
-//     if (res.data.data?.paymentUrl && !useWallet) {
-//       toast.info("Redirecting to Paystack for payment...");
-//       setShowModalPromote(false);
-//       setShowWalletModal(false);
-//       window.location.href = res.data.data.paymentUrl;
-//     } else if (res.data.data?.paymentStatus === "success") {
-//       toast.success(res.data.message || "Ad posted successfully!");
-//       setShowModalPromote(false);
-//       setShowWalletModal(false);
-//       router.push("/view-vehicle-add");
-
-//       // Refresh profile
-//       const profileRes = await api.get("/profile");
-//       login(profileRes.data, token);
-//     } else if (res.data.data?.paymentStatus === "free") {
-//       toast.success(res.data.message || "Free ad posted successfully!");
-//       setShowModalPromote(false);
-//       setShowWalletModal(false);
-//       setShowFreeSuccessModal(true);
-//     } else {
-//       toast.success(res.data.message || "Ad posted successfully");
-//       setShowModalPromote(false);
-//       setShowWalletModal(false);
-//       setShowFreeSuccessModal(true);
-
-//       // Refresh profile
-//       const profileRes = await api.get("/profile");
-//       login(profileRes.data, token);
-//     }
-//   } catch (error) {
-//     console.error("Ad submission error:", error.response?.data || error.message);
-//     toast.error(
-//       error.response?.data?.error ||
-//       "Something went wrong posting your ad. Please try again."
-//     );
-//   }
-// }, [
-//   selectedMake, selectedModel, selectedYear, selectedTrim,
-//   selectedColor, selectedInteriorColor, transmission, vin,
-//   registerd, exchange, carFeatures, carType, vehicleBody,
-//   fuel, seat, driveTrain, cylinders, engineSize, horsePower,
-//   amount, negotiation, business, description,
-//   token, login, router, editingCarAd, carAdId
-// ]);
 
 const submitAd = useCallback(async (planToSubmit, useWallet = false) => {
   try {
@@ -475,10 +425,6 @@ const submitAd = useCallback(async (planToSubmit, useWallet = false) => {
       localStorage.removeItem("editingAdData");
 
       router.push("/Add");
-
-      // Refresh profile
-      const profileRes = await api.get("/profile");
-      login(profileRes.data, token);
     } else if (res.data.data?.paymentStatus === "free") {
       toast.success(res.data.message || "Free ad posted successfully!");
       setShowModalPromote(false);
@@ -497,10 +443,6 @@ const submitAd = useCallback(async (planToSubmit, useWallet = false) => {
       // 🔑 Clear incomplete ad tracking
       localStorage.removeItem("editingCarAdId");
       localStorage.removeItem("editingAdData");
-
-      // Refresh profile
-      const profileRes = await api.get("/profile");
-      login(profileRes.data, token);
     }
   } catch (error) {
     console.error("Ad submission error:", error.response?.data || error.message);
