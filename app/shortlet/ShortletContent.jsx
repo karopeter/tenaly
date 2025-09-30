@@ -4,11 +4,10 @@ import { ArrowLeft, Car } from "lucide-react";
 import InputField from "../components/input";
 import api from "@/services/api";
 import { toast } from "react-toastify";
-import Img from "../components/Image";
 import Select from "../components/clientOnlySelect";
 import FreePropertySuccessModal from "../components/free-property-sucess-modal";
 import PostDropdown from "../components/dropdowns/car-post-dropdown";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 import Button from "../components/Button";
 import { 
@@ -111,10 +110,16 @@ export default function ShortletContent() {
     const [showModalPromote, setShowModalPromote] = useState(false);
     const [showWalletModal, setShowWalletModal] = useState(false);
 
+    const [editingCarAd, setEditingCarAd] = useState(null);
+
     // New state to track if the component has mounted on the client 
     const [mounted, setMounted] = useState(false);
     const { profile, token, login } = useAuth();
     const router = useRouter();
+
+    const searchParams = useSearchParams();
+    const carAdId = searchParams.get('carAdId');
+
     const handleGoBack  = () => router.back();
 
      // Define plan hierarchy
@@ -126,6 +131,54 @@ export default function ShortletContent() {
     diamond: 4,
     enterprise: 5,
   };
+
+  useEffect(() => {
+    const carAdId = localStorage.getItem('editingCarAdId');
+    const carAdDataStr = localStorage.getItem('editingCarAdData');
+    const adType = localStorage.getItem('editingAdType');
+
+    if (carAdId && carAdDataStr && adType === 'vehicle') {
+      try {
+       const carAdData = JSON.parse(carAdDataStr);
+
+       setEditingCarAd({
+        carAdId,
+        businessId: carAdData.businessCategory._id,
+        category: carAdData.category,
+        location: carAdData.location,
+        images: carAdData.images
+       });
+
+       // 🔥 Pre-fill form fields here
+       if (adType === 'property') {
+        setPropertyName(adData.propertyName || "");
+        setPropertyAddress(adData.propertyAddress || "");
+        setPropertyType(adData.propertyType || "");
+       setFurnishing(adData.furnishing || "");
+       setParking(adData.parking || "");
+       setSquareMeter(adData.squareMeter || "");
+       setOwnerShipStatus(adData.ownershipStatus || "");
+       setServiceCharge(adData.serviceCharge || "");
+       setServiceFees(adData.serviceFee || "");
+       setNumberOfBathrooms(adData.numberofBathrooms || "");
+       setNumberOfBedrooms(adData.numberOfBedrooms || "");
+       setNumberOfToilet(adData.numberOfToilet || "");
+       setMaximumAllowedGuest(adData.maximumAllowedGuest || "");
+       setIsSmokingAllowed(adData.isSmokingAllowed || "");
+       setPetsAllowed(adData.petsAllowed || "");
+       setIsPartiesAllowed(adData.isPartiesAllowed || "");
+       setPropertyDuration(adData.propertyDuration || "");
+       setAmount(adData.amount || "");
+      setNegotiation(adData.negotiation || "");
+     setBusiness(adData.businessCategory?._id || "");
+     setDescription(adData.description || "");
+      setPropertyFacility(adData.propertyFacilities || "");
+     }
+      } catch(err) {
+
+      }
+    }
+  })
 
 
     // Set mounted to true after the component has mounted on the client
@@ -214,7 +267,7 @@ export default function ShortletContent() {
 
 
  const buildPayload = (planType, useWallet = false) => {
-    return {
+    const payload = {
       propertyName: propertyName?.trim(),
      propertyAddress: propertyAddress?.trim(),
      propertyType,
@@ -240,7 +293,16 @@ export default function ShortletContent() {
      plan: planType,
      promotionAmount: planAmounts[planType] || 0,
      useWalletBalance: useWallet
-     };
+    };
+
+    // carAdId if editing 
+    if (editingCarAd?.carAdId) {
+      payload.carAdId = editingCarAd.carAdId;
+    } else if (carAdId) {
+      payload.carAdId = carAdId;
+    }
+
+    return payload;
   };
 
 
@@ -282,49 +344,42 @@ export default function ShortletContent() {
          toast.success(res.data.message || "Property ad posted successfully!");
          setShowModalPromote(false);
          setShowWalletModal(false);
-         
-         // Refresh profile
-         try {
-           const profileRes = await api.get("/profile");
-           login(profileRes.data, token);
-         } catch (profileError) {
-           console.error("Failed to refresh profile:", profileError);
-         }
-         
-         router.push('/view-property-add');
+
+         // clear incomplete ad tracking 
+         localStorage.removeItem("editingCarAdId");
+         localStorage.removeItem("editingAdData");
+
+         router.push("/Add");
+
        } else if (res.data.data?.paymentStatus === "free") {
          toast.success(res.data.message || "Free property ad posted successfully!");
          setShowModalPromote(false);
          setShowWalletModal(false);
          setShowFreeCommercialPropertyModal(true);
+
+          // 🔑 Clear incomplete ad tracking
+          localStorage.removeItem("editingCarAdId");
+          localStorage.removeItem("editingAdData");
        } else {
          // Default success case
          toast.success(res.data.message || "Property ad posted successfully");
          setShowModalPromote(false);
          setShowWalletModal(false);
-         
-         // Refresh profile
-         try {
-           const profileRes = await api.get("/profile");
-           login(profileRes.data, token);
-         } catch (profileError) {
-           console.error("Failed to refresh profile:", profileError);
-         }
-         
-         router.push('/view-property-add');
+
+         // 🔑 Clear incomplete ad tracking
+         localStorage.removeItem("editingCarAdId");
+         localStorage.removeItem("editingAdData");
+          
+         router.push('/Add');
        }
      } catch (error) {
-       console.error("Property ad submission error:", error.response?.data || error.message);
-       
-       if (error.response?.status === 500) {
-         toast.error("Server error occurred. Please check your data and try again.");
-       } else if (error.response?.data?.error) {
-         toast.error(error.response.data.error);
-       } else {
-         toast.error("Something went wrong posting your property ad. Please try again.");
-       }
+      console.error("Ad submission error:", error.response?.data || error.message);
+       toast.error(
+           error.response?.data?.error ||
+           "Something went wrong posting your ad. Please try again."
+        );
      }
-   }, [propertyName, propertyAddress, propertyType, amount, router, token, login]);
+   }, [propertyName, propertyAddress, propertyType, amount, router, token, login, router, editingCarAd, carAdId]);
    
 
   const postAdForFree = useCallback(async () => {
@@ -395,7 +450,7 @@ export default function ShortletContent() {
     if (highestPlan !== "free") {
       console.log("Using existing paid plan:", highestPlan);
       toast.success(`Post created successfully Using your existing ${highestPlan} plan to post this ad.`);
-      router.push('/view-property-add');
+      router.push('/Add');
       await submitAd(highestPlan, false);
     } else {
       // User has no paid plans, show promote modal
@@ -415,10 +470,9 @@ export default function ShortletContent() {
           <div className="bg-white shadow-phenom md:rounded-[12px] p-10 text-left md:text-center">
               <button
                 onClick={handleGoBack}
-                className="flex justify-start items-start hidden md:block md:justify-center md:items-center text-[#1031AA] hover:text-[#00A8DF] font-medium"
+                className="flex items-center hidden md:block text-[#1031AA] hover:text-[#00A8DF] font-medium mb-4"
               >
                 <ArrowLeft className="w-5 h-5 mr-2 text-[#141B34]"  /> 
-                <span className="text-[#525252] font-[500] text-[14px] font-inter">Go Back</span>
               </button>
                 <h3 className="text-left md:text-center text-[#525252] font-[500] font-inter text-[14px] md:text-[16px] mt-8 mb-4">Shortlet</h3>
                 <form>

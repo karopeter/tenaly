@@ -38,7 +38,7 @@ export default function FreePropertySuccessModal({ onClose }) {
   }, [onClose]);
 
   const redirect = () => {
-    router.push("/view-property-add");
+    router.push("/Add");
   }
 
   return (

@@ -1,12 +1,10 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
-import { ArrowLeft } from "lucide-react";
-import { useRouter } from "next/navigation";
-import Sidebar from "../components/navbar/sidebar";
+import { ArrowLeft, Images } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Button from "../components/Button";
 import InputField from "../components/input";
 import Select from "../components/clientOnlySelect";
-import Img from "../components/Image";
 import { toast } from "react-toastify";
 import api from "@/services/api";
 import PostDropdown from "../components/dropdowns/car-post-dropdown";
@@ -112,11 +110,16 @@ export default function ApartmentSaleContent() {
   const [showModalPromote, setShowModalPromote] = useState(false);
   const [showWalletModal, setShowWalletModal] = useState(false);
 
+  const [editingCarAd, setEditingCarAd] = useState(null);
+
   // New state to track if the component has mounted 
   const [mounted, setMounted] = useState(false);
-  
   const { profile, token, login } = useAuth();
   const router = useRouter();
+
+  const searchParams = useSearchParams();
+  const carAdId = searchParams.get('carAdId');
+
   const handleGoBack  = () => router.back();
 
   
@@ -129,6 +132,51 @@ export default function ApartmentSaleContent() {
     diamond: 4,
     enterprise: 5,
   };
+
+  useEffect(() => {
+    const carAdId = localStorage.getItem('editingCarAdId');
+    const carAdDataStr = localStorage.getItem('editCarAdData');
+    const adType = localStorage.getItem('editingAdType');
+
+    if (carAdId && carAdDataStr && adType === 'vehicle') {
+      try {
+       const carAdData = JSON.parse(carAdDataStr);
+
+       setEditingCarAd({
+        carAdId,
+        businessId: carAdData.businessCategory._id,
+        category: carAdData.category,
+        location: carAdData.location,
+        images: carAdData.images,
+       });
+
+       // 🔥 Pre-fill form fields here
+       if (adType === 'property') {
+        setPropertyName(adData.propertyName || "");
+        setPropertyAddress(adData.propertyAddress || "");
+        setPropertyType(adData.propertyType || "");
+        setFurnishing(adData.furnishing || "");
+        setParking(adData.parking || "");
+        setSquareMeter(adData.squareMeter || "");
+        setOwnerShipStatus(adData.ownershipStatus || "");
+        setServiceCharge(adData.serviceCharge || "");
+        setServiceFees(adData.serviceFee || "");
+        setNumberOfBathrooms(adData.numberofBathrooms || "");
+        setNumberOfBedrooms(adData.setNumberOfBedrooms || "");
+        setNumberOfToilet(adData.numberOfToilet || "");
+        setTitleDocuments(adData.setTitleDocuments || "");
+        setPropertyDuration(adData.propertyDuration || "");
+        setAmount(adData.amount || "");
+        setNegotiation(adData.negotiation || "");
+        setBusiness(adData.businessCategory?._id || "");
+        setDescription(adData.description || "");
+        setPropertyFacilities(adData.propertyFacilities || "");
+       }
+      } catch (error) {
+       console.error("Failed to parse saved ad data:", err);
+      }
+    }
+  }, []);
 
 
   // Set mounted to true after the component has mounted on the client
@@ -216,8 +264,8 @@ export default function ApartmentSaleContent() {
   }, [token, login, mounted]); 
 
    const buildPayload = (planType, useWallet = false) => {
-    return {
-    propertyName: propertyName?.trim(),
+     const payload = {
+      propertyName: propertyName?.trim(),
     propertyAddress: propertyAddress?.trim(),
     propertyType,
     furnishing: furnishing || null,
@@ -239,7 +287,16 @@ export default function ApartmentSaleContent() {
     plan: planType,
     promotionAmount: planAmounts[planType] || 0,
     useWalletBalance: useWallet
-   };
+    };
+
+    // carAdId if editing 
+    if (editingCarAd?.carAdId) {
+      payload.carAdId = editingCarAd.carAdId;
+    } else if (carAdId) {
+      payload.carAdId = carAdId;
+    }
+    
+    return payload;
   };
 
    const submitAd = useCallback(async (planToSubmit, useWallet = false) => {
@@ -279,49 +336,39 @@ export default function ApartmentSaleContent() {
            toast.success(res.data.message || "Property ad posted successfully!");
            setShowModalPromote(false);
            setShowWalletModal(false);
-           
-           // Refresh profile
-           try {
-             const profileRes = await api.get("/profile");
-             login(profileRes.data, token);
-           } catch (profileError) {
-             console.error("Failed to refresh profile:", profileError);
-           }
+
+           // clear incomplete ad tracking 
+           localStorage.removeItem("editingCarAdId");
+           localStorage.removeItem("editingAdData");
            
            router.push('/Add');
+
          } else if (res.data.data?.paymentStatus === "free") {
            toast.success(res.data.message || "Free property ad posted successfully!");
            setShowModalPromote(false);
            setShowWalletModal(false);
            setShowFreeCommercialPropertyModal(true);
+
+           // 🔑 Clear incomplete ad tracking
+           localStorage.removeItem("editingCarAdId");
+           localStorage.removeItem("editingAdData");
          } else {
-           // Default success case
            toast.success(res.data.message || "Property ad posted successfully");
            setShowModalPromote(false);
            setShowWalletModal(false);
-           
-           // Refresh profile
-           try {
-             const profileRes = await api.get("/profile");
-             login(profileRes.data, token);
-           } catch (profileError) {
-             console.error("Failed to refresh profile:", profileError);
-           }
-           
-           router.push('/Add');
-      }
-    } catch (error) {
-      console.error("Property ad submission error:", error.response?.data || error.message);
-      
-      if (error.response?.status === 500) {
-        toast.error("Server error occurred. Please check your data and try again.");
-      } else if (error.response?.data?.error) {
-        toast.error(error.response.data.error);
-      } else {
-        toast.error("Something went wrong posting your property ad. Please try again.");
-      }
+
+           // 🔑 Clear incomplete ad tracking
+           localStorage.removeItem("editingCarAdId");
+           localStorage.removeItem("editingAdData");
+        }
+       } catch (error) {
+       console.error("Ad submission error:", error.response?.data || error.message);
+         toast.error(
+           error.response?.data?.error ||
+          "Something went wrong posting your ad. Please try again."
+      );
     }
-  }, [propertyName, propertyAddress, propertyType, amount, router, token, login]); // Added router to dependencies
+  }, [propertyName, propertyAddress, propertyType, amount, router, token, login, router, editingCarAd, carAdId]); // Added router to dependencies
 
 
   const postAdForFree = useCallback(async () => {
