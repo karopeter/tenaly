@@ -452,6 +452,31 @@ const handlePost = useCallback(async () => {
   const onPlanSelect = (plan) => {
     setSelectedPlan(plan);
   };
+
+    const handleSaveAsDraft = useCallback(async () => {
+     try {
+      const payload = buildPayload('free', false);
+      delete payload.plan; // Remove plan 
+      delete payload.promotionAmount;
+      delete payload.useWalletBalance;
+  
+      const res = await api.post("/property/save-draft", payload);
+  
+      const savedPlan = res.data.data?.plan || 'free';
+  
+      toast.success(`Property ad saved as draft with ${savedPlan} plan!`);
+  
+      localStorage.removeItem("editingCarAdId");
+      localStorage.removeItem("editingCarAdData");
+      localStorage.removeItem("editingAdType");
+  
+      router.push("/Add");
+     } catch (error) {
+      console.error("Draft save error:", error);
+      toast.error(error.response?.data?.error || "Failed to save draft");
+     }
+  }, [buildPayload, router]);
+
   
     return (
       <>
@@ -565,7 +590,14 @@ const handlePost = useCallback(async () => {
           </div>
 
           {/* Submit Button */}
-          <div className="flex justify-center mt-4">
+          <div className="flex gap-4 justify-center mt-4">
+            <Button 
+              type="button"
+              onClick={handleSaveAsDraft}
+              className="w-full md:w-[200px] h-[44px] md:rounded-[8px] 
+                      font-[500] text-[14px] border border-[#CDCDD7] text-[#525252]">
+              Save as Draft
+            </Button>
             <Button
               type="button"
               onClick={handlePost}
