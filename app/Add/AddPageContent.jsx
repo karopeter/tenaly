@@ -153,6 +153,21 @@ export default function AddCarPostContent() {
   }
 };
 
+const handleEditCarAd = async (carAdId, category) => {
+   try {
+    // Store editing mode in local storage 
+    localStorage.setItem('editingCarAdId', carAdId);
+    localStorage.setItem('editingMode', 'carAd');
+
+    // Redirect to image upload page 
+    router.push(`/create-add?edit=true&carAdId=${carAdId}`);
+    toast.info("Edit your images and details");
+   } catch (error) {
+     console.error("Error preparing CarAd edit:", error);
+     toast.error("Failed to edit ad");
+   }
+};
+
 // ✅ Call this after user finishes filling vehicle/property form
 const handleAdCompletionSuccess = () => {
   // Clear localStorage draft
@@ -634,7 +649,16 @@ const handleAdCompletionSuccess = () => {
                                 >
                                   <Edit size={16} /> Complete Ad
                                 </Button>
-                                
+
+                                 <button 
+                                 className="text-[#CB0D0D] text-[14px] font-[400] font-inter hover:underline"
+                                 onClick={() => {
+                                   setShowMenu(null);
+                                   handleEditCarAd(carAd._id, carAd.category);
+                                 }}>
+                                  Edit
+                                </button>
+                            
                                 <button
                                   onClick={() => handleVehicleDelete(carAd._id)}
                                   className="text-[#CB0D0D] text-[14px] font-[400] font-inter hover:underline"
