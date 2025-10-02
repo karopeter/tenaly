@@ -340,7 +340,7 @@ export default function ApartmentSaleContent() {
            // clear incomplete ad tracking 
            localStorage.removeItem("editingCarAdId");
            localStorage.removeItem("editingAdData");
-           
+          localStorage.setItem('adUpdated', 'true');
            router.push('/Add');
 
          } else if (res.data.data?.paymentStatus === "free") {
@@ -352,6 +352,7 @@ export default function ApartmentSaleContent() {
            // 🔑 Clear incomplete ad tracking
            localStorage.removeItem("editingCarAdId");
            localStorage.removeItem("editingAdData");
+           localStorage.setItem('adUpdated', 'true');
          } else {
            toast.success(res.data.message || "Property ad posted successfully");
            setShowModalPromote(false);

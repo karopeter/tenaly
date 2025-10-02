@@ -331,11 +331,9 @@ export default function ApartmentRentContent() {
             // clear incomplete ad tracking 
             localStorage.removeItem("editingCarAdId");
             localStorage.removeItem("editingAdData");
-
             router.push("/Add");
-            
+            localStorage.setItem('adUpdated', 'true');
             // Refresh Profile 
-           
           } else if (res.data.data?.paymentStatus === "free") {
             toast.success(res.data.message || "Free property ad posted successfully!");
             setShowModalPromote(false);
@@ -345,6 +343,7 @@ export default function ApartmentRentContent() {
             // 🔑 Clear incomplete ad tracking
             localStorage.removeItem("editingCarAdId");
             localStorage.removeItem("editingAdData");
+            localStorage.setItem('adUpdated', 'true');
           } else {
             toast.success(res.data.message || "Property ad posted successfully");
             setShowModalPromote(false);
