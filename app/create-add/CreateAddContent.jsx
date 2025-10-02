@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Plus, X } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Img from "../components/Image";
 import MainCategoryDropdown from "../components/dropdowns/category-dropdown";
 import LocationModal from "../components/UI/locationModal";
@@ -32,6 +32,9 @@ const routeMap = {
 
 export default function CreateCarContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingCarAdId, setEditingCarAdId] = useState(null);
   const [category, setCategory] = useState("");
   const [location, setLocation] = useState("Choose location");
   const [state, setState] = useState("");
@@ -51,6 +54,41 @@ export default function CreateCarContent() {
   const onDragEnd = (result) => {
     if (!result.destination) return;
     setUploadedImages((prev) => reorder(prev, result.source.index, result.destination.index));
+  };
+
+  useEffect(() => {
+    const isEdit = searchParams.get('edit');
+    const carAdId = searchParams.get('carAdId');
+
+    if (isEdit === 'true' && carAdId) {
+      loadCarAdForEditing(carAdId);
+    }
+  }, [searchParams]);
+
+  const loadCarAdForEditing = async (carAdId) => {
+     try {
+      const response = await api.get(`/carAdd/get-car-byId/${carAdId}`);
+      const carAdData = response.data.ad;
+
+      setIsEditing(true);
+      setEditingCarAdId(carAdId);
+      setCategory(carAdData.category);
+      setLocation(carAdData.location);
+      setLink(carAdData.link || "");
+      setBusinessId(carAdData.business?.businessId || carAdData.businessCategory);
+
+      // Convert image URLs to file preview 
+      const imageUrls = carAdData.vehicleImage?.length > 0
+       ? carAdData.vehicleImage
+       : carAdData.propertyImage || [];
+
+       setUploadedImages(imageUrls.map(url => ({ url, isExisting: true })));
+
+       toast.info("Editing CarAd - Update images or Details");
+     } catch (error) {
+       console.error("Error loading CarAd:", error);
+       toast.error("Failed to load ad for editing");
+     }
   };
 
 

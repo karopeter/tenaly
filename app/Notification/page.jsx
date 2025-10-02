@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import api from "@/services/api";
@@ -25,31 +24,34 @@ export default function NotificationPage() {
         const count = notificationList.filter((n) => !n.isRead).length;
         setUnreadCount(count);
 
-        // Process notifications - the backend now provides images directly
+        // Process notifications
         const processedNotifications = notificationList.map((notif) => {
           console.log("🔍 Processing notification:", {
             id: notif._id,
             hasImages: notif.hasImages,
             imagesCount: notif.images?.length || 0,
             previewImage: notif.previewImage,
-            adType: notif.adType,
-            relatedCarAdId: notif.relatedCarAdId
+            adType: notif.adType
           });
 
           // Get display name based on ad type and details
           let displayName = "Your Ad";
           if (notif.adDetails) {
             if (notif.adDetails.model && notif.adDetails.year) {
-              displayName = `${notif.adDetails.model} (${notif.adDetails.year})`;
+              displayName = `${notif.adDetails.vehicleType || ''} ${notif.adDetails.model} (${notif.adDetails.year})`.trim();
             } else if (notif.adDetails.propertyName) {
               displayName = notif.adDetails.propertyName;
+            } else if (notif.adDetails.propertyType) {
+              displayName = notif.adDetails.propertyType;
             } else if (notif.adDetails.category) {
               displayName = notif.adDetails.category;
             }
           }
 
-          // Get the primary image for display
+          // Get the primary image for display - images come directly from CarAd
           const primaryImage = notif.previewImage || (notif.images && notif.images[0]) || null;
+          
+          console.log(`📸 Image for notification ${notif._id}:`, primaryImage ? 'Found' : 'Not found');
           
           return {
             ...notif,
@@ -100,13 +102,20 @@ export default function NotificationPage() {
   };
 
   const getViewAdLink = (notification) => {
-    // Create appropriate link based on ad type and ID
-    if (notification.adDetails && notification.adType === 'vehicle') {
-      return `/vehicle-details/${notification.adId || notification._id}`;
-    } else if (notification.adDetails && notification.adType === 'property') {
-      return `/property-details/${notification.adId || notification._id}`;
+    // Get the businessId and adId from the notification data
+    const businessId = notification.adDetails?.businessCategory;
+    const carAdId = notification.relatedCarAdId?._id || notification.relatedCarAdId;
+    const vehicleAdId = notification.vehicleAd?._id;
+    const propertyAdId = notification.propertyAd?._id;
+
+    if (notification.adType === 'vehicle' && businessId && carAdId && vehicleAdId) {
+      return `/ads/Vehicles/${businessId}/${carAdId}/${vehicleAdId}`;
+    } else if (notification.adType === 'property' && businessId && carAdId && propertyAdId) {
+      return `/ads/Property/${businessId}/${carAdId}/${propertyAdId}`;
     }
-    return "/Product-List"; // Default fallback
+    
+    // Fallback
+    return "/my-ads";
   };
 
   const visibleNotifications = hideRead ? notifications.filter((n) => !n.isRead) : notifications;
@@ -191,11 +200,9 @@ export default function NotificationPage() {
         ) : (
           <ul className="space-y-4">
             {visibleNotifications.map((notif) => {
-              // Determine image source - use backend-provided image or placeholder
-              const imageUrl = notif.primaryImage || 
-                `https://placehold.co/64x64/E0E0E0/333333?text=${notif.adType === 'vehicle' ? 'Car' : notif.adType === 'property' ? 'House' : 'Ad'}`;
-              
-              const hasRealImage = !!notif.primaryImage;
+              // Use the image from CarAd (already provided by backend)
+              const imageUrl = notif.primaryImage;
+              const hasRealImage = !!imageUrl;
 
               return (
                 <li
@@ -222,7 +229,7 @@ export default function NotificationPage() {
                       />
                       
                       {/* Visual indicator for ad type */}
-                      {notif.adType && (
+                      {notif.adType && notif.adType !== 'unknown' && (
                         <span className={`absolute -top-1 -right-1 w-3 h-3 rounded-full border border-white ${
                           notif.adType === 'vehicle' ? 'bg-blue-500' : 
                           notif.adType === 'property' ? 'bg-green-500' : 'bg-gray-500'
@@ -242,7 +249,7 @@ export default function NotificationPage() {
                         {/* Notification message */}
                         <p className="text-[#525252] font-[400] font-inter text-[12px] md:text-[14px] break-words leading-snug">
                           {notif.message}
-                          {notif.adDetails && (
+                          {notif.adDetails && (notif.vehicleAd || notif.propertyAd) && (
                             <span className="ml-1">
                               <Link 
                                 href={getViewAdLink(notif)} 
@@ -280,13 +287,6 @@ export default function NotificationPage() {
                     {/* Visual indicator for unread */}
                     {!notif.isRead && (
                       <div className="w-2 h-2 bg-[#5555DD] rounded-full"></div>
-                    )}
-                    
-                    {/* Debug info in development */}
-                    {process.env.NODE_ENV === 'development' && (
-                      <span className="text-xs text-gray-400">
-                        {notif.hasImages ? `${notif.images?.length || 0} img` : 'No img'}
-                      </span>
                     )}
                   </div>
                 </li>
