@@ -431,36 +431,59 @@ const submitAd = useCallback(async (planToSubmit, useWallet = false) => {
 
     const successfulPaidPlans = profile.paidPlans?.filter(p => p.status === "success");
     let highestPlan = "free";
+    let highestPlanPriority = 0;
 
-    if (successfulPaidPlans?.length) {
-      for (const p of successfulPaidPlans) {
-        if (planHierarchy[p.planType] > planHierarchy[highestPlan]) {
-          highestPlan = p.planType;
+    if (successfulPaidPlans.length > 0) {
+      for (const plan of successfulPaidPlans) {
+        const planPriority = planHierarchy[plan.planType] || 0;
+        if (planPriority > highestPlanPriority) {
+          highestPlanPriority = planPriority;
+          highestPlan = plan.planType;
         }
       }
     }
 
-    setSelectedPlan(highestPlan === "free" ? "basic" : highestPlan);
+   console.log("Highest paid plan found:", highestPlan);
 
-    if (highestPlan === "free") {
+
+    //setSelectedPlan(highestPlan === "free" ? "basic" : highestPlan);
+
+    if (highestPlan !== "free") {
+      console.log("Using existing paid plan:", highestPlan);
+      toast.success(`Post created successfully Using your existing ${highestPlan} plan to post this ad.`);
+     await submitAd(highestPlan, false);
+    }  else {
+       // User has no paid plans, show promote modal
+      console.log("No paid plans found, showing promote modal");
       setSelectedPlan("basic");
       setShowModalPromote(true);
       return;
-    } else {
-      // User has existing paid plan - use it directly
-      const planCost = planAmounts[highestPlan] || 0;
-      const walletBalance = profile.walletBalance || 0;
-
-      if (walletBalance >= planCost) {
-        // Show wallet modal if sufficient balance
-        setSelectedPlan(highestPlan);
-        setShowWalletModal(true);
-      } else {
-        // Use existing plan (no payment required)
-        await submitAd(highestPlan, false);
-      }
     }
-  }, [profile, submitAd, planHierarchy]);
+  }, [profile, submitAd, selectedMake, selectedModel, amount]);
+
+  const handleSaveAsDraft = useCallback(async () => {
+    try {
+     const payload = buildPayload('free', false);
+     delete payload.plan; // Remove plan so backend sets it 
+     delete payload.promotionAmount; // Not needed for drafts 
+     delete payload.useWalletBalance; // Not needed for drafts 
+
+     const res = await api.post("/vehicles/save-draft", payload);
+
+     const savedPlan = res.data.data?.plan || 'free';
+
+     toast.success(`Vehicle ad saved as draft with ${savedPlan} plan!`);
+
+     localStorage.removeItem("editingCarAdId");
+     localStorage.removeItem("editingCarAdData");
+     localStorage.removeItem("editingAdType");
+
+     router.push("/Add");
+    } catch (error) {
+      console.error("Draft saved error:", error);
+      toast.error(error.response?.data?.error || "Failed to save draft!");
+    }
+  }, [buildPayload, router]);
 
   return (
     <>
@@ -604,7 +627,16 @@ const submitAd = useCallback(async (planToSubmit, useWallet = false) => {
           </div>
 
           {/* Post Button */}
-          <div className="flex justify-center mt-5">
+          <div className="flex gap-4 justify-center mt-5">
+            <Button
+              type="button"
+              onClick={handleSaveAsDraft}
+            className="w-full md:w-[200px] h-[44px] md:rounded-[8px] 
+            font-[500] text-[14px] border border-[#CDCDD7] text-[#525252]"
+            >
+            Save as Draft
+            </Button>
+
              <Button
               type="button"
               onClick={handlePost}

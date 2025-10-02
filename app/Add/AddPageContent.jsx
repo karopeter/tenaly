@@ -359,29 +359,30 @@ useEffect(() => {
         </div>
       )}
 
-      {!loading && !error && adsLoaded && totalAds === 0 && (
-        <div className="w-full h-[490px] p-6 md:p-10 text-center flex flex-col justify-center items-center">
-          <Img
-            src="/postAds.svg"
-            width={158}
-            height={158}
-            className="mx-auto mb-4"
-            alt="No Posts"
-          />
-          <p className="font-[500] text-[#868686] text-sm md:text-[14px] font-inter mb-4">
-            No ads posted yet
-          </p>
-          <div className="flex justify-center">
-            <Link href="/create-add" passHref>
-              <Button className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] transition-all hover:scale-105">
-                <Plus size={20} /> Post an Ad
-              </Button>
-            </Link>
-          </div>
-        </div>
+      {!loading && !error && businessesLoaded && businesses.length === 0 && (
+         <div className="w-full h-[490px] p-6 md:p-10 text-center flex flex-col justify-center items-center">
+    <Img
+      src="/postAds.svg"
+      width={158}
+      height={158}
+      className="mx-auto mb-4"
+      alt="No Posts"
+    />
+    <p className="font-[500] text-[#868686] text-sm md:text-[14px] font-inter mb-4">
+      You don't have a business to post an Ad, create a business
+    </p>
+    <div className="flex justify-center">
+      {/* Assuming /create-business is your business creation route */}
+      <Link href="/create-business" passHref> 
+        <Button className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] transition-all hover:scale-105">
+          <Plus size={20} /> Create a Business
+        </Button>
+      </Link>
+    </div>
+  </div>
       )}
 
-      {!loading && !error && adsLoaded && totalAds > 0 && (
+      {!loading && !error && adsLoaded && businesses.length > 0 && (
         <div>
           <div className="flex flex-row justify-between items-center mb-4">
             <h3 className="text-[#525252] font-[500] font-inter text-[16px] md:text-[24px]">
@@ -438,9 +439,27 @@ useEffect(() => {
           {activeTab === 'vehicles' && (
             <div className="mt-5">
               {vehicleAds.length === 0 ? (
-                <p className="text-gray-500">No vehicle ads for this business</p>
-              ) : (
-                <div className="flex flex-col gap-4">
+                <div className="w-full h-[490px] p-6 md:p-10 text-center flex flex-col justify-center items-center">
+                  <Img 
+                   src="/postAds.svg"
+                   width={158}
+                   height={158}
+                   className="mx-auto mb-4"
+                   alt="No Posts"
+                  />
+                  <p className="font-[500] text-[#868686] text-sm md:text-[14px] font-inter mb-4">
+                   No Vehicle Ads for this business
+                  </p>
+                  <div className="flex justify-center">
+                    <Link href="/create-add" passHref>
+                      <Button className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] transition-all hover:scale-105">
+                        <Plus size={20} /> Post an Ad
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              ): (
+                  <div className="flex flex-col gap-4">
                   {vehicleAds.map(({ adId, carAd, vehicleAd }) => {
                     const businessId = carAd?.businessCategory?._id || vehicleAd?.businessCategory;
                     const vehicleId = vehicleAd?._id;
@@ -720,10 +739,28 @@ useEffect(() => {
           {/* Property Ads */}
           {activeTab === 'properties' && (
             <div className="mt-5">
-              {propertyAds.length === 0 ? (
-                <p className="text-gray-500">No property ads for this business</p>
-              ) : (
-                <div className="flex flex-col gap-4">
+             {propertyAds.length === 0 ? (
+               <div className="w-full h-[490px] p-6 md:p-10 text-center flex flex-col justify-center items-center">
+                 <Img
+                   src="/postAds.svg"
+                   width={158}
+                   height={158}
+                   className="mx-auto mb-4"
+                   alt="No Posts"
+                 />
+                 <p className="font-[500] text-[#868686] text-sm md:text-[14px] font-inter mb-4">
+                   No property ads for this business 
+                 </p>
+                 <div className="flex justify-center">
+                  <Link href="/create-add" passHref>
+                    <Button className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] transition-all hover:scale-105">
+                      <Plus /> Post an Ad
+                    </Button>
+                  </Link>
+                </div>
+               </div>
+             ):(
+               <div className="flex flex-col gap-4">
                   {propertyAds.map(({ adId, carAd, propertyAd }) => {
                     const businessId = carAd?.businessCategory?._id || propertyAd?.businessCategory;
                     const propertyId = propertyAd?._id;
@@ -997,7 +1034,7 @@ useEffect(() => {
                     );
                   })}
                 </div>
-              )}
+             )}
             </div>
           )}
         </div>

@@ -464,10 +464,34 @@ export default function ShortletContent() {
   const onPlanSelect = (plan) => {
     setSelectedPlan(plan);
   };
+
+    const handleSaveAsDraft = useCallback(async () => {
+     try {
+      const payload = buildPayload('free', false);
+      delete payload.plan; // Remove plan 
+      delete payload.promotionAmount;
+      delete payload.useWalletBalance;
+  
+      const res = await api.post("/property/save-draft", payload);
+  
+      const savedPlan = res.data.data?.plan || 'free';
+  
+      toast.success(`Property ad saved as draft with ${savedPlan} plan!`);
+  
+      localStorage.removeItem("editingCarAdId");
+      localStorage.removeItem("editingCarAdData");
+      localStorage.removeItem("editingAdType");
+  
+      router.push("/Add");
+     } catch (error) {
+      console.error("Draft save error:", error);
+      toast.error(error.response?.data?.error || "Failed to save draft");
+     }
+  }, [buildPayload, router]);
   
     return (
      <>
-          <div className="bg-white shadow-phenom md:rounded-[12px] p-10 text-left md:text-center">
+        <div className="bg-white shadow-phenom md:rounded-[12px] p-10 text-left md:text-center">
               <button
                 onClick={handleGoBack}
                 className="flex items-center hidden md:block text-[#1031AA] hover:text-[#00A8DF] font-medium mb-4"
@@ -625,7 +649,14 @@ export default function ShortletContent() {
                    >
                   </textarea>
                  </div>
-                 <div className="flex justify-center mt-5">
+                 <div className="flex gap-4 justify-center mt-5">
+                  <Button
+                   type="button"
+                   onClick={handleSaveAsDraft}
+                   className="w-full md:w-[200px] h-[44px] md:rounded-[8px] 
+                      font-[500] text-[14px] border border-[#CDCDD7] text-[#525252]">
+                     Save as Draft
+                  </Button>
                    <Button
                      type="button"
                      onClick={handlePost}
