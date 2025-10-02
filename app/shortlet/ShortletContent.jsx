@@ -348,7 +348,7 @@ export default function ShortletContent() {
          // clear incomplete ad tracking 
          localStorage.removeItem("editingCarAdId");
          localStorage.removeItem("editingAdData");
-
+         localStorage.setItem('adUpdated', 'true');
          router.push("/Add");
 
        } else if (res.data.data?.paymentStatus === "free") {
@@ -369,7 +369,7 @@ export default function ShortletContent() {
          // 🔑 Clear incomplete ad tracking
          localStorage.removeItem("editingCarAdId");
          localStorage.removeItem("editingAdData");
-          
+        localStorage.setItem('adUpdated', 'true');
          router.push('/Add');
        }
      } catch (error) {

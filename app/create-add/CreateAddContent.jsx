@@ -75,14 +75,23 @@ export default function CreateCarContent() {
       setCategory(carAdData.category);
       setLocation(carAdData.location);
       setLink(carAdData.link || "");
-      setBusinessId(carAdData.business?.businessId || carAdData.businessCategory);
+      
+      const bizId = carAdData.business?.businessId || carAdData.businessCategory?._id || carAdData.businessCategory;
+      setBusinessId(bizId);
 
       // Convert image URLs to file preview 
       const imageUrls = carAdData.vehicleImage?.length > 0
        ? carAdData.vehicleImage
        : carAdData.propertyImage || [];
 
-       setUploadedImages(imageUrls.map(url => ({ url, isExisting: true })));
+       // Create proper image object  with isExisting flag
+       const existingImages = imageUrls.map((url, index) => ({
+         url: url,
+         isExisting: true,
+         name: `existing-image-${index}` // Add a name property for consistency
+       }));
+
+       setUploadedImages(existingImages);
 
        toast.info("Editing CarAd - Update images or Details");
      } catch (error) {
@@ -127,8 +136,10 @@ export default function CreateCarContent() {
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files || []);
     const uniqueFiles = files.filter(
-      (file) => !uploadedImages.some((img) => img.name === file.name)
+      (file) => !uploadedImages.some((img) => !img.isExisting && img.name === file.name)
     );
+
+
     if (uniqueFiles.length < files.length) {
       setError("Some images were already selected and skipped");
     }
@@ -173,59 +184,64 @@ export default function CreateCarContent() {
       }
 
       const { baseCategory, categoryValue } = getCategoryDetails();
-
-      // Create FormData for multipart/form-data
       const formData = new FormData();
       
-      // Append text fields
       formData.append("category", categoryValue);
       formData.append("location", location);
-
-      // The link field is now only appended if it has a value, making it optional.
       if (link.trim() !== "") {
         formData.append("link", link);
       }
-      
-      // Append images - make sure this matches your backend expectation
-      uploadedImages.forEach((file, index) => {
-        formData.append("images", file);
+
+      uploadedImages.forEach((img) => {
+        if (!img.isExisting) {
+          // This is a new file upload 
+          formData.append("images", img);
+        }
       });
 
-      // Log for debugging (remove in production)
-      console.log("Submitting form data:");
-      console.log("Category:", categoryValue);
-      console.log("Location:", location);
-      console.log("Link:", link);
-      console.log("Images count:", uploadedImages.length);
-      console.log("Business ID:", businessId);
-
-      const res = await api.post(`/carAdd/${businessId}`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      let res;
+      if (isEditing && editingCarAdId) {
+        // Update existing CarAd
+        res = await api.put(`/carAdd/update/${editingCarAdId}`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+        localStorage.setItem('adUpdated', 'true');
+        toast.success("CarAd updated successfully");
+      } else {
+        // Create new CarAd 
+        res = await api.post(`/carAdd/${businessId}`, formData, {
+           headers: {
+            "Content-Type": "multipart/form-data",
+           },
+        });
+         console.log("Post ad created successfully");
+      }
 
       const data = res.data;
       setMessage(`✅ ${data.message}`);
-      //toast.success("Post Ad created successfully!");
 
-      // Reset form after successful submission
+      // Reset form 
       setCategory("");
       setLocation("Choose location");
       setLink("");
       setUploadedImages([]);
       setBusinessId("");
+      setIsEditing(false);
+      setEditingCarAdId(null);
 
-      const route = routeMap[categoryValue];
-      if (route) {
-        router.push(route);
-      } else if (baseCategory === "Vehicle") {
-        router.push("/more-post-vehicle");
-      } else if (baseCategory === "Property") {
-        router.push("/more-property-post");
-      } else {
-        throw new Error("Unknown category selected.");
-      }
+       // Navigate to appropriate route
+    const route = routeMap[categoryValue];
+    if (route) {
+      router.push(route);
+    } else if (baseCategory === "Vehicle") {
+      router.push("/more-post-vehicle");
+    } else if (baseCategory === "Property") {
+      router.push("/more-property-post");
+    } else {
+      throw new Error("Unknown category selected.");
+    }
     } catch (err) {
       console.error("Submit error:", err);
       const errorMessage = err.response?.data?.message || err.message || "An unexpected error occurred";
@@ -329,32 +345,39 @@ export default function CreateCarContent() {
                  ref={provided.innerRef}
                  {...provided.droppableProps}
                 >
-                 {uploadedImages.map((img, i) => (
-                  <Draggable 
-                    key={img.name + 1} 
-                    draggableId={img.name + i} 
-                    index={i}>
-                     {(dragProvided, snapshot) => (
-                      <div
+                 {uploadedImages.map((img, i) => {
+                   // Generate unique key 
+                   const itemKey = img.isExisting
+                    ? `existing-${img.url}-${i}`
+                    : `${img.name}-${i}`;
+
+                    return (
+                      <Draggable
+                       key={itemKey}
+                       draggableId={itemKey}
+                       index={i}>
+                       {(dragProvided, snapshot) => (
+                        <div
                         className={`w-24 h-24 rounded-md overflow-hidden relative border border-[#EDEDED] bg-white ${snapshot.isDragging ? "dragging" : ""}`}
-                        ref={dragProvided.innerRef}
-                        {...dragProvided.draggableProps}
-                        {...dragProvided.dragHandleProps}>
-                         <img 
-                          src={URL.createObjectURL(img)}
+                       ref={dragProvided.innerRef}
+                      {...dragProvided.draggableProps}
+                      {...dragProvided.dragHandleProps}>
+                        <img 
+                          src={img.isExisting ? img.url : URL.createObjectURL(img)}
                           alt={`Preview ${i}`}
                           className="w-full h-full object-cover"
-                         />
-                         <button
-                           type="button"
-                           onClick={() => removeImage(i)}
-                           className="absolute top-1 right-1 bg-white rounded-full p-1">
-                           <X className="w-4 h-4 text-gray-600" />
-                         </button>
-                      </div>
-                     )}
-                  </Draggable>
-                 ))}
+                        /> 
+                        <button
+                          type="button"
+                          onClick={() => removeImage(i)}
+                          className="absolute top-1 right-1 bg-white rounded-full p-1">
+                          <X className="w-4 h-4 text-gray-600" />
+                        </button>
+                       </div>
+                       )}
+                      </Draggable>
+                    )
+                 })}
                  {provided.placeholder}
                 </div>
               )}
@@ -375,7 +398,7 @@ export default function CreateCarContent() {
                   : "bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white"
               }`}
             >
-             Next
+             {loading ? "Processing..." : isEditing ? "Update" : "Next"}
             </Button>
           </div>
         </form>

@@ -443,7 +443,6 @@ const handlePost = useCallback(async () => {
           className="flex justify-start items-start hidden md:block md:justify-center md:items-center text-[#1031AA] hover:text-[#00A8DF] font-medium"
         >
           <ArrowLeft className="w-5 h-5 mr-2 text-[#141B34]" />
-          <span className="text-[#525252] font-[500] text-[14px] font-inter">Go Back</span>
         </button>
 
         <h3 className="text-left md:text-center text-[#525252] font-[500] font-inter text-[14px] md:text-[16px] mt-8 mb-4">

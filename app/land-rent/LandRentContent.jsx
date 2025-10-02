@@ -123,8 +123,8 @@ export default function  LandRentContent() {
 
   useEffect(() => {
     const carAdId = localStorage.getItem('editingCarAdId');
-    const carAdDataStr = localStorage.get('editingCarAdData');
-    const adType = localStorage.getItem('editingAdType');
+  const carAdDataStr = localStorage.getItem('editingCarAdData');
+  const adType = localStorage.getItem('editingAdType');
 
     if (carAdId && carAdDataStr && adType === 'vehicle') {
       try {
@@ -161,6 +161,11 @@ export default function  LandRentContent() {
        }
       } catch (err) {
        console.error("Failed to parse saved ad data:", err);
+
+       // Clear invalid data
+      localStorage.removeItem('editingCarAdId');
+      localStorage.removeItem('editingCarAdData');
+      localStorage.removeItem('editingAdType');
       }
     }
   }, []);
@@ -325,6 +330,7 @@ export default function  LandRentContent() {
        localStorage.removeItem("editingCarAdId");
        localStorage.removeItem("editingAdData");
 
+      localStorage.setItem('adUpdated', 'true');
        router.push("/Add");
 
      } else if (res.data.data?.paymentStatus === "free") {
@@ -336,6 +342,7 @@ export default function  LandRentContent() {
         // 🔑 Clear incomplete ad tracking
         localStorage.removeItem("editingCarAdId");
         localStorage.removeItem("editingAdData");
+        localStorage.setItem('adUpdated', 'true');
      } else {
        toast.success(res.data.message || "Property ad posted successfully");
        setShowModalPromote(false);
@@ -444,7 +451,6 @@ const onPlanSelect = (plan) => {
                 className="flex justify-start items-start  hidden md:block md:justify-center md:items-center text-[#1031AA] hover:text-[#00A8DF] font-medium"
               >
                 <ArrowLeft className="w-5 h-5 mr-2 text-[#141B34]"  /> 
-                <span className="text-[#525252] font-[500] text-[14px] font-inter">Go Back</span>
               </button>
                <h3 className="text-left md:text-center text-[#525252] font-[500] font-inter text-[14px] md:text-[16px] mt-8 mb-4">
                   Lands and Plots for rent & sale

@@ -314,7 +314,7 @@ const buildPayload = (planType, useWallet = false) => {
       // clear incomplete ad tracking 
       localStorage.removeItem("editingCarAdId");
       localStorage.removeItem("editingAdData");
-      
+      localStorage.setItem('adUpdated', 'true');
       router.push('/Add');
       
       // Refresh Profile 
@@ -329,6 +329,7 @@ const buildPayload = (planType, useWallet = false) => {
       // 🔑 Clear incomplete ad tracking
       localStorage.removeItem("editingCarAdId");
       localStorage.removeItem("editingAdData");
+      localStorage.setItem('adUpdated', 'true');
     } else {
       toast.success(res.data.message || "Ad posted successfully");
       setShowModalPromote(false);

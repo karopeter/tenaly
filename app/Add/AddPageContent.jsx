@@ -76,6 +76,34 @@ export default function AddCarPostContent() {
       }
     };
 
+    // Add this new useEffect after your existing useEffects
+useEffect(() => {
+  // Refetch ads when component becomes visible (e.g., after navigating back)
+  const handleVisibilityChange = () => {
+    if (document.visibilityState === 'visible') {
+      const wasUpdated = localStorage.getItem('adUpdated');
+      if (wasUpdated === 'true') {
+        localStorage.removeItem('adUpdated');
+        fetchAllAds();
+        toast.success('Ads refreshed');
+      }
+    }
+  };
+
+  document.addEventListener('visibilitychange', handleVisibilityChange);
+
+  // Also check on mount
+  const wasUpdated = localStorage.getItem('adUpdated');
+  if (wasUpdated === 'true') {
+    localStorage.removeItem('adUpdated');
+    fetchAllAds();
+  }
+
+  return () => {
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
+  };
+}, []);
+
 
   useEffect(() => {
     if (!businessesLoaded) return;
@@ -155,13 +183,16 @@ export default function AddCarPostContent() {
 
 const handleEditCarAd = async (carAdId, category) => {
    try {
-    // Store editing mode in local storage 
-    localStorage.setItem('editingCarAdId', carAdId);
-    localStorage.setItem('editingMode', 'carAd');
+   // Clear any existing editing state 
+   localStorage.removeItem('editingCarAdId');
+   localStorage.removeItem('editingMode');
+
+    localStorage.setItem('returnToBusinessId', selectedBusiness);
+   
 
     // Redirect to image upload page 
     router.push(`/create-add?edit=true&carAdId=${carAdId}`);
-    toast.info("Edit your images and details");
+    toast.info("Loading ad for editing...");
    } catch (error) {
      console.error("Error preparing CarAd edit:", error);
      toast.error("Failed to edit ad");
@@ -183,6 +214,15 @@ const handleAdCompletionSuccess = () => {
 
   toast.success("Ad completed successfully!");
 };
+
+useEffect(() => {
+  const returnBusinessId = localStorage.getItem('returnToBusinessId');
+  if (returnBusinessId && selectedBusiness) {
+    localStorage.removeItem('returnToBusinessId');
+    // Refetch to get latest data
+    fetchAllAds();
+  }
+}, [router.asPath]);
 
 
   const handleVehicleDelete = async (adId) => {
@@ -933,6 +973,15 @@ const handleAdCompletionSuccess = () => {
                                 >
                                   <Edit size={16} /> Complete Ad
                                 </Button>
+
+                                <button 
+                                 className="text-[#CB0D0D] text-[14px] font-[400] font-inter hover:underline"
+                                 onClick={() => {
+                                   setShowMenu(null);
+                                   handleEditCarAd(carAd._id, carAd.category);
+                                 }}>
+                                  Edit
+                                </button>
                                 
                                 <button
                                   onClick={() => handlePropertyDelete(carAd._id)}

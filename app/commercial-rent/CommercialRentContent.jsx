@@ -323,6 +323,8 @@ const submitAd = useCallback(async (planToSubmit, useWallet = false) => {
         localStorage.removeItem("editingCarAdId");
         localStorage.removeItem("editingAdData");
 
+
+        localStorage.setItem('adUpdated', 'true');
         router.push("/Add");
       } else if (res.data.data?.paymentStatus === "free") {
         toast.success(res.data.message || "Free ad posted successfully!");
