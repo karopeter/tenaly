@@ -459,8 +459,13 @@ useEffect(() => {
             </h3>
             <Button
               onClick={() => router.push("/create-add")}
-              className="w-[115px] md:w-[197px] flex items-center justify-center whitespace-nowrap h-[44px] bg-gradient-to-r from-[#00A8DF] to-[#1031AA] rounded-[8px] text-white"
+              className="flex items-center gap-1 justify-center whitespace-nowrap text-[14px] font-[500]  text-[#000087]"
             >
+              <Img 
+                src="/add-item.svg"
+                width={16}
+                height={16}
+              />
               Post an Ad
             </Button>
           </div>
