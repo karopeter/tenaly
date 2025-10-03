@@ -264,13 +264,12 @@ export default function CommercialRentContent() {
     promotionAmount: planAmounts[planType] || 0,
     useWalletBalance: useWallet
     };
-
-
-    // carAdId if editing 
-    if (editingCarAd?.carAdId) {
-      payload.carAdId = editingCarAd.carAdId;
+   const storedCarAdId = localStorage.getItem('editingCarAdId');
+    if (storedCarAdId) {
+      payload.carAdId = storedCarAdId;
+      console.log("✅ Including carAdId in payload:", storedCarAdId);
     } else if (carAdId) {
-      payload.carAdId = carAdId; // fallback if passed via query
+      payload.carAdId = carAdId;
     }
 
     return payload;

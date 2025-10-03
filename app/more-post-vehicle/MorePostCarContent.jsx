@@ -318,11 +318,16 @@ useEffect(() => {
     useWalletBalance: useWallet,
   };
 
-  // carAdId if editing
-  if (editingCarAd?.carAdId) {
+   const storedCarAdId = localStorage.getItem('editingCarAdId');
+  if (storedCarAdId) {
+    payload.carAdId = storedCarAdId;
+    console.log("✅ Including carAdId from localStorage:", storedCarAdId);
+  } else if (editingCarAd?.carAdId) {
     payload.carAdId = editingCarAd.carAdId;
+    console.log("✅ Including carAdId from editingCarAd state:", editingCarAd.carAdId);
   } else if (carAdId) {
-    payload.carAdId = carAdId; // fallback if passed via query
+    payload.carAdId = carAdId;
+    console.log("✅ Including carAdId from query params:", carAdId);
   }
 
   return payload;
