@@ -59,13 +59,14 @@ export default function CreateCarContent() {
   useEffect(() => {
     const isEdit = searchParams.get('edit');
     const carAdId = searchParams.get('carAdId');
+    const isResubmit = searchParams.get('resubmit');
 
     if (isEdit === 'true' && carAdId) {
-      loadCarAdForEditing(carAdId);
+      loadCarAdForEditing(carAdId, isResubmit === 'true'); // Pass resubmit flag 
     }
   }, [searchParams]);
 
-  const loadCarAdForEditing = async (carAdId) => {
+  const loadCarAdForEditing = async (carAdId, isResubmitting = false) => {
      try {
       const response = await api.get(`/carAdd/get-car-byId/${carAdId}`);
       const carAdData = response.data.ad;
@@ -93,7 +94,12 @@ export default function CreateCarContent() {
 
        setUploadedImages(existingImages);
 
-       toast.info("Editing CarAd - Update images or Details");
+       // Differentiating message for resubmission 
+       if (isResubmitting) {
+        toast.info("Resubmitting rejected ad - Make neccessary changes");
+       } else {
+         toast.info("Editing CarAd - Update images or Details");
+       }
      } catch (error) {
        console.error("Error loading CarAd:", error);
        toast.error("Failed to load ad for editing");

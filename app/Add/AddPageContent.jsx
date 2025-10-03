@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Plus, Edit } from "lucide-react";
 import { FiEye, FiTrash2, FiMoreHorizontal, FiCheck } from "react-icons/fi";
 import Img from "../components/Image";
 import Button from "../components/Button";
@@ -8,6 +7,7 @@ import api from "@/services/api";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+import { Plus, Edit, Eye, Trash2, Check, AlertCircle } from "lucide-react";
 
 export default function AddCarPostContent() {
   const router = useRouter();
@@ -333,7 +333,76 @@ useEffect(() => {
     }
   };
 
+  const handleResubmitAd = async (carAdId, adType) => {
+    try {
+      // Store the carAdId for editing 
+      localStorage.setItem('editingCarAdId', carAdId);
+      localStorage.setItem('resubmitting', 'true');
+      localStorage.setItem('returnToBusinessId', selectedBusiness);
+
+      setShowMenu(null);
+
+      // Redirect to carAd image page for resubmission 
+      router.push(`/create-add?edit=true&carAdId=${carAdId}&resubmit=true`);
+      toast.info("Resubmitting ad - update as needed");
+    } catch (error) {
+      console.error("Error preparing resubmitting:", error);
+      toast.error("Failed to load ad for resubmitting");
+    }
+  }
+
   const totalAds = vehicleAds.length + propertyAds.length;
+
+  const StatusBadge = ({ status,  rejectionReason }) => {
+    const statusConfig = {
+      pending: {
+      icon: <AlertCircle size={14} />,
+      text: "Awaiting Approval",
+      bgColor: "bg-yellow-50",
+      textColor: "text-yellow-700",
+      borderColor: "border-yellow-200"
+    },
+    approved: {
+      icon: <Check size={14} />,
+      text: "Approved",
+      bgColor: "bg-green-50",
+      textColor: "text-green-700",
+      borderColor: "border-green-200"
+    },
+     rejected: {
+      icon: <AlertCircle size={14} />,
+      text: "Rejected",
+      bgColor: "bg-red-50",
+      textColor: "text-red-700",
+      borderColor: "border-red-200"
+    },
+    sold: {
+      icon: <Check size={14} />,
+      text: "SOLD",
+      bgColor: "bg-gray-50",
+      textColor: "text-gray-700",
+      borderColor: "border-gray-200"
+    }
+    };
+
+    const config = statusConfig[status] || statusConfig.pending;
+
+    return (
+      <div className="space-y-2">
+        <div className={`inline-flex items-center gap-2 px-3 py-1.5 mt-2 rounded-md border ${config.bgColor} ${config.textColor} ${config.borderColor}`}>
+          {config.icon}
+          <span className="text-sm font-medium">{config.text}</span>
+        </div>
+        {/* ✅ CRITICAL: Show rejection reason */}
+        {status === 'rejected' && rejectionReason && (
+        <div className="bg-red-50 border border-red-200 rounded-md p-3 mt-2">
+          <p className="text-xs font-semibold text-red-700 mb-1">Rejection Reason:</p>
+          <p className="text-sm text-red-600">{rejectionReason}</p>
+        </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="p-4 md:p-8 rounded-[12px] bg-white shadow-phenom">
@@ -601,13 +670,13 @@ useEffect(() => {
                                       setShowMenu((prev) => (prev === adId ? null : adId))
                                     }
                                   >
-                                    <FiMoreHorizontal size={20} />
+                                    <FiMoreHorizontal size={20} color="#767676" />
                                   </button>
 
                                   {showMenu === adId && (
-                                    <div className="absolute right-0 top-full mt-2 w-40 z-50 bg-white border border-[#EDEDED] rounded shadow-lg">
+                                    <div className="absolute right-0 top-full mt-2 w-40 z-50 bg-white border border-[#EDEDED] rounded-lg shadow-lg overflow-hidden">
                                       <button
-                                        className="flex items-center w-full px-4 py-2 text-[16px] font-inter font-[400] text-[#525252] hover:bg-[#F7F7FF]"
+                                        className="flex items-center w-full px-4 py-3 text-[16px] font-inter font-[400] text-[#525252] hover:bg-[#F7F7FF] transition-colors"
                                         onClick={() => {
                                           setShowMenu(null);
                                           if (businessId && adId && vehicleId) {
@@ -615,19 +684,36 @@ useEffect(() => {
                                           }
                                         }}
                                       >
-                                        <FiEye className="mr-2" /> View Details
+                                        <FiEye className="mr-2" size={16} /> 
+                                        View Details
                                       </button>
 
-                                      {vehicleAd?.status !== 'sold' && (
+                                      {/* Resubmit - Only for rejected ads */}
+                                      {vehicleAd?.status === 'rejected' && (
                                         <button
-                                          className="flex items-center w-full px-4 py-2 text-[16px] font-inter font-[400] text-[#525252] hover:bg-[#F7F7FF]"
-                                          onClick={() => handleMarkVehicleAsSold(vehicleAd?._id, carAd?._id)}
+                                          className="flex items-center w-full px-4 py-3 text-[16px] font-inter font-[400] text-[#525252] hover:bg-[#F7F7FF] transition-colors"
+                                         onClick={() => handleResubmitAd(carAd._id, 'vehicle')}
                                         >
-                                          <FiCheck className="mr-2" /> Mark As Sold
+                                        <Edit className="mr-3" size={16} />
+                                         Resubmit 
                                         </button>
                                       )}
 
-                                      <button
+                                      {/* Mark as sold - Only for approved (not sold/rejected/pending) */}
+                                      {vehicleAd?.status === 'approved' && (
+                                        <button
+                                         className="flex items-center w-full px-4 py-3 text-[16px] whitespace-nowrap font-inter font-[400] text-[#525252] hover:bg-[#F7F7FF] transition-colors"
+                                         onClick={() => handleMarkVehicleAsSold(vehicleAd?._id, carAd?._id)}
+                                        >
+                                         <FiCheck className="mr-3" size={16} />
+                                          Mark As Sold
+                                        </button>
+                                      )}
+
+
+                                      {/* Delete - Show for all except sold */ }
+                                      {vehicleAd?.status !== 'sold' && (
+                                        <button
                                         className="flex items-center w-full px-4 py-2 text-[#CB0D0D] text-[16px] font-[400] font-inter hover:bg-[#F7F7FF] border-t border-[#EDEDED]"
                                         onClick={() => {
                                           setShowMenu(null);
@@ -636,44 +722,15 @@ useEffect(() => {
                                       >
                                         <FiTrash2 className="mr-2" /> Delete
                                       </button>
+                                      )}
                                     </div>
                                   )}
                                 </div>
                               </div>
-
-                              <div className="flex items-center gap-2 mt-2">
-                                {vehicleAd?.status === "pending" && (
-                                  <Img src="/approval.svg" alt="Pending" width={18} height={21} />
-                                )}
-                                {vehicleAd?.status === "approved" && (
-                                  <Img src="/approved1.png" alt="Approved" width={18} height={21} />
-                                )}
-                                {vehicleAd?.status === "rejected" && (
-                                  <Img src="/rejected.png" alt="Rejected" width={18} height={21} />
-                                )}
-                                {vehicleAd?.status === "sold" && (
-                                  <Img src="/sold1.png" alt="Sold" width={18} height={21} />
-                                )}
-                                <span
-                                  className={`text-[14px] font-[500] font-inter ${
-                                    vehicleAd?.status === "sold" || vehicleAd?.status === "approved"
-                                      ? "text-[#10B981]" 
-                                      : vehicleAd?.status === "rejected"
-                                      ? "text-[#EF4444]" 
-                                      : "text-[#FDBA40]" 
-                                  }`}
-                                >
-                                  {vehicleAd?.status === "sold"
-                                    ? "SOLD"
-                                    : vehicleAd?.status === "approved"
-                                    ? "Approved"
-                                    : vehicleAd?.status === "pending"
-                                    ? "Awaiting approval"
-                                    : vehicleAd?.status === "rejected"
-                                    ? "Rejected"
-                                    : "Unknown"}
-                                </span>
-                              </div>
+                              <StatusBadge
+                                status={vehicleAd?.status}
+                                rejectionReason={vehicleAd?.rejectionReason}
+                              />
                             </>
                           ) : (
                             /* Show Edit button and images preview for incomplete ads */
@@ -901,13 +958,13 @@ useEffect(() => {
                                       setShowMenu((prev) => (prev === adId ? null : adId))
                                     }
                                   >
-                                    <FiMoreHorizontal size={20} />
+                                    <FiMoreHorizontal size={20} color="#767676" />
                                   </button>
 
                                   {showMenu === adId && (
-                                    <div className="absolute right-0 top-full mt-2 w-40 z-50 bg-white border border-[#EDEDED] rounded shadow-lg">
+                                    <div className="absolute right-0 top-full mt-2 w-40 z-50 bg-white border border-[#EDEDED] rounded-lg shadow-lg overflow-hidden">
                                       <button
-                                        className="flex items-center w-full px-4 py-2 text-[16px] font-inter font-[400] text-[#525252] hover:bg-[#F7F7FF]"
+                                        className="flex items-center w-full px-4 py-2 text-[16px] font-inter font-[400] text-[#525252] hover:bg-[#F7F7FF] transition-colors"
                                         onClick={() => {
                                           setShowMenu(null);
                                           if (businessId && adId && propertyId) {
@@ -918,17 +975,31 @@ useEffect(() => {
                                         <FiEye className="mr-2" /> View Details
                                       </button>
 
-                                      {propertyAd?.status !== 'sold' && (
+                                      {/* Resubmit - Only for rejected ads */}
+                                      {propertyAd?.status === 'rejected' && (
                                         <button
-                                          className="flex items-center w-full px-4 py-2 text-[16px] font-inter font-[400] text-[#525252] hover:bg-[#F7F7FF]"
-                                          onClick={() => handleMarkPropertyAsSold(propertyAd?._id, carAd?._id)}
-                                          disabled={markingSold === adId}  
+                                          className="flex items-center w-full px-4 py-2 text-[16px] font-inter font-[400] text-[#525252] hover:bg-[#F7F7FF] transition-colors"
+                                          onClick={() => handleResubmitAd(carAd._id, 'property')}
                                         >
-                                          {markingSold === adId ? "Loading..." : <><FiCheck className="mr-2" /> Mark As Sold</>}
+                                          <Edit className="mr-3" size={16} />
+                                          Resubmit
                                         </button>
                                       )}
 
-                                      <button
+                                      {/* Mark As Sold - Only for approved */ }
+                                      {propertyAd?.status === 'approved' && (
+                                        <button 
+                                         className="flex items-center w-full px-4 py-2 text-[16px] font-inter whitespace-nowrap font-[400] text-[#525252] hover:bg-[#F7F7FF] transition-colors"
+                                         onClick={() => handleMarkPropertyAsSold(propertyAd._id, carAd._id)}
+                                         disabled={markingSold === adId}
+                                         >
+                                         <FiCheck className="mr-3" size={16} />
+                                         {markingSold === adId ? "Loading..." : "Mark As Sold"}
+                                        </button>
+                                      )}
+
+                                      {propertyAd?.status !== 'sold' && (
+                                        <button
                                         className="flex items-center w-full px-4 py-2 text-[#CB0D0D] text-[16px] font-[400] font-inter hover:bg-[#F7F7FF] border-t border-[#EDEDED]"
                                         onClick={() => {
                                           setShowMenu(null);
@@ -937,45 +1008,17 @@ useEffect(() => {
                                       >
                                         <FiTrash2 className="mr-2" /> Delete
                                       </button>
+                                      )}
+
                                     </div>
                                   )}
                                 </div>
                               </div>
 
-                              <div className="flex items-center gap-2 mt-2">
-                                {propertyAd?.status === "pending" && (
-                                  <Img src="/approval.svg" alt="Pending" width={18} height={21} />
-                                )}
-                                {propertyAd?.status === "approved" && (
-                                  <Img src="/approved1.png" alt="Approved" width={18} height={21} />
-                                )}
-                                {propertyAd?.status === "rejected" && (
-                                  <Img src="/rejected.png" alt="Rejected" width={18} height={21} />
-                                )}
-                                {propertyAd?.status === "sold" && (
-                                  <Img src="/sold1.png" alt="Sold" width={18} height={21} />
-                                )}
-
-                                <span
-                                  className={`text-[14px] font-[500] font-inter ${
-                                    propertyAd?.status === "sold" || propertyAd?.status === "approved"
-                                      ? "text-[#10B981]"
-                                      : propertyAd?.status === "rejected"
-                                      ? "text-[#EF4444]"
-                                      : "text-[#FDBA40]"
-                                  }`}
-                                >
-                                  {propertyAd?.status === "sold"
-                                    ? "SOLD"
-                                    : propertyAd?.status === "approved"
-                                    ? "Approved"
-                                    : propertyAd?.status === "pending"
-                                    ? "Awaiting Approval"
-                                    : propertyAd?.status === "rejected"
-                                    ? "Rejected"
-                                    : "Unknown"}
-                                </span>
-                              </div>
+                              <StatusBadge 
+                                status={propertyAd?.status}
+                                rejectionReason={propertyAd?.rejectionReason}
+                              />
                             </>
                           ) : (
                             /* Show Edit button and images preview for incomplete ads */
