@@ -410,7 +410,8 @@ const productImage =
          <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{propertyAd.amount?.toLocaleString()}</span>
        )}
      </div>
-     <div className="p-4">
+     {((vehicleAd?.negotiation === "Yes") || (propertyAd?.negotiation === "Yes")) && (
+      <div className="p-4">
       {showInput ? (
         <div className="relative w-full">
            <input
@@ -439,6 +440,7 @@ const productImage =
         </Button>
       )}
      </div>
+     )}
    </div>
    </div>
 
@@ -906,18 +908,6 @@ const productImage =
        productTitle={productTitle}
      />
       {!sellerId && <p className="text-red-500">Seller ID not found for this product.</p>}
-     {/* {showSignInModal && (
-       <SignUpModal 
-         onClose={() => setShowSignInModal(false)}
-         initialView="signin"
-       />
-     )}
-     {showSignUpModal && (
-       <SignUpModal 
-         onClose={() => setShowSignUpModal(false)}
-         initialView="signup"
-       />
-      )} */}
     </div>
      <div className="mt-2">
       
@@ -1002,7 +992,8 @@ const productImage =
         <span className="text-[#525252] md:text-[24px] font-[500] font-inter">₦{vehicleAd.amount?.toLocaleString()}</span>
        )}
      </div>
-     <div className="p-4">
+    {((vehicleAd?.negotiation === "Yes") || (propertyAd?.negotiation === "Yes")) && (
+       <div className="p-4">
       {showInput ? (
         <div className="relative w-full">
            <input
@@ -1031,6 +1022,7 @@ const productImage =
         </Button>
       )}
      </div>
+    )}
    </div>
       </div>
        <div className="hidden md:block">
