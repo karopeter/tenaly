@@ -353,8 +353,15 @@ useEffect(() => {
 
   const totalAds = vehicleAds.length + propertyAds.length;
 
-  const StatusBadge = ({ status,  rejectionReason }) => {
+  const StatusBadge = ({ status, isDraft,  rejectionReason }) => {
     const statusConfig = {
+      draft: {
+       icon: <Edit size={14}  />,
+       text: "Draft",
+       bgColor: "bg-gray-50",
+       textColor: "text-gray-600",
+       borderColor: "border-gray-300"
+      },
       pending: {
       icon: <AlertCircle size={14} />,
       text: "Awaiting Approval",
@@ -385,7 +392,8 @@ useEffect(() => {
     }
     };
 
-    const config = statusConfig[status] || statusConfig.pending;
+    const displayStatus = isDraft ? 'draft' : status;
+    const config = statusConfig[displayStatus] || statusConfig.pending;
 
     return (
       <div className="space-y-2">
@@ -394,7 +402,7 @@ useEffect(() => {
           <span className="text-sm font-medium">{config.text}</span>
         </div>
         {/* ✅ CRITICAL: Show rejection reason */}
-        {status === 'rejected' && rejectionReason && (
+        {status === 'rejected' && !isDraft &&  rejectionReason && (
         <div className="bg-red-50 border border-red-200 rounded-md p-3 mt-2">
           <p className="text-xs font-semibold text-red-700 mb-1">Rejection Reason:</p>
           <p className="text-sm text-red-600">{rejectionReason}</p>
@@ -459,13 +467,8 @@ useEffect(() => {
             </h3>
             <Button
               onClick={() => router.push("/create-add")}
-              className="flex items-center gap-1 justify-center whitespace-nowrap text-[14px] font-[500]  text-[#000087]"
+              className="w-[115px] md:w-[197px] flex items-center justify-center whitespace-nowrap h-[44px] bg-gradient-to-r from-[#00A8DF] to-[#1031AA] rounded-[8px] text-white"
             >
-              <Img 
-                src="/add-item.svg"
-                width={16}
-                height={16}
-              />
               Post an Ad
             </Button>
           </div>
@@ -694,26 +697,36 @@ useEffect(() => {
                                       </button>
 
                                       {/* Resubmit - Only for rejected ads */}
-                                      {vehicleAd?.status === 'rejected' && (
-                                        <button
-                                          className="flex items-center w-full px-4 py-3 text-[16px] font-inter font-[400] text-[#525252] hover:bg-[#F7F7FF] transition-colors"
-                                         onClick={() => handleResubmitAd(carAd._id, 'vehicle')}
-                                        >
-                                        <Edit className="mr-3" size={16} />
-                                         Resubmit 
-                                        </button>
-                                      )}
-
-                                      {/* Mark as sold - Only for approved (not sold/rejected/pending) */}
-                                      {vehicleAd?.status === 'approved' && (
-                                        <button
-                                         className="flex items-center w-full px-4 py-3 text-[16px] whitespace-nowrap font-inter font-[400] text-[#525252] hover:bg-[#F7F7FF] transition-colors"
-                                         onClick={() => handleMarkVehicleAsSold(vehicleAd?._id, carAd?._id)}
-                                        >
-                                         <FiCheck className="mr-3" size={16} />
-                                          Mark As Sold
-                                        </button>
-                                      )}
+                                      {vehicleAd?.isDraft ? (
+                                       <button
+                                        className="flex items-center w-full px-4 py-3 text-[16px] font-inter font-[400] text-[#525252] hover:bg-[#F7F7FF] transition-colors"
+                                        onClick={() => handleEditIncompleteAd(carAd._id, carAd.category)}>
+                                         <Edit className="mr-2 flex-shrink-0" size={16} />
+                                         <span className="whitespace-nowrap">Complete Draft</span>
+                                     </button>
+                                   ) : (
+                                   <>
+                                   {/* Resubmit - Only for rejected ads */}
+                                   {vehicleAd?.status === 'rejected' && (
+                                   <button
+                                    className="flex items-center w-full px-4 py-3 text-[16px] font-inter font-[400] text-[#525252] hover:bg-[#F7F7FF] transition-colors"
+                                     onClick={() => handleResubmitAd(carAd._id, 'vehicle')}>
+                                    <Edit className="mr-3" size={16} />
+                                    Resubmit 
+                                  </button>
+                                )}
+                              {/* Mark as sold - Only for approved (not sold/rejected/pending/draft) */}
+                              {vehicleAd?.status === 'approved' && (
+                               <button
+                                className="flex items-center w-full px-4 py-3 text-[16px] whitespace-nowrap 
+                                font-inter font-[400] text-[#525252] hover:bg-[#F7F7FF] transition-colors"
+                                onClick={() => handleMarkVehicleAsSold(vehicleAd?._id, carAd?._id)}>
+                                  <FiCheck className="mr-3" size={16} />
+                                 Mark As Sold
+                               </button>
+                               )}
+                               </>
+                               )}
 
 
                                       {/* Delete - Show for all except sold */ }
@@ -734,6 +747,7 @@ useEffect(() => {
                               </div>
                               <StatusBadge
                                 status={vehicleAd?.status}
+                                isDraft={vehicleAd?.isDraft}
                                 rejectionReason={vehicleAd?.rejectionReason}
                               />
                             </>
@@ -980,8 +994,17 @@ useEffect(() => {
                                         <FiEye className="mr-2" /> View Details
                                       </button>
 
-                                      {/* Resubmit - Only for rejected ads */}
-                                      {propertyAd?.status === 'rejected' && (
+                                      {propertyAd?.isDraft ? (
+                                        <button
+                                          className="flex items-center w-full px-4 py-3 text-[16px]  font-inter font-[400] text-[#525252] hover:bg-[#F7F7FF] transition-colors"
+                                         onClick={() => handleEditIncompleteAd(carAd._id, carAd.category)}>
+                                           <Edit className="mr-2 flex-shrink-0" size={16} />
+                                           <span className="whitespace-nowrap">Complete Draft</span>
+                                        </button>
+                                      ): (
+                                     <>
+                                      {/* Resubmit - Only for rejected ads */ }
+                                       {propertyAd?.status === 'rejected' && (
                                         <button
                                           className="flex items-center w-full px-4 py-2 text-[16px] font-inter font-[400] text-[#525252] hover:bg-[#F7F7FF] transition-colors"
                                           onClick={() => handleResubmitAd(carAd._id, 'property')}
@@ -989,9 +1012,9 @@ useEffect(() => {
                                           <Edit className="mr-3" size={16} />
                                           Resubmit
                                         </button>
-                                      )}
+                                      )} 
 
-                                      {/* Mark As Sold - Only for approved */ }
+                                    {/* Mark As Sold - Only for approved */ }
                                       {propertyAd?.status === 'approved' && (
                                         <button 
                                          className="flex items-center w-full px-4 py-2 text-[16px] font-inter whitespace-nowrap font-[400] text-[#525252] hover:bg-[#F7F7FF] transition-colors"
@@ -1001,8 +1024,10 @@ useEffect(() => {
                                          <FiCheck className="mr-3" size={16} />
                                          {markingSold === adId ? "Loading..." : "Mark As Sold"}
                                         </button>
+                                      )} 
+                                     </>
                                       )}
-
+                                       
                                       {propertyAd?.status !== 'sold' && (
                                         <button
                                         className="flex items-center w-full px-4 py-2 text-[#CB0D0D] text-[16px] font-[400] font-inter hover:bg-[#F7F7FF] border-t border-[#EDEDED]"
@@ -1022,6 +1047,7 @@ useEffect(() => {
 
                               <StatusBadge 
                                 status={propertyAd?.status}
+                                isDraft={propertyAd?.isDraft}
                                 rejectionReason={propertyAd?.rejectionReason}
                               />
                             </>
