@@ -337,12 +337,15 @@ const handleSubmit = async () => {
             {i === 0 ? "From" : "To"}
           </span>
           <input
-            type="number"
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]"
             placeholder="₦ Enter Amount"
             value={formStates[addressObj._id]?.[field] || ""}
-            onChange={(e) =>
-              handleChange(addressObj._id, field, e.target.value)
-            }
+            onChange={(e) => {
+              const onlyNums = e.target.value.replace(/[^0-9]/g, "");
+              handleChange(addressObj._id, field, onlyNums);
+            }}
             className="w-full pt-5 pr-10 pb-1 pl-2 focus:outline-none border border-gray-300 rounded-md text-[13px] sm:text-sm"
           />
         </div>
