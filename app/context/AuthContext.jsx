@@ -85,6 +85,25 @@ export function AuthProvider({ children }) {
      }
   };
 
+  const switchRole = async (newRole) => {
+  try {
+    const response = await api.patch("/profile/switch-role", { role: newRole }, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    
+    const updatedProfile = { ...profile, role: newRole };
+    setProfile(updatedProfile);
+    localStorage.setItem("profile", JSON.stringify(updatedProfile));
+    
+    toast.success(`Switched to ${newRole} mode`);
+    return true;
+  } catch (error) {
+    console.error("Error switching role:", error);
+    toast.error("Failed to switch role");
+    return false;
+  }
+};
+
   const login = (profileData, authToken) => {
     localStorage.setItem("token", authToken);
     localStorage.setItem("profile", JSON.stringify(profileData));
@@ -116,7 +135,7 @@ export function AuthProvider({ children }) {
   };
 
 
-  const role = profile?.role || null;
+  const role = profile?.role || "buyer";
 
   return (
     <AuthContext.Provider
@@ -131,7 +150,8 @@ export function AuthProvider({ children }) {
         verificationStatus,
         checkVerificationStatus,
         updateVerificationStatus,
-        refreshProfile
+        refreshProfile,
+        switchRole
       }}
     >
       {children}
