@@ -8,41 +8,38 @@ import ForgotPassword from "../hooks/forgot-password-model";
 
 export default function SettingsContent() {
   const router = useRouter();
-  const { logout, verificationStatus } = useAuth();
+  const { logout, verificationStatus, role } = useAuth();
   const [showForgotPassword, setShowForgotPassword] = useState(false);
 
-  const shouldShowVerification = 
-    !verificationStatus?.isVerified && !verificationStatus?.hasSubmitted;
+  const shouldShowVerification =
+    role === "seller" && !verificationStatus?.isVerified && !verificationStatus?.hasSubmitted;
 
   return (
-    <div 
-      className="w-full md:rounded-[12px] mt-4 md:max-w-[600px] md:mx-auto md:mt-0">
-      {/* Heading */}
+    <div className="w-full md:rounded-[12px] mt-4 md:max-w-[600px] md:mx-auto md:mt-0">
       <h2 className="hidden md:block text-[#525252] font-[500] font-inter text-[18px] md:text-[24px] mb-6">
         Settings
       </h2>
 
-      {/* Settings card */}
       <div className="flex flex-col justify-start p-4 items-start bg-[#FFFFFF] w-full rounded-[8px] border border-[#EBEBEC]">
-        {/* Become verified */}
+        {/* Become verified - Only for sellers */}
         {shouldShowVerification && (
           <Link
-          href="/become-verified"
-          className="flex items-center gap-3 w-full transition mb-2 pb-2 border-b border-[#EBEBEC]"
-        >
-          <Img src="/verified.svg" alt="Verify Icon" width={24} height={24} />
-          <span className="text-[#525252] font-[400] text-[14px] font-inter">
-            Become a verified user
-          </span>
-        </Link>
+            href="/become-verified"
+            className="flex items-center gap-3 w-full transition mb-2 pb-2 border-b border-[#EBEBEC]"
+          >
+            <Img src="/verified.svg" alt="Verify Icon" width={24} height={24} />
+            <span className="text-[#525252] font-[400] text-[14px] font-inter">
+              Become a verified user
+            </span>
+          </Link>
         )}
 
-        {/* Change Password */ }
-        <button 
-        onClick={() => setShowForgotPassword(true)}
-        className="flex items-center gap-3 w-full transition mb-2 pb-2 border-b border-[#EBEBEC]"
+        {/* Change Password */}
+        <button
+          onClick={() => setShowForgotPassword(true)}
+          className="flex items-center gap-3 w-full transition mb-2 pb-2 border-b border-[#EBEBEC]"
         >
-          <Img 
+          <Img
             src="/security-safe.svg"
             alt="ChangePassword Icon"
             width={17.83}
@@ -68,11 +65,10 @@ export default function SettingsContent() {
         </button>
       </div>
 
-      {/* Forgot password modal */}
       {showForgotPassword && (
         <ForgotPassword
-           onClose={() => setShowForgotPassword(false)}
-           onPasswordResetSuccess={() => setShowForgotPassword(false)}
+          onClose={() => setShowForgotPassword(false)}
+          onPasswordResetSuccess={() => setShowForgotPassword(false)}
         />
       )}
     </div>
