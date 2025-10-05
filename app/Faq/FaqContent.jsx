@@ -68,11 +68,11 @@ const faqData = [
         answer:
           "Yes, you can contact sellers to negotiate the price before making a purchase.",
       },
-      {
-        question: "Can I report a fradulent seller?",
-        answer:
-          'Yes, you can report suspicious activity using "Report" button on the listing or contact customer support.',
-      },
+      // {
+      //   question: "Can I report a fradulent seller?",
+      //   answer:
+      //     'Yes, you can report suspicious activity using "Report" button on the listing or contact customer support.',
+      // },
     ],
   },
   {
@@ -92,11 +92,11 @@ const faqData = [
         answer:
           "Yes, you can contact sellers to negotiate the price before making a purchase.",
       },
-      {
-        question: "Can I report a fradulent seller?",
-        answer:
-          'Yes, you can report suspicious activity using "Report" button on the listing or contact customer support.',
-      },
+      // {
+      //   question: "Can I report a fradulent seller?",
+      //   answer:
+      //     'Yes, you can report suspicious activity using "Report" button on the listing or contact customer support.',
+      // },
     ],
   },
   {
@@ -117,19 +117,9 @@ const faqData = [
           'Click "Forgot Password" on the login page and follow the instructions to rest it, or go to the settings page, click on account actions, click on change password and follow the instructions to reset it',
       },
       {
-        question: "Can I change my email or phone number?",
+        question: "Can I change my phone number?",
         answer:
-          'Yes, go to your personal profile, click on edit, click on change my email or phone number settings and follow the instructions to change it.',
-      },
-      {
-        question: "Can I deactivate my account temporarily?",
-        answer:
-          'Yes you can deactivate your account, if you wish to take a break. Go to settings > account actions > deactivate account and follow the instructions to deactivate it',
-      },
-      {
-        question: "Can I delete my account?",
-        answer:
-          'Yes you can deactivate your account, if you wish to take a break. Go to settings > account actions > deactivate account and follow the instructions to deactivate it',
+          'Yes, go to your personal profile, click on edit, click on change my phone number settings and follow the instructions to change it.',
       },
     ],
   },

@@ -9,8 +9,8 @@ const AuthContext = createContext();
 export function AuthProvider({ children }) {
   const router = useRouter();
   const [profile, setProfile] = useState(null);
-  const [token, setToken]       = useState(null);
-  const [loading, setLoading]   = useState(true);
+  const [token, setToken]  = useState(null);
+  const [loading, setLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState({
     hasSubmitted: false,
@@ -18,18 +18,36 @@ export function AuthProvider({ children }) {
     loading: false 
   });
 
+  const normalizeRole = (role) => {
+    if (role === "customer") return "buyer";
+    if (role === "seller") return "seller";
+    return "buyer";
+  }
+
   useEffect(() => {
     const storedProfile = localStorage.getItem("profile");
     const storedToken   = localStorage.getItem("token");
 
-    if (storedToken && storedProfile) {
+    if (storedToken && storedProfile) 
       setToken(storedToken);
-      setProfile(JSON.parse(storedProfile));
+      const parsedProfile = JSON.parse(storedProfile);
+
+      // Normalize role 
+      parsedProfile.role = normalizeRole(parsedProfile.role);
+      setProfile(parsedProfile);
       setIsLoggedIn(true);
 
-      // Check verification status after login 
+      // Initialize verification status from stored profile 
+      if (parsedProfile.isVerified !== undefined) {
+        setVerificationStatus(prev => ({
+           ...prev,
+          isVerified: parsedProfile.isVerified,
+          hasSubmitted: parsedProfile.hasSubmittedVerification || parsedProfile.isVerified
+        }));
+      }
+      refreshProfile(storedProfile);
       checkVerificationStatus(storedToken);
-    }
+    
 
     setLoading(false);
   }, []);
@@ -78,8 +96,19 @@ export function AuthProvider({ children }) {
      });
 
      const updatedProfile = response.data;
+
+     // Normalize role 
+     updatedProfile.role = normalizeRole(updatedProfile.role);
      setProfile(updatedProfile);
      localStorage.setItem("profile", JSON.stringify(updatedProfile));
+
+     if (updatedProfile.isVerified !== undefined) {
+       setVerificationStatus(prev => ({
+        ...prev,
+          isVerified: updatedProfile.isVerified,
+          hasSubmitted: updatedProfile.hasSubmittedVerification || updatedProfile.isVerified
+       }));
+     }
      } catch (error) {
        console.error("Error refreshing profile:", error);
      }
@@ -96,6 +125,11 @@ export function AuthProvider({ children }) {
     localStorage.setItem("profile", JSON.stringify(updatedProfile));
     
     toast.success(`Switched to ${newRole} mode`);
+
+    // Force page reload 
+    window.location.reload();
+
+
     return true;
   } catch (error) {
     console.error("Error switching role:", error);
@@ -105,11 +139,25 @@ export function AuthProvider({ children }) {
 };
 
   const login = (profileData, authToken) => {
+    profileData.role = normalizeRole(profileData.role);
+
+
     localStorage.setItem("token", authToken);
     localStorage.setItem("profile", JSON.stringify(profileData));
     setToken(authToken);
     setProfile(profileData);
     setIsLoggedIn(true);
+
+    // Initialize verification status from profile if available 
+    if (profileData.isVerified !== undefined) {
+      setVerificationStatus(prev => ({
+         ...prev,
+        isVerified: profileData.isVerified,
+        hasSubmitted: profileData.hasSubmittedVerification || profileData.isVerified
+      }));
+    }
+
+   console.log("Login - User role:", profileData.role, "isVerified:", profileData.isVerified);
 
     // check verification status after login 
     checkVerificationStatus(authToken);
@@ -135,7 +183,7 @@ export function AuthProvider({ children }) {
   };
 
 
-  const role = profile?.role || "buyer";
+  const role = normalizeRole(profile?.role);
 
   return (
     <AuthContext.Provider
