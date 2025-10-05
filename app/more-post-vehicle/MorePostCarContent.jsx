@@ -85,7 +85,8 @@ const customStyles = {
 };
 
 export default function MorePostCarContent() {
-  // Form states
+  const [carMakes, setCarMakes] = useState([]);
+  const [carModels, setCarModels] = useState([]);
   const [selectedMake, setSelectedMake] = useState("");
   const [selectedModel, setSelectedModel] = useState("");
   const [selectedYear, setSelectedYear] = useState("");
@@ -137,6 +138,36 @@ export default function MorePostCarContent() {
     diamond: 4,
     enterprise: 5,
   };
+
+
+  // load all makes on mount 
+   useEffect(() => {
+    fetch("https://vpic.nhtsa.dot.gov/api/vehicles/GetMakesForVehicleType/car?format=json")
+      .then(res => res.json())
+      .then(data => {
+        const makes = data.Results.map(m => ({
+          id: m.MakeId,
+          name: m.MakeName
+        }));
+        setCarMakes(makes);
+      })
+      .catch(err => console.error("Error fetching makes:", err));
+  }, []);
+
+  useEffect(() => {
+    if (!selectedMake) return;
+
+    fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMake/${selectedMake}?format=json`)
+      .then(res => res.json())
+      .then(data => {
+        const models = data.Results.map(m => ({
+          id: m.Model_ID,
+          name: m.Model_Name
+        }));
+        setCarModels(models);
+      })
+      .catch(err => console.error("Error fetching models:", err));
+  }, [selectedMake]);
 
 
  // Check if we editing an incomplete Ad 
@@ -507,12 +538,16 @@ const submitAd = useCallback(async (planToSubmit, useWallet = false) => {
         <form>
           {/* Form Fields Grouped */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-            <PostDropdown label="Make" value={selectedMake} onChange={handleMakeChange} options={carMakes} />
+            <PostDropdown
+               label="Make" 
+               value={selectedMake} 
+               onChange={setSelectedMake} 
+               options={carMakes} />
             <PostDropdown
               label="Model"
               value={selectedModel}
-              onChange={handleModelChange}
-              options={selectedMake ? carModels[selectedMake] : []}
+              onChange={setSelectedModel}
+             options={carModels}
               disabled={!selectedMake}
             />
 
@@ -520,14 +555,14 @@ const submitAd = useCallback(async (planToSubmit, useWallet = false) => {
               label="Year"
               value={selectedYear}
               onChange={setSelectedYear}
-              options={selectedModel ? carYears[selectedModel] : []}
+              options={selectedModel ? [2020, 2021, 2022, 2023, 2024] : []}
               disabled={!selectedModel}
             />
             <PostDropdown
               label="Trim"
               value={selectedTrim}
               onChange={setSelectedTrim}
-              options={selectedModel ? carTrims[selectedModel] : []}
+             options={selectedModel ? ["Base", "Sport", "Luxury"] : []}
               disabled={!selectedModel}
             />
 
