@@ -18,39 +18,48 @@ export function AuthProvider({ children }) {
     loading: false 
   });
 
-  const normalizeRole = (role) => {
-    if (role === "customer") return "buyer";
-    if (role === "seller") return "seller";
-    return "buyer";
-  }
+ const normalizeRole = (role) => {
+  if (!role) return "buyer";  
+  if (role === "customer") return "buyer";
+  if (role === "seller") return "seller";
+  return "buyer";
+};
 
-  useEffect(() => {
-    const storedProfile = localStorage.getItem("profile");
-    const storedToken   = localStorage.getItem("token");
+useEffect(() => {
+  const storedProfile = localStorage.getItem("profile");
+  const storedToken   = localStorage.getItem("token");
 
-    if (storedToken && storedProfile) 
-      setToken(storedToken);
+  if (storedToken && storedProfile) {
+    setToken(storedToken);
+
+    try {
       const parsedProfile = JSON.parse(storedProfile);
 
-      // Normalize role 
+      // Normalize role
       parsedProfile.role = normalizeRole(parsedProfile.role);
       setProfile(parsedProfile);
       setIsLoggedIn(true);
 
-      // Initialize verification status from stored profile 
+      // Initialize verification status from stored profile
       if (parsedProfile.isVerified !== undefined) {
         setVerificationStatus(prev => ({
-           ...prev,
+          ...prev,
           isVerified: parsedProfile.isVerified,
           hasSubmitted: parsedProfile.hasSubmittedVerification || parsedProfile.isVerified
         }));
       }
-      refreshProfile(storedProfile);
-      checkVerificationStatus(storedToken);
-    
 
-    setLoading(false);
-  }, []);
+      refreshProfile(storedToken);
+      checkVerificationStatus(storedToken);
+    } catch (err) {
+      console.error("Error parsing stored profile:", err);
+      localStorage.removeItem("profile"); // cleanup bad profile
+    }
+  }
+
+  setLoading(false);
+}, []);
+
 
   const checkVerificationStatus = async (authToken = token) => {
     if (!authToken) return;
@@ -183,7 +192,7 @@ export function AuthProvider({ children }) {
   };
 
 
-  const role = normalizeRole(profile?.role);
+ const role = profile ? normalizeRole(profile.role) : "buyer";
 
   return (
     <AuthContext.Provider
