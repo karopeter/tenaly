@@ -42,22 +42,22 @@ export default function BecomeVerifiedContent() {
         return;
       }
 
-      try {
-        const response = await api.get('/verification/status', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+      // try {
+      //   const response = await api.get('/verification/status', {
+      //     headers: {
+      //       Authorization: `Bearer ${token}`,
+      //     },
+      //   });
         
-        if (response.data.hasSubmitted) {
-          setVerificationStatus(response.data.isVerified ? 'verified' : 'pending');
-        }
-      } catch (error) {
-        console.error('Error checking verification status:', error);
-        setVerificationStatus(null);
-      } finally {
-        setCheckingStatus(false);
-      }
+      //   if (response.data.hasSubmitted) {
+      //     setVerificationStatus(response.data.isVerified ? 'verified' : 'pending');
+      //   }
+      // } catch (error) {
+      //   console.error('Error checking verification status:', error);
+      //   setVerificationStatus(null);
+      // } finally {
+      //   setCheckingStatus(false);
+      // }
     };
 
     checkVerificationStatus();

@@ -6,8 +6,9 @@ import MarketPlace from "../components/features/market-place";
 import BuyAnything from "../components/features/buy-anything";
 import LocationSearch from "../components/UI/location-item";
 
-export default function ProductList() {
+export default function ProductList() { 
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleCategoryChange = (categoryValue) => {
@@ -19,8 +20,18 @@ export default function ProductList() {
   };
 
   const handleLocationSelect = (location) => {
-    console.log("Selected Location in ProductList:", location);
+    setSelectedLocation(location);
   };
+
+  // Clear all filters 
+  const handleClearFilters = () => {
+    setSearchQuery("");
+    setSelectedLocation("");
+    setSelectedCategory("");
+  };
+
+  // Check if any filters are active 
+   const hasActiveFilters = searchQuery || selectedLocation || selectedCategory;
 
   return (
     <>
@@ -41,11 +52,12 @@ export default function ProductList() {
          </section>
       {/* THIS IS THE CRUCIAL PART: Pass onCategoryChange prop */}
       <DropdownPage
-        onCategoryChange={handleCategoryChange} // Make sure this line exists and is correct
+        onCategoryChange={handleCategoryChange} 
       />
       <div className="md:pr-[104px] md:pl-[104px]">
         <TrendingSection />
         <MarketPlace
+        location={selectedLocation}
           category={selectedCategory}
           search={searchQuery}
         />

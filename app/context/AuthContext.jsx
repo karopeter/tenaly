@@ -65,33 +65,6 @@ useEffect(() => {
     if (!authToken) return;
 
     setVerificationStatus(prev => ({ ...prev, loading: true }));
-
-    try {
-      const response = await api.get("/verification/status", {
-        headers: {
-          Authorization: `Bearer ${authToken}`
-        },
-      });
-
-      setVerificationStatus({
-        hasSubmitted: response.data.hasSubmitted,
-        isVerified: response.data.isVerified,
-        loading: false
-      });
-
-
-      // If user is now verified, refresh their profile data 
-      if (response.data.isVerified && !profile?.isVerified) {
-        refreshProfile(authToken);
-      }
-    } catch (error) {
-      console.error("Error checking verification status:", error);
-      setVerificationStatus({
-        hasSubmitted: false, 
-        isVerified: false,
-        loading: false
-      });
-    }
   };
 
   const refreshProfile = async (authToken = token) => {
@@ -123,21 +96,24 @@ useEffect(() => {
      }
   };
 
-  const switchRole = async (newRole) => {
+const switchRole = async (newRole) => {
   try {
-    const response = await api.patch("/profile/switch-role", { role: newRole }, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    
-    const updatedProfile = { ...profile, role: newRole };
-    setProfile(updatedProfile);
-    localStorage.setItem("profile", JSON.stringify(updatedProfile));
-    
-    toast.success(`Switched to ${newRole} mode`);
+    const response = await api.patch(
+      "/profile/switch-role",
+      { role: newRole },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
 
-    // Force page reload 
-    window.location.reload();
+    const updatedRole = normalizeRole(response.data?.role || newRole);
 
+    // Update state immediately
+    const updatedProfile = { ...profile, role: updatedRole };
+
+    const fullUpdatedProfile = response.data.profile ? {...response.data.profile, role: updatedRole } : updatedProfile;
+    setProfile(fullUpdatedProfile);
+    localStorage.setItem("profile", JSON.stringify(fullUpdatedProfile));
+
+    toast.success(`Switched to ${updatedRole} mode`);
 
     return true;
   } catch (error) {
@@ -146,6 +122,7 @@ useEffect(() => {
     return false;
   }
 };
+
 
   const login = (profileData, authToken) => {
     profileData.role = normalizeRole(profileData.role);

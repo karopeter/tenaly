@@ -4,6 +4,8 @@ import Img from "../Image";
 import Link from "next/link";
 import api from "@/services/api";
 
+
+
 export default function MarketPlace({ category, search, location }) {
   const [ads, setAds] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -81,8 +83,15 @@ export default function MarketPlace({ category, search, location }) {
         });
 
         if (res.data.success) {
-          const sortedAds = enhanceFrontendSorting(res.data.data);
+         const adsArray = Array.isArray(res.data.data) ? res.data.data : [];
+
+         //Ensure adsArray is valid before sorting 
+         if (adsArray.length > 0) {
+          const sortedAds = enhanceFrontendSorting(adsArray);
           setAds(sortedAds);
+         } else {
+          setAds([]);
+         }
         } else {
           setError(res.data.message || "Failed to fetch ads.");
         }
