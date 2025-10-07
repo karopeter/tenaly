@@ -149,7 +149,7 @@ export default function BookMarkedContent({sellerId}) {
 
   return (
     <>
-      {userAds.map(({ adId, carAd, vehicleAd, propertyAd }) => {
+      {userAds.map(({ adId, carAd, vehicleAd, propertyAd, isSold }) => {
         // Determine images array and amount to display
         const images = carAd?.vehicleImage?.length
           ? carAd.vehicleImage
@@ -221,7 +221,17 @@ export default function BookMarkedContent({sellerId}) {
                 className="object-cover w-full h-full"
               />
 
-              {(vehicleAd?.plan || propertyAd?.plan) && (
+              {/* Show SOLD badge if ad is sold */}
+              {isSold && (
+                <div className="absolute top-4 right-4 z-30">
+                  <div className="bg-red-600 text-white px-4 py-2 rounded-lg font-bold text-sm shadow-lg">
+                    SOLD
+                  </div>
+                </div>
+              )}
+
+              {/* Show plan badge if not sold */}
+              {!isSold && (vehicleAd?.plan || propertyAd?.plan) && (
                 <div className="absolute bottom-0 left-0 z-30 w-[139px] h-[35px] flex items-center px-4"
                   style={{
                     backgroundImage: `url(${machineImage})`,
@@ -250,7 +260,7 @@ export default function BookMarkedContent({sellerId}) {
                     alt="Bookmarked"
                     width={24}
                     height={24}
-                    className="w-[24px] h-[24px] cursour-pointer ml-2 block md:hidden"
+                    className="w-[24px] h-[24px] cursor-pointer ml-2 block md:hidden"
                     onClick={() => handleUnbookmark(adId)}
                   />
                 </div>
@@ -289,29 +299,52 @@ export default function BookMarkedContent({sellerId}) {
                 ))}
               </div>
 
+              {/* Conditional rendering based on isSold status */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-4">
-                <div className="flex flex-col md:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
-                  <div>
-                    {/* The MessageSellerButton now receives all the necessary props */}
-                    <MessageSellerButton
-                      sellerId={carAd?.userId}
-                      productId={adId}
-                      openAuthModal={openAuthModal}
-                      productImage={imageUrl}
-                      productTitle={mainInfo}
+                {!isSold ? (
+                  // Show contact buttons if NOT sold
+                  <>
+                    <div className="flex flex-col md:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
+                      <div>
+                        <MessageSellerButton
+                          sellerId={carAd?.userId}
+                          productId={adId}
+                          openAuthModal={openAuthModal}
+                          productImage={imageUrl}
+                          productTitle={mainInfo}
+                        />
+                      </div>
+                      <SellerPhoneNumberBookmarked sellerId={carAd.userId} />
+                    </div>
+
+                    <Img
+                      src="/bookmarkKnown.svg"
+                      alt="Bookmarked"
+                      width={35}
+                      height={35}
+                      className="w-[35px] h-[35px] self-end cursor-pointer sm:self-auto hidden md:block"
+                      onClick={() => handleUnbookmark(adId)}
+                    />
+                  </>
+                ) : (
+                  // Show sold message and unbookmark only if SOLD
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 w-full">
+                    <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 flex-1">
+                      <p className="text-red-700 font-inter text-sm font-medium">
+                        This item has been sold and is no longer available.
+                      </p>
+                    </div>
+
+                    <Img
+                      src="/bookmarkKnown.svg"
+                      alt="Bookmarked"
+                      width={35}
+                      height={35}
+                      className="w-[35px] h-[35px] self-end cursor-pointer sm:self-auto"
+                      onClick={() => handleUnbookmark(adId)}
                     />
                   </div>
-                  <SellerPhoneNumberBookmarked sellerId={carAd.userId} />
-                </div>
-
-                <Img
-                  src="/bookmarkKnown.svg"
-                  alt="Bookmarked"
-                  width={35}
-                  height={35}
-                  className="w-[35px] h-[35px] self-end cursor-pointer sm:self-auto hidden md:block"
-                  onClick={() => handleUnbookmark(adId)}
-                />
+                )}
               </div>
             </div>
           </div>
