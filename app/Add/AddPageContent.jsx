@@ -386,8 +386,8 @@ useEffect(() => {
     sold: {
       icon: <Check size={14} />,
       text: "SOLD",
-      bgColor: "bg-gray-50",
-      textColor: "text-gray-700",
+      bgColor: "bg-[#F8EFEF]",
+      textColor: "text-red-700",
       borderColor: "border-gray-200"
     }
     };

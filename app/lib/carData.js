@@ -123,25 +123,27 @@ export const carKeyFeatures = [
   
   // Car types
   export const carTypes = [
-    { id: 1, name: "Sedan" },
-    { id: 2, name: "SUV" },
-    { id: 3, name: "Truck" },
-    { id: 4, name: "Coupe" },
-    { id: 5, name: "Convertible" },
-    { id: 6, name: "Hatchback" },
-    { id: 7, name: "Wagon" },
+    { id: 1, name: "Passenger Car" },
+    { id: 2, name: "Commercial Vehicle" },
+    { id: 3, name: "Luxury Car" },
+    { id: 4, name: "Sports Car" },
+    { id: 5, name: "Eletric Vehicle (EV)" },
+    { id: 6, name: "Hybrid Vehicle" },
+    { id: 7, name: "Off-Road Vehicle" },
   ];
 
 
   // Vehicle Body types (new dummy data)
 export const vehicleBodyTypes = [
-    { id: 1, name: "Sedan" },
-    { id: 2, name: "SUV" },
-    { id: 3, name: "Truck" },
-    { id: 4, name: "Coupe" },
-    { id: 5, name: "Wagon" },
-    { id: 6, name: "Hatchback" },
-    { id: 7, name: "Convertible" },
+   { id: 1, name: "Sedan" },
+  { id: 2, name: "SUV" },
+  { id: 3, name: "Truck" },
+  { id: 4, name: "Coupe" },
+  { id: 5, name: "Convertible" },
+  { id: 6, name: "Hatchback" },
+  { id: 7, name: "Wagon" },
+  { id: 8, name: "Van" },
+  { id: 9, name: "Pickup" }
 ];
 
 // Fuel Types (new dummy data)
