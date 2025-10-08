@@ -120,7 +120,7 @@ export default function Navbar() {
                 <button
                   onClick={handleRoleToggle}
                   className={`relative w-12 h-6 rounded-full transition-colors ${
-                    role === "seller" ? "bg-[#5555DD]" : "bg-gray-300"
+                    role === "seller" ? "bg-gradient-to-r from-[#00A8DF] to-[#1031AA]" : "bg-gray-300"
                   }`}
                 >
                   <span
@@ -174,7 +174,7 @@ export default function Navbar() {
                 </div>
                 <Link href="/Premium">
                   <Img
-                    src="/crown2.svg"
+                    src="/plan-image.svg"
                     alt="Crown"
                     width={44}
                     height={44}

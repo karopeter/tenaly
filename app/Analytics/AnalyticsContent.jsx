@@ -1,59 +1,8 @@
 "use client";
 import { useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
 import { fetchSellerAnalytics } from "../utils/analytics";
-import Image from "next/image";
+import ChartWrapper from "../components/UI/ChatWrapper";
 
-// Dynamic import for Recharts (fixes SSR issues in Next.js)
-const LineChart = dynamic(
-  () => import('recharts').then((mod) => mod.LineChart),
-  { ssr: false }
-);
-
-const Line = dynamic(
-  () => import('recharts').then((mod) => mod.Line),
-  { ssr: false }
-);
-
-const BarChart = dynamic(
-  () => import('recharts').then((mod) => mod.BarChart),
-  { ssr: false }
-);
-
-const Bar = dynamic(
-  () => import('recharts').then((mod) => mod.Bar),
-  { ssr: false }
-);
-
-const XAxis = dynamic(
-  () => import('recharts').then((mod) => mod.XAxis),
-  { ssr: false }
-);
-
-const YAxis = dynamic(
-  () => import('recharts').then((mod) => mod.YAxis),
-  { ssr: false }
-);
-
-const CartesianGrid = dynamic(
-  () => import('recharts').then((mod) => mod.CartesianGrid),
-  { ssr: false }
-);
-
-const Tooltip = dynamic(
-  () => import('recharts').then((mod) => mod.Tooltip),
-  { ssr: false }
-);
-
-const Legend = dynamic(
-  () => import('recharts').then((mod) => mod.Legend),
-  { ssr: false }
-);
-
-const ResponsiveContainer = dynamic(
-  () => import('recharts').then((mod) => ResponsiveContainer),
-  { ssr: false }
-)
 
 export default function AnalyticsContent() {
   const [analytics, setAnalytics] = useState(null);
@@ -62,25 +11,20 @@ export default function AnalyticsContent() {
   const [error, setError] = useState(null);
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
-  useEffect(() => {
-    if (mounted) {
-      loadAnalytics();
-    }
-  }, [timeRange, mounted]);
+   useEffect(() => {
+    loadAnalytics();
+  }, [timeRange]);
+
 
   const loadAnalytics = async () => {
      try {
       setLoading(true);
-      setError(null);
       const data = await fetchSellerAnalytics(timeRange);
       console.log('Analytics data:', data);
       setAnalytics(data.data);
      } catch (error) {
-     console.log('Error fetching analytics:', error);
+       console.log('Error fetching analytics:', error);
      setError('Failed to load analytics. Please try again');
      } finally {
       setLoading(false);
@@ -117,14 +61,16 @@ export default function AnalyticsContent() {
   }
 
   return (
-    <div className="space-y-6 p-6 bg-white shadow-phenom rounded-[12px] min-h-screen">
+   <div>
+    <h3 className="text-[16px] md:text-[24px] font-[500]  text-[#525252]">Analytics</h3>
+   <div className="space-y-6 p-6 bg-white shadow-phenom rounded-[12px] min-h-screen">
     {/* Header */ }
     <div className="flex justify-between items-center">
-      <h1 className="text-3xl font-bold text-gray-800">Analytics</h1>
+      <h1 className="text-[14px] md:text-[16px] font-[600] text-[#525252]">Key Metrics</h1>
       <select
        value={timeRange}
        onChange={(e) => setTimeRange(e.target.value)}
-       className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#FF5722] focus:border-transparent bg-white"
+       className="px-4 py-2 border border-gray-300 rounded-lg text-[#525252] focus:ring-[#FF5722] focus:border-transparent bg-white"
       >
       <option value="7">Last 7 days</option>
       <option value="30">Last 30 days</option>
@@ -148,7 +94,7 @@ export default function AnalyticsContent() {
        color="green"
      />
      <MetricCard
-       title="Ad Impressions"
+       title="Ad Views"
        value={analytics.productViews.total.toLocaleString()}
        subtitle={`${analytics.productViews.unique} unique views`}
        color="purple"
@@ -159,42 +105,29 @@ export default function AnalyticsContent() {
       subtitle="Unique viewers"
       color="orange"
      />
+     <MetricCard
+  title="Sold Ads"
+  value={analytics.soldAds?.toLocaleString() || '0'}
+  subtitle="Total ads marked as sold"
+  color="red"
+/>
     </div>
 
     {/* Performance Trends Charts */}
-    {mounted && analytics.viewsByDay && analytics.viewsByDay.length > 0 && (
       <div className="bg-white p-6 rounded-lg shadow-sm">
-        <h2 className="text-xl font-bold mb-4 text-gray-800">Performance Trends</h2>
-        <div className="h-80">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={analytics.viewsByDay}>
-             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-             <XAxis 
-               dataKey="_id" 
-               tick={{ fontSize: 12 }}
-               tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-              />
-              <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: '#fff',
-                  border: '1px solid #e0e0e0',
-                  borderRadius: '8px'
-                }}
-                labelFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric'})}
-              />
-              <Legend />
-              <Bar dataKey="profileViews" fill="#4285F4" name="Profile Views" radius={[8, 8, 0, 0]} />
-              <Bar dataKey="productViews" fill="#34A853" name="Ad views" radius={[8, 8, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+        <h2 className="text-[14px] font-[600] mb-4 text-[#525252]">Performance Trends</h2>
+         {analytics?.viewsByDay?.length > 0 ? (
+           <div className="h-80">
+           <ChartWrapper data={analytics.viewsByDay} />
         </div>
+         ): (
+          <p>No trend data yet</p>
+         )}
       </div>
-    )}
 
     {/* Top Performing Ads */}
     <div className="bg-white p-6 rounded-lg shadow-sm">
-       <h2 className="text-xl font-bold mb-4 text-gray-800">Top Performing Ads</h2>
+        <h2 className="text-[14px] md:text-[16px] font-[600] mb-4 text-[#525252">Top Performing Ads</h2>
        {analytics.topProducts.length === 0 ? (
         <div className="text-center py-12">
           <div className="text-6xl mb-4">📊</div>
@@ -205,9 +138,9 @@ export default function AnalyticsContent() {
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-                <tr className="border-b border-gray-200 text-left text-sm text-gray-600">
-                  <th className="pb-3 font-medium">Rank</th>
-                  <th className="pb-3 font-medium">Ad Name</th>
+                <tr className="bg-[#000039] border-b border-gray-200 text-left text-[12px] text-[#FFFFFF]">
+                  <th className="pb-3 font-medium">No</th>
+                  <th className="pb-3 font-medium">Ad title</th>
                   <th className="pb-3 font-medium">Ad Type</th>
                   <th className="pb-3 font-medium text-right">Impressions</th>
                   <th className="pb-3 font-medium text-right">Unique Views</th>
@@ -223,16 +156,6 @@ export default function AnalyticsContent() {
                     </td>
                     <td className="py-4">
                      <div className="flex items-center gap-3">
-                      {product.image && (
-                        <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-gray-100">
-                          <Image 
-                            src={product.image}
-                            alt={product.title}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                      )}
                       <span className="font-medium text-gray-800">{product.title}</span>
                      </div>
                     </td>
@@ -257,19 +180,20 @@ export default function AnalyticsContent() {
        )}
     </div>
     </div>
+   </div>
   );
 }
 
 function MetricCard({ title, value, subtitle, icon, color }) {
    const colorClasses = {
-    blue: 'bg-blue-50 text-blue-600',
-    green: 'bg-green-50 text-green-600',
-    purple: 'bg-purple-50 text-purple-600',
-    orange: 'bg-orange-50 text-orange-600'
-  };
-
+  blue: 'bg-blue-50 text-blue-600',
+  green: 'bg-green-50 text-green-600',
+  purple: 'bg-purple-50 text-purple-600',
+  orange: 'bg-orange-50 text-orange-600',
+  red: 'bg-red-50 text-red-600'   
+};
   return (
-    <div className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition">
+    <div className="bg-[#FAFAFA] p-6 rounded-lg  transition">
       <div className="flex items-start justify-between">
         <div className="flex-1">
            <p className="text-sm text-gray-600 font-medium mb-2">{title}</p>
@@ -277,9 +201,6 @@ function MetricCard({ title, value, subtitle, icon, color }) {
             {value}
           </p>
            <p className="text-xs text-gray-500 mt-2">{subtitle}</p>
-        </div>
-        <div className={`text-3xl ${colorClasses[color]} p-3 rounded-lg`}>
-           {icon}
         </div>
       </div>
     </div>

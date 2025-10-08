@@ -27,6 +27,7 @@ import {
   negotiationOptions
 } from "../lib/carData";
 import PostDropdown from "../components/dropdowns/car-post-dropdown";
+import MultiSelectDropdown from "../components/dropdowns/MultiSelectDropdown";
 import InputField from "../components/input";
 import api from "@/services/api";
 import { toast } from "react-toastify";
@@ -97,7 +98,7 @@ export default function MorePostCarContent() {
   const [vin, setVin] = useState("");
   const [registerd, setRegistered] = useState("");
   const [exchange, setExchange] = useState("");
-  const [carFeatures, setCarFeatures] = useState("");
+  const [carFeatures, setCarFeatures] = useState([]);
   const [carType, setCarType] = useState("");
   const [vehicleBody, setVehicleBody] = useState("");
   const [fuel, setFuel] = useState("");
@@ -199,7 +200,7 @@ useEffect(() => {
       setVin(carAdData.vinChassisNumber || "");
       setRegistered(carAdData.carRegistered || "");
       setExchange(carAdData.exchangePossible || "");
-      setCarFeatures(carAdData.carKeyFeatures || "");
+      setCarFeatures(Array.isArray(carAdData.carKeyFeatures) ? carAdData.carKeyFeatures : []);
       setCarType(carAdData.carType || "");
       setVehicleBody(carAdData.carBody || "");
       setFuel(carAdData.fuel || "");
@@ -331,7 +332,9 @@ useEffect(() => {
     vinChassisNumber: vin,
     carRegistered: registerd,
     exchangePossible: exchange,
-    carKeyFeatures: carFeatures,
+    carKeyFeatures:  Array.isArray(carKeyFeatures) 
+     ? carFeatures.map((f) => (typeof f === "string" ? f : f.name))
+     : [],
     carType,
     carBody: vehicleBody,
     fuel,
@@ -596,12 +599,13 @@ const submitAd = useCallback(async (planToSubmit, useWallet = false) => {
               onChange={setExchange}
             />
 
-            <PostDropdown
-              label="Car Key Features"
-              options={carKeyFeatures}
-              value={carFeatures}
-              onChange={setCarFeatures}
+            <MultiSelectDropdown
+             label="Car Key Features"
+             options={carKeyFeatures}
+             value={carFeatures}
+             onChange={setCarFeatures}
             />
+            
             <PostDropdown label="Car Type" options={carTypes} value={carType} onChange={setCarType} />
           </div>
 
