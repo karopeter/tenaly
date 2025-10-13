@@ -4,8 +4,6 @@ import Img from "../Image";
 import Link from "next/link";
 import api from "@/services/api";
 
-
-
 export default function MarketPlace({ category, search, location }) {
   const [ads, setAds] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,7 +12,6 @@ export default function MarketPlace({ category, search, location }) {
   const placeholderImage =
     "https://placehold.co/400x300/E5E7EB/4B5563?text=Image+Not+Available";
 
-  // Enhanced frontend sorting (same as your original)
   const enhanceFrontendSorting = (adsArray) => {
     const planPriority = {
       enterprise: 6,
@@ -40,27 +37,22 @@ export default function MarketPlace({ category, search, location }) {
       if (!adA) return -1;
       if (!adB) return -1;
 
-      // 1. Payment status
       const paymentA = paymentStatusPriority[adA.paymentStatus] || 0;
       const paymentB = paymentStatusPriority[adB.paymentStatus] || 0;
       if (paymentA !== paymentB) return paymentB - paymentA;
 
-      // 2. Plan
       const planA = planPriority[adA.plan] || 1;
       const planB = planPriority[adB.plan] || 1;
       if (planA !== planB) return planB - planA;
 
-      // 3. Priority Score
       const priorityA = adA.priorityScore || 1;
       const priorityB = adB.priorityScore || 1;
       if (priorityA !== priorityB) return priorityB - priorityA;
 
-      // 4. Creation date
       return new Date(adB.createdAt) - new Date(adA.createdAt);
     });
   };
 
-  // Check if ad is Premium
   const isPremiumAd = (item) => {
     const ad = item.vehicleAd || item.propertyAd;
     if (!ad) return false;
@@ -85,7 +77,6 @@ export default function MarketPlace({ category, search, location }) {
         if (res.data.success) {
          const adsArray = Array.isArray(res.data.data) ? res.data.data : [];
 
-         //Ensure adsArray is valid before sorting 
          if (adsArray.length > 0) {
           const sortedAds = enhanceFrontendSorting(adsArray);
           setAds(sortedAds);
@@ -106,7 +97,6 @@ export default function MarketPlace({ category, search, location }) {
     fetchAllAds();
   }, [category, search, location]);
 
-  // Grouping logic
   const trendingAds = ads.filter((item) => isPremiumAd(item));
 
   const vehicleNewlyPosted = ads.filter((item) => {
@@ -133,7 +123,6 @@ export default function MarketPlace({ category, search, location }) {
     return ["free", "basic"].includes(ad.plan);
   });
 
-  // Loading state
   if (loading) {
     return (
       <div className="min-h-screen flex justify-center">
@@ -161,7 +150,6 @@ export default function MarketPlace({ category, search, location }) {
     );
   }
 
-  // Helper: Render ad card
   const renderAdCard = (item, index) => {
     const adId = item?.adId || index;
     const isCarAd = !!item.carAd && !!item.vehicleAd;
@@ -211,7 +199,6 @@ export default function MarketPlace({ category, search, location }) {
     return (
       <Link href={`/HomeList/${adId}`} key={adId}>
         <li className="bg-white rounded-xl shadow-sm border hover:shadow-lg transition-all duration-300 overflow-hidden group cursor-pointer">
-          {/* Image */}
           <div className="relative aspect-[4/3] overflow-hidden">
             {imageUrl ? (
               <Img
@@ -232,7 +219,6 @@ export default function MarketPlace({ category, search, location }) {
               />
             )}
 
-            {/* Plan badge */}
             {plan && (
               <div
                 className="absolute bottom-0 left-0 z-30 w-[139px] h-[35px] flex items-center px-4"
@@ -257,7 +243,6 @@ export default function MarketPlace({ category, search, location }) {
             )}
           </div>
 
-          {/* Content */}
           <div className="p-5">
             <div className="flex items-start justify-between mb-3">
               <span className="text-[#000087] font-inter font-semibold text-[14px] sm:text-[16px] md:text-[18px] truncate">
@@ -279,7 +264,6 @@ export default function MarketPlace({ category, search, location }) {
             </div>
 
             <div className="flex gap-2">
-              {/* Vehicle tags */}
               {isCarAd && (
                 <>
                   {carType && (
@@ -295,7 +279,6 @@ export default function MarketPlace({ category, search, location }) {
                 </>
               )}
 
-              {/* Property tags */}
               {isPropertyAd && (
                 <>
                   {propertyType && (
@@ -320,7 +303,6 @@ export default function MarketPlace({ category, search, location }) {
   return (
     <section className="px-4 md:px-10 mt-10">
       <div className="container mx-auto px-0 sm:px-4 space-y-10">
-        {/* Trending Section */}
         {trendingAds.length > 0 && (
           <div>
             <h2 className="text-[14px] md:text-[20px] font-inter font-[500] font-normal text-[#2E2E2E] mb-4">Trending</h2>
@@ -330,7 +312,6 @@ export default function MarketPlace({ category, search, location }) {
           </div>
         )}
 
-        {/* Vehicles Newly Posted */}
         {vehicleNewlyPosted.length > 0 && (
           <div>
             <h2 className="text-[14px] md:text-[20px] font-inter font-[500] font-normal text-[#2E2E2E] mb-4 mb-4">
@@ -357,7 +338,6 @@ export default function MarketPlace({ category, search, location }) {
           </div>
         )}
 
-        {/* Recommended for You */}
         {recommendedAds.length > 0 && (
           <div>
             <h2 className="text-[14px] md:text-[20px] font-inter font-[500] font-normal text-[#2E2E2E] mb-4">
