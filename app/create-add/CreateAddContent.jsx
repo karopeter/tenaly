@@ -38,6 +38,7 @@ export default function CreateCarContent() {
   const [category, setCategory] = useState("");
   const [location, setLocation] = useState("Choose location");
   const [state, setState] = useState("");
+  const [lga, setLga] = useState("");
   const [link, setLink] = useState("");
   const [uploadedImages, setUploadedImages] = useState([]);
   const [showLocationModal, setShowLocationModal] = useState(false);
@@ -260,7 +261,8 @@ export default function CreateCarContent() {
 
   const handleLocationSelect = ({ state: selectedState, lga }) => {
     setState(selectedState);
-    setLocation(lga);
+    setLga(lga);
+    setLocation(`${selectedState}, ${lga}`);
     setShowLocationModal(false);
   };
 
@@ -283,7 +285,9 @@ export default function CreateCarContent() {
               onClick={() => setShowLocationModal(true)}
               className="w-full md:w-[481px] h-[52px] border border-[#CDCDD7] rounded-[4px] flex justify-between items-center px-3 cursor-pointer"
             >
-              <span className="text-[#525252]">{location}</span>
+              <span className="text-[#525252]">
+                {state && lga ? `${state}, ${lga}` : "Choose location"}
+              </span>
               <Plus className="w-5 h-5 text-[#525252]" />
             </div>
           </div>
