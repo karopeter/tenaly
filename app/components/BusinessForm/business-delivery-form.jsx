@@ -290,11 +290,14 @@ const handleSubmit = async () => {
              {i === 0 ? "From" : "To"}
           </span>
           <input
-            type="number"
+            type="text"
+            inputMode="numeric"
+            patter="[0-9]"
             value={formStates[addressObj._id]?.[field] || ""}
-            onChange={(e) =>
-              handleChange(addressObj._id, field, e.target.value)
-           }
+            onChange={(e) => {
+              const onlyNumbers = e.target.value.replace(/\D/g, "");
+               handleChange(addressObj._id, field, onlyNumbers);
+            }}
             className="w-full pt-5 pr-10 pb-1 pl-2 border border-gray-300 rounded-md text-sm text-[13px] sm:text-sm focus:outline-none"
           />
           <span className="absolute right-2 bottom-1.5 text-gray-500 text-xs">
