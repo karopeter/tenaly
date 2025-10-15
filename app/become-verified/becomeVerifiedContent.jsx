@@ -1,409 +1,448 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Button from "../components/Button";
 import FloatingLabelInput from "../components/UI/FloatingLabelInput";
-import api from '@/services/api';
-import { useAuth } from '../context/AuthContext';
-import { ArrowLeft } from 'lucide-react';
-import Img from '../components/Image';
-import { toast } from 'react-toastify';
-import FloatingLabelDropdown from '../components/UI/FloatingDropdown';
+import api from "@/services/api";
+import { useAuth } from "../context/AuthContext";
+import { ArrowLeft, ChevronRight } from "lucide-react";
+import Img from "../components/Image";
+import { toast } from "react-toastify";
+import FloatingLabelDropdown from "../components/UI/FloatingDropdown";
 
 export default function BecomeVerifiedContent() {
   const router = useRouter();
-  const handleGoBack = () => router.back();
-  const [step, setStep] = useState(1);
-  const [businessName, setBusinessName] = useState("");
-  const [address, setAddress] = useState("");
-  const [email, setEmail] = useState("");
+  const { token, isLoggedIn } = useAuth();
+  
+  const [view, setView] = useState("main"); // main, personal, business
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [validId, setValidId] = useState("nin");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [certificate, setCertificate] = useState("");
-  const [photoDoc, setPhotoDoc] = useState(null);
-  const [verificationStatus, setVerificationStatus] = useState(null); 
   const [checkingStatus, setCheckingStatus] = useState(true);
-  const { token, isLoggedIn, profile } = useAuth();
+  const [verificationData, setVerificationData] = useState({
+    personal: null,
+    businesses: [],
+  });
 
-  // Check verification status when component mounts
+  // Personal Verification State
+  const [validIdType, setValidIdType] = useState("nin");
+  const [validIdFile, setValidIdFile] = useState(null);
+
+  // Business Verification State
+  const [businessName, setBusinessName] = useState("");
+  const [businessAddress, setBusinessAddress] = useState("");
+  const [businessEmail, setBusinessEmail] = useState("");
+  const [businessPhone, setBusinessPhone] = useState("");
+  const [certificate, setCertificate] = useState(null);
+
   useEffect(() => {
-    const checkVerificationStatus = async () => {
+    const fetchVerificationStatus = async () => {
       if (!isLoggedIn || !token) {
         setCheckingStatus(false);
         return;
       }
 
-    
-      if (profile?.isVerified) {
-        setVerificationStatus('verified');
+      try {
+        const response = await api.get("/verification/status", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setVerificationData(response.data);
+      } catch (error) {
+        console.error("Error fetching verification status:", error);
+      } finally {
         setCheckingStatus(false);
-        return;
       }
-
-      // try {
-      //   const response = await api.get('/verification/status', {
-      //     headers: {
-      //       Authorization: `Bearer ${token}`,
-      //     },
-      //   });
-        
-      //   if (response.data.hasSubmitted) {
-      //     setVerificationStatus(response.data.isVerified ? 'verified' : 'pending');
-      //   }
-      // } catch (error) {
-      //   console.error('Error checking verification status:', error);
-      //   setVerificationStatus(null);
-      // } finally {
-      //   setCheckingStatus(false);
-      // }
     };
 
-    checkVerificationStatus();
-  }, [isLoggedIn, token, profile]);
+    fetchVerificationStatus();
+  }, [isLoggedIn, token]);
 
-  const handleFileChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setCertificate(e.target.files[0]);
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    
+  const handlePersonalSubmit = async (e) => {
     e.preventDefault();
 
-    if (!isLoggedIn) {
-      toast.error("You must be logged in to submit verification.");
+    if (!validIdFile) {
+      toast.error("Please upload your valid ID");
       return;
-    }
-
-    if (step === 1) {
-      if (!businessName || !address || !email || !certificate) {
-        toast.error("Please complete all required fields");
-        return;
-      }
-      setStep(2);
-      return;
-    }
-
-    if (step === 2) {
-      if (!validId || !photoDoc) {
-        toast.error("Please select ID type and upload document");
-        return;
-      }
     }
 
     setLoading(true);
-    setError("");
 
     try {
       const formData = new FormData();
-      formData.append("businessName", businessName);
-      formData.append("address", address);
-      formData.append("email", email);
-      formData.append("validIdType", validId);
-      formData.append("certificate", certificate);
-      formData.append("validId", photoDoc);
+      formData.append("validIdType", validIdType);
+      formData.append("validId", validIdFile);
 
-      const res = await api.post("/verification/submit-verification", formData, {
+      await api.post("/verification/submit-personal", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
       });
+
+      toast.success("Personal verification submitted successfully!");
       
-   
-      toast.success("Verification submitted successfully!");
-      setVerificationStatus('pending'); // Update status to pending
-      
+      // Refresh status
+      const response = await api.get("/verification/status", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setVerificationData(response.data);
+      setView("main");
+      setValidIdFile(null);
     } catch (error) {
-      console.error("Verification Error:", error);
-      setError(error.response?.data?.message || "Something went wrong.");
+      console.error("Personal Verification Error:", error);
       toast.error(error.response?.data?.message || "Something went wrong.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Loading state while checking verification status
+  const handleBusinessSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!businessName || !businessAddress || !businessEmail || !certificate) {
+      toast.error("Please complete all required fields");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("businessName", businessName);
+      formData.append("businessAddress", businessAddress);
+      formData.append("businessEmail", businessEmail);
+      formData.append("businessPhoneNumber", businessPhone);
+      formData.append("certificate", certificate);
+
+      await api.post("/verification/submit-business", formData);
+
+      toast.success("Business verification submitted successfully!");
+
+      // Refresh status
+      const response = await api.get("/verification/status", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setVerificationData(response.data);
+      setView("main");
+      
+      // Reset form
+      setBusinessName("");
+      setBusinessAddress("");
+      setBusinessEmail("");
+      setBusinessPhone("");
+      setCertificate(null);
+    } catch (error) {
+      console.error("Business Verification Error:", error);
+      toast.error(error.response?.data?.message || "Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getStatusBadge = (status) => {
+    const badges = {
+      pending: "bg-[#CAA416] text-[#FAFAFA]",
+      verified: "bg-[#16A34A] text-white",
+      rejected: "bg-[#DC2626] text-white",
+    };
+    return badges[status] || badges.pending;
+  };
+
   if (checkingStatus) {
     return (
       <div className="bg-white shadow-phenom md:rounded-[12px] p-4 md:p-8 w-full text-center">
         <div className="flex flex-col items-center justify-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#000087] mb-4"></div>
-          <p className="text-[#525252] font-inter font-[500] text-[14px]">Checking verification status...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Verification pending state
- if (verificationStatus === 'pending') {
-    return (
-      <div className="bg-white shadow-phenom md:rounded-[12px] p-4 md:p-8 w-full">
-        <div className="flex items-center mb-6">
-          <button 
-            onClick={handleGoBack}
-            className="flex items-center text-[#525252] hover:text-[#000087] font-medium"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
-              <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <span className="text-[#525252] font-[400] text-[14px] font-inter">Go back</span>
-          </button>
-        </div>
-        
-        <div className="flex flex-col items-center justify-center py-8">
-          <div className="text-center mb-6">
-            <span className="text-[#525252] font-inter font-[400] text-[14px] mr-3">
-              Verification status:
-            </span>
-            <span className="bg-[#CAA416] text-[#FAFAFA] px-3 py-1 rounded-[28px] text-[12px] font-inter font-[500]">
-              Pending
-            </span>
-          </div>
-          
-          <p className="text-[#525252] font-inter font-[400] text-[14px] text-center max-w-md leading-relaxed">
-            Our team is reviewing your information and will get back to you shortly. Thank you for your patience!
+          <p className="text-[#525252] font-inter font-[500] text-[14px]">
+            Loading...
           </p>
         </div>
       </div>
     );
   }
 
-  // Verification successful state
- if (verificationStatus === 'verified') {
+  // Main View - List of verification options
+  if (view === "main") {
     return (
-      <div className="bg-white shadow-phenom md:rounded-[12px] p-4 md:p-8 mt-5 md:mt-0 w-full">
-         <button
-         onClick={handleGoBack}
-          className="hidden md:flex items-center space-x-2 text-[#525252] hover:text-[#5555DD] transition-colors">
-         <ArrowLeft className="w-5 h-5 text-[#141B34]" />
-         <span className="text-[14px] font-[500]">Go back</span>
-      </button>
-        
-        <div className="flex flex-col items-center justify-center py-12">
-          {/* Star badge with checkmark */}
-          <div className="relative mb-4">
-            <Img 
-              src="/verifiedSuccess.svg"
-              width={120}
-              height={120}
-            />
+      <div className="bg-white shadow-phenom md:rounded-[12px] p-4 md:p-8 w-full">
+        <button
+          onClick={() => router.back()}
+          className="flex items-center text-center justify-center  space-x-2 text-[#525252] hover:text-[#000087] mb-6"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          <span className="text-[14px] font-[500]">Go back</span>
+        </button>
+
+        <h3 className="text-[#525252] text-center font-[600] font-inter text-[20px] mb-6">
+          Become a verified seller
+        </h3>
+
+        {/* Personal Identity Verification */}
+        <div
+          className="flex items-center justify-between p-4 border border-[#E8E8FF] rounded-lg mb-4 cursor-pointer hover:bg-[#F7F7FF] transition"
+          onClick={() => !verificationData.personal && setView("personal")}
+        >
+          <div className="flex-1">
+            <p className="text-[#525252] font-inter font-[500] text-[14px]">
+              Verify your personal identity
+            </p>
+            {verificationData.personal && (
+              <span
+                className={`inline-block mt-2 px-3 py-1 rounded-full text-[12px] font-[500] ${getStatusBadge(
+                  verificationData.personal.status
+                )}`}
+              >
+                {verificationData.personal.status.charAt(0).toUpperCase() +
+                  verificationData.personal.status.slice(1)}
+              </span>
+            )}
           </div>
-          
-          <h2 className="text-[#525252] font-inter font-[500] text-[16px] mb-4 text-center leading-relaxed">
-            Congratulations, you are now a 
-            <br />
-            verified user of Tenaly
-          </h2>
+          {!verificationData.personal && <ChevronRight className="w-5 h-5 text-[#525252]" />}
+        </div>
+
+        {/* Business Verifications */}
+        {verificationData.businesses.map((business, index) => (
+          <div
+            key={index}
+            className="flex items-center justify-between p-4 border border-[#E8E8FF] rounded-lg mb-4"
+          >
+            <div className="flex-1">
+              <p className="text-[#525252] font-inter font-[500] text-[14px]">
+                Verify {business.businessName} business
+              </p>
+              <span
+                className={`inline-block mt-2 px-3 py-1 rounded-full text-[12px] font-[500] ${getStatusBadge(
+                  business.status
+                )}`}
+              >
+                {business.status.charAt(0).toUpperCase() + business.status.slice(1)}
+              </span>
+            </div>
+          </div>
+        ))}
+
+        {/* Add New Business */}
+        <div
+          className="flex items-center justify-between p-4 border border-[#E8E8FF] rounded-lg cursor-pointer hover:bg-[#F7F7FF] transition"
+          onClick={() => setView("business")}
+        >
+          <p className="text-[#525252] font-inter font-[500] text-[14px]">
+            Verify Name of business business
+          </p>
+          <ChevronRight className="w-5 h-5 text-[#525252]" />
         </div>
       </div>
     );
   }
 
-  return (
-    <div className="bg-white shadow-phenom md:rounded-[12px] p-4 md:p-8 w-full  text-center">
+  // Personal Identity Verification Form
+  if (view === "personal") {
+    return (
+      <div className="bg-white shadow-phenom md:rounded-[12px] p-4 md:p-8 w-full">
+        <button
+          onClick={() => setView("main")}
+          className="flex items-center space-x-2 text-[#525252] hover:text-[#000087] mb-6"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          <span className="text-[14px] font-[500]">Go back</span>
+        </button>
 
-      <div className="flex flex-col  justify-start items-start md:justify-center md:items-center">
-        <div>
-        <h3 className="text-[#525252] font-[500] font-inter text-[16px] mb-6 text-center md:text-left">
-          Become a verified user
+        <h3 className="text-[#525252] font-[500] font-inter text-[18px] mb-6">
+          Verify your personal identity
         </h3>
 
-        {/* Stepper */}
-        <div className="flex items-center mb-8 justify-center md:justify-start">
-          <div
-            className={`flex items-center w-[67px] h-[28px] justify-center rounded-[40px] ${
-              step === 1 ? "bg-[#000087] text-[#F7F7FF]" : "bg-[#E8E8FF] text-[#000087]"
-            }`}
+        <form onSubmit={handlePersonalSubmit} className="max-w-lg">
+          <FloatingLabelDropdown
+            value={validIdType}
+            onChange={(e) => setValidIdType(e.target.value)}
+            className="mb-4"
           >
-            <span className="font-inter font-[500] text-[12px]">Step 1</span>
-          </div>
-          <div
-            className={`w-1/2 md:w-[373px] h-[6px] rounded-[10px] mx-2 transition-all duration-300 ${
-              step === 2 ? "bg-[#000087]" : "bg-[#E8E8FF]"
-            }`}
-          ></div>
-          <div
-            className={`flex items-center w-[67px] h-[28px] justify-center rounded-[40px] ${
-              step === 2 ? "bg-[#000087] text-[#F7F7FF]" : "bg-[#E8E8FF] text-[#000087]"
-            }`}
-          >
-            <span className="font-inter font-[500] text-[12px]">Step 2</span>
-          </div>
-        </div>
+            <option value="nin">National Identification Number (NIN)</option>
+            <option value="driverlicense">Driver License</option>
+            <option value="passport">Passport</option>
+            <option value="voterscard">Voters Card</option>
+          </FloatingLabelDropdown>
 
-        {/* Form */}
-        <form className="mx-auto max-w-lg md:max-w-none" onSubmit={handleSubmit}>
-          {step === 1 && (
-            <>
-              <FloatingLabelInput
-                label="Business Name"
-                value={businessName}
-                onChange={(e) => setBusinessName(e.target.value)}
-              />
-              <FloatingLabelInput
-                label="Business Address"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-              />
-              <FloatingLabelInput
-                label="Business Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              <h3 className="text-left text-[#525252] font-inter font-[500] text-[14px] mt-4 mb-2">
-                Upload Business Registration Certificate
-              </h3>
-              {!certificate ? (
-                <label
-                htmlFor="certificate-upload"
-                id="dropZone"
-                className="flex flex-col items-center justify-center bg-[#F7F7FF] border-2 border-dashed border-[#5555DD] rounded-[8px] p-10 cursor-pointer w-full h-[150px] transition"
-              >
-                <Img
-                  src="/document-upload.svg"
-                  alt="Document Icon"
-                  width={24}
-                  height={24}
-                  className="mx-auto mb-2"
-                />
-                <span className="text-[#000087] font-inter font-[500] text-[14px]">
-                  Upload Document
-                </span>
-                <input
-                  id="certificate-upload"
-                  type="file"
-                  accept=".pdf,.jpg,.jpeg,.png,.webp,.bmp,.tiff,.gif"
-                  className="hidden"
-                  onChange={handleFileChange}
-                />
-              </label>
-              ): (
-                <div className="flex flex-col items-center mt-3">
-                  <div className="relative w-32 h-32">
-                    {certificate.type.startsWith("image/") ? (
-                      <Img 
-                        src={URL.createObjectURL(certificate)}
-                        alt="Preview"
-                        width={32}
-                        height={32}
-                        className="w-32 h-32 object-contain rounded border"
-                      />
-                    ): (
-                      <div className="w-32 h-32 flex items-center justify-center bg-[#F7F7FF] rounded border">
-                        <span className="text-[#1031AA] text-xs break-all text-center px-2">
-                            {certificate.name}
-                        </span>
-                      </div>
-                    )}
-                    <button 
-                     type="button"
-                     className="absolute top-1 right-1 bg-white rounded-full p-1 shadow"
-                     onClick={() => setCertificate(null)}
-                       aria-label="Cancel upload">
-                       <Img src="/close-circle.svg" alt="Cancel" width={20} height={20} />
-                    </button>
-                  </div>
-                </div>
-              )}
-              <div className="flex justify-center items-center mt-4">
-                <Button
-                  type="button"
-                  className="bg-gradient-to-r from-[#00A8DF] to-[#1031AA] px-6 py-2 text-white w-full md:w-[317px] h-[44px] rounded-[8px]"
-                  onClick={() => setStep(2)}
-                >
-                  Next
-                </Button>
-              </div>
-            </>
-          )}
-          {step === 2 && (
-            <>
-              <FloatingLabelDropdown
-                value={validId}
-                onChange={(e) => setValidId(e.target.value)}
-                className="w-full"
-              >
-                <option value="nin">National Identification Number (NIN)</option>
-                <option value="driverlicense">Driver License</option>
-                <option value="passport">Passport</option>
-                <option value="voterscard">Voters Card</option>
-              </FloatingLabelDropdown>
+          <h4 className="text-[#525252] font-inter font-[500] text-[14px] mt-4 mb-2">
+            Upload valid means of ID
+          </h4>
 
-              {/* Upload Photo Document */}
-              <div className="mt-4">
-                <h3 className="text-left text-[#525252] font-inter font-[500] text-[14px] mt-4 mb-2">
-                  Upload valid means of ID
-                </h3>
-               {!photoDoc ? (
-               <label
-                 htmlFor="photo-upload"
-                className="flex flex-col items-center justify-center bg-[#F7F7FF] border-2 border-dashed border-[#5555DD] 
-                rounded-[8px] p-10 cursor-pointer w-full h-[150px] transition relative">
-                <Img
-                 src="/document-upload.svg"
-                 alt="Document Icon"
-                 width={24}
-                 height={24}
-                className="mx-auto mb-2"/>
-                 <span className="text-[#525252] text-[14px] font-inter font-[500]">
-                 Upload Document
-               </span>
+          {!validIdFile ? (
+            <label
+              htmlFor="valid-id-upload"
+              className="flex flex-col items-center justify-center bg-[#F7F7FF] border-2 border-dashed border-[#5555DD] rounded-[8px] p-10 cursor-pointer w-full h-[150px]"
+            >
+              <Img
+                src="/document-upload.svg"
+                alt="Upload"
+                width={24}
+                height={24}
+                className="mb-2"
+              />
+              <span className="text-[#000087] font-inter font-[500] text-[14px]">
+                Upload Document
+              </span>
               <input
-                id="photo-upload"
+                id="valid-id-upload"
                 type="file"
-               accept=".jpg,.jpeg,.png,.pdf,.webp,.bmp,.tiff,.gif"
-               className="hidden"
-              onChange={(e) => setPhotoDoc(e.target.files[0])}/>
+                accept=".jpg,.jpeg,.png,.pdf"
+                className="hidden"
+                onChange={(e) => setValidIdFile(e.target.files[0])}
+              />
             </label>
           ) : (
-          <div className="flex flex-col items-center mt-3">
-           <div className="relative w-32 h-32">
-          {photoDoc.type.startsWith("image/") ? (
-           <Img
-             src={URL.createObjectURL(photoDoc)}
-             alt="Preview"
-             width={32}
-            height={32}
-            className="w-32 h-32 object-contain rounded border"
-          />
-         ) : (
-          <div className="w-32 h-32 flex items-center justify-center bg-[#F7F7FF] rounded border">
-             <span className="text-[#1031AA] text-xs break-all text-center px-2">
-              {photoDoc.name}
-           </span>
-        </div>
-       )}
-       <button
-         type="button"
-         className="absolute top-1 right-1 bg-white rounded-full p-1 shadow"
-         onClick={() => setPhotoDoc(null)}
-         aria-label="Cancel upload">
-        <Img src="/close-circle.svg" alt="Cancel" width={20} height={20} />
-       </button>
-       </div>
-      </div>
-       )}
-      </div>
-              <div className="flex justify-center mt-5">
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  className={`bg-gradient-to-r from-[#00A8DF] to-[#1031AA] px-6 py-2 text-white w-full md:w-[317px] h-[44px] rounded-[8px] ${
-                    loading ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
+            <div className="flex flex-col items-center mt-3">
+              <div className="relative w-32 h-32">
+                {validIdFile.type.startsWith("image/") ? (
+                  <Img
+                    src={URL.createObjectURL(validIdFile)}
+                    alt="Preview"
+                    width={128}
+                    height={128}
+                    className="w-32 h-32 object-contain rounded border"
+                  />
+                ) : (
+                  <div className="w-32 h-32 flex items-center justify-center bg-[#F7F7FF] rounded border">
+                    <span className="text-[#1031AA] text-xs text-center px-2">
+                      {validIdFile.name}
+                    </span>
+                  </div>
+                )}
+                <button
+                  type="button"
+                  className="absolute top-1 right-1 bg-white rounded-full p-1 shadow"
+                  onClick={() => setValidIdFile(null)}
                 >
-                  {loading ? "Submitting..." : "Submit"}
-                </Button>
+                  <Img src="/close-circle.svg" alt="Remove" width={20} height={20} />
+                </button>
               </div>
-            </>
+            </div>
           )}
+
+          <div className="flex justify-center mt-6">
+            <Button
+              type="submit"
+              disabled={loading}
+              className={`bg-gradient-to-r from-[#00A8DF] to-[#1031AA] px-6 py-2 text-white w-full md:w-[317px] h-[44px] rounded-[8px] ${
+                loading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+            >
+              {loading ? "Submitting..." : "Submit"}
+            </Button>
+          </div>
         </form>
       </div>
+    );
+  }
+
+  // Business Verification Form
+  if (view === "business") {
+    return (
+      <div className="bg-white shadow-phenom md:rounded-[12px] p-4 md:p-8 w-full">
+        <button
+          onClick={() => setView("main")}
+          className="flex items-center space-x-2 text-[#525252] hover:text-[#000087] mb-6"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          <span className="text-[14px] font-[500]">Go back</span>
+        </button>
+
+        <h3 className="text-[#525252] font-[500] text-center font-inter text-[18px] mb-6">
+          Verify business
+        </h3>
+
+        <form onSubmit={handleBusinessSubmit} className="max-w-lg">
+          <FloatingLabelInput
+            label="Business Name"
+            value={businessName}
+            onChange={(e) => setBusinessName(e.target.value)}
+          />
+          <FloatingLabelInput
+            label="Business Address"
+            value={businessAddress}
+            onChange={(e) => setBusinessAddress(e.target.value)}
+          />
+          <FloatingLabelInput
+            label="Business Email"
+            type="email"
+            value={businessEmail}
+            onChange={(e) => setBusinessEmail(e.target.value)}
+          />
+          <FloatingLabelInput
+            label="Business Phone number"
+            value={businessPhone}
+            onChange={(e) => setBusinessPhone(e.target.value)}
+          />
+
+          <h4 className="text-[#525252] font-inter font-[500] text-[14px] mt-4 mb-2">
+            Upload Business Registration Certificate
+          </h4>
+
+          {!certificate ? (
+            <label
+              htmlFor="certificate-upload"
+              className="flex flex-col items-center justify-center bg-[#F7F7FF] border-2 border-dashed border-[#5555DD] rounded-[8px] p-10 cursor-pointer w-full h-[150px]"
+            >
+              <Img
+                src="/document-upload.svg"
+                alt="Upload"
+                width={24}
+                height={24}
+                className="mb-2"
+              />
+              <span className="text-[#000087] font-inter font-[500] text-[14px]">
+                Upload Document
+              </span>
+              <input
+                id="certificate-upload"
+                type="file"
+                accept=".pdf,.jpg,.jpeg,.png"
+                className="hidden"
+                onChange={(e) => setCertificate(e.target.files[0])}
+              />
+            </label>
+          ) : (
+            <div className="flex flex-col items-center mt-3">
+              <div className="relative w-32 h-32">
+                {certificate.type.startsWith("image/") ? (
+                  <Img
+                    src={URL.createObjectURL(certificate)}
+                    alt="Preview"
+                    width={128}
+                    height={128}
+                    className="w-32 h-32 object-contain rounded border"
+                  />
+                ) : (
+                  <div className="w-32 h-32 flex items-center justify-center bg-[#F7F7FF] rounded border">
+                    <span className="text-[#1031AA] text-xs text-center px-2">
+                      {certificate.name}
+                    </span>
+                  </div>
+                )}
+                <button
+                  type="button"
+                  className="absolute top-1 right-1 bg-white rounded-full p-1 shadow"
+                  onClick={() => setCertificate(null)}
+                >
+                  <Img src="/close-circle.svg" alt="Remove" width={20} height={20} />
+                </button>
+              </div>
+            </div>
+          )}
+
+          <div className="flex justify-center mt-6">
+            <Button
+              type="submit"
+              disabled={loading}
+              className={`bg-gradient-to-r from-[#00A8DF] to-[#1031AA] px-6 py-2 text-white w-full md:w-[317px] h-[44px] rounded-[8px] ${
+                loading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+            >
+              {loading ? "Submitting..." : "Submit"}
+            </Button>
+          </div>
+        </form>
       </div>
-    </div>
-  );
+    );
+  }
+
+  return null;
 }
