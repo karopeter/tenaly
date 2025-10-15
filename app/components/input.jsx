@@ -24,7 +24,7 @@ const InputField = ({
         onChange={onChange}
         disabled={disabled}
         className={`w-full h-[52px] border border-[#CDCDD7] rounded-[4px] px-3 
-           bg-white placeholder:text-[#000] 
+           bg-white 
           focus:outline-none
           ${className}`}
       />
