@@ -569,7 +569,7 @@ const submitAd = useCallback(async (planToSubmit, useWallet = false) => {
               disabled={!selectedModel}
             />
 
-            <PostDropdown label="Car Color" value={selectedColor} onChange={setSelectedColor} options={carColors} />
+            <PostDropdown label="Color" value={selectedColor} onChange={setSelectedColor} options={carColors} />
             <PostDropdown
               label="Interior Color"
               value={selectedInteriorColor}
@@ -587,7 +587,7 @@ const submitAd = useCallback(async (planToSubmit, useWallet = false) => {
             />
 
             <PostDropdown
-              label="Is the car registered?"
+              label="Is it registered?"
               options={registrationStatus}
               value={registerd}
               onChange={setRegistered}
@@ -600,13 +600,13 @@ const submitAd = useCallback(async (planToSubmit, useWallet = false) => {
             />
 
             <MultiSelectDropdown
-             label="Car Key Features"
+             label="Key Features"
              options={carKeyFeatures}
              value={carFeatures}
              onChange={setCarFeatures}
             />
             
-            <PostDropdown label="Car Type" options={carTypes} value={carType} onChange={setCarType} />
+            <PostDropdown label="Type" options={carTypes} value={carType} onChange={setCarType} />
           </div>
 
           {/* Non-editable section */}
