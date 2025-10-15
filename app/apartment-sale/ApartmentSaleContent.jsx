@@ -94,7 +94,6 @@ export default function ApartmentSaleContent() {
   const [serviceCharge, setServiceCharge] = useState("");
   const [serviceFees, setServiceFees] = useState("")
   const [selectedFacilities, setSelectedFacilities] = useState([]);
-  const [propertyDuration, setPropertyDuration] = useState("");
   const [amount, setAmount] = useState("");
   const [numberOfBedrooms, setNumberOfBedrooms] = useState("");
   const [numberofBathrooms, setNumberOfBathrooms] = useState("");
@@ -166,12 +165,10 @@ export default function ApartmentSaleContent() {
         setNumberOfBedrooms(adData.setNumberOfBedrooms || "");
         setNumberOfToilet(adData.numberOfToilet || "");
         setTitleDocuments(adData.setTitleDocuments || "");
-        setPropertyDuration(adData.propertyDuration || "");
         setAmount(adData.amount || "");
         setNegotiation(adData.negotiation || "");
         setBusiness(adData.businessCategory?._id || "");
         setDescription(adData.description || "");
-        setPropertyFacilities(adData.propertyFacilities || "");
        }
       } catch (error) {
        console.error("Failed to parse saved ad data:", err);
@@ -267,29 +264,29 @@ export default function ApartmentSaleContent() {
    const buildPayload = (planType, useWallet = false) => {
      const payload = {
       propertyName: propertyName?.trim(),
-    propertyAddress: propertyAddress?.trim(),
-    propertyType,
-    furnishing: furnishing || null,
-    propertyCondition: propertyCondition || null,
-    propertyFacilities: Array.isArray(selectedFacilities)
-         ? selectedFacilities.map(f => (typeof f === "string" ? f : f.value || f.label))
-         : [],
-    parking: parking || null,
-    squareMeter: squareMeter?.trim() || null,
-    ownershipStatus: ownershipStatus || null,
-    serviceCharge: serviceCharge || null,
-    numberOfBedrooms: numberOfBedrooms || null,
-    numberofBathrooms: numberofBathrooms || null,
-    numberOfToilet: numberOfToilet || null,
-    titleDocuments: titleDocuments || null,
-    serviceFees: serviceCharge === "yes" && serviceFee ? parseFloat(serviceFee) : null,
-    amount: parseFloat(amount) || 0,
-    negotiation: negotiation || "no",
-    businessCategory: business || null,
-    description: description?.trim() || "",
-    plan: planType,
-    promotionAmount: planAmounts[planType] || 0,
-    useWalletBalance: useWallet
+      propertyAddress: propertyAddress?.trim(),
+      propertyType,
+      furnishing: furnishing || null,
+      propertyCondition: propertyCondition || null,
+      propertyFacilities: Array.isArray(selectedFacilities)
+          ? selectedFacilities.map(f => (typeof f === "string" ? f : f.value || f.label))
+          : [],
+      parking: parking || null,
+      squareMeter: squareMeter?.trim() || null,
+      ownershipStatus: ownershipStatus || null,
+      serviceCharge: serviceCharge || null,
+      numberOfBedrooms: numberOfBedrooms || null,
+      numberofBathrooms: numberofBathrooms || null,
+      numberOfToilet: numberOfToilet || null,
+      titleDocuments: titleDocuments || null,
+      serviceFees: serviceCharge === "yes" && serviceFee ? parseFloat(serviceFee) : null,
+      amount: parseFloat(amount) || 0,
+      negotiation: negotiation || "no",
+      businessCategory: business || null,
+      description: description?.trim() || "",
+      plan: planType,
+      promotionAmount: planAmounts[planType] || 0,
+      useWalletBalance: useWallet
     };
 
   const storedCarAdId = localStorage.getItem('editingCarAdId');
@@ -552,7 +549,18 @@ const handlePost = useCallback(async () => {
 
           {/* Price & Duration */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <PostDropdown label="Duration" value={propertyDuration} onChange={setPropertyDuration} options={propertyDurationOptions} />
+            {/* <PostDropdown label="Duration" value={propertyDuration} onChange={setPropertyDuration} options={propertyDurationOptions} /> */}
+            <div className="mt-4">
+            <label htmlFor="business" className="block text-[#525252] font-[500] font-inter mb-1">Select your business</label>
+              <Select
+                options={businessOptions}
+                value={businessOptions.find((opt) => opt.value === business)}
+                onChange={(selected) => setBusiness(selected?.value)}
+                placeholder="Select a business"
+                isClearable
+                styles={customStyles}
+              />
+              </div>
             <InputField 
               label="Amount" 
               placeholder="₦ | Enter your amount" 
@@ -565,21 +573,7 @@ const handlePost = useCallback(async () => {
               }} 
               type="text"
               />
-          </div>
-
-          {/* Business and Negotiation */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            <div>
-              <label htmlFor="business" className="block text-[#525252] font-[500] font-inter mb-1">Select your business</label>
-              <Select
-                options={businessOptions}
-                value={businessOptions.find((opt) => opt.value === business)}
-                onChange={(selected) => setBusiness(selected?.value)}
-                placeholder="Select a business"
-                isClearable
-                styles={customStyles}
-              />
-            </div>
+              
           </div>
 
           {/* Description */}
