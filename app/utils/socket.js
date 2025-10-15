@@ -5,7 +5,7 @@ let socket;
 export const initialSocket = (token) => {
   if (socket && socket.connected) return socket;
 
-  socket = io("http://localhost:8080", {
+  socket = io("https://api.tenaly.com", {
     auth: { token },
   });
 
