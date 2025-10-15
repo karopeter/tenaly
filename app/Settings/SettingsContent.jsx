@@ -8,11 +8,17 @@ import ForgotPassword from "../hooks/forgot-password-model";
 
 export default function SettingsContent() {
   const router = useRouter();
-  const { logout, verificationStatus } = useAuth();
+  const { logout, verificationStatus, role } = useAuth();
   const [showForgotPassword, setShowForgotPassword] = useState(false);
 
-  const shouldShowVerification = 
-    !verificationStatus?.isVerified && !verificationStatus?.hasSubmitted;
+  const shouldShowVerification =
+   role === "seller" && 
+    !verificationStatus?.isVerified && 
+    !verificationStatus?.hasSubmitted;
+
+  
+    const verificationText =  "Become a verified seller";
+    const verificationHref = "/become-verified";
 
   return (
     <div 
@@ -27,12 +33,12 @@ export default function SettingsContent() {
         {/* Become verified */}
         {shouldShowVerification && (
           <Link
-          href="/become-verified"
+          href={verificationHref}
           className="flex items-center gap-3 w-full transition mb-2 pb-2 border-b border-[#EBEBEC]"
         >
           <Img src="/verified.svg" alt="Verify Icon" width={24} height={24} />
           <span className="text-[#525252] font-[400] text-[14px] font-inter">
-            Become a verified user
+            {verificationText}
           </span>
         </Link>
         )}
