@@ -310,7 +310,7 @@ export default function BusinessHoursForm() {
                           return (
                             <React.Fragment key={`pm-${hour}`}>
                               <option value={`${hour}:00 PM`}>{hour}:00 PM</option>
-                              <option value={`${hour}:30 AM`}>{hour}:30 AM</option>
+                              <option value={`${hour}:30 PM`}>{hour}:30 PM</option>
                             </React.Fragment>
                           )
                         })}
