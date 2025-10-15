@@ -62,10 +62,11 @@ export default function BusinessForm({ initialData, isEditMode, businessId, mode
     const [businessName, setBusinessName] = useState("");
     const [aboutBusiness, setAboutBusiness] = useState("");
     const [state, setState] = useState("");
+    const [lga, setLga] = useState("");
     const [location, setLocation] = useState("Choose location");
     const [addresses, setAddresses] = useState([""]);
     const [showMobileMenu, setShowMobileMenu] = useState(false);
-    const [loading, setLoading] = useState(false); // Initialize loading state
+    const [loading, setLoading] = useState(false);
     const [businessHours, setBusinessHours] = useState(initialData?.businessHours || []);
 
     useEffect(() => {
@@ -80,17 +81,18 @@ export default function BusinessForm({ initialData, isEditMode, businessId, mode
   
     const handleLocationSelect = ({ state: selectedState, lga }) => {
         setState(selectedState);
-        setLocation(lga);
+        setLga(lga);
+        setLocation(`${selectedState}, ${lga}`);
         setShowLocationModal(false);
     };
 
     const handleSubmit = async () => {
-      if (!businessName || !aboutBusiness || location === "Choose location" || addresses.some(addr => !addr.trim())) {
+      if (!businessName || !aboutBusiness || !state || !lga || addresses.some(addr => !addr.trim())) {
         toast.error("Please complete all fields and at least one address");
         return;
       }
       
-      setLoading(true); // Set loading to true when the request starts
+      setLoading(true); 
 
       try {
         const res = await api.post("/business/add-business", {
@@ -178,7 +180,9 @@ export default function BusinessForm({ initialData, isEditMode, businessId, mode
                  className="w-full mt-2 h-[52px]
                    border border-[#CDCDD7] rounded-[4px]
                    flex justify-between items-center px-3 cursor-pointer">
-                   <span className="text-[#525252]">{location}</span>
+                   <span className="text-[#525252]">
+                     {state && lga ? `${state}, ${lga}` : location}
+                   </span>
                    <Plus className="w-5 h-5 text-[#525252]" />
                </div>
                <AddressFields addresses={addresses} setAddresses={setAddresses} />
