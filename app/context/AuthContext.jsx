@@ -96,33 +96,33 @@ useEffect(() => {
      }
   };
 
+
+
 const switchRole = async (newRole) => {
   try {
-    const response = await api.patch(
-      "/profile/switch-role",
-      { role: newRole },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
+    const res = await api.patch("/profile/switch-role", { role: newRole });
+    
+    if (res.data) {
+     const normalized =  normalizeRole(newRole);
+      
+      // Refresh user details to get updated role
+      const userRes = await api.get("/profile");
+      if (userRes.data) {
+        localStorage.setItem("profile", JSON.stringify(userRes.data));
+        localStorage.setItem("userRole", normalized);
+      }
+      
+      toast.success(`Switched to ${newRole} mode`);
 
-    const updatedRole = normalizeRole(response.data?.role || newRole);
-
-    // Update state immediately
-    const updatedProfile = { ...profile, role: updatedRole };
-
-    const fullUpdatedProfile = response.data.profile ? {...response.data.profile, role: updatedRole } : updatedProfile;
-    setProfile(fullUpdatedProfile);
-    localStorage.setItem("profile", JSON.stringify(fullUpdatedProfile));
-
-    toast.success(`Switched to ${updatedRole} mode`);
-
-    return true;
+      window.location.reload(); 
+      return true;
+    }
   } catch (error) {
-    console.error("Error switching role:", error);
+    console.error("Role switch error:", error);
     toast.error("Failed to switch role");
     return false;
   }
 };
-
 
   const login = (profileData, authToken) => {
     profileData.role = normalizeRole(profileData.role);
