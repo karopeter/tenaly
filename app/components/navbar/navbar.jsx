@@ -22,20 +22,23 @@ export default function Navbar() {
   
   const { isLoggedIn, logout, role, switchRole } = useAuth();
 
+  // Fetch user details and update when role changes
   useEffect(() => {
     const fetchUserDetails = async () => {
+      if (!isLoggedIn) return;
+      
       try {
         const { data } = await api.get("/profile");
         setProfileData({
           image: data.image || ""
         });
       } catch (error) {
-        toast.error("Failed to fetch user details:", error);
+        console.error("Failed to fetch user details:", error);
       }
     };
 
     fetchUserDetails();
-  }, []);
+  }, [isLoggedIn, role]); // Added role as dependency
 
   useEffect(() => {
     let interval;
@@ -83,13 +86,15 @@ export default function Navbar() {
     return () => clearInterval(interval);
   }, [isLoggedIn]);
 
-  const handleRoleToggle = () => {
+  const handleRoleToggle = async () => {
     const hideModal = localStorage.getItem("hideRoleSwitchModal");
     const newRole = role === "buyer" ? "seller" : "buyer";
     
     if (hideModal === "true") {
-      switchRole(newRole);
+      // Switch role directly without modal
+      await switchRole(newRole);
     } else {
+      // Show modal first
       setTargetRole(newRole);
       setShowRoleSwitchModal(true);
     }
@@ -99,6 +104,15 @@ export default function Navbar() {
     const success = await switchRole(targetRole);
     if (success) {
       setShowRoleSwitchModal(false);
+      // Force re-render by fetching fresh profile data
+      try {
+        const { data } = await api.get("/profile");
+        setProfileData({
+          image: data.image || ""
+        });
+      } catch (error) {
+        console.error("Failed to refresh profile:", error);
+      }
     }
   };
 
