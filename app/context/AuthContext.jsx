@@ -103,18 +103,18 @@ const switchRole = async (newRole) => {
     const res = await api.patch("/profile/switch-role", { role: newRole });
     
     if (res.data) {
-     const normalized =  normalizeRole(newRole);
+      normalizeRole(newRole);
       
       // Refresh user details to get updated role
       const userRes = await api.get("/profile");
       if (userRes.data) {
-        localStorage.setItem("profile", JSON.stringify(userRes.data));
-        localStorage.setItem("userRole", normalized);
+        // Update any cached user data
+        localStorage.setItem("userRole", newRole);
       }
       
       toast.success(`Switched to ${newRole} mode`);
 
-      window.location.reload(); 
+         window.location.reload();
       return true;
     }
   } catch (error) {
