@@ -667,9 +667,22 @@ const productImage =
                  <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
                    {item.label}
                  </span>
-                 <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                   {item.value}
-                 </span>
+                 {item.label === "Property Facilities" && Array.isArray(item.value) ? (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {item.value.map((facility, i) => (
+                      <span 
+                        key={i}
+                        className="bg-[#F5F5F5] text-[#525252] text-[13px] md:text-[14px] font-medium font-inter px-2 py-1 rounded"
+                      >
+                        {facility}
+                      </span>
+                    ))}
+                  </div>
+                 ): (
+                  <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+                    {item.value}
+                  </span>
+                 )}
                </div>
              )
           )}
