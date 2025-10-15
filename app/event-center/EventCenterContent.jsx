@@ -21,6 +21,7 @@ import { negotiationOptions } from "../lib/carData";
 import FreePropertySuccessModal from "../components/free-property-sucess-modal";
 import PromoteAdModal from "../components/PromoteModal/promote-modal";
 import WalletPaymentModal from "../components/WalletModal/walletModal";
+import MultiSelectDropdown from "../components/dropdowns/MultiSelectDropdown";
 
 const customStyles = {
   control: (base, state) => ({
@@ -87,7 +88,7 @@ export default function EventCenterContent() {
     const [serviceFee, setServiceFee] = useState("")
     const [propertyDuration, setPropertyDuration] = useState("");
     const [amount, setAmount] = useState("");
-    const [propertyFacility, setPropertyFacility] = useState("");
+    const [selectedFacilities, setSelectedFacilities] = useState([]);
     const [negotiation, setNegotiation] = useState("");
     const [businessOptions, setBusinessOptions] = useState([]);
     const [guestNumber, setGuestNumber] = useState("");
@@ -265,7 +266,10 @@ export default function EventCenterContent() {
      serviceCharge: serviceCharge || null,
      serviceFee: serviceCharge === "yes" && serviceFee ? parseFloat(serviceFee) : null,
      propertyDuration: propertyDuration || null,
-     propertyFacilities: propertyFacilities || null,
+     propertyFacilities: Array.isArray(selectedFacilities)
+       ? selectedFacilities.map(f => (typeof f === "string" ? f : f.value || f.label))
+       : [],
+    // propertyFacilities: propertyFacilities || null,
      amount: parseFloat(amount) || 0,
      guestNumber: guestNumber || null,
      negotiation: negotiation || "no",
@@ -512,12 +516,7 @@ const handlePost = useCallback(async () => {
               onChange={setOwnerShipStatus}
               options={ownershipStatusOptions}
             />
-            <PostDropdown
-              label="Property facilities"
-              value={propertyFacility}
-              onChange={setPropertyFacility}
-              options={propertyFacilities}
-            />
+            <MultiSelectDropdown label="Property facilities" value={selectedFacilities} onChange={setSelectedFacilities} options={propertyFacilities} />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 mt-4">

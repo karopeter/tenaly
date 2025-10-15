@@ -6,6 +6,7 @@ import Button from "../components/Button";
 import { useAuth } from "../context/AuthContext";
 import InputField from "../components/input";
 import api from "@/services/api";
+import MultiSelectDropdown from "../components/dropdowns/MultiSelectDropdown";
 import Select from "../components/clientOnlySelect";
 import PostDropdown from "../components/dropdowns/car-post-dropdown";
 import { toast } from "react-toastify";
@@ -83,7 +84,7 @@ export default function  LandRentContent() {
     const [selectedPlan, setSelectedPlan] = useState("basic");
     const [ownershipStatus, setOwnerShipStatus] = useState("");
     const [serviceCharge, setServiceCharge] = useState("");
-    const [propertyFacility, setPropertyFacilities] = useState("");
+    const [selectedFacilities, setSelectedFacilities] = useState([]);
     const [titleDocuments, setTitleDocuments] = useState("");
     const [developmentFee, setDevelopmentFee] = useState("");
     const [surveyFee, setSurveyFee] = useState("");
@@ -259,7 +260,9 @@ export default function  LandRentContent() {
      propertyName: propertyName?.trim(),
      propertyAddress: propertyAddress?.trim(),
      propertyType,
-     propertyFacilities: propertyFacilities || null,
+     propertyFacilities: Array.isArray(selectedFacilities)
+         ? selectedFacilities.map(f => (typeof f === "string" ? f : f.value || f.label))
+         : [],
      squareMeter: squareMeter?.trim() || null,
      ownershipStatus: ownershipStatus || null,
      serviceCharge: serviceCharge || null,
@@ -517,11 +520,11 @@ const onPlanSelect = (plan) => {
                       onChange={setOwnerShipStatus}
                       options={ownershipStatusOptions}
                     />
-                    <PostDropdown
+                    <MultiSelectDropdown
                       label="Property facilities"
-                      value={propertyFacility}
-                      onChange={setPropertyFacilities}
-                      options={landSalePropertyOptions}
+                      value={selectedFacilities}
+                      onChange={setSelectedFacilities}
+                      options={propertyFacilities}
                     />
                  </div>
                  <div className="grid md:grid-cols-2 gap-x-6 gap-y-4">

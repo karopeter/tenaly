@@ -8,6 +8,7 @@ import Select from "../components/clientOnlySelect";
 import FreePropertySuccessModal from "../components/free-property-sucess-modal";
 import PostDropdown from "../components/dropdowns/car-post-dropdown";
 import { useRouter, useSearchParams } from "next/navigation";
+import MultiSelectDropdown from "../components/dropdowns/MultiSelectDropdown";
 import { useAuth } from "../context/AuthContext";
 import Button from "../components/Button";
 import { 
@@ -91,7 +92,7 @@ export default function ShortletContent() {
     const [ownershipStatus, setOwnerShipStatus] = useState("");
     const [serviceCharge, setServiceCharge] = useState("");
     const [serviceFee, setServiceFees] = useState("")
-    const [propertyFacility, setPropertyFacilities] = useState("");
+    const [selectedFacilities, setSelectedFacilities] = useState([]);
     const [propertyDuration, setPropertyDuration] = useState("");
     const [amount, setAmount] = useState("");
     const [numberOfBedrooms, setNumberOfBedrooms] = useState("");
@@ -178,9 +179,7 @@ export default function ShortletContent() {
 
       }
     }
-  })
-
-
+  });
     // Set mounted to true after the component has mounted on the client
     useEffect(() => {
      setMounted(true);
@@ -273,7 +272,9 @@ export default function ShortletContent() {
      propertyType,
      furnishing: furnishing || null,
      propertyCondition: propertyCondition || null,
-     propertyFacilities: propertyFacilities || null,
+     propertyFacilities: Array.isArray(selectedFacilities)
+        ? selectedFacilities.map(f => (typeof f === "string" ? f : f.value || f.label))
+        : [],
      parking: parking || null,
      squareMeter: squareMeter?.trim() || null,
      ownershipStatus: ownershipStatus || null,
@@ -536,11 +537,11 @@ export default function ShortletContent() {
                         onChange={setOwnerShipStatus}
                         options={ownershipStatusOptions}
                      />
-                     <PostDropdown
-                        label="Property Facilities"
-                        value={propertyFacility}
-                       onChange={setPropertyFacilities}
-                       options={shortletPropertyFacilities}
+                     <MultiSelectDropdown
+                       label="Property facilities"
+                       value={selectedFacilities}
+                       onChange={setSelectedFacilities}
+                       options={propertyFacilities}
                      />
                   </div>
                   <div className="grid md:grid-cols-2 gap-x-6 gap-y-4">

@@ -14,6 +14,7 @@ import WalletPaymentModal from "../components/WalletModal/walletModal";
 import { apartmentRentBathroomsOptions, apartmentRentBedroomNumberOptions, apartmentRentOptions, apartmentRentToiletOptions, furnishingOptions, ownershipStatusOptions, parkingSpaceOptions, propertyConditionOptions, propertyDurationOptions, propertyFacilities, propertyTypeOptions, serviceChargeOptions } from "../lib/propertyData";
 import { negotiationOptions } from "../lib/carData";
 import { useAuth } from "../context/AuthContext";
+import MultiSelectDropdown from "../components/dropdowns/MultiSelectDropdown";
 
 
 const customStyles = {
@@ -78,7 +79,7 @@ export default function ApartmentRentContent() {
    const [ownershipStatus, setOwnerShipStatus] = useState("");
    const [serviceCharge, setServiceCharge] = useState("");
    const [serviceFees, setServiceFees] = useState("")
-   const [propertyFacility, setPropertyFacilities] = useState("");
+   const [selectedFacilities, setSelectedFacilities] = useState([]);
    const [propertyDuration, setPropertyDuration] = useState("");
    const [amount, setAmount] = useState("");
    const [numberOfBedrooms, setNumberOfBedrooms] = useState("");
@@ -260,7 +261,9 @@ export default function ApartmentRentContent() {
     propertyType,
     furnishing: furnishing || null,
     propertyCondition: propertyCondition || null,
-    propertyFacilities: propertyFacilities || null,
+    propertyFacilities: Array.isArray(selectedFacilities)
+     ? selectedFacilities.map(f => (typeof f === "string" ? f : f.value || f.label))
+     : [],
     parking: parking || null,
     serviceCharge: serviceCharge || null,
     squareMeter: squareMeter?.trim() || null,
@@ -509,7 +512,7 @@ const handlePost = useCallback(async () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            <PostDropdown label="Property facilities" value={propertyFacility} onChange={setPropertyFacilities} options={propertyFacilities} />
+            <MultiSelectDropdown label="Property facilities" value={selectedFacilities} onChange={setSelectedFacilities} options={propertyFacilities} />
             <PostDropdown label="Number of bedrooms" value={numberOfBedrooms} onChange={setNumberOfBedrooms} options={apartmentRentBedroomNumberOptions} />
           </div>
 
