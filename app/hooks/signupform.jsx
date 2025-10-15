@@ -9,6 +9,7 @@ import Button from "../components/Button";
 import SignInModal from "./signin-modal";
 import api from "@/services/api";
 import { useAuth } from "../context/AuthContext";
+import Link from "next/link";
 import CompleteProfileModal from "./complete-profile-modal";
 import BusinessOnbardingModal from "../components/BusinessOnboarding/BusinessOnboardingModal";
 
@@ -270,7 +271,7 @@ export default function SignUpForm({ onClose }) {
       </form>
 
       <p className="text-[#232323] font-[400] md:text-[11px] font-inter text-center mt-3">
-        By signing up, you agree to all the Terms Of Service and Privacy Policy
+        By signing up, you agree to all the <Link href="/terms-condition" className="underline">Terms Of Service</Link> and <Link href="/privacy-policy" className="underline">Privacy Policy</Link>
       </p>
 
       {/* Divider */}
