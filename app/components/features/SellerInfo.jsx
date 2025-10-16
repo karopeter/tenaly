@@ -55,7 +55,6 @@ const SellerInfo = ({ sellerId }) => {
             ${isVerified ? "bg-[#E9F4E8]" : "bg-[#FBEAEA]"}`}
           >
             <Img
-              /* Use your own unverified icon if available; fallback to same icon */
               src={isVerified ? "/profile.svg" : "/profile.svg"}
               alt={isVerified ? "Verified Icon" : "Unverified Icon"}
               width={10}
@@ -66,7 +65,7 @@ const SellerInfo = ({ sellerId }) => {
               className={`text-[10px] font-[500] font-inter whitespace-nowrap
               ${isVerified ? "text-[#238E15]" : "text-[#D72638]"}`}
             >
-              {isVerified ? "Verified User" : "Unverified User"}
+              {isVerified ? "Verified Business" : "Unverified Business"}
             </span>
           </div>
     </div>
