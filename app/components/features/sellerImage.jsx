@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
 import api from "@/services/api";
-import Button from "../Button";
 import Img from "../Image";
 
 
@@ -40,9 +39,11 @@ const SellerImage = ({ sellerId }) => {
   if (loading) return <p className="text-sm text-gray-500">Loading seller info...</p>;
   if (error) return <p className="text-sm text-red-500">{error}</p>;
   if (!sellerDetails) return null;
+
+  const isVerified = !!sellerDetails?.isVerified;
   
   return (
-    <div className="">
+    <div className="relative w-[40px] h-[40px]">
       {/* ✅ Profile Image */}
       <Img
         src={sellerDetails.image || "/profile-circles1.svg"}
@@ -54,6 +55,17 @@ const SellerImage = ({ sellerId }) => {
          e.currentTarget.src = "/profile-circles1.svg"; 
        }}
       />
+
+      {/* Verified Badge - Only shows if verified */}
+      {isVerified && (
+        <Img 
+          src="/profile-verified.svg"
+          alt="Verified Badge"
+          width={16}
+          height={16}
+          className="absolute top-0 right-0 w-[16px] h-[16px]"
+        />
+      )}
     </div>
   );
 };
