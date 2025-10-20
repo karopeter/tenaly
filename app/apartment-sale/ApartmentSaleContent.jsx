@@ -21,7 +21,8 @@ import {
     propertyConditionOptions, 
     propertyDurationOptions, 
     propertyFacilities, 
-    serviceChargeOptions
+    serviceChargeOptions,
+    shortletPropertyFacilities
   } from "../lib/propertyData";
   import { useAuth } from "../context/AuthContext";
 import { negotiationOptions } from "../lib/carData";
@@ -92,7 +93,7 @@ export default function ApartmentSaleContent() {
   const [selectedPlan, setSelectedPlan] = useState("basic");
   const [ownershipStatus, setOwnerShipStatus] = useState("");
   const [serviceCharge, setServiceCharge] = useState("");
-  const [serviceFees, setServiceFees] = useState("")
+  const [serviceFee, setServiceFee] = useState("");
   const [selectedFacilities, setSelectedFacilities] = useState([]);
   const [amount, setAmount] = useState("");
   const [numberOfBedrooms, setNumberOfBedrooms] = useState("");
@@ -102,6 +103,7 @@ export default function ApartmentSaleContent() {
   const [businessOptions, setBusinessOptions] = useState([]);
   const [business, setBusiness] = useState("");
   const [titleDocuments, setTitleDocuments] = useState("");
+  const [propertyFacility, setPropertyFacility] = useState("");
   const [businessCategory, setBusinessCategory] = useState("");
   const [description, setDescription] = useState("");
   const [hasPromoted, setHasPromoted] = useState(false);
@@ -111,6 +113,7 @@ export default function ApartmentSaleContent() {
   const [showWalletModal, setShowWalletModal] = useState(false);
 
   const [editingCarAd, setEditingCarAd] = useState(null);
+  const [isLoadingDraft, setIsLoadingDraft] = useState(false);
 
   // New state to track if the component has mounted 
   const [mounted, setMounted] = useState(false);
@@ -133,51 +136,155 @@ export default function ApartmentSaleContent() {
     enterprise: 5,
   };
 
-  useEffect(() => {
-    const carAdId = localStorage.getItem('editingCarAdId');
-    const carAdDataStr = localStorage.getItem('editCarAdData');
-    const adType = localStorage.getItem('editingAdType');
+  // useEffect(() => {
+  //   const carAdId = localStorage.getItem('editingCarAdId');
+  //   const carAdDataStr = localStorage.getItem('editCarAdData');
+  //   const adType = localStorage.getItem('editingAdType');
 
-    if (carAdId && carAdDataStr && adType === 'vehicle') {
-      try {
-       const carAdData = JSON.parse(carAdDataStr);
+  //   if (carAdId && carAdDataStr && adType === 'vehicle') {
+  //     try {
+  //      const carAdData = JSON.parse(carAdDataStr);
 
-       setEditingCarAd({
-        carAdId,
-        businessId: carAdData.businessCategory._id,
-        category: carAdData.category,
-        location: carAdData.location,
-        images: carAdData.images,
-       });
+  //      setEditingCarAd({
+  //       carAdId,
+  //       businessId: carAdData.businessCategory._id,
+  //       category: carAdData.category,
+  //       location: carAdData.location,
+  //       images: carAdData.images,
+  //      });
 
-       // 🔥 Pre-fill form fields here
-       if (adType === 'property') {
-        setPropertyName(adData.propertyName || "");
-        setPropertyAddress(adData.propertyAddress || "");
-        setPropertyType(adData.propertyType || "");
-        setFurnishing(adData.furnishing || "");
-        setParking(adData.parking || "");
-        setSquareMeter(adData.squareMeter || "");
-        setOwnerShipStatus(adData.ownershipStatus || "");
-        setServiceCharge(adData.serviceCharge || "");
-        setServiceFees(adData.serviceFee || "");
-        setNumberOfBathrooms(adData.numberofBathrooms || "");
-        setNumberOfBedrooms(adData.setNumberOfBedrooms || "");
-        setNumberOfToilet(adData.numberOfToilet || "");
-        setTitleDocuments(adData.setTitleDocuments || "");
-        setAmount(adData.amount || "");
-        setNegotiation(adData.negotiation || "");
-        setBusiness(adData.businessCategory?._id || "");
-        setDescription(adData.description || "");
-       }
-      } catch (error) {
-       console.error("Failed to parse saved ad data:", err);
-      }
-    }
-  }, []);
+  //      // 🔥 Pre-fill form fields here
+  //      if (adType === 'property') {
+  //       setPropertyName(adData.propertyName || "");
+  //       setPropertyAddress(adData.propertyAddress || "");
+  //       setPropertyType(adData.propertyType || "");
+  //       setFurnishing(adData.furnishing || "");
+  //       setParking(adData.parking || "");
+  //       setSquareMeter(adData.squareMeter || "");
+  //       setOwnerShipStatus(adData.ownershipStatus || "");
+  //       setServiceCharge(adData.serviceCharge || "");
+  //       setServiceFees(adData.serviceFee || "");
+  //       setNumberOfBathrooms(adData.numberofBathrooms || "");
+  //       setNumberOfBedrooms(adData.setNumberOfBedrooms || "");
+  //       setNumberOfToilet(adData.numberOfToilet || "");
+  //       setTitleDocuments(adData.setTitleDocuments || "");
+  //       setAmount(adData.amount || "");
+  //       setNegotiation(adData.negotiation || "");
+  //       setBusiness(adData.businessCategory?._id || "");
+  //       setDescription(adData.description || "");
+  //      }
+  //     } catch (error) {
+  //      console.error("Failed to parse saved ad data:", err);
+  //     }
+  //   }
+  // }, []);
 
 
   // Set mounted to true after the component has mounted on the client
+  
+
+  useEffect(() => {
+    const fetchDraftData = async () => {
+      const carAdIdFromStorage = localStorage.getItem('editingCarAdId');
+      const carAdIdFromQuery = carAdId;
+      const adType = localStorage.getItem('editingAdType');
+
+      const idToUse = carAdIdFromQuery || carAdIdFromStorage;
+
+      console.log("🔍 Checking for property draft:", {
+        carAdIdFromQuery,
+        carAdIdFromStorage,
+        adType,
+        idToUse
+      });
+
+      if (!idToUse || adType !== 'property') {
+        console.log("⚠️ No property draft to load");
+        return;
+      }
+
+      setIsLoadingDraft(true);
+
+      try {
+      // Fetch PropertyAd draft by carAdId 
+      const propertyResponse = await api.get(`/property/draft/${idToUse}`);
+
+      if (!propertyResponse.data || !propertyResponse.data.propertyAd) {
+        console.log("⚠️ No PropertyAd draft found");
+        setIsLoadingDraft(false);
+        return;
+      }
+
+      const propertyAd = propertyResponse.data.propertyAd;
+      console.log("✅ Loaded PropertyAd draft:", propertyAd);
+
+      // Also fetch CarAd for images and location
+      let carAd = null;
+      try {
+       const carResponse = await api.get(`/carAdd/${idToUse}`);
+       carAd = carResponse.data;
+       console.log("✅ Loaded CarAd:", carAd);
+      } catch (carError) {
+         console.warn("⚠️ Could not load CarAd:", carError);
+      }
+
+      // Pre-fill form fields from PropertyAd 
+      setPropertyName(propertyAd.propertyName || "");
+      setPropertyAddress(propertyAd.propertyAddress || propertyAd.location ||  "");
+      setPropertyType(propertyAd.propertyType || "");
+      setFurnishing(propertyAd.furnishing || "");
+      setParking(propertyAd.parking || "");
+      setSquareMeter(propertyAd.squareMeter || "");
+      setOwnerShipStatus(propertyAd.ownershipStatus || "");
+      setServiceCharge(propertyAd.serviceCharge || "");
+      setServiceFee(propertyAd.serviceFee?.toString() || "");
+      setNumberOfBathrooms(propertyAd.numberofBathrooms || "");
+      setNumberOfBedrooms(propertyAd.numberOfBedrooms || "");
+      setNumberOfToilet(propertyAd.numberOfToilet || "");
+      setTitleDocuments(propertyAd.titleDocuments || "");
+      setAmount(propertyAd.amount || "");
+      setNegotiation(propertyAd.negotiation || "");
+      setDescription(propertyAd.description || "");
+      setPropertyFacility(propertyAd.propertyFacilities || "");
+
+      // Set Business from either propertyAd or carAd 
+      const businessId = propertyAd.businessCategory?._id
+        || propertyAd.businessCategory
+        || carAd?.businessCategory?._id
+        || carAd?.businessCategory;
+       setBusiness(businessId || "");
+       setBusinessCategory(businessId || "");
+
+       // Store editing state 
+       setEditingCarAd({
+        carAdId: idToUse,
+        businessId: businessId,
+        category: carAd?.category || 'House and Apartment Property For Sale',
+        location: carAd?.location || propertyAd.propertyAddress || '',
+        images: carAd?.propertyImage || [],
+       });
+
+       toast.success("Draft loaded successfully! Complete your property ad details.");
+       setIsLoadingDraft(false);
+
+      } catch (error) {
+         console.error("❌ Error loading property draft:", error);
+         toast.error("Failed to load draft. Starting fresh.");
+
+         // clear invalid data 
+         localStorage.removeItem('editingCarAdId');
+         localStorage.removeItem('editingCarAdData');
+         localStorage.removeItem('editingAdType');
+
+         setIsLoadingDraft(false);
+      }
+    };
+
+    if (mounted) {
+      fetchDraftData();
+    }
+  }, [mounted, carAdId]);
+  
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -268,8 +375,8 @@ export default function ApartmentSaleContent() {
       propertyType,
       furnishing: furnishing || null,
       propertyCondition: propertyCondition || null,
-      propertyFacilities: Array.isArray(selectedFacilities)
-          ? selectedFacilities.map(f => (typeof f === "string" ? f : f.value || f.label))
+      propertyFacilities: Array.isArray(propertyFacilities)
+          ? propertyFacilities.map((f) => (typeof f === "string" ? f : f.name))
           : [],
       parking: parking || null,
       squareMeter: squareMeter?.trim() || null,
@@ -279,7 +386,7 @@ export default function ApartmentSaleContent() {
       numberofBathrooms: numberofBathrooms || null,
       numberOfToilet: numberOfToilet || null,
       titleDocuments: titleDocuments || null,
-      serviceFees: serviceCharge === "yes" && serviceFee ? parseFloat(serviceFee) : null,
+      serviceFee: serviceCharge === "yes" && serviceFee ? parseFloat(serviceFee) : null,
       amount: parseFloat(amount) || 0,
       negotiation: negotiation || "no",
       businessCategory: business || null,
@@ -340,10 +447,10 @@ export default function ApartmentSaleContent() {
 
            // clear incomplete ad tracking 
            localStorage.removeItem("editingCarAdId");
-           localStorage.removeItem("editingAdData");
+           localStorage.removeItem("editingCarAdData");
+           localStorage.removeItem('editingAdType');
           localStorage.setItem('adUpdated', 'true');
            router.push('/Add');
-
          } else if (res.data.data?.paymentStatus === "free") {
            toast.success(res.data.message || "Free property ad posted successfully!");
            setShowModalPromote(false);
@@ -352,7 +459,8 @@ export default function ApartmentSaleContent() {
 
            // 🔑 Clear incomplete ad tracking
            localStorage.removeItem("editingCarAdId");
-           localStorage.removeItem("editingAdData");
+           localStorage.removeItem("editingCarAdData");
+           localStorage.removeItem("editingAdType");
            localStorage.setItem('adUpdated', 'true');
          } else {
            toast.success(res.data.message || "Property ad posted successfully");
@@ -361,7 +469,11 @@ export default function ApartmentSaleContent() {
 
            // 🔑 Clear incomplete ad tracking
            localStorage.removeItem("editingCarAdId");
-           localStorage.removeItem("editingAdData");
+           localStorage.removeItem("editingCarAdData");
+           localStorage.removeItem("editingAdType");
+
+           const profileRes = await api.get("/profile");
+           login(profileRes.data, token);
         }
        } catch (error) {
        console.error("Ad submission error:", error.response?.data || error.message);
@@ -370,7 +482,7 @@ export default function ApartmentSaleContent() {
           "Something went wrong posting your ad. Please try again."
       );
     }
-  }, [propertyName, propertyAddress, propertyType, amount, router, token, login, router, editingCarAd, carAdId]); // Added router to dependencies
+  }, [propertyName, propertyAddress, propertyType, amount, router, token, login, router, editingCarAd, carAdId, buildPayload]); 
 
 
   const postAdForFree = useCallback(async () => {
@@ -440,7 +552,6 @@ const handlePost = useCallback(async () => {
   if (highestPlan !== "free") {
     console.log("Using existing paid plan:", highestPlan);
     toast.success(`Post created successfully Using your existing ${highestPlan} plan to post this ad.`);
-    router.push('/Add');
     await submitAd(highestPlan, false);
   } else {
     // User has no paid plans, show promote modal
@@ -478,6 +589,17 @@ const handlePost = useCallback(async () => {
      }
   }, [buildPayload, router]);
 
+
+   if (isLoadingDraft) {
+    return (
+      <div className="bg-white shadow-phenom rounded-[12px] p-4 sm:p-6 md:p-10 flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600 font-inter">Loading draft...</p>
+        </div>
+      </div>
+    );
+  }
   
     return (
       <>
@@ -492,7 +614,7 @@ const handlePost = useCallback(async () => {
 
         {/* Heading */}
         <h3 className="text-[#525252] font-[500] font-inter text-[16px] md:text-[18px] mt-4 mb-6 text-left md:text-center">
-          House and Apartment for Sale
+         {editingCarAd ? "Complete Your House For Sale Property Ad" : " House and Apartment for Sale"}
         </h3>
 
         {/* Form */}
@@ -523,7 +645,7 @@ const handlePost = useCallback(async () => {
 
           {/* Section 5 */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <MultiSelectDropdown label="Property facilities" value={selectedFacilities} onChange={setSelectedFacilities} options={propertyFacilities} />
+            <MultiSelectDropdown label="Property facilities" value={propertyFacilities} onChange={setPropertyFacility} options={propertyFacilities} />
             <PostDropdown label="Bedrooms" value={numberOfBedrooms} onChange={setNumberOfBedrooms} options={apartmentRentBedroomNumberOptions} />
           </div>
 
