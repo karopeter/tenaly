@@ -26,7 +26,7 @@ const customStyles = {
   control: (base, state) => ({
     ...base,
     backgroundColor: '#fff',
-    borderColor: state.isFocused ? '#000087' : '#d1d5db', // Tailwind: border-gray-300
+    borderColor: state.isFocused ? '#000087' : '#d1d5db',
     boxShadow: state.isFocused ? '0 0 0 1px #000087' : 'none',
     '&:hover': {
       borderColor: '#000087',
@@ -61,7 +61,6 @@ const customStyles = {
   }),
 };
 
-// Define plan amounts
 const planAmounts = {
   free: 0,
   basic: 15000,
@@ -89,16 +88,15 @@ export default function CommercialSaleContent() {
   const [business, setBusiness] = useState("");
   const [businessCategory, setBusinessCategory] = useState("");
   const [description, setDescription] = useState("");
+  const [propertyFacility, setPropertyFacility] = useState(""); // ✅ Added back
 
-  // Modal states
   const [selectedPlan, setSelectedPlan] = useState("basic");
   const [showFreeCommercialPropertySuccessModal, setShowFreeCommercialPropertyModal] = useState(false);
   const [showModalPromote, setShowModalPromote] = useState(false);
   const [showWalletModal, setShowWalletModal] = useState(false);
   const [mounted, setMounted] = useState(false);
-
   const [editingCarAd, setEditingCarAd] = useState(null);
-
+  const [isLoadingDraft, setIsLoadingDraft] = useState(false);
   const [isPosting, setIsPosting] = useState(false);
 
   const { profile, token, login } = useAuth();
@@ -107,7 +105,6 @@ export default function CommercialSaleContent() {
   const searchParams = useSearchParams();
   const carAdId = searchParams.get('carAdId');
 
-  // Define plan hierarchy
   const planHierarchy = {
     free: 0,
     basic: 1,
@@ -117,52 +114,111 @@ export default function CommercialSaleContent() {
     enterprise: 5,
   };
 
-  useEffect(() => {
-    const carAdId = localStorage.getItem('editingCarAdId');
-    const carAdDataStr = localStorage.getItem('editingCarAdData');
-    const adType = localStorage.getItem('editingAdType');
-
-    if (carAdId && carAdDataStr && adType === 'vehicle') {
-      try {
-        const carAdData = JSON.parse(carAdDataStr);
-
-        setEditingCarAd({
-          carAdId,
-          businessId: carAdData.businessCategory._id,
-          category: carAdData.category,
-          location: carAdData.location,
-          images: carAdData.images,
-        });
-
-        // 🔥 Pre-fill form fields here
-        if (adType === 'property') 
-         setPropertyName(adData.propertyName || "");
-         setPropertyAddress(adData.propertyAddress || "");
-         setPropertyType(adData.propertyType || "");
-         setFurnishing(adData.furnishing || "");
-         setPropertyCondition(adData.propertyCondition || "");
-         setParking(adData.parking || "");
-         setSquareMeter(adData.squareMeter || "");
-         setOwnerShipStatus(adData.ownershipStatus || "");
-         setServiceCharge(adData.serviceCharge || "");
-         setServiceFee(adData.serviceFee || "");
-         setPropertyDuration(adData.propertyDuration || "");
-         setAmount(adData.amount || "");
-         setNegotiation(adData.negotiation || "");
-         setBusiness(adData.businessCategory?._id || "");
-         setDescription(adData.description || "");
-         setPropertyFacility(adData.propertyFacilities || "");
-        
-      } catch (err) {
-        console.error("Failed to parse saved ad data:", err);
-      }
-    }
-  }, []);
-
-  // Set mounted to true after component has mounted
+  // ✅ Set mounted first
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // ✅ CRITICAL FIX: Fetch draft data from backend
+  useEffect(() => {
+    const fetchDraftData = async () => {
+      const carAdIdFromStorage = localStorage.getItem('editingCarAdId');
+      const carAdIdFromQuery = carAdId;
+      const adType = localStorage.getItem('editingAdType');
+
+      const idToUse = carAdIdFromQuery || carAdIdFromStorage;
+
+      console.log("🔍 Checking for property draft:", {
+        carAdIdFromQuery,
+        carAdIdFromStorage,
+        adType,
+        idToUse
+      });
+
+      if (!idToUse || adType !== 'property') {
+        console.log("⚠️ No property draft to load");
+        return;
+      }
+
+      setIsLoadingDraft(true);
+
+      try {
+        // ✅ Fetch PropertyAd draft by carAdId
+        const propertyResponse = await api.get(`/property/draft/${idToUse}`);
+
+        if (!propertyResponse.data || !propertyResponse.data.propertyAd) {
+          console.log("⚠️ No PropertyAd draft found");
+          setIsLoadingDraft(false);
+          return;
+        }
+
+        const propertyAd = propertyResponse.data.propertyAd;
+        console.log("✅ Loaded PropertyAd draft:", propertyAd);
+
+        // ✅ Also fetch CarAd for images and location
+        let carAd = null;
+        try {
+          const carResponse = await api.get(`/carAdd/${idToUse}`);
+          carAd = carResponse.data;
+          console.log("✅ Loaded CarAd:", carAd);
+        } catch (carError) {
+          console.warn("⚠️ Could not load CarAd:", carError);
+        }
+
+        // ✅ Pre-fill form fields from PropertyAd
+        setPropertyName(propertyAd.propertyName || "");
+        setPropertyAddress(propertyAd.propertyAddress || propertyAd.location || "");
+        setPropertyType(propertyAd.propertyType || "");
+        setFurnishing(propertyAd.furnishing || "");
+        setPropertyCondition(propertyAd.propertyCondition || "");
+        setParking(propertyAd.parking || "");
+        setSquareMeter(propertyAd.squareMeter || "");
+        setOwnerShipStatus(propertyAd.ownershipStatus || "");
+        setServiceCharge(propertyAd.serviceCharge || "");
+        setServiceFee(propertyAd.serviceFee?.toString() || "");
+        setPropertyDuration(propertyAd.propertyDuration || "");
+        setAmount(propertyAd.amount?.toString() || "");
+        setNegotiation(propertyAd.negotiation || "");
+        setDescription(propertyAd.description || "");
+        setPropertyFacility(propertyAd.propertyFacilities || "");
+
+        // ✅ Set business from either propertyAd or carAd
+        const businessId = propertyAd.businessCategory?._id 
+          || propertyAd.businessCategory 
+          || carAd?.businessCategory?._id 
+          || carAd?.businessCategory;
+        setBusiness(businessId || "");
+        setBusinessCategory(businessId || "");
+
+        // ✅ Store editing state
+        setEditingCarAd({
+          carAdId: idToUse,
+          businessId: businessId,
+          category: carAd?.category || 'Commercial Property For Sale',
+          location: carAd?.location || propertyAd.propertyAddress || '',
+          images: carAd?.propertyImage || [],
+        });
+
+        toast.success("Draft loaded successfully! Complete your property ad details.");
+        setIsLoadingDraft(false);
+
+      } catch (error) {
+        console.error("❌ Error loading property draft:", error);
+        toast.error("Failed to load draft. Starting fresh.");
+
+        // Clear invalid data
+        localStorage.removeItem('editingCarAdId');
+        localStorage.removeItem('editingCarAdData');
+        localStorage.removeItem('editingAdType');
+
+        setIsLoadingDraft(false);
+      }
+    };
+
+    if (mounted) {
+      fetchDraftData();
+    }
+  }, [mounted, carAdId]);
 
   // Auto-close promote modal after timeout
   useEffect(() => {
@@ -239,31 +295,32 @@ export default function CommercialSaleContent() {
     revalidateProfile();
   }, [token, login, mounted]);
 
-const buildPayload = (planType, useWallet = false) => {
-  const payload = {
-     propertyName: propertyName?.trim(),
-    propertyAddress: propertyAddress?.trim(),
-    propertyType,
-    furnishing: furnishing || null,
-    propertyCondition: propertyCondition || null,
-    parking: parking || null,
-    squareMeter: squareMeter?.trim() || null,
-    ownershipStatus: ownershipStatus || null,
-    serviceCharge: serviceCharge || null,
-    serviceFee: serviceCharge === "yes" && serviceFee ? parseFloat(serviceFee) : null,
-    location: propertyAddress?.trim(),
-    amenities: [],
-    size: squareMeter || null,
-    amount: parseFloat(amount) || 0,
-    negotiation: negotiation || "no",
-    businessCategory: business || null, 
-    description: description?.trim() || "",
-    plan: planType,
-    promotionAmount: planAmounts[planType] || 0,
-    useWalletBalance: useWallet
-  };
+  const buildPayload = (planType, useWallet = false) => {
+    const payload = {
+      propertyName: propertyName?.trim(),
+      propertyAddress: propertyAddress?.trim(),
+      propertyType,
+      furnishing: furnishing || null,
+      propertyCondition: propertyCondition || null,
+      parking: parking || null,
+      squareMeter: squareMeter?.trim() || null,
+      ownershipStatus: ownershipStatus || null,
+      serviceCharge: serviceCharge || null,
+      serviceFee: serviceCharge === "yes" && serviceFee ? parseFloat(serviceFee) : null,
+      location: propertyAddress?.trim(),
+      amenities: [],
+      size: squareMeter || null,
+      amount: parseFloat(amount) || 0,
+      negotiation: negotiation || "no",
+      businessCategory: business || null, 
+      description: description?.trim() || "",
+      propertyFacilities: propertyFacility || null, 
+      plan: planType,
+      promotionAmount: planAmounts[planType] || 0,
+      useWalletBalance: useWallet
+    };
 
-  const storedCarAdId = localStorage.getItem('editingCarAdId');
+    const storedCarAdId = localStorage.getItem('editingCarAdId');
     if (storedCarAdId) {
       payload.carAdId = storedCarAdId;
       console.log("✅ Including carAdId in payload:", storedCarAdId);
@@ -271,87 +328,84 @@ const buildPayload = (planType, useWallet = false) => {
       payload.carAdId = carAdId;
     }
 
-  return payload;
-};
+    return payload;
+  };
+
   const submitAd = useCallback(async (planToSubmit, useWallet = false) => {
-  try {
-    console.log("Submitting ad with plan:", planToSubmit, "useWallet:", useWallet);
-    
-    // Validate required fields
-    if (!propertyName?.trim()) {
-      toast.error("Property name is required");
-      return;
-    }
-    if (!propertyAddress?.trim()) {
-      toast.error("Property address is required");
-      return;
-    }
-    if (!propertyType) {
-      toast.error("Property type is required");
-      return;
-    }
-    if (!amount || parseFloat(amount) <= 0) {
-      toast.error("Valid amount is required");
-      return;
-    }
-
-    const payload = buildPayload(planToSubmit, useWallet);
-    console.log("Payload being sent:", payload);
-    
-    const res = await api.post("/property/create-commercial-rent", payload);
-    console.log("Backend response:", res.data);
-
-    // Handle different response scenarios
-    if (res.data.data?.paymentUrl && !useWallet) {
-      toast.info("Redirecting to Paystack for payment...");
-      setShowModalPromote(false);
-      setShowWalletModal(false);
-      window.location.href = res.data.data.paymentUrl;
-    } else if (res.data.data?.paymentStatus === 'success') {
-      toast.success(res.data.message || "Property ad posted successfully!");
-      setShowModalPromote(false);
-      setShowWalletModal(false);
-
-      // clear incomplete ad tracking 
-      localStorage.removeItem("editingCarAdId");
-      localStorage.removeItem("editingAdData");
-      localStorage.setItem('adUpdated', 'true');
-      router.push('/Add');
-
-      // Refresh Profile 
-      const profileRes = await api.get("/profile");
-      login(profileRes.data, token);
-    } else if (res.data.data?.paymentStatus === "free") {
-      toast.success(res.data.message || "Free property ad posted successfully!");
-      setShowModalPromote(false);
-      setShowWalletModal(false);
-      setShowFreeCommercialPropertyModal(true);
-
-      // 🔑 Clear incomplete ad tracking
-      localStorage.removeItem("editingCarAdId");
-      localStorage.removeItem("editingAdData");
-      localStorage.setItem('adUpdated', 'true');
-    } else {
-      toast.success(res.data.message || "Ad posted successfully");
-      setShowModalPromote(false);
-      setShowWalletModal(false);
+    try {
+      console.log("Submitting ad with plan:", planToSubmit, "useWallet:", useWallet);
       
-      // 🔑 Clear incomplete ad tracking
-      localStorage.removeItem("editingCarAdId");
-      localStorage.removeItem("editingAdData");
+      if (!propertyName?.trim()) {
+        toast.error("Property name is required");
+        return;
+      }
+      if (!propertyAddress?.trim()) {
+        toast.error("Property address is required");
+        return;
+      }
+      if (!propertyType) {
+        toast.error("Property type is required");
+        return;
+      }
+      if (!amount || parseFloat(amount) <= 0) {
+        toast.error("Valid amount is required");
+        return;
+      }
 
-      // Refresh Profile 
-      const profileRes = await api.get("/profile");
-      login(profileRes.data, token);
-    }
-  } catch (error) {
-    console.error("Ad submission error:", error.response?.data || error.message);
+      const payload = buildPayload(planToSubmit, useWallet);
+      console.log("Payload being sent:", payload);
+      
+      const res = await api.post("/property/create-commercial-rent", payload);
+      console.log("Backend response:", res.data);
+
+      if (res.data.data?.paymentUrl && !useWallet) {
+        toast.info("Redirecting to Paystack for payment...");
+        setShowModalPromote(false);
+        setShowWalletModal(false);
+        window.location.href = res.data.data.paymentUrl;
+      } else if (res.data.data?.paymentStatus === 'success') {
+        toast.success(res.data.message || "Property ad posted successfully!");
+        setShowModalPromote(false);
+        setShowWalletModal(false);
+
+        localStorage.removeItem("editingCarAdId");
+        localStorage.removeItem("editingCarAdData");
+        localStorage.removeItem("editingAdType");
+        localStorage.setItem('adUpdated', 'true');
+        router.push('/Add');
+
+        const profileRes = await api.get("/profile");
+        login(profileRes.data, token);
+      } else if (res.data.data?.paymentStatus === "free") {
+        toast.success(res.data.message || "Free property ad posted successfully!");
+        setShowModalPromote(false);
+        setShowWalletModal(false);
+        setShowFreeCommercialPropertyModal(true);
+
+        localStorage.removeItem("editingCarAdId");
+        localStorage.removeItem("editingCarAdData");
+        localStorage.removeItem("editingAdType");
+        localStorage.setItem('adUpdated', 'true');
+      } else {
+        toast.success(res.data.message || "Ad posted successfully");
+        setShowModalPromote(false);
+        setShowWalletModal(false);
+        
+        localStorage.removeItem("editingCarAdId");
+        localStorage.removeItem("editingCarAdData");
+        localStorage.removeItem("editingAdType");
+
+        const profileRes = await api.get("/profile");
+        login(profileRes.data, token);
+      }
+    } catch (error) {
+      console.error("Ad submission error:", error.response?.data || error.message);
       toast.error(
-      error.response?.data?.error ||
-       "Something went wrong posting your ad. Please try again."
-    );
-  }
-}, [propertyName, propertyAddress, propertyType, amount, router, token, login, router, editingCarAd, carAdId]);
+        error.response?.data?.error ||
+        "Something went wrong posting your ad. Please try again."
+      );
+    }
+  }, [propertyName, propertyAddress, propertyType, amount, router, token, login, editingCarAd, carAdId, buildPayload]);
 
   const postAdForFree = useCallback(async () => {
     await submitAd("free");
@@ -366,12 +420,10 @@ const buildPayload = (planType, useWallet = false) => {
     const planCost = planAmounts[selectedPlan] || 0;
     const walletBalance = profile.walletBalance || 0;
 
-    // If user has sufficient wallet balance, show wallet modal
     if (walletBalance >= planCost) {
       setShowModalPromote(false);
       setShowWalletModal(true);
     } else {
-      // Directly proceed to Paystack payment
       await submitAd(selectedPlan, false);
     }
   }, [selectedPlan, submitAd, profile]);
@@ -384,50 +436,45 @@ const buildPayload = (planType, useWallet = false) => {
     await submitAd(selectedPlan, false);
   }, [selectedPlan, submitAd]);
 
-const handlePost = useCallback(async () => {
-  if (!profile) {
-    toast.error("You need to be logged in to post an ad.");
-    return;
-  }
+  const handlePost = useCallback(async () => {
+    if (!profile) {
+      toast.error("You need to be logged in to post an ad.");
+      return;
+    }
 
-  // Validate required fields
-  if (!propertyName || !propertyAddress || !propertyType || !amount) {
-    toast.error("Please fill in all required fields.");
-    return;
-  }
+    if (!propertyName || !propertyAddress || !propertyType || !amount) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
 
-  console.log("Current profile paid plans:", profile.paidPlans);
+    console.log("Current profile paid plans:", profile.paidPlans);
 
-  const successfulPaidPlans = profile.paidPlans?.filter(p => p.status === "success") || [];
-  let highestPlan = "free";
-  let highestPlanPriority = 0;
+    const successfulPaidPlans = profile.paidPlans?.filter(p => p.status === "success") || [];
+    let highestPlan = "free";
+    let highestPlanPriority = 0;
 
-  // Find the highest priority successful plan
-  if (successfulPaidPlans.length > 0) {
-    for (const plan of successfulPaidPlans) {
-      const planPriority = planHierarchy[plan.planType] || 0;
-      if (planPriority > highestPlanPriority) {
-        highestPlanPriority = planPriority;
-        highestPlan = plan.planType;
+    if (successfulPaidPlans.length > 0) {
+      for (const plan of successfulPaidPlans) {
+        const planPriority = planHierarchy[plan.planType] || 0;
+        if (planPriority > highestPlanPriority) {
+          highestPlanPriority = planPriority;
+          highestPlan = plan.planType;
+        }
       }
     }
-  }
 
-  console.log("Highest paid plan found:", highestPlan);
+    console.log("Highest paid plan found:", highestPlan);
 
-  // If user has any successful paid plan, use it directly
-  if (highestPlan !== "free") {
-    console.log("Using existing paid plan:", highestPlan);
-    toast.success(`Post created successfully Using your existing ${highestPlan} plan to post this ad.`);
-    router.push('/view-property-add');
-    await submitAd(highestPlan, false);
-  } else {
-    // User has no paid plans, show promote modal
-    console.log("No paid plans found, showing promote modal");
-    setSelectedPlan("basic");
-    setShowModalPromote(true);
-  }
-}, [profile, submitAd, propertyName, propertyAddress, propertyType, amount]);
+    if (highestPlan !== "free") {
+      console.log("Using existing paid plan:", highestPlan);
+      toast.success(`Using your existing ${highestPlan} plan to post this ad.`);
+      await submitAd(highestPlan, false);
+    } else {
+      console.log("No paid plans found, showing promote modal");
+      setSelectedPlan("basic");
+      setShowModalPromote(true);
+    }
+  }, [profile, submitAd, propertyName, propertyAddress, propertyType, amount]);
 
   const handleGoBack = () => router.back();
 
@@ -435,10 +482,10 @@ const handlePost = useCallback(async () => {
     setSelectedPlan(plan);
   };
 
-    const handleSaveAsDraft = useCallback(async () => {
-     try {
+  const handleSaveAsDraft = useCallback(async () => {
+    try {
       const payload = buildPayload('free', false);
-      delete payload.plan; // Remove plan 
+      delete payload.plan;
       delete payload.promotionAmount;
       delete payload.useWalletBalance;
   
@@ -453,11 +500,22 @@ const handlePost = useCallback(async () => {
       localStorage.removeItem("editingAdType");
   
       router.push("/Add");
-     } catch (error) {
+    } catch (error) {
       console.error("Draft save error:", error);
       toast.error(error.response?.data?.error || "Failed to save draft");
-     }
+    }
   }, [buildPayload, router]);
+
+  if (isLoadingDraft) {
+    return (
+      <div className="bg-white shadow-phenom rounded-[12px] p-4 sm:p-6 md:p-10 flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600 font-inter">Loading draft...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -470,11 +528,10 @@ const handlePost = useCallback(async () => {
         </button>
 
         <h3 className="text-[#525252] font-[500] font-inter text-[14px] md:text-[16px] mb-4 text-left md:text-center">
-          Commercial Property for Sale
+          {editingCarAd ? "Complete Your Commercial Sale Property Ad" : "Commercial Property for Sale"}
         </h3>
 
         <form>
-          {/* Row 1 */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <InputField
               label="Title"
@@ -490,7 +547,6 @@ const handlePost = useCallback(async () => {
             />
           </div>
 
-          {/* Row 2 */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <PostDropdown
               label="Property Type"
@@ -506,7 +562,6 @@ const handlePost = useCallback(async () => {
             />
           </div>
 
-          {/* Row 3 */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <PostDropdown
               label="Property Condition"
@@ -522,7 +577,6 @@ const handlePost = useCallback(async () => {
             />
           </div>
 
-          {/* Row 4 */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <InputField
               label="Square Meters (sqm)"
@@ -538,7 +592,6 @@ const handlePost = useCallback(async () => {
             />
           </div>
 
-          {/* Row 5 */}
           <div className="bg-[#FAFAFA] px-4 py-4 mt-5 rounded-md">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <PostDropdown
@@ -560,7 +613,6 @@ const handlePost = useCallback(async () => {
             </div>
           </div>
 
-          {/* Row 6 */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <InputField
               label="Amount"
@@ -582,7 +634,6 @@ const handlePost = useCallback(async () => {
             />
           </div>
 
-          {/* Business Selection */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <div>
               <label className="block text-[#525252] font-[500] font-inter mb-1">
@@ -599,7 +650,6 @@ const handlePost = useCallback(async () => {
             </div>
           </div>
 
-          {/* Description */}
           <div className="mt-4">
             <label className="block mb-1 text-[#525252] font-[500] font-inter">
               Description
@@ -612,27 +662,25 @@ const handlePost = useCallback(async () => {
             />
           </div>
 
-          {/* Submit Button */}
-          <div className="flex gap-4  justify-center mt-6">
+          <div className="flex gap-4 justify-center mt-6">
             <Button
               type="button"
               onClick={handleSaveAsDraft}
-              className="w-full md:w-[200px] h-[44px] md:rounded-[8px] 
-                      font-[500] text-[14px] border border-[#CDCDD7] text-[#525252]">
-               Save as Draft
+              className="w-full md:w-[200px] h-[44px] md:rounded-[8px] font-[500] text-[14px] border border-[#CDCDD7] text-[#525252]"
+            >
+              Save as Draft
             </Button>
 
             <Button
               type="button"
               onClick={handlePost}
-            className="w-full md:w-[262px] h-[44px] md:rounded-[8px] font-[500] text-[14px] bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white"
+              className="w-full md:w-[262px] h-[44px] md:rounded-[8px] font-[500] text-[14px] bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white"
             >
-             Post Ad
-          </Button>
+              Post Ad
+            </Button>
           </div>
         </form>
 
-        {/* Terms */}
         <div className="text-center mt-6 font-[400] font-inter text-[12px] px-2">
           <p className="text-[#767676]">
             By clicking on <strong>Post Ad</strong>, you accept to{" "}
@@ -643,7 +691,6 @@ const handlePost = useCallback(async () => {
         </div>
       </div>
 
-      {/* Conditionally render modals only after component has mounted */}
       {mounted && (
         <>
           {showModalPromote && (

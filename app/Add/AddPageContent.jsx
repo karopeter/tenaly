@@ -121,34 +121,67 @@ useEffect(() => {
     return carAd && !detailedAd;
   };
   
-  const handleEditIncompleteAd = async (carAdId, category) => {
+
+const handleEditIncompleteAd = async (carAdId, category) => {
   try {
     const response = await api.get(`/carAdd/check-ad-completion/${carAdId}`);
     const { carAd, adType, isComplete } = response.data;
 
     if (isComplete) {
-      // ✅ Already complete
       toast.success("This ad is already complete");
-
-      // Clear any saved draft data
       localStorage.removeItem("editingCarAdId");
       localStorage.removeItem("editingCarAdData");
       localStorage.removeItem("editingAdType");
-
-      // Refresh ads list without reload
       fetchAllAds();
       return;
     }
 
-    // 🚀 Save draft in localStorage for editing
-    localStorage.setItem("editingCarAdId", carAdId);
-    localStorage.setItem("editingCarAdData", JSON.stringify(carAd));
+    const actualCarAdId = carAd._id;
+    
+    let mergedData = { ...carAd };
+
+    if (adType === 'vehicle') {
+      try {
+        const vehicleResponse = await api.get(`/vehicles/draft/${actualCarAdId}`);
+        if (vehicleResponse.data && vehicleResponse.data.vehicleAd) {
+          const vehicleAd = vehicleResponse.data.vehicleAd;
+          
+          mergedData = {
+            ...carAd,
+            ...vehicleAd,
+            businessCategory: carAd.businessCategory
+          };
+          
+          console.log("✅ Merged vehicle draft data:", mergedData);
+        }
+      } catch (vehicleError) {
+        console.log("⚠️ No VehicleAd draft found, using CarAd only");
+      }
+    } else if (adType === 'property') {
+      try {
+        const propertyResponse = await api.get(`/property/draft/${actualCarAdId}`);
+        if (propertyResponse.data && propertyResponse.data.propertyAd) {
+          const propertyAd = propertyResponse.data.propertyAd;
+          
+          mergedData = {
+            ...carAd,
+            ...propertyAd,
+            businessCategory: carAd.businessCategory
+          };
+          
+          console.log("✅ Merged property draft data:", mergedData);
+        }
+      } catch (propertyError) {
+        console.log("⚠️ No PropertyAd draft found, using CarAd only");
+      }
+    }
+
+    localStorage.setItem("editingCarAdId", actualCarAdId);
+    localStorage.setItem("editingCarAdData", JSON.stringify(mergedData));
     localStorage.setItem("editingAdType", adType);
 
-    // Vehicle categories
+    // Route to appropriate form...
     const vehicleCategories = ["car", "bus", "tricycle"];
-
-    // Property route map
     const propertyRouteMap = {
       "Commercial Property For Rent": "/commercial-rent",
       "Commercial Property For Sale": "/commercial-sale",
@@ -161,18 +194,12 @@ useEffect(() => {
     };
 
     let targetRoute = "";
-
     if (vehicleCategories.includes(category?.toLowerCase())) {
-      // Vehicles go to vehicle completion form
-      targetRoute = `/more-post-vehicle?carAdId=${carAdId}`;
+      targetRoute = `/more-post-vehicle?carAdId=${actualCarAdId}`;
     } else {
-      // Properties use specific mapped route, or fallback
-      targetRoute =
-        propertyRouteMap[category] ||
-        `/more-property-post?carAdId=${carAdId}`;
+      targetRoute = propertyRouteMap[category] || `/more-property-post?carAdId=${actualCarAdId}`;
     }
 
-    // Redirect user
     toast.info(`Complete your ${adType} ad details`);
     router.push(targetRoute);
   } catch (error) {
@@ -181,16 +208,14 @@ useEffect(() => {
   }
 };
 
+
 const handleEditCarAd = async (carAdId, category) => {
    try {
-   // Clear any existing editing state 
    localStorage.removeItem('editingCarAdId');
    localStorage.removeItem('editingMode');
 
     localStorage.setItem('returnToBusinessId', selectedBusiness);
    
-
-    // Redirect to image upload page 
     router.push(`/create-add?edit=true&carAdId=${carAdId}`);
     toast.info("Loading ad for editing...");
    } catch (error) {
@@ -199,17 +224,16 @@ const handleEditCarAd = async (carAdId, category) => {
    }
 };
 
-// ✅ Call this after user finishes filling vehicle/property form
 const handleAdCompletionSuccess = () => {
   // Clear localStorage draft
   localStorage.removeItem("editingCarAdId");
   localStorage.removeItem("editingCarAdData");
   localStorage.removeItem("editingAdType");
 
-  // Refresh ads
+
   fetchAllAds();
 
-  // Redirect back to ads list
+
   router.push("/Add");
 
   toast.success("Ad completed successfully!");
