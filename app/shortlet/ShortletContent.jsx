@@ -112,6 +112,7 @@ export default function ShortletContent() {
     const [showWalletModal, setShowWalletModal] = useState(false);
 
     const [editingCarAd, setEditingCarAd] = useState(null);
+    const [isLoadingDraft, setIsLoadingDraft] = useState(false);
 
     // New state to track if the component has mounted on the client 
     const [mounted, setMounted] = useState(false);
@@ -133,54 +134,236 @@ export default function ShortletContent() {
     enterprise: 5,
   };
 
+  // useEffect(() => {
+  //   const fetchDraftData = async () => {
+  //     const carAdIdFromStorage = localStorage.getItem('editingCarAdId');
+  //     const carAdIdFromQuery = carAdId;
+  //     const adType = localStorage.getItem('editingAdType');
+
+  //     const idToUse = carAdIdFromQuery || carAdIdFromStorage;
+
+  //     console.log("🔍 Checking for property draft:", {
+  //       carAdIdFromQuery,
+  //       carAdIdFromStorage,
+  //       adType,
+  //       idToUse
+  //     });
+
+  //     if (!idToUse || adType !== 'property') {
+  //       console.log("⚠️ No property draft to load");
+  //       return;
+  //     }
+
+  //     setIsLoadingDraft(true);
+
+  //     try {
+  //       // Fetch property Ad Draft by CarAdId 
+  //       const propertyResponse = await api.get(`/property/draft/${idToUse}`);
+
+  //       if (!propertyResponse.data || !propertyResponse.data.propertyAd) {
+  //         console.log("⚠️ No PropertyAd draft found");
+  //         setIsLoadingDraft(false);
+  //         return;
+  //       }
+
+  //       const propertyAd = propertyResponse.data.propertyAd;
+  //       console.log("✅ Loaded PropertyAd draft:", propertyAd);
+
+  //       let carAd = null;
+  //       try {
+  //        const carResponse = await api.get(`/carAd/${idToUse}`);
+  //         carAd = carResponse.data;
+  //         console.log("✅ Loaded CarAd:", carAd);
+  //       } catch (carError) {
+  //         console.warn("⚠️ Could not load CarAd:", carError);
+  //       }
+
+  //       // Pre- fill form fields from propertyAd 
+  //       setPropertyName(propertyAd.propertyName || "");
+  //       setPropertyAddress(propertyAd.propertyAddress || "");
+  //       setFurnishing(propertyAd.furnishing || "");
+  //       setParking(propertyAd.parking  || "");
+  //       setSquareMeter(propertyAd.squareMeter || "");
+  //       setOwnerShipStatus(propertyAd.ownershipStatus || "");
+  //       setServiceCharge(propertyAd.serviceCharge || "");
+  //       setServiceFees(propertyAd.serviceFee?.toString() || "");
+  //       setNumberOfBathrooms(propertyAd.numberofBathrooms || "");
+  //       setNumberOfBedrooms(propertyAd.numberOfBedrooms || "");
+  //       setNumberOfToilet(propertyAd.numberOfToilet || "");
+  //       setMaximumAllowedGuest(propertyAd.maximumAllowedGuest || "");
+  //       setIsSmokingAllowed(propertyAd.isSmokingAllowed || "");
+  //       setPetsAllowed(propertyAd.petsAllowed || "");
+  //       setPropertyDuration(propertyAd.propertyDuration || "");
+  //       setAmount(propertyAd.amount || "");
+  //       setNegotiation(propertyAd.negotiation || "");
+  //       setDescription(propertyAd.description || "");
+  //       setSelectedFacilities(
+  //     Array.isArray(propertyAd.selectedFacilities)
+  //        ? propertyAd.selectedFacilities.map(facility =>
+  //       typeof facility === "string"
+  //         ? { label: facility, value: facility }
+  //         : facility
+  //        )
+  //      : []
+  //      );
+
+  //      // Set Business from either propertyAd or carAd 
+  //      const businessId = propertyAd.businessCategory?._id
+  //        || propertyAd.businessCategory
+  //        || carAd?.businessCategory?._id
+  //        || carAd.businessCategory;
+  //       setBusiness(businessId || "");
+  //       setBusinessCategory(businessId || "");
+
+  //       // Store editing state 
+  //       setEditingCarAd({
+  //         carAdId: idToUse,
+  //         businessId: businessId,
+  //         category: carAd?.category || "Short Let Property",
+  //         location: carAd?.location || propertyAd.propertyAddress || '',
+  //         images: carAd?.propertyImage || [],
+  //       });
+
+  //       toast.success("Draft loaded successfully! Complete your property ad details.");
+  //       setIsLoadingDraft(false);
+
+
+  //     } catch (error) {
+  //      console.error("❌ Error loading property draft:", error);
+  //       toast.error("Failed to load draft. Starting fresh."); 
+
+  //       // CLear invalid data 
+  //       localStorage.removeItem('editingCarAdId');
+  //       localStorage.removeItem('editingCarAdData');
+  //       localStorage.removeItem('editingAdType');
+
+  //       setIsLoadingDraft(false);
+  //     }
+  //   };
+
+  //   if (mounted) {
+  //     fetchDraftData();
+  //   }
+  // }, [mounted, carAdId]);
+
+    // Set mounted to true after the component has mounted on the client
+    
   useEffect(() => {
-    const carAdId = localStorage.getItem('editingCarAdId');
-    const carAdDataStr = localStorage.getItem('editingCarAdData');
+  const fetchDraftData = async () => {
+    const carAdIdFromStorage = localStorage.getItem('editingCarAdId');
+    const carAdIdFromQuery = carAdId;
     const adType = localStorage.getItem('editingAdType');
 
-    if (carAdId && carAdDataStr && adType === 'vehicle') {
-      try {
-       const carAdData = JSON.parse(carAdDataStr);
+    // ✅ Correct logical OR, not bitwise
+    const idToUse = carAdIdFromQuery || carAdIdFromStorage;
 
-       setEditingCarAd({
-        carAdId,
-        businessId: carAdData.businessCategory._id,
-        category: carAdData.category,
-        location: carAdData.location,
-        images: carAdData.images
-       });
+    console.log("🔍 Checking for property draft:", {
+      carAdIdFromQuery,
+      carAdIdFromStorage,
+      adType,
+      idToUse
+    });
 
-       // 🔥 Pre-fill form fields here
-       if (adType === 'property') {
-        setPropertyName(adData.propertyName || "");
-        setPropertyAddress(adData.propertyAddress || "");
-        setPropertyType(adData.propertyType || "");
-       setFurnishing(adData.furnishing || "");
-       setParking(adData.parking || "");
-       setSquareMeter(adData.squareMeter || "");
-       setOwnerShipStatus(adData.ownershipStatus || "");
-       setServiceCharge(adData.serviceCharge || "");
-       setServiceFees(adData.serviceFee || "");
-       setNumberOfBathrooms(adData.numberofBathrooms || "");
-       setNumberOfBedrooms(adData.numberOfBedrooms || "");
-       setNumberOfToilet(adData.numberOfToilet || "");
-       setMaximumAllowedGuest(adData.maximumAllowedGuest || "");
-       setIsSmokingAllowed(adData.isSmokingAllowed || "");
-       setPetsAllowed(adData.petsAllowed || "");
-       setIsPartiesAllowed(adData.isPartiesAllowed || "");
-       setPropertyDuration(adData.propertyDuration || "");
-       setAmount(adData.amount || "");
-      setNegotiation(adData.negotiation || "");
-     setBusiness(adData.businessCategory?._id || "");
-     setDescription(adData.description || "");
-      setPropertyFacility(adData.propertyFacilities || "");
-     }
-      } catch(err) {
-
-      }
+    if (!idToUse || adType !== 'property') {
+      console.log("⚠️ No property draft to load");
+      return;
     }
-  });
-    // Set mounted to true after the component has mounted on the client
+
+    setIsLoadingDraft(true);
+
+    try {
+      // ✅ Fetch the draft
+      const propertyResponse = await api.get(`/property/draft/${idToUse}`);
+      const propertyAd = propertyResponse.data?.propertyAd;
+
+      if (!propertyAd) {
+        console.log("⚠️ No PropertyAd draft found");
+        setIsLoadingDraft(false);
+        return;
+      }
+
+      console.log("✅ Loaded PropertyAd draft:", propertyAd);
+
+      let carAd = null;
+      try {
+        const carResponse = await api.get(`/carAd/${idToUse}`);
+        carAd = carResponse.data;
+        console.log("✅ Loaded CarAd:", carAd);
+      } catch (carError) {
+        console.warn("⚠️ Could not load CarAd:", carError);
+      }
+
+      // ✅ Correct field mappings
+      setPropertyName(propertyAd.propertyName || "");
+      setPropertyAddress(propertyAd.propertyAddress || "");
+      setFurnishing(propertyAd.furnishing || "");
+      setParking(propertyAd.parking || "");
+      setSquareMeter(propertyAd.squareMeter || "");
+      setOwnerShipStatus(propertyAd.ownershipStatus || "");
+      setServiceCharge(propertyAd.serviceCharge || "");
+      setServiceFees(propertyAd.serviceFee?.toString() || "");
+      setNumberOfBathrooms(propertyAd.numberOfBathrooms || "");
+      setNumberOfBedrooms(propertyAd.numberOfBedrooms || "");
+      setNumberOfToilet(propertyAd.numberOfToilet || "");
+      setMaximumAllowedGuest(propertyAd.maximumAllowedGuest || "");
+      setIsSmokingAllowed(propertyAd.isSmokingAllowed || "");
+      setIsPartiesAllowed(propertyAd.isPartiesAllowed || "");
+      setPetsAllowed(propertyAd.petsAllowed || "");
+      setPropertyDuration(propertyAd.propertyDuration || "");
+      setAmount(propertyAd.amount?.toString() || "");
+      setNegotiation(propertyAd.negotiation || "");
+      setDescription(propertyAd.description || "");
+
+      // ✅ Proper facility mapping
+      if (Array.isArray(propertyAd.propertyFacilities)) {
+    setSelectedFacilities(
+      propertyAd.propertyFacilities.map(facility => {
+        if (typeof facility === "string") return facility;
+        return facility.value || facility.label || facility; // Normalize format
+      })
+    );
+  }
+
+      // ✅ Get business ID properly
+      const businessId =
+        propertyAd.businessCategory?._id ||
+        propertyAd.businessCategory ||
+        carAd?.businessCategory?._id ||
+        carAd?.businessCategory;
+
+      setBusiness(businessId || "");
+      setBusinessCategory(businessId || "");
+
+      // ✅ Save editing state
+      setEditingCarAd({
+        carAdId: idToUse,
+        businessId: businessId,
+        category: carAd?.category || "Short Let Property",
+        location: carAd?.location || propertyAd.propertyAddress || '',
+        images: carAd?.propertyImage || [],
+      });
+
+      toast.success("Draft loaded successfully! Complete your property ad details.");
+      setIsLoadingDraft(false);
+    } catch (error) {
+      console.error("❌ Error loading property draft:", error);
+      toast.error("Failed to load draft. Starting fresh.");
+
+      localStorage.removeItem('editingCarAdId');
+      localStorage.removeItem('editingCarAdData');
+      localStorage.removeItem('editingAdType');
+
+      setIsLoadingDraft(false);
+    }
+  };
+
+  if (mounted) {
+    fetchDraftData();
+  }
+}, [mounted, carAdId]);
+
+
+
     useEffect(() => {
      setMounted(true);
     }, []);
@@ -349,19 +532,22 @@ export default function ShortletContent() {
 
          // clear incomplete ad tracking 
          localStorage.removeItem("editingCarAdId");
-         localStorage.removeItem("editingAdData");
+         localStorage.removeItem("editingCarAdData");
+         localStorage.removeItem("editingAdType");
          localStorage.setItem('adUpdated', 'true');
          router.push("/Add");
 
+         const profileRes = await api.get("/profile");
+         login(profileRes.data, token);
        } else if (res.data.data?.paymentStatus === "free") {
          toast.success(res.data.message || "Free property ad posted successfully!");
          setShowModalPromote(false);
          setShowWalletModal(false);
-         setShowFreeCommercialPropertyModal(true);
-
           // 🔑 Clear incomplete ad tracking
           localStorage.removeItem("editingCarAdId");
-          localStorage.removeItem("editingAdData");
+          localStorage.removeItem("editingCarAdData");
+          localStorage.removeItem('editingAdType');
+          localStorage.setItem('adUpdated', 'true');
        } else {
          // Default success case
          toast.success(res.data.message || "Property ad posted successfully");
@@ -370,9 +556,11 @@ export default function ShortletContent() {
 
          // 🔑 Clear incomplete ad tracking
          localStorage.removeItem("editingCarAdId");
-         localStorage.removeItem("editingAdData");
-        localStorage.setItem('adUpdated', 'true');
-         router.push('/Add');
+         localStorage.removeItem("editingCarAdData");
+         localStorage.removeItem('editingAdType');
+    
+         const profileRes = await api.get("/profile");
+         login(profileRes.data, token);
        }
      } catch (error) {
       console.error("Ad submission error:", error.response?.data || error.message);
@@ -381,7 +569,7 @@ export default function ShortletContent() {
            "Something went wrong posting your ad. Please try again."
         );
      }
-   }, [propertyName, propertyAddress, propertyType, amount, router, token, login, router, editingCarAd, carAdId]);
+   }, [propertyName, propertyAddress, propertyType, amount, router, token, login, router, editingCarAd, carAdId, buildPayload]);
    
 
   const postAdForFree = useCallback(async () => {
@@ -490,6 +678,18 @@ export default function ShortletContent() {
       toast.error(error.response?.data?.error || "Failed to save draft");
      }
   }, [buildPayload, router]);
+
+  
+   if (isLoadingDraft) {
+    return (
+      <div className="bg-white shadow-phenom rounded-[12px] p-4 sm:p-6 md:p-10 flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600 font-inter">Loading draft...</p>
+        </div>
+      </div>
+    );
+  }
   
     return (
      <>
@@ -500,7 +700,9 @@ export default function ShortletContent() {
               >
                 <ArrowLeft className="w-5 h-5 mr-2 text-[#141B34]"  /> 
               </button>
-                <h3 className="text-left md:text-center text-[#525252] font-[500] font-inter text-[14px] md:text-[16px] mt-8 mb-4">Shortlet</h3>
+                <h3 className="text-left md:text-center text-[#525252] font-[500] font-inter text-[14px] md:text-[16px] mt-8 mb-4">
+                  {editingCarAd ? "Complete Your Shortlet Ad" : "Shortlet"}
+                </h3>
                 <form>
                   <div className="grid md:grid-cols-2 gap-x-6 gap-y-4">
                     <InputField
@@ -652,13 +854,15 @@ export default function ShortletContent() {
                   </textarea>
                  </div>
                  <div className="flex gap-4 justify-center mt-5">
-                  <Button
+                  {!editingCarAd && (
+                    <Button
                    type="button"
                    onClick={handleSaveAsDraft}
                    className="w-full md:w-[200px] h-[44px] md:rounded-[8px] 
                       font-[500] text-[14px] border border-[#CDCDD7] text-[#525252]">
                      Save as Draft
                   </Button>
+                  )}
                    <Button
                      type="button"
                      onClick={handlePost}
@@ -666,7 +870,7 @@ export default function ShortletContent() {
                        md:pt-[10px] md:pr-[16px] md:pb-[10px] md:pl-[16px] 
                        font-[500] md:text-[14px] bg-[#EDEDED] text-[#CDCDD7] 
                        bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white">
-                     Post Ad
+                      {editingCarAd ? "Complete Ad" : "Post Ad"}
                    </Button>
                  </div>
                    <div className="text-center mt-5 font-[400] font-inter text-sm md:text-[12px] leading-relaxed px-4">

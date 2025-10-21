@@ -24,6 +24,7 @@ import { negotiationOptions } from "../lib/carData";
 import FreePropertySuccessModal from "../components/free-property-sucess-modal";
 import PromoteAdModal from "../components/PromoteModal/promote-modal";
 import WalletPaymentModal from "../components/WalletModal/walletModal";
+import { title } from "process";
 
 
 const customStyles = {
@@ -89,6 +90,7 @@ export default function  LandRentContent() {
     const [developmentFee, setDevelopmentFee] = useState("");
     const [surveyFee, setSurveyFee] = useState("");
     const [legalFee, setLegalFee] = useState("");
+    const [businessCategory, setBusinessCategory] = useState("");
    const [negotiation, setNegotiation] = useState("");
     const [pricingUnits, setPricingUnits] = useState("");
     const [serviceFee, setServiceFee] = useState("");
@@ -101,6 +103,7 @@ export default function  LandRentContent() {
   const [showWalletModal, setShowWalletModal] = useState(false);
 
   const [editingCarAd, setEditingCarAd] = useState(null);
+  const [isLoadingDraft, setIsLoadingDraft] = useState(false);
 
 
   // New state to track if the component has mounted 
@@ -122,54 +125,115 @@ export default function  LandRentContent() {
     enterprise: 5,
   };
 
+
   useEffect(() => {
-    const carAdId = localStorage.getItem('editingCarAdId');
-  const carAdDataStr = localStorage.getItem('editingCarAdData');
-  const adType = localStorage.getItem('editingAdType');
+    const fetchDraftData = async () => {
+      const carAdIdFromStorage = localStorage.getItem('editingCarAdId');
+      const carAdIdFromQuery = carAdId;
+      const adType = localStorage.getItem('editingAdType');
 
-    if (carAdId && carAdDataStr && adType === 'vehicle') {
-      try {
-       const carAdData = JSON.parse(carAdDataStr);
+      const idToUse = carAdIdFromQuery || carAdIdFromStorage;
 
-       setEditingCarAd({
-        carAdId,
-        businessId: carAdData.businessCategory._id,
-        category: carAdData.category,
-        location: carAdData.location,
-        images: carAdData.images,
-       });
+      console.log("🔍 Checking for property draft:", {
+        carAdIdFromQuery,
+        carAdIdFromStorage,
+        adType,
+        idToUse
+      });
 
-       // 🔥 Pre-fill form fields here
-       if (adType === 'property') {
-        setPropertyName(adData.propertyName || "");
-        setPropertyAddress(adData.propertyAddress || "");
-        setPropertyType(adData.propertyType || "");
-       setFurnishing(adData.furnishing || "");
-       setParking(adData.parking || "");
-       setSquareMeter(adData.squareMeter || "");
-       setOwnerShipStatus(adData.ownershipStatus || "");
-       setServiceCharge(adData.serviceCharge || "");
-       setServiceFee(adData.serviceFee || "");
-       setDevelopmentFee(adData.developmentFee || "");
-       setSurveyFee(adData.surveyFee || "");
-       setLegalFee(adData.legalFee || "");
-       setPricingUnits(adData.pricingUnits || "");
-       setPropertyDuration(adData.propertyDuration || "");
-       setAmount(adData.amount || "");
-       setNegotiation(adData.negotiation || "");
-       setBusiness(adData.businessCategory?._id || "");
-       setDescription(adData.description || "");
-       }
-      } catch (err) {
-       console.error("Failed to parse saved ad data:", err);
-
-       // Clear invalid data
-      localStorage.removeItem('editingCarAdId');
-      localStorage.removeItem('editingCarAdData');
-      localStorage.removeItem('editingAdType');
+      if (!idToUse || adType !== 'property') {
+        console.log("⚠️ No property draft to load");
+        return;
       }
+
+      setIsLoadingDraft(true);
+
+      try {
+  const propertyResponse = await api.get(`/property/draft/${idToUse}`);
+
+  if (!propertyResponse.data || !propertyResponse.data.propertyAd) {
+    console.log("⚠️ No PropertyAd draft found");
+    setIsLoadingDraft(false);
+    return;
+  }
+
+  const propertyAd = propertyResponse.data.propertyAd;
+  console.log("✅ Loaded PropertyAd draft:", propertyAd);
+
+  let carAd = null;
+  try {
+    const carResponse = await api.get(`/carAd/${idToUse}`);
+    carAd = carResponse.data;
+    console.log("✅ Loaded CarAd:", carAd);
+  } catch (carError) {
+    console.warn("⚠️ Could not load CarAd:", carError);
+  }
+
+  // ✅ Safely set all available fields
+  setPropertyName(propertyAd.propertyName || "");
+  setPropertyType(propertyAd.propertyType || "");
+  setPropertyAddress(propertyAd.propertyAddress || propertyAd.location || "");
+  setSquareMeter(propertyAd.squareMeter?.toString() || "");
+  setOwnerShipStatus(propertyAd.ownershipStatus || "");
+  setServiceCharge(propertyAd.serviceCharge || "");
+  setDevelopmentFee(propertyAd.developmentFee?.toString() || "");
+  setSurveyFee(propertyAd.surveyFee.toString() || "");
+  setLegalFee(propertyAd.legalFee || "");
+  setPricingUnits(propertyAd.pricingUnits || "");
+  setAmount(propertyAd.amount || "");
+  setNegotiation(propertyAd.negotiation || "");
+  setDescription(propertyAd.description || "");
+  setTitleDocuments(propertyAd.titleDocuments || "");
+
+  // ✅ Properly restore facilities if stored as an array
+  if (Array.isArray(propertyAd.propertyFacilities)) {
+    setSelectedFacilities(
+      propertyAd.propertyFacilities.map(facility => {
+        if (typeof facility === "string") return facility;
+        return facility.value || facility.label || facility; // Normalize format
+      })
+    );
+  }
+
+  // ✅ Restore business category if exists
+  const businessId =
+    propertyAd.businessCategory?._id ||
+    propertyAd.businessCategory ||
+    carAd?.businessCategory?._id ||
+    carAd?.businessCategory;
+
+  setBusiness(businessId || "");
+  setBusinessCategory(businessId || ""); // optional chaining in case not defined
+
+  // ✅ Store editing state
+  setEditingCarAd({
+    carAdId: idToUse,
+    businessId: businessId,
+    category: carAd?.category || "Land and Plot For Rent",
+    location: carAd?.location || propertyAd.propertyAddress || "",
+    images: carAd?.propertyImage || [],
+  });
+
+  toast.success("Draft loaded successfully! Complete your property ad details.");
+  setIsLoadingDraft(false);
+} catch (error) {
+  console.error("❌ Error loading property draft:", error);
+  toast.error("Failed to load draft. Starting fresh.");
+
+  // Clear invalid data
+  localStorage.removeItem("editingCarAdId");
+  localStorage.removeItem("editingCarAdData");
+  localStorage.removeItem("editingAdType");
+
+  setIsLoadingDraft(false);
+}
+
+    };
+
+    if (mounted) {
+      fetchDraftData();
     }
-  }, []);
+  }, [mounted, carAdId]);
 
   // Set mounted to true after the component has mounted on the client
   useEffect(() => {
@@ -267,13 +331,14 @@ export default function  LandRentContent() {
      ownershipStatus: ownershipStatus || null,
      serviceCharge: serviceCharge || null,
      developmentFee: developmentFee || null,
-     surveyFee: serviceCharge === "yes" && serviceFee ? parseFloat(serviceFee) : null,
+     surveyFee: surveyFee ? parseFloat(surveyFee) : null,
      legalFee: legalFee || null,
      pricingUnits: pricingUnits || null,
      amount: parseFloat(amount) || 0,
      negotiation: negotiation || "no",
      businessCategory: business || null,
      description: description?.trim() || "",
+     titleDocuments: titleDocuments || null,
      plan: planType,
      promotionAmount: planAmounts[planType] || 0,
      useWalletBalance: useWallet
@@ -331,12 +396,11 @@ export default function  LandRentContent() {
        setShowWalletModal(false);
 
        // clear incomplete ad tracking 
-       localStorage.removeItem("editingCarAdId");
-       localStorage.removeItem("editingAdData");
-
-      localStorage.setItem('adUpdated', 'true');
-       router.push("/Add");
-
+      localStorage.removeItem("editingCarAdId");
+      localStorage.removeItem("editingCarAdData");
+      localStorage.removeItem('editingAdType');
+      localStorage.setItem('editingAdType');
+      router.push('/Add');
      } else if (res.data.data?.paymentStatus === "free") {
        toast.success(res.data.message || "Free property ad posted successfully!");
        setShowModalPromote(false);
@@ -345,7 +409,8 @@ export default function  LandRentContent() {
 
         // 🔑 Clear incomplete ad tracking
         localStorage.removeItem("editingCarAdId");
-        localStorage.removeItem("editingAdData");
+        localStorage.removeItem("editingCarAdData");
+        localStorage.removeItem("editingAdType");
         localStorage.setItem('adUpdated', 'true');
      } else {
        toast.success(res.data.message || "Property ad posted successfully");
@@ -354,7 +419,11 @@ export default function  LandRentContent() {
 
        // 🔑 Clear incomplete ad tracking
        localStorage.removeItem("editingCarAdId");
-       localStorage.removeItem("editingAdData");
+       localStorage.removeItem("editingCarAdData");
+       localStorage.removeItem("editingAdType");
+
+       const profileRes = await api.get("/profile");
+       login(profileRes.data, token);
      }
    } catch (error) {
     console.error("Ad submission error:", error.response?.data || error.message);
@@ -363,7 +432,7 @@ export default function  LandRentContent() {
        "Something went wrong posting your ad. Please try again."
      );
    }
- }, [propertyName, propertyAddress, propertyType, amount, router, token, login, router, editingCarAd, carAdId]);
+ }, [propertyName, propertyAddress, propertyType, amount, router, token, login, router, editingCarAd, carAdId, buildPayload]);
 
 
  const postAdForFree = useCallback(async () => {
@@ -433,7 +502,7 @@ const handlePost = useCallback(async () => {
   if (highestPlan !== "free") {
     console.log("Using existing paid plan:", highestPlan);
     toast.success(`Post created successfully Using your existing ${highestPlan} plan to post this ad.`);
-    router.push('/view-property-add');
+    router.push('/Add');
     await submitAd(highestPlan, false);
   } else {
     // User has no paid plans, show promote modal
@@ -472,6 +541,17 @@ const onPlanSelect = (plan) => {
    }
 }, [buildPayload, router]);
 
+  if (isLoadingDraft) {
+    return (
+      <div className="bg-white shadow-phenom rounded-[12px] p-4 sm:p-6 md:p-10 flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600 font-inter">Loading draft...</p>
+        </div>
+      </div>
+    );
+  }
+
   return  (
       <>
           <div className="bg-white shadow-phenom rounded-[12px] p-10 text-left md:text-center">
@@ -482,7 +562,7 @@ const onPlanSelect = (plan) => {
                 <ArrowLeft className="w-5 h-5 mr-2 text-[#141B34]"  /> 
               </button>
                <h3 className="text-left md:text-center text-[#525252] font-[500] font-inter text-[14px] md:text-[16px] mt-8 mb-4">
-                  Lands and Plots for rent & sale
+                  {editingCarAd ? "Complete Your Lands and Plots for rent & sale" : "Lands and Plots for rent & sale"}
                </h3>
                <form>
                  <div className="grid md:grid-cols-2 gap-x-6 gap-y-4">
@@ -631,13 +711,15 @@ const onPlanSelect = (plan) => {
                   </textarea>
                  </div>
                     <div className="flex gap-4 justify-center mt-5">
-                    <Button 
+                    {!editingCarAd && (
+                      <Button 
                      type="button"
                      onClick={handleSaveAsDraft}
                      className="w-full md:w-[200px] h-[44px] md:rounded-[8px] 
                       font-[500] text-[14px] border border-[#CDCDD7] text-[#525252]">
                       Save as Draft
                     </Button>
+                    )}
                    <Button
                      type="button"
                      onClick={handlePost}
@@ -645,7 +727,7 @@ const onPlanSelect = (plan) => {
                        md:pt-[10px] md:pr-[16px] md:pb-[10px] md:pl-[16px] 
                        font-[500] md:text-[14px] bg-[#EDEDED] text-[#CDCDD7] 
                        bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white">
-                       Post Ad
+                       {editingCarAd ? "Complete Ad" : "Post Ad"}
                    </Button>
                  </div>
                  
