@@ -11,14 +11,13 @@ export default function SettingsContent() {
   const { logout, verificationStatus, role } = useAuth();
   const [showForgotPassword, setShowForgotPassword] = useState(false);
 
-  const shouldShowVerification =
-   role === "seller" && 
-    !verificationStatus?.isVerified && 
-    !verificationStatus?.hasSubmitted;
+ const shouldShowVerification = 
+    role === "seller" && 
+    verificationStatus?.personal === "verified" && 
+    verificationStatus?.business === "pending";
 
-  
-    const verificationText =  "Become a verified seller";
-    const verificationHref = "/become-verified";
+  const verificationText = "Become a verified seller";
+  const verificationHref = "/become-verified";
 
   return (
     <div 

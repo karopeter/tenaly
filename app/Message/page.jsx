@@ -416,7 +416,26 @@ function MessageContent() {
                 </div>
               )}
 
-              <div className="text-sm leading-relaxed">{msg.text}</div>
+              {/* <div className="text-sm leading-relaxed">{msg.text}</div> */}
+              <div className="text-sm leading-relaxed">
+                {msg.text && msg.productId && msg.productTitle ? (
+                  <>
+                   {msg.text.split(`"${msg.productTitle}"`)[0]}
+                  <Link 
+                    href={`/details/${msg.productId}`}
+                    target="_blank"
+                     rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline"
+                  > 
+                    "{msg.productTitle}"
+                   </Link>
+                   {msg.text.split(`"${msg.productTitle}"`)[1]}
+                  </>
+                ): (
+                  msg.text
+                )}
+              </div>
+         
               <div className={`text-[10px] mt-1 ${isFromSelf ? 'text-blue-100' : 'text-gray-500'}`}>
                 {format(parseISO(msg.createdAt), "hh:mm a")}
               </div>

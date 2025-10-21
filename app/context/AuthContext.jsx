@@ -61,11 +61,37 @@ useEffect(() => {
 }, []);
 
 
-  const checkVerificationStatus = async (authToken = token) => {
-    if (!authToken) return;
+const checkVerificationStatus = async (authToken = token) => {
+  if (!authToken) return;
 
-    setVerificationStatus(prev => ({ ...prev, loading: true }));
-  };
+  setVerificationStatus(prev => ({ ...prev, loading: true }));
+  try {
+    const response = await api.get("/profile", {
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+      },
+    });
+
+    const updatedProfile = response.data;
+
+    // Normalize role
+    updatedProfile.role = normalizeRole(updatedProfile.role);
+    setProfile(updatedProfile);
+    localStorage.setItem("profile", JSON.stringify(updatedProfile));
+
+    // Update verification status for both personal and business
+    setVerificationStatus(prev => ({
+      ...prev,
+      personal: updatedProfile.verificationStatus.personal,
+      business: updatedProfile.verificationStatus.business,
+      hasSubmitted: updatedProfile.hasSubmittedVerification || updatedProfile.isVerified,
+    }));
+  } catch (error) {
+    console.error("Error fetching profile verification status:", error);
+  }
+};
+
+
 
   const refreshProfile = async (authToken = token) => {
      if (!authToken) return;
