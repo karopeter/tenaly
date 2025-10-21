@@ -271,7 +271,7 @@ const productImage =
         <div className="flex-1">
           {propertyAd && (
             <h2 className="text-[#525252] text-[14px] md:text-[18px] font-[500] font-inter">
-              {propertyAd.propertyName} {propertyAd.propertyAddress}
+              {propertyAd.propertyName} 
             </h2>
           )}
           {vehicleAd && (
@@ -505,7 +505,7 @@ const productImage =
              <div className="flex flex-row justify-between w-full">
                {propertyAd && (
                 <h2 className="text-[#525252] text-[14px] md:text-[18px] font-[500] font-inter">
-                 {propertyAd.propertyName} {propertyAd.propertyAddress}
+                 {propertyAd.propertyName} 
                </h2>
               )}
              {vehicleAd && (
@@ -544,7 +544,7 @@ const productImage =
                    className="mr-2"
                  />
                  {carAd && (
-                   <span className="text-[#8C8C8C] text-[12px] md:text-[14px] font-[400] font-inter">{carAd.location}</span>
+                   <span className="text-[#8C8C8C] text-[12px] md:text-[14px] font-[400] font-inter">{carAd.location} {propertyAd?.propertyAddress}</span>
                   )}
                </div>
                <div className="mt-2 md:mt-0">
