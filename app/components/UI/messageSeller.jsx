@@ -4,20 +4,19 @@ import { useAuth } from "@/app/context/AuthContext";
 import Button from "../Button";
 import Img from "../Image";
 
-
-const MessageSellerButton = ({sellerId, productId, openAuthModal, productImage, productTitle }) => {
+const MessageSellerButton = ({ sellerId, productId, openAuthModal, productImage, productTitle }) => {
   const router = useRouter();
-  const { isLoggedIn, profile} = useAuth();
+  const { isLoggedIn } = useAuth();
 
   const handleClick = () => {
     const previewMessage = encodeURIComponent(`Hi I'm interested in your product: "${productTitle}". Is it still available?`);
-    const productImageUrl = productImage ? encodeURIComponent(productImage) : '';
+    const productImageUrl = productImage ? encodeURIComponent(productImage) : "";
+
+    const redirectPath = `/Message?sellerId=${sellerId}&productId=${productId}&previewMessage=${previewMessage}&productImageUrl=${productImageUrl}&productTitle=${encodeURIComponent(productTitle)}`;
 
     if (isLoggedIn) {
-      router.push(`/Message?sellerId=${sellerId}&productId=${productId}&previewMessage=${previewMessage}&productImageUrl=${productImageUrl}`);
+      router.push(redirectPath);
     } else {
-      const redirectPath = `/Message?sellerId=${sellerId}&productId=${productId}&previewMessage=${previewMessage}&productImageUrl=${productImageUrl}`;
-    
       localStorage.setItem("redirectAfterLogin", redirectPath);
       openAuthModal();
     }
@@ -38,6 +37,6 @@ const MessageSellerButton = ({sellerId, productId, openAuthModal, productImage, 
       Message Seller
     </Button>
   );
-}
+};
 
 export default MessageSellerButton;
