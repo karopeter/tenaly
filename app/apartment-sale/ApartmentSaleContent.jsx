@@ -135,52 +135,6 @@ export default function ApartmentSaleContent() {
     diamond: 4,
     enterprise: 5,
   };
-
-  // useEffect(() => {
-  //   const carAdId = localStorage.getItem('editingCarAdId');
-  //   const carAdDataStr = localStorage.getItem('editCarAdData');
-  //   const adType = localStorage.getItem('editingAdType');
-
-  //   if (carAdId && carAdDataStr && adType === 'vehicle') {
-  //     try {
-  //      const carAdData = JSON.parse(carAdDataStr);
-
-  //      setEditingCarAd({
-  //       carAdId,
-  //       businessId: carAdData.businessCategory._id,
-  //       category: carAdData.category,
-  //       location: carAdData.location,
-  //       images: carAdData.images,
-  //      });
-
-  //      // 🔥 Pre-fill form fields here
-  //      if (adType === 'property') {
-  //       setPropertyName(adData.propertyName || "");
-  //       setPropertyAddress(adData.propertyAddress || "");
-  //       setPropertyType(adData.propertyType || "");
-  //       setFurnishing(adData.furnishing || "");
-  //       setParking(adData.parking || "");
-  //       setSquareMeter(adData.squareMeter || "");
-  //       setOwnerShipStatus(adData.ownershipStatus || "");
-  //       setServiceCharge(adData.serviceCharge || "");
-  //       setServiceFees(adData.serviceFee || "");
-  //       setNumberOfBathrooms(adData.numberofBathrooms || "");
-  //       setNumberOfBedrooms(adData.setNumberOfBedrooms || "");
-  //       setNumberOfToilet(adData.numberOfToilet || "");
-  //       setTitleDocuments(adData.setTitleDocuments || "");
-  //       setAmount(adData.amount || "");
-  //       setNegotiation(adData.negotiation || "");
-  //       setBusiness(adData.businessCategory?._id || "");
-  //       setDescription(adData.description || "");
-  //      }
-  //     } catch (error) {
-  //      console.error("Failed to parse saved ad data:", err);
-  //     }
-  //   }
-  // }, []);
-
-
-  // Set mounted to true after the component has mounted on the client
   
 
   useEffect(() => {
@@ -614,7 +568,7 @@ const handlePost = useCallback(async () => {
 
         {/* Heading */}
         <h3 className="text-[#525252] font-[500] font-inter text-[16px] md:text-[18px] mt-4 mb-6 text-left md:text-center">
-         {editingCarAd ? "Complete Your House For Sale Property Ad" : " House and Apartment for Sale"}
+         {editingCarAd ? "Complete Your House For Sale Property Ad" : "House and Apartment for Sale"}
         </h3>
 
         {/* Form */}
@@ -711,19 +665,21 @@ const handlePost = useCallback(async () => {
 
           {/* Submit Button */}
           <div className="flex gap-4 justify-center mt-4">
-            <Button 
+           {!editingCarAd && (
+             <Button 
               type="button"
               onClick={handleSaveAsDraft}
               className="w-full md:w-[200px] h-[44px] md:rounded-[8px] 
                       font-[500] text-[14px] border border-[#CDCDD7] text-[#525252]">
               Save as Draft
             </Button>
+           )}
             <Button
               type="button"
               onClick={handlePost}
               className="w-full md:w-[262px] h-[44px] rounded-[8px] font-[500] text-[14px] text-white bg-gradient-to-r from-[#00A8DF] to-[#1031AA]"
             >
-              Post Ad
+             {editingCarAd ? "Complete Ad" : " Post Ad"}
             </Button>
           </div>
         </form>

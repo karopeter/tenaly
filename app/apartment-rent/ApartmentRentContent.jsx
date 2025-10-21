@@ -95,6 +95,7 @@ export default function ApartmentRentContent() {
    const [showFreeCommercialPropertySuccessModal, setShowFreeCommercialPropertyModal] = useState(false);
 
   const [editingCarAd, setEditingCarAd] = useState(null);
+  const [isLoadingDraft, setIsLoadingDraft] = useState(false);
 
    // New state to track if the component has mounted 
    const [mounted, setMounted] = useState(false);
@@ -117,51 +118,110 @@ export default function ApartmentRentContent() {
     diamond: 4,
     enterprise: 5,
   };
-
+  
+   
   useEffect(() => {
-    const carAdId = localStorage.getItem('editingCarAdId');
-    const carAdDataStr = localStorage.getItem('editingCarAdData');
-    const adType = localStorage.getItem('editingAdType');
+    const fetchDraftData = async () => {
+      const carAdIdFromStorage = localStorage.getItem('editingCarAdId');
+      const carAdIdFromQuery = carAdId;
+      const adType = localStorage.getItem('editingAdType');
 
-    if (carAdId && carAdDataStr && adType === 'vehicle') {
-      try {
-        const carAdData = JSON.parse(carAdDataStr);
+      const idToUse = carAdIdFromQuery || carAdIdFromStorage;
 
-        setEditingCarAd({
-         carAdId,
-         businessId: carAdData.businessCategory._id,
-         category: carAdData.category,
-         location: carAdData.location,
-         images: carAdData.images
-        });
+      console.log("🔍 Checking for property draft:",  {
+        carAdIdFromQuery,
+        carAdIdFromStorage,
+        adType,
+        idToUse
+      });
 
-        // 🔥 Pre-fill form fields here
-        if (adType === 'property') {
-         setPropertyName(adData.propertyName || "");
-         setPropertyAddress(adData.propertyAddress || "");
-         setPropertyType(adData.propertyType || "");
-         setFurnishing(adData.furnishing || "");
-         setParking(adData.parking || "");
-         setSquareMeter(adData.squareMeter || "");
-        setOwnerShipStatus(adData.ownershipStatus || "");
-        setServiceFees(adData.serviceFee || "");
-         setServiceCharge(adData.serviceCharge || "");
-         setNumberOfBedrooms(adData.numberOfBedrooms || "");
-         setNumberOfBathrooms(adData.numberofBathrooms || "");
-         setNumberOfToilet(adData.numberOfToilet || "");
-        setPropertyDuration(adData.propertyDuration || "");
-        setAmount(adData.amount || "");
-        setNegotiation(adData.negotiation || "");
-        setBusiness(adData.businessCategory?._id || "");
-        setDescription(adData.description || "");
-        }
-      } catch (error) {
-
+      if (!idToUse || adType !== 'property') {
+        console.log("⚠️ No property draft to load");
+        return;
       }
-    }
-  })
 
-  // Set mounted to true after the component has mounted on the client
+      setIsLoadingDraft(true);
+
+      try {
+       // Fetch PropetyAd draft by CarAdId 
+       const propertyResponse = await api.get(`/property/draft/${idToUse}`);
+
+       if (!propertyResponse.data || !propertyResponse.data.propertyAd) {
+        console.log("⚠️ No PropertyAd draft found");
+        setIsLoadingDraft(false);
+        return;
+       }
+
+       const propertyAd = propertyResponse.data.propertyAd;
+      console.log("✅ Loaded PropertyAd draft:", propertyAd);
+
+      // Aslso fetch CarAd for images and location 
+      let carAd = null;
+      try {
+      const carResponse = await api.get(`/carAdd/${idToUse}`);
+      carAd = carResponse.data;
+      console.log("✅ Loaded CarAd:", carAd);
+      } catch (carError) {
+       console.warn("⚠️ Could not load CarAd:", carError);
+      }
+
+      // Pre-fill form fields from PropertyAd 
+      setPropertyName(propertyAd.propertyName || "");
+      setPropertyAddress(propertyAd.propertyAddress || propertyAd.location || "");
+      setPropertyType(propertyAd.furnishing || "");
+      setParking(propertyAd.parking || "");
+      setSquareMeter(propertyAd.squareMeter || "");
+      setOwnerShipStatus(propertyAd.ownershipStatus || "");
+      setServiceCharge(propertyAd.serviceCharge || "");
+      setNumberOfBedrooms(propertyAd.numberOfBedrooms || "");
+      setNumberOfBathrooms(propertyAd.numberofBathrooms || "");
+       setNumberOfBedrooms(propertyAd.numberOfBedrooms || "");
+      setNumberOfToilet(propertyAd.numberOfToilet || "");
+      setAmount(propertyAd.amount || "");
+      setSelectedFacilities(propertyAd.selectedFacilities || "");
+      setNegotiation(propertyAd.negotiation || "");
+      setDescription(propertyAd.description || "");
+
+      // Set Business from either propertyAd or carAd 
+      const businessId = propertyAd.businessCategory?._id 
+        || propertyAd.businessCategory
+        || carAd?.businessCategory?._id
+        || carAd?.businessCategory;
+      setBusiness(businessId || "");
+      setBusinessCategory(businessId || "");
+
+      // Store editing state 
+      setEditingCarAd({
+        carAdId: idToUse,
+        businessId: businessId,
+        category: carAd?.category || 'House and Apartment Property For Rent',
+        location: carAd?.location || propertyAd.propertyAddress || '',
+        images: carAd?.propertyImage || [],
+      });
+
+      toast.success("Draft loaded successfully! Complete your project  ad details.");
+      setIsLoadingDraft(false);
+
+
+      } catch (error) {
+       console.error("❌ Error loading property draft:", error);
+      toast.error("Failed to load draft. Starting fresh.");
+
+       // clear invalid data 
+         localStorage.removeItem('editingCarAdId');
+         localStorage.removeItem('editingCarAdData');
+         localStorage.removeItem('editingAdType');
+
+         setIsLoadingDraft(false);
+      }
+    };
+
+    if (mounted) {
+      fetchDraftData();
+    }
+  }, [mounted, carAdId]);
+
+  
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -334,9 +394,10 @@ export default function ApartmentRentContent() {
 
             // clear incomplete ad tracking 
             localStorage.removeItem("editingCarAdId");
-            localStorage.removeItem("editingAdData");
-            router.push("/Add");
+            localStorage.removeItem("editingCarAdData");
+            localStorage.removeItem('editingAdType');
             localStorage.setItem('adUpdated', 'true');
+            router.push("/Add");
             // Refresh Profile 
           } else if (res.data.data?.paymentStatus === "free") {
             toast.success(res.data.message || "Free property ad posted successfully!");
@@ -346,7 +407,8 @@ export default function ApartmentRentContent() {
 
             // 🔑 Clear incomplete ad tracking
             localStorage.removeItem("editingCarAdId");
-            localStorage.removeItem("editingAdData");
+            localStorage.removeItem("editingCarAdData");
+            localStorage.removeItem("editingAdType");
             localStorage.setItem('adUpdated', 'true');
           } else {
             toast.success(res.data.message || "Property ad posted successfully");
@@ -355,7 +417,11 @@ export default function ApartmentRentContent() {
 
             //  🔑 Clear incomplete ad tracking
            localStorage.removeItem("editingCarAdId");
-           localStorage.removeItem("editingAdData");
+           localStorage.removeItem("editingCarAdData");
+           localStorage.removeItem("editingAdType");
+
+           const profileRes = await api.get("/profile");
+           login(profileRes.data, token);
           }
         } catch(error) {
          console.error("Ad submission error:", error.response?.data || error.message);
@@ -364,7 +430,7 @@ export default function ApartmentRentContent() {
          "Something went wrong posting your ad. Please try again."
        );
      }
-    }, [propertyName, propertyAddress, propertyType, amount, router, token, login, router, editingCarAd, carAdId]); 
+    }, [propertyName, propertyAddress, propertyType, amount, router, token, login, router, editingCarAd, carAdId, buildPayload]); 
 
   
  const postAdForFree = useCallback(async () => {
@@ -473,6 +539,18 @@ const handlePost = useCallback(async () => {
       toast.error(error.response?.data?.error || "Failed to save draft");
      }
   }, [buildPayload, router]);
+
+
+   if (isLoadingDraft) {
+    return (
+      <div className="bg-white shadow-phenom rounded-[12px] p-4 sm:p-6 md:p-10 flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600 font-inter">Loading draft...</p>
+        </div>
+      </div>
+    );
+  }
   
 
     return (
@@ -486,10 +564,10 @@ const handlePost = useCallback(async () => {
         </button>
 
         <h3 className="text-left md:text-center text-[#525252] font-[500] font-inter text-sm md:text-base mt-8 mb-4">
-          House and Apartment Property for rent
+          {editingCarAd ? "Complete Your House For Rent Property Ad" : "House and Apartment Property for rent"}
         </h3>
 
-        <form>
+        <form className="space-y-6">
           {/* Input Sections */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <InputField label="Title" placeholder="Enter name of the property" value={propertyName} onChange={(e) => setPropertyName(e.target.value)} />
@@ -577,18 +655,20 @@ const handlePost = useCallback(async () => {
 
           {/* Post Button */}
           <div className="flex gap-4 justify-center mt-6">
-            <Button
+           {!editingCarAd && (
+             <Button
               type="button"
               onClick={handleSaveAsDraft}
               className="w-full md:w-[200px] h-[44px] md:rounded-[8px] 
                       font-[500] text-[14px] border border-[#CDCDD7] text-[#525252]">
                Save as Draft
             </Button>
+           )}
             <Button
               type="button"
               onClick={handlePost}
               className="w-full md:w-[262px] h-[44px] md:rounded-[8px] font-[500] text-[14px] bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white">
-             Post Ad
+             {editingCarAd ? "Complete Ad" : "Post Ad"}
           </Button>
           </div>
 
