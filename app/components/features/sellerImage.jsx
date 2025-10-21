@@ -40,10 +40,15 @@ const SellerImage = ({ sellerId }) => {
   if (error) return <p className="text-sm text-red-500">{error}</p>;
   if (!sellerDetails) return null;
 
-  const isVerified = !!sellerDetails?.isVerified;
+  const verificationStatus = sellerDetails?.verificationStatus || {};
+  const isPersonalVerified = verificationStatus.personal = "verified";
+  const isBusinessVerified = verificationStatus.business === "verified";
+
+  const showVerifiedBadge = isPersonalVerified || isBusinessVerified;
+
   
   return (
-    <div className="relative w-[40px] h-[40px]">
+    <div className="relative w-[40px] h-[40px] flex flex-col items-center">
       {/* ✅ Profile Image */}
       <Img
         src={sellerDetails.image || "/profile-circles1.svg"}
@@ -57,7 +62,7 @@ const SellerImage = ({ sellerId }) => {
       />
 
       {/* Verified Badge - Only shows if verified */}
-      {isVerified && (
+      {showVerifiedBadge && (
         <Img 
           src="/profile-verified.svg"
           alt="Verified Badge"
