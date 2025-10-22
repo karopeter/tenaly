@@ -660,6 +660,14 @@ const productImage =
             { label: "Negotiation", value: propertyAd?.negotiation },
             { label: "Property Condition", value: propertyAd?.propertyCondition },
             { label: "Property Facilities", value: propertyAd?.propertyFacilities },
+            {label: "Number of Bedrooms", value: propertyAd?.numberOfBedrooms },
+            {label: "Number of Toilets", value: propertyAd?.numberOfToilet },
+            {label: "Number of Bathrooms", value: propertyAd?.numberOfBathroom },
+            {label: "Title of Documents", value: propertyAd?.titleDocuments },
+            {label: "Maximum Allowed Guests", value: propertyAd?.maximumAllowedGuest },
+            {label: "Is Smoking Allowed", value: propertyAd?.isSmokingAllowed },
+            {label: "Are Parties Allowed", value: propertyAd?.isPartiesAllowed },
+            {label: "Service Fee", value: propertyAd?.serviceFee },
           ].map(
             (item, index) =>
               item.value && (
