@@ -419,31 +419,58 @@ export default function CarAdDetails() {
                      )}
                   </div>
                 </div>
+               {/* Fifth Row */}
+            <div className="flex flex-wrap justify-between gap-y-4 gap-x-[4%] mt-4 max-w-[650px] mx-auto">
+            <div className="flex flex-col w-[48%] md:w-[30%]">
+             <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+              No of Seats
+            </span>
+           {vehicleAd && (
+            <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+             {vehicleAd?.seat}
+           </span>
+          )}
+        </div>
 
-                {/* Fifth Row */}
-                <div className="flex gap-2 mt-4">
-                   <div className="flex flex-col w-[48%] md:w-[33%]">
-                     <span className="text-[#868686] text-[12px] md:text-[14px] font-medium  font-inter">
-                        No of seats
-                     </span>
-                     {vehicleAd && (
-                      <span className="text-[#525252] mt-2text-[14px] md:text-[16px]  font-medium font-inter">
-                         {vehicleAd?.seat}
-                      </span>
-                     )}
-                   </div>
-                   <div className="flex flex-col">
-                     <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">Fuel Type</span>
-                     {vehicleAd && (
-                       <span className="text-[#525252] mt-2 text-[14px] md:text-[16px]  font-medium font-inter">
-                           {vehicleAd.fuel}
-                       </span>
-                     )}
-                   </div>
-                </div>
-              </div>
-             )}
-           </div>
+       <div className="flex flex-col w-[48%] md:w-[30%]">
+        <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+          Fuel Type
+       </span>
+       {vehicleAd && (
+         <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+          {vehicleAd.fuel}
+        </span>
+        )}
+      </div>
+
+      <div className="flex flex-col w-[48%] md:w-[30%]">
+       <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+         Car Key Features
+      </span>
+      {vehicleAd && vehicleAd.carKeyFeatures && (
+        <ul className="list-disc list-inside mt-2 text-[#525252] text-[14px] md:text-[16px] font-medium font-inter">
+          {vehicleAd.carKeyFeatures.map((feature, index) => (
+           <li key={index}>{feature}</li>
+         ))}
+      </ul>
+      )}
+    </div>
+
+   </div>
+
+   <div className="flex flex-col">
+  <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+    VIN / Chassis Number
+  </span>
+  {vehicleAd && (
+    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+      {vehicleAd.vinChassisNumber || "N/A"}
+    </span>
+  )}
+</div>
+   </div>
+      )}
+  </div>
 
             {/* Description Information */}
            <div className="bg-[#FAFAFA] w-full max-w-[650px] h-auto rounded-[12px] p-4 md:p-8 mt-4 mx-auto">
