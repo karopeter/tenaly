@@ -75,7 +75,22 @@ export default function MarketPlace({ category, search, location }) {
         });
 
         if (res.data.success) {
-         const adsArray = Array.isArray(res.data.data) ? res.data.data : [];
+        let  adsArray = Array.isArray(res.data.data) ? res.data.data : [];
+
+         // Client-side location fallback filter
+         if (location) {
+          const loc = location.toLowerCase();
+          adsArray = adsArray.filter(item => {
+            const carLoc = item.carAd?.location?.toLowerCase?.() || "";
+            const propertyLoc = item.propertyAd?.location?.toLowerCase?.() || "";
+            const businessLoc = item.business?.location?.toLowerCase?.() || "";
+            return (
+               carLoc.includes(loc) ||
+               propertyLoc.includes(loc) ||
+              businessLoc.includes(loc)
+            );
+          });
+         }
 
          if (adsArray.length > 0) {
           const sortedAds = enhanceFrontendSorting(adsArray);

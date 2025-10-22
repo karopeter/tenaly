@@ -10,16 +10,6 @@ export default function LocationSearch({ onSearchChange, onLocationSelect }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedState, setSelectedState] = useState(null);
   
-
-  const handleLocationSelect = (location) => {
-    console.log("Selected Location in ProductList:", location);
-  };
-
-  const handleStateSelect = (state) => {
-    setSelectedState(state);
-    setSearchQuery("");
-  };
-
   const handleLGASelect = ({ state, lga }) => {
     const fullLocation = `${state}, ${lga}`;
     setSelectedLocation(fullLocation);
