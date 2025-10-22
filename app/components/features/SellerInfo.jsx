@@ -54,7 +54,7 @@ const SellerInfo = ({ sellerId }) => {
        className={`mt-1 flex items-center gap-1 rounded-[2px] px-2 py-[2px] w-fit max-w-full
        ${isVerified ? "bg-[#E9F4E8]" : "bg-[#FBEAEA]"}`}>
             <Img
-              src={isVerified ? "/profile.svg" : "/profile.svg"}
+              src={isVerified ? "/profile.svg" : "/unverified.svg"}
               alt={isVerified ? "Verified Icon" : "Unverified Icon"}
               width={10}
               height={10}
