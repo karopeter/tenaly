@@ -793,9 +793,11 @@ const productImage =
                  </div>
                  <div className="flex flex-col w-[48%] md:w-[30%]">
                   <span className="text-[#868686] text-[12px] md:text-[14px] font-medium  font-inter">Car Key Features</span>
-                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                       {vehicleAd?.carKeyFeatures}
-                     </span>
+                    <ul className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+                       {vehicleAd?.carKeyFeatures?.map((feature, index) => (
+                        <li key={index} className="list-disc ml-4">{feature}</li>
+                       ))}
+                     </ul>
                  </div>
                  <div className="flex flex-col w-[48%] md:w-[30%]">
                   <span className="text-[#868686] text-[12px] md:text-[14px] font-medium  font-inter">Car Type</span>
