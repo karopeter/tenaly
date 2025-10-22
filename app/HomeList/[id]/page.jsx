@@ -127,6 +127,55 @@ const handleReportSubmit = async (reportData) => {
    console.log("Report submitted", reportData);
 };
 
+const handleShare = () => {
+   if (!adData) return;
+
+   const shareUrl =  `${window.location.origin}/HomeList/${id}`;
+   const shareTitle = productTitle || "Check out this product!";
+   const shareText = `Hey, I found this awesome product on our tenaly marketplace: ${shareTitle}. Take a look here: ${shareUrl}`;
+
+   // Use web share API
+   if (navigator.share) {
+    navigator
+     .share({
+       title: shareTitle,
+       text: shareText,
+       url: shareUrl
+     })
+     .then(() => console.log("Shared successfully!"))
+     .catch((err) => console.error("Share failed:", err));
+   } else {
+    // ❌ Fallback for desktop browsers
+     const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
+    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
+    const tiktokUrl = `https://www.tiktok.com/share?url=${encodeURIComponent(shareUrl)}`;
+    const instagramUrl = `https://www.instagram.com/?url=${encodeURIComponent(shareUrl)}`;
+
+    // Open a modal or window with sharing options (simple alert fallback)
+    const shareWindow = window.open(
+       `
+         <html>
+        <body style="font-family:sans-serif;padding:20px">
+          <h3>Share this product</h3>
+          <ul style="list-style:none;padding:0;">
+            <li><a href="${whatsappUrl}" target="_blank">WhatsApp</a></li>
+            <li><a href="${facebookUrl}" target="_blank">Facebook</a></li>
+            <li><a href="${twitterUrl}" target="_blank">X (Twitter)</a></li>
+            <li><a href="${tiktokUrl}" target="_blank">TikTok</a></li>
+            <li><a href="${instagramUrl}" target="_blank">Instagram</a></li>
+          </ul>
+        </body>
+      </html>
+       `,
+       "Share",
+       "width=400,height=500"
+    );
+
+    if (shareWindow) shareWindow.focus();
+   }
+};
+
 
 
 const handleSendOffer = async () => {
@@ -298,13 +347,7 @@ const productImage =
 
           <button
             className="cursor-pointer"
-            onClick={() => {
-              const socialMediaSection = document.getElementById("social-media-section");
-              if (socialMediaSection) {
-                const offsettop = socialMediaSection.getBoundingClientRect().top + window.scrollY - 50;
-                window.scrollTo({ top: offsettop, behavior: "smooth" });
-              }
-            }}
+            onClick={handleShare}
           >
             <Img src="/share.svg" alt="Share" width={44} height={44} className="w-[36px] h-[36px] md:w-[44px] md:h-[44px]" />
           </button>
