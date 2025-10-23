@@ -8,7 +8,7 @@ const MessageSellerButton = ({ sellerId, productId, openAuthModal, productImage,
   const router = useRouter();
   const { isLoggedIn } = useAuth();
 
-  const handleClick = () => {
+  const handleClick = () => { 
     const previewMessage = encodeURIComponent(`Hi I'm interested in your product: "${productTitle}". Is it still available?`);
     const productImageUrl = productImage ? encodeURIComponent(productImage) : "";
 
