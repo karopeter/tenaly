@@ -88,9 +88,11 @@ export default function SignUpForm({ onClose }) {
       
       // Step 2: Check if user is a seller and show business onboarding
       if (userProfile.role === "seller") {
-        setBusinessOnboardingData({ user: userProfile, token: authToken });
+        localStorage.setItem("showBusinessOnboarding", true);
+        router.push("/Profile");
+        onClose?.();
+        //setBusinessOnboardingData({ user: userProfile, token: authToken });
       } else {
-        // For customers, redirect directly
         router.push("/Product-List");
         onClose?.();
       }

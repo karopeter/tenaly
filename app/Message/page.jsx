@@ -399,13 +399,13 @@ function MessageContent() {
                 <div className="mt-1">
                   {msg.file.mimetype?.startsWith("image/") ? (
                     <img
-                      src={`http://localhost:8080/${msg.file.path}`}
+                      src={`https://api.tenaly.com/${msg.file.path}`}
                       alt="uploaded"
                       className="w-40 h-auto rounded-lg"
                     />
                   ) : (
                     <a
-                      href={`http://localhost:8080/${msg.file.path}`}
+                      href={`https://api.tenaly.com/${msg.file.path}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-600 underline text-xs"
@@ -416,27 +416,25 @@ function MessageContent() {
                 </div>
               )}
 
-        
-              <div className="text-sm leading-relaxed">
-  {msg.text && msg.productId && msg.productTitle ? (
-    <>
-      {msg.text.split(`"${msg.productTitle}"`)[0]}
-      <Link 
-        href={`/HomeList/${msg.productId}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={`font-semibold underline ${
-          isFromSelf ? 'text-white hover:text-blue-100' : 'text-blue-600 hover:text-blue-800'
-        }`}
-      > 
-        "{msg.productTitle}"
-      </Link>
-      {msg.text.split(`"${msg.productTitle}"`)[1]}
-    </>
-  ) : (
-    msg.text
-  )}
-</div>
+          <div className="text-sm leading-relaxed">
+         {msg.text && msg.productId && msg.productTitle ? (
+        <>
+         {msg.text.split(`"${msg.productTitle}"`)[0]}
+         <Link 
+           href={`/HomeList/${msg.productId}`}
+           target="_blank"
+           rel="noopener noreferrer"
+           className={`font-semibold underline ${
+             isFromSelf ? 'text-white hover:text-blue-100' : 'text-blue-600 hover:text-blue-800'
+           }`}> 
+           "{msg.productTitle}"
+         </Link>
+          {msg.text.split(`"${msg.productTitle}"`)[1]}
+       </>
+      ) : (
+       msg.text
+      )}
+    </div>
               <div className={`text-[10px] mt-1 ${isFromSelf ? 'text-blue-100' : 'text-gray-500'}`}>
                 {format(parseISO(msg.createdAt), "hh:mm a")}
               </div>

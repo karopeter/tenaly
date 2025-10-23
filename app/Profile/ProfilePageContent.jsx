@@ -25,12 +25,13 @@ export default function ProfilePageContent() {
   const router = useRouter();
 
   useEffect(() => {
-     // Check localStorage or query flat if user is new seller 
-     const isNewSeller = localStorage.getItem("newSeller");
-     if (isNewSeller === "true") {
-       setShowOnboarding(true);
-       //localStorage.removeItem("newSeller");
-     }
+    const showModal = localStorage.getItem("showBusinessOnboarding");
+    if (showModal === "true") {
+      setTimeout(() => {
+        setShowOnboarding(true);
+        localStorage.removeItem("showBusinessOnboarding");
+      }, 500);
+    }
   }, []);
 
   useEffect(() => {
