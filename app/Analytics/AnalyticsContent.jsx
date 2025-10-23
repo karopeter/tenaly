@@ -214,7 +214,7 @@ export default function AnalyticsContent() {
         </div>
 
         {/* Summary Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-lg">
             <h3 className="text-sm font-medium text-blue-700 mb-2">Average Views per Ad</h3>
             <p className="text-2xl font-bold text-blue-900">
@@ -239,7 +239,7 @@ export default function AnalyticsContent() {
                 : 0}%
             </p>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );
