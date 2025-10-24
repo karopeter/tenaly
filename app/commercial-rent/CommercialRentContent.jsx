@@ -399,9 +399,6 @@ const submitAd = useCallback(async (planToSubmit, useWallet = false) => {
          localStorage.removeItem("editingCarAdId");
          localStorage.removeItem("editingCarAdData");
          localStorage.removeItem("editingAdType");
-
-         const profileRes = await api.get("/profile");
-         login(profileRes.data, token);
       }
     } catch(error) {
      console.error("Ad submission error:", error.response?.data || error.message);
