@@ -12,9 +12,10 @@ export default function SettingsContent() {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
 
  const shouldShowVerification = 
-    role === "seller" && 
-    verificationStatus?.personal === "verified" && 
-    verificationStatus?.business === "pending";
+   role === "seller" && 
+   !(verificationStatus?.personal === "verified" && 
+    verificationStatus?.business === "verified"
+   );
 
   const verificationText = "Become a verified seller";
   const verificationHref = "/become-verified";

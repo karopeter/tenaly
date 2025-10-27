@@ -33,6 +33,7 @@ export default function HomeListDetails() {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [bookmarkLoading, setBookmarkLoading] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
   const { openAuthModal, isLoggedIn, profile } = useAuth();
 
   // Placeholder image for when a real image fails to load
@@ -61,8 +62,16 @@ export default function HomeListDetails() {
         } else {
           setError(adRes.data.message || "Failed to fetch ad details.");
         }
-        const profileRes = await api.get("/profile");
-        setUserProfile(profileRes.data);
+      
+        // Only fetch profile if user is logged in 
+        if (isLoggedIn) {
+          try {
+           const profileRes = await api.get("/profile");
+           setUserProfile(profileRes.data);
+          } catch (err) {
+           console.error("Error fetching profile:", err);
+          }
+        }
       } catch (err) {
         console.error("Error fetching ad or profile:", err);
         setError("Error loading ad details. Please try again.");
@@ -127,55 +136,92 @@ const handleReportSubmit = async (reportData) => {
    console.log("Report submitted", reportData);
 };
 
-const handleShare = () => {
-   if (!adData) return;
+// const handleShare = () => {
+//    if (!adData) return;
 
-   const shareUrl =  `${window.location.origin}/HomeList/${id}`;
+//    const shareUrl =  `${window.location.origin}/HomeList/${id}`;
+//    const shareTitle = productTitle || "Check out this product!";
+//    const shareText = `Hey, I found this awesome product on our tenaly marketplace: ${shareTitle}. Take a look here: ${shareUrl}`;
+
+//    // Use web share API
+//    if (navigator.share) {
+//     navigator
+//      .share({
+//        title: shareTitle,
+//        text: shareText,
+//        url: shareUrl
+//      })
+//      .then(() => console.log("Shared successfully!"))
+//      .catch((err) => console.error("Share failed:", err));
+//    } else {
+//     // ❌ Fallback for desktop browsers
+//      const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
+//     const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
+//     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
+//     const tiktokUrl = `https://www.tiktok.com/share?url=${encodeURIComponent(shareUrl)}`;
+//     const instagramUrl = `https://www.instagram.com/?url=${encodeURIComponent(shareUrl)}`;
+
+//     // Open a modal or window with sharing options (simple alert fallback)
+//     const shareWindow = window.open(
+//        `
+//          <html>
+//         <body style="font-family:sans-serif;padding:20px">
+//           <h3>Share this product</h3>
+//           <ul style="list-style:none;padding:0;">
+//             <li><a href="${whatsappUrl}" target="_blank">WhatsApp</a></li>
+//             <li><a href="${facebookUrl}" target="_blank">Facebook</a></li>
+//             <li><a href="${twitterUrl}" target="_blank">X (Twitter)</a></li>
+//             <li><a href="${tiktokUrl}" target="_blank">TikTok</a></li>
+//             <li><a href="${instagramUrl}" target="_blank">Instagram</a></li>
+//           </ul>
+//         </body>
+//       </html>
+//        `,
+//        "Share",
+//        "width=400,height=500"
+//     );
+
+//     if (shareWindow) shareWindow.focus();
+//    }
+// };
+
+
+const handleShare = async () => {
+   if (!adData || isSharing) return;
+
+   const shareUrl = `${window.location.origin}/HomeList/${id}`;
    const shareTitle = productTitle || "Check out this product!";
    const shareText = `Hey, I found this awesome product on our tenaly marketplace: ${shareTitle}. Take a look here: ${shareUrl}`;
 
-   // Use web share API
+   // Use Web share API 
    if (navigator.share) {
-    navigator
-     .share({
-       title: shareTitle,
-       text: shareText,
-       url: shareUrl
-     })
-     .then(() => console.log("Shared successfully!"))
-     .catch((err) => console.error("Share failed:", err));
+    try {
+      setIsSharing(true);
+      await navigator.share({
+        title: shareTitle,
+        text: shareText,
+        url: shareUrl
+      });
+      console.log("Shared successfully!");
+    } catch (err) {
+      // User cancelled share on error occured 
+      if (err.name !== 'AbortError') {
+        console.error("Share failed:", err);
+      }
+    } finally {
+      setIsSharing(false);
+    }
    } else {
-    // ❌ Fallback for desktop browsers
-     const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
-    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
-    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
-    const tiktokUrl = `https://www.tiktok.com/share?url=${encodeURIComponent(shareUrl)}`;
-    const instagramUrl = `https://www.instagram.com/?url=${encodeURIComponent(shareUrl)}`;
-
-    // Open a modal or window with sharing options (simple alert fallback)
-    const shareWindow = window.open(
-       `
-         <html>
-        <body style="font-family:sans-serif;padding:20px">
-          <h3>Share this product</h3>
-          <ul style="list-style:none;padding:0;">
-            <li><a href="${whatsappUrl}" target="_blank">WhatsApp</a></li>
-            <li><a href="${facebookUrl}" target="_blank">Facebook</a></li>
-            <li><a href="${twitterUrl}" target="_blank">X (Twitter)</a></li>
-            <li><a href="${tiktokUrl}" target="_blank">TikTok</a></li>
-            <li><a href="${instagramUrl}" target="_blank">Instagram</a></li>
-          </ul>
-        </body>
-      </html>
-       `,
-       "Share",
-       "width=400,height=500"
-    );
-
-    if (shareWindow) shareWindow.focus();
+    // Fallback: Copy to clipboard for desktop 
+    try {
+     await navigator.clipboard.writeText(shareText);
+     toast.success('Link copied to clipboard!');
+    } catch (err) {
+      console.error("Failed to copy:", err);
+      toast.error("Failed to share");
+    }
    }
 };
-
 
 
 const handleSendOffer = async () => {
