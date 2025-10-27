@@ -81,7 +81,6 @@ export default function AnalyticsContent() {
           <MetricCard 
             title="Profile Views"
             value={analytics.profileViews?.total?.toLocaleString() || '0'}
-            subtitle={`${analytics.profileViews?.unique || 0} unique visitors`}
             color="blue"
           />
           <MetricCard
@@ -93,7 +92,6 @@ export default function AnalyticsContent() {
           <MetricCard
             title="Ad Views"
             value={analytics.productViews?.total?.toLocaleString() || '0'}
-            subtitle={`${analytics.productViews?.unique || 0} unique views`}
             color="purple"
           />
           <MetricCard
