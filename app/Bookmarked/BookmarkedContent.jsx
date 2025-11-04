@@ -149,24 +149,32 @@ export default function BookMarkedContent({sellerId}) {
 
   return (
     <>
-      {userAds.map(({ adId, carAd, vehicleAd, propertyAd, isSold }) => {
+      {userAds.map(({ adId, carAd, vehicleAd, propertyAd, petAd, agricultureAd, isSold }) => {
         // Determine images array and amount to display
         const images = carAd?.vehicleImage?.length
           ? carAd.vehicleImage
           : carAd?.propertyImage?.length
           ? carAd.propertyImage
+          : carAd?.petsImage?.length
+          ? carAd.petsImage 
+          : carAd?.agricultureImage?.length
+          ? carAd.agricultureImage
           : [];
 
         const imageUrl = images.length > 0
           ? images[0]
           : "/placeholder-image.svg";
         
-        const amount = vehicleAd?.amount || propertyAd?.amount || "N/A";
+        const amount = vehicleAd?.amount || propertyAd?.amount || petAd?.amount || agricultureAd?.amount ||  "N/A";
 
         const mainInfo = vehicleAd
           ? `${vehicleAd.vehicleType} ${vehicleAd.model}`
           : propertyAd
           ? propertyAd.propertyType || propertyAd.propertyName
+          : petAd
+          ? `${petAd.petType} - ${petAd.breed}`
+          : agricultureAd
+          ? agricultureAd.title || agricultureAd.agricultureType?.[0]
           : "";
 
         const location = carAd?.location || "";
@@ -203,6 +211,18 @@ export default function BookMarkedContent({sellerId}) {
                   : "N/A",
               },
             ]
+          : petAd 
+           ? [
+              { iconSrc: "/cross-props.svg", text: petAd.age || "N/A" },
+              { iconSrc: "/cross-props.svg", text: petAd.breed || "N/A"},
+              { iconSrc: "/cross-props.svg", text: petAd.gender || "N/A" }
+           ]
+           : agricultureAd 
+           ? [
+            { iconSrc: "/cross-props.svg", text: agricultureAd.unit || "N/A"},
+            { iconSrc: "/cross-props.svg", text: agricultureAd.condition || "N/A"},
+            { iconSrc: "/cross-props.svg", text: agricultureAd.agricultureType || "N/A" },
+           ]
           : [];
 
         return (
@@ -231,7 +251,7 @@ export default function BookMarkedContent({sellerId}) {
               )}
 
               {/* Show plan badge if not sold */}
-              {!isSold && (vehicleAd?.plan || propertyAd?.plan) && (
+              {!isSold && (vehicleAd?.plan || propertyAd?.plan || petAd?.plan || agricultureAd?.plan) && (
                 <div className="absolute bottom-0 left-0 z-30 w-[139px] h-[35px] flex items-center px-4"
                   style={{
                     backgroundImage: `url(${machineImage})`,
@@ -242,7 +262,11 @@ export default function BookMarkedContent({sellerId}) {
                   <div className="bg-[#DFDFF9] w-[100px] h-[24px] rounded-[4px] border flex justify-center items-center gap-2 border-[#2C2CCD]">
                     <Img src="/medal-star1.svg" alt="Plan" width={24} height={24} />
                     <span className="text-[#000087] text-[12px] font-[400] font-inter uppercase">
-                      {(vehicleAd?.plan || propertyAd?.plan) ?? ""}
+                      {vehicleAd?.plan || 
+                       propertyAd?.plan || 
+                       petAd?.plan || 
+                       agricultureAd?.plan || 
+                      ""}
                     </span>
                   </div>
                 </div>

@@ -30,7 +30,7 @@ import FreePropertySuccessModal from "../components/free-property-sucess-modal";
 import MultiSelectDropdown from "../components/dropdowns/MultiSelectDropdown";
 import PromoteAdModal from "../components/PromoteModal/promote-modal";
 import WalletPaymentModal from "../components/WalletModal/walletModal";
-import { title } from "process";
+
 
 
 const customStyles = {

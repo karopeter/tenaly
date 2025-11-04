@@ -136,54 +136,6 @@ const handleReportSubmit = async (reportData) => {
    console.log("Report submitted", reportData);
 };
 
-// const handleShare = () => {
-//    if (!adData) return;
-
-//    const shareUrl =  `${window.location.origin}/HomeList/${id}`;
-//    const shareTitle = productTitle || "Check out this product!";
-//    const shareText = `Hey, I found this awesome product on our tenaly marketplace: ${shareTitle}. Take a look here: ${shareUrl}`;
-
-//    // Use web share API
-//    if (navigator.share) {
-//     navigator
-//      .share({
-//        title: shareTitle,
-//        text: shareText,
-//        url: shareUrl
-//      })
-//      .then(() => console.log("Shared successfully!"))
-//      .catch((err) => console.error("Share failed:", err));
-//    } else {
-//     // ❌ Fallback for desktop browsers
-//      const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
-//     const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
-//     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
-//     const tiktokUrl = `https://www.tiktok.com/share?url=${encodeURIComponent(shareUrl)}`;
-//     const instagramUrl = `https://www.instagram.com/?url=${encodeURIComponent(shareUrl)}`;
-
-//     // Open a modal or window with sharing options (simple alert fallback)
-//     const shareWindow = window.open(
-//        `
-//          <html>
-//         <body style="font-family:sans-serif;padding:20px">
-//           <h3>Share this product</h3>
-//           <ul style="list-style:none;padding:0;">
-//             <li><a href="${whatsappUrl}" target="_blank">WhatsApp</a></li>
-//             <li><a href="${facebookUrl}" target="_blank">Facebook</a></li>
-//             <li><a href="${twitterUrl}" target="_blank">X (Twitter)</a></li>
-//             <li><a href="${tiktokUrl}" target="_blank">TikTok</a></li>
-//             <li><a href="${instagramUrl}" target="_blank">Instagram</a></li>
-//           </ul>
-//         </body>
-//       </html>
-//        `,
-//        "Share",
-//        "width=400,height=500"
-//     );
-
-//     if (shareWindow) shareWindow.focus();
-//    }
-// };
 
 
 const handleShare = async () => {
@@ -223,53 +175,51 @@ const handleShare = async () => {
    }
 };
 
-
 const handleSendOffer = async () => {
-  const offerMessage = encodeURIComponent(
-      `Hi, I'm interested in "${productTitle}". I would like to make an offer of ₦${parseInt(offerAmount).toLocaleString()} for this product. Are you willing to negotiate?`
-  );
-
   if (!isLoggedIn) {
-    toast.error("You need to log in to make an offer");
+    openAuthModal();
     return;
   }
+  
+  if (!offerAmount || offerAmount <= 0) {
+    return toast.error("Please enter a valid offer amount");
+  }
 
-  if (!offerAmount) {
-    return toast.error("Please enter an amount");
+  // Validate productId exists before making request
+  if (!productId) {
+    return toast.error("Product information not available");
   }
 
   try {
     setLoading(true);
   
-    const res = await api.post(`/offer/make-offer/${productId}`, { offerAmount });
-
-    console.log(res)
+    const res = await api.post(`/offer/make-offer/${productId}`, { 
+      offerAmount: parseInt(offerAmount) 
+    });
+    
+    console.log("Offer response:", res.data);
 
     if (res.data.success) {
       const { offer, conversationId, chatMessage } = res.data.data;
 
-
+      // Send through socket
       sendOffer({
         conversationId: conversationId,
-        offerId: offer._id
+        offerId: offer._id,
       });
       
-      console.log(offer, conversationId, chatMessage);
-
-      toast.success(`Offer of ₦${offerAmount.toLocaleString()} sent successfully`);
+      toast.success(`Offer of ₦${parseInt(offerAmount).toLocaleString()} sent successfully`);
       setOfferAmount("");
       setShowInput(false);
       
+      // Redirect with conversationId
       setTimeout(() => {
-        window.location.href = `/Message?sellerId=${chatMessage.to}&productId=${productId}&productTitle=${productTitle}&previewMessage=${offerMessage}`;
-      }, 1500); 
-      
-    } else {
-      toast.error(res.data.message || "Failed to send offer");
+        window.location.href = `/Message?conversationId=${conversationId}`;
+      }, 1000); 
     }
   } catch (err) {
     console.error("Error sending offer:", err);
-    toast.error(err?.response?.data?.message || "Something went wrong");
+    toast.error(err?.response?.data?.message || "Failed to send offer");
   } finally {
     setLoading(false);
   }
@@ -297,7 +247,7 @@ const handleSendOffer = async () => {
   }
 
 
-  const { carAd, vehicleAd, propertyAd, business } = adData;
+  const { carAd, vehicleAd, propertyAd, petAd, agricultureAd, business } = adData;
   const actualBusinessId = carAd?.businessCategory?._id || carAd?.businessCategory;
   const sellerId = business?.userId || carAd?.userId || vehicleAd?.userId || propertyAd?.userId;
 
@@ -310,6 +260,12 @@ const handleSendOffer = async () => {
   } else if (propertyAd) {
     mainAd = propertyAd;
     adDetails = propertyAd; 
+  } else if (petAd) {
+    mainAd = carAd,
+    adDetails = petAd;
+  } else if (agricultureAd) {
+    mainAd = carAd;
+    adDetails = agricultureAd;
   }
 
   const businessName = business?.businessName || "Unknown Seller";
@@ -320,25 +276,44 @@ const handleSendOffer = async () => {
   const businessProfileImage = business?.profileImage || business?.image;
   const isBusinessVerified = business?.isVerified;
 
+  const isNegotiable = () => {
+  const vehicleNeg = vehicleAd?.negotiation === "Yes";
+  const propertyNeg = propertyAd?.negotiation === "Yes";
+  const petNeg = petAd?.negotiation === "Yes" || 
+                 petAd?.negotiation === "yes" || 
+                 petAd?.negotiation === true;
+  const agricultureNeg = agricultureAd?.negotiation === "Yes"; 
+  
+  return vehicleNeg || propertyNeg || petNeg || agricultureNeg;
+};
+
 
  
 const productTitle =
   propertyAd?.propertyName ||
+  petAd?.breed ? `${petAd.breed} - ${petAd.petType}` : "" ||
+  (agricultureAd?.title ? `${agricultureAd.title}` : "") || 
   (vehicleAd ? `${vehicleAd.vehicleType} ${vehicleAd.model}` : "") ||
   (carAd ? `${carAd.vehicleType} ${carAd.model}` : "");
 
     const mainImageArray = carAd
-    ? (carAd.propertyImage?.length > 0 ? carAd.propertyImage : carAd.vehicleImage || [])
+    ? (carAd.propertyImage?.length > 0 ? carAd.propertyImage  :
+      carAd.petsImage?.length > 0 ? carAd.petsImage : 
+      carAd.agricultureImage?.length > 0 ? carAd.agricultureImage :
+        carAd.vehicleImage || [])
     : [];
 
      const mainImage = mainImageArray[0];
     const smallImages = mainImageArray.slice(1, 5);
 
-     const productId = mainAd?._id;
+    // const productId = mainAd?._id;
+    const productId = vehicleAd?._id || propertyAd?._id || petAd?._id || agricultureAd?._id;
 
 // Pick correct product image
 const productImage =
   propertyAd?.propertyImage?.[0] ||
+  petAd?.petsImage?.[0] || 
+  agricultureAd?.agricultureImage?.[0] || 
   vehicleAd?.vehicleImage?.[0] ||
   carAd?.vehicleImage?.[0];
 
@@ -498,38 +473,47 @@ const productImage =
        {propertyAd?.amount && (
          <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{propertyAd.amount?.toLocaleString()}</span>
        )}
+       {petAd?.amount && (
+         <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{petAd.amount?.toLocaleString()}</span>
+       )}
+       {agricultureAd?.amount && (
+         <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{agricultureAd.amount?.toLocaleString()}</span>
+       )}
      </div>
-     {((vehicleAd?.negotiation === "Yes") || (propertyAd?.negotiation === "Yes")) && (
-      <div className="p-4">
-      {showInput ? (
-        <div className="relative w-full">
-           <input
-              type="number"
-              placeholder="Enter your offer"
-              value={offerAmount}
-              onChange={(e) => setOfferAmount(e.target.value)}
-               className="w-full h-[44px] rounded-[8px] px-4 pr-12 border-[1px] focus:outline-none border-[#868686] text-[16px] font-inter"
-           />
-           <button
-             onClick={handleSendOffer}
-             className="absolute right-3 top-1/2 transform -translate-y-1/2">
-               <Img
-                 src="/offerImg.svg"
-                 width={17.9}
-                 height={18}
-                 className="w-[17.9px] h-[18px]"
-               />
-           </button>
-        </div>
-      ): (
-       <Button 
-         onClick={() => setShowInput(true)}
-          className="w-full md:w-[300px] h-[44px] md:h-[53px] md:rounded-[8px] text-[#FFFFFF] font-inter font-[500] md:text-[16px] bg-[#5555DD]">
-         Make Offer
-        </Button>
-      )}
-     </div>
-     )}
+     {isNegotiable() && (
+  <div className="p-4">
+    {showInput ? (
+      <div className="relative w-full">
+        <input
+          type="number"
+          placeholder="Enter your offer"
+          value={offerAmount}
+          onChange={(e) => setOfferAmount(e.target.value)}
+          className="w-full h-[44px] rounded-[8px] px-4 pr-12 border-[1px] focus:outline-none border-[#868686] text-[16px] font-inter"
+        />
+        <button
+          onClick={handleSendOffer}
+          className="absolute right-3 top-1/2 transform -translate-y-1/2"
+        >
+          <Img
+            src="/offerImg.svg"
+            width={17.9}
+            height={18}
+            className="w-[17.9px] h-[18px]"
+            alt="Send Offer"
+          />
+        </button>
+      </div>
+    ) : (
+      <Button 
+        onClick={() => setShowInput(true)}
+        className="w-full md:w-[300px] h-[44px] md:h-[53px] md:rounded-[8px] text-[#FFFFFF] font-inter font-[500] md:text-[16px] bg-[#5555DD]"
+      >
+        Make Offer
+      </Button>
+    )}
+  </div>
+)}
    </div>
    </div>
 
@@ -566,6 +550,27 @@ const productImage =
               Car Details 
            </Button>
            )}
+           {petAd && (
+           <Button
+            className={`py-2 px-4 min-w-[120px] h-[40px] md:h-[44px] rounded-tl-[4px] whitespace-nowrap rounded-tr-[4px] text-center ${
+            activeTab === "car" ? "bg-[#DFDFF9] text-[#000087]" : "bg-gray-200 text-gray-700"
+           }`}
+           onClick={() => setActiveTab("car")}>
+            Pet Details
+           </Button>
+         )}
+
+         {agricultureAd && (
+          <Button 
+           className={`py-2 px-4 min-w-[120px] h-[40px] md:h-[44px] rounded-tl-[4px] whitespace-nowrap rounded-tr-[4px] text-center ${
+            activeTab === "car" ? "bg-[#DFDFF9] text-[#000087]" : "bg-gray-200 text-gray-700"
+           }`}
+           onClick={() => setActiveTab("car")}
+          >
+           Agriculture & Food Details
+          </Button>
+         )}
+   
            {propertyAd && (
             <Button
             className={`py-2 px-4 min-w-[120px] h-[40px] md:h-[44px] rounded-tl-[4px] whitespace-nowrap rounded-tr-[4px] text-center ${
@@ -577,6 +582,24 @@ const productImage =
            )}
            {vehicleAd && (
             <Button
+            className={`py-2 px-4 min-w-[120px] h-[40px] md:h-[44px] rounded-tl-[4px] whitespace-nowrap rounded-tr-[4px] text-center ${
+               activeTab === "review" ? "bg-[#DFDFF9] text-[#000087]" : "bg-gray-200 text-gray-700"
+             }`}
+              onClick={() => setActiveTab("review")}>
+              Review 
+           </Button>
+           )}
+           {petAd && (
+            <Button
+            className={`py-2 px-4 min-w-[120px] h-[40px] md:h-[44px] rounded-tl-[4px] whitespace-nowrap rounded-tr-[4px] text-center ${
+               activeTab === "review" ? "bg-[#DFDFF9] text-[#000087]" : "bg-gray-200 text-gray-700"
+             }`}
+              onClick={() => setActiveTab("review")}>
+              Review 
+           </Button>
+           )}
+           {agricultureAd && (
+              <Button
             className={`py-2 px-4 min-w-[120px] h-[40px] md:h-[44px] rounded-tl-[4px] whitespace-nowrap rounded-tr-[4px] text-center ${
                activeTab === "review" ? "bg-[#DFDFF9] text-[#000087]" : "bg-gray-200 text-gray-700"
              }`}
@@ -602,6 +625,16 @@ const productImage =
                  {vehicleAd.vehicleType} {vehicleAd.model} {vehicleAd.year}
                </h2>
               )}
+              {petAd && (
+                 <h2 className="text-[#525252] text-[14px] md:text-[18px] font-[500] font-inter">
+                   {petAd.breed} - {petAd.petType}
+               </h2>
+              )}
+              {agricultureAd && (
+                 <h2 className="text-[#525252] text-[14px] md:text-[18px] font-[500] font-inter">
+                   {agricultureAd.title} - {agricultureAd.agricultureType}
+               </h2>
+              )}
               <div className="flex space-x-2">
                  <Img 
                    src="/eye.svg"
@@ -619,6 +652,16 @@ const productImage =
                    <span className="text-[#868686] text-[14px] md:text-[14px] font-[400] font-inter whitespace-nowrap">
                      {vehicleAd.priorityScore} Views
                   </span>
+                  )}
+                  {petAd && (
+                   <span className="text-[#868686] text-[14px] md:text-[14px] font-[400] font-inter whitespace-nowrap">
+                      {petAd.viewCount} Views
+                   </span>
+                  )}
+                  {agricultureAd && (
+                     <span className="text-[#868686] text-[14px] md:text-[14px] font-[400] font-inter whitespace-nowrap">
+                      {agricultureAd.viewCount} Views
+                   </span>
                   )}
               </div>
              </div>
@@ -650,6 +693,20 @@ const productImage =
                     text-[#000087] text-[10px] md:text-[12px] 
                     font-inter capitalize font-[500] rounded-[4px]">
                       {vehicleAd.plan}
+                    </Button>
+                  )}
+                  {petAd && (
+                     <Button className="bg-[#DFDFF9] py-2 px-3 
+                    text-[#000087] text-[10px] md:text-[12px] 
+                    font-inter capitalize font-[500] rounded-[4px]">
+                      {petAd.plan}
+                    </Button>
+                  )}
+                  {agricultureAd && (
+                    <Button className="bg-[#DFDFF9] py-2 px-3 
+                    text-[#000087] text-[10px] md:text-[12px] 
+                    font-inter capitalize font-[500] rounded-[4px]">
+                      {agricultureAd.plan}
                     </Button>
                   )}
                </div>
@@ -700,6 +757,36 @@ const productImage =
              </>
              )}
 
+
+             {petAd && (
+              <>
+               {/* PetAd Posted Text */}
+               <div>
+                <span className="text-[#868686] text-[10px] md:text-[12px] font-[400] font-inter">
+                  Posted on {new Date(petAd.createdAt).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric"
+                  })}
+               </span>
+               </div>
+              </>
+             )}
+
+              {agricultureAd && (
+              <>
+               {/* PetAd Posted Text */}
+               <div className=''>
+                <span className="text-[#868686] text-[10px] md:text-[12px] font-[400] font-inter">
+                  Posted on {new Date(agricultureAd.createdAt).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric"
+                  })}
+               </span>
+               </div>
+              </>
+             )}
              {propertyAd && (
                <span className="text-[#868686] text-[10px] md:text-[12px] font-[400] font-inter">
                   Posted on {new Date(propertyAd.createdAt).toLocaleDateString("en-US", {
@@ -710,6 +797,141 @@ const productImage =
              </span>
              )}
           </div>
+
+                 {petAd && (
+           <div className="bg-[#FAFAFA] md:w-[650px] h-auto md:rounded-[12px] p-8 mt-4">
+            <div className="flex items-center justify-between">
+              <span className="text-[#525252] md:text-[16px] font-inter font-[500]">
+                Pet Details
+               </span>
+
+               <div className="flex items-center space-x-2">
+                 <span className="text-[#000087] text-[16px] font-[400] font-inter">
+                    Show More
+                  </span>
+                  <button 
+                   onClick={() => setShowDetails(!showDetails)} 
+                   aria-expanded={showDetails}>
+                    <Img
+                      src={showDetails ? "/dropup.svg" : "/dropdown.svg"}
+                      alt="Dropdown Icon"
+                      width={8}
+                      height={4}
+                      className="mr-2 mt-[2px] cursor-pointer"
+                    />
+                  </button>
+               </div>
+            </div>
+            {showDetails && (
+              <div className="mt-4">
+                <div className="flex flex-wrap justify-between gap-y-4 gap-x-[4%] max-w-[650px] mx-auto">
+                 {/* Row 1 */}
+                 <div className="flex flex-col w-[48%] md:w-[30%]">
+                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+                      Animal Type
+                    </span>
+                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+                        {petAd?.petType}
+                    </span>
+                 </div>
+                 <div className="flex flex-col w-[48%] md:w-[30%]">
+                   <span className="text-[#868686] text-[12px] md:text-[14px] font-medium  font-inter">Breed</span>
+                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium  font-inter">
+                      {petAd?.breed}
+                    </span>
+                 </div>
+                 <div className="flex flex-col w-[48%] md:w-[30%]">
+                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium  font-inter">
+                      Age
+                    </span>
+                   <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+                     {petAd.age}
+                    </span>
+                 </div>
+
+                 {/* Row 2 */}
+                 <div className="flex flex-col w-[48%] md:w-[30%]">
+                   <span className="text-[#868686] text-[12px] md:text-[14px] font-medium  font-inter">Gender</span>
+                   <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+                       {petAd?.gender}
+                     </span>
+                 </div>
+                </div>
+              </div>
+            )}
+           </div>
+           )}
+
+
+            {agricultureAd && (
+            <div className="bg-[#FAFAFA] md:w-[650px] h-auto md:rounded-[12px] p-8 mt-4">
+              <div className="flex items-center justify-between">
+                <span className="text-[#525252] md:text-[16px] font-inter font-[500]">
+                 Agriculture & Food Details 
+               </span> 
+
+               <div className="flex items-center space-x-2">
+                  <span className="text-[#000087] text-[16px] font-[400] font-inter">
+                    Show More
+                  </span>
+                    <button 
+                   onClick={() => setShowDetails(!showDetails)} 
+                   aria-expanded={showDetails}>
+                    <Img
+                      src={showDetails ? "/dropup.svg" : "/dropdown.svg"}
+                      alt="Dropdown Icon"
+                      width={8}
+                      height={4}
+                      className="mr-2 mt-[2px] cursor-pointer"
+                    />
+                  </button>
+                </div>
+              </div>
+              {showDetails && (
+                <div className="mt-4">
+                  <div className="flex flex-wrap justify-between gap-y-4 gap-x-[4%] max-w-[650px] mx-auto">
+                   {/* Row 1 */}
+                   <div className="flex flex-col w-[48%] md:w-[30%]">
+                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+                      Condition
+                    </span>
+                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+                      {agricultureAd?.condition}
+                    </span>
+                  </div>
+
+                  {/* Bulk Pruce Section */}
+                  {agricultureAd?.bulkPrice?.length > 0 && (
+                    <div className="bg-[#EDEDED] md:w-[650px] h-auto md:rounded-[12px] p-8 mt-4">
+                    <span className="text-[#000087] font-[600] text-[14px] md:text-[18px]">
+                      Bulk Prices
+                    </span>
+                    <div className="mt-2 space-y-2">
+                      {agricultureAd.bulkPrice.map((item, index) => (
+                        <div
+                          key={index}
+                          className="flex justify-between items-center"
+                        >
+                      <span className="text-[#525252] font-medium font-inter text-[14px]">
+                      {item.quantity} {item.unit}
+                    </span>
+                    <span className="text-[#000087] font-semibold text-[14px]">
+                      ₦{item.amountPerUnit.toLocaleString()}
+                    </span>
+                        </div>
+                      ))}
+                    </div>
+                    <div>
+                    </div>
+                  </div>
+                  )}
+                  </div>
+                </div>
+              )}
+            </div>
+           )}
+           
+
 
            {propertyAd && (
             <>
@@ -979,6 +1201,16 @@ const productImage =
                   {vehicleAd?.description}
                 </p>
               )}
+              {petAd && (
+                 <p className="text-[#868686] mt-2 text-[12px] md:text-[14px] font-[400] font-inter">
+                  {petAd?.description}
+                </p>
+              )}
+              {agricultureAd && (
+               <p className="text-[#868686] mt-2 text-[12px] md:text-[14px] font-[400] font-inter">
+                  {agricultureAd?.description}
+                </p>  
+              )}
            </div>
           </>
         ): (
@@ -1103,38 +1335,47 @@ const productImage =
        {vehicleAd && (
         <span className="text-[#525252] md:text-[24px] font-[500] font-inter">₦{vehicleAd.amount?.toLocaleString()}</span>
        )}
+        {petAd && (
+        <span className="text-[#525252] md:text-[24px] font-[500] font-inter">₦{petAd.amount?.toLocaleString()}</span>
+       )}
+       {agricultureAd && (
+         <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{agricultureAd.amount?.toLocaleString()}</span>
+       )}
      </div>
-    {((vehicleAd?.negotiation === "Yes") || (propertyAd?.negotiation === "Yes")) && (
-       <div className="p-4">
-      {showInput ? (
-        <div className="relative w-full">
-           <input
-              type="number"
-              placeholder="Enter your offer"
-              value={offerAmount}
-              onChange={(e) => setOfferAmount(e.target.value)}
-               className="w-full h-[44px] rounded-[8px] px-4 pr-12 border-[1px] focus:outline-none border-[#868686] text-[16px] font-inter"
-           />
-           <button
-             onClick={handleSendOffer}
-             className="absolute right-3 top-1/2 transform -translate-y-1/2">
-               <Img
-                 src="/offerImg.svg"
-                 width={17.9}
-                 height={18}
-                 className="w-[17.9px] h-[18px]"
-               />
-           </button>
-        </div>
-      ): (
-       <Button 
-         onClick={() => setShowInput(true)}
-          className="md:w-[300px] md:h-[53px] md:rounded-[8px] text-[#FFFFFF] font-inter font-[500] md:text-[16px] bg-[#5555DD]">
-         Make Offer
-        </Button>
-      )}
-     </div>
+     {isNegotiable() && (
+  <div className="p-4">
+    {showInput ? (
+      <div className="relative w-full">
+        <input
+          type="number"
+          placeholder="Enter your offer"
+          value={offerAmount}
+          onChange={(e) => setOfferAmount(e.target.value)}
+          className="w-full h-[44px] rounded-[8px] px-4 pr-12 border-[1px] focus:outline-none border-[#868686] text-[16px] font-inter"
+        />
+        <button
+          onClick={handleSendOffer}
+          className="absolute right-3 top-1/2 transform -translate-y-1/2"
+        >
+          <Img
+            src="/offerImg.svg"
+            width={17.9}
+            height={18}
+            className="w-[17.9px] h-[18px]"
+            alt="Send Offer"
+          />
+        </button>
+      </div>
+    ) : (
+      <Button 
+        onClick={() => setShowInput(true)}
+        className="md:w-[300px] md:h-[53px] md:rounded-[8px] text-[#FFFFFF] font-inter font-[500] md:text-[16px] bg-[#5555DD]"
+      >
+        Make Offer
+      </Button>
     )}
+  </div>
+)}
    </div>
       </div>
        <div className="hidden md:block">
@@ -1167,21 +1408,6 @@ const productImage =
                productTitle={productTitle}
                openAuthModal={openAuthModal}
             /> 
-
-
-             {/* {showSignInModal && (
-             <SignUpModal 
-              onClose={() => setShowSignInModal(false)}
-              initialView="signin"
-             />
-            )}
-
-           {showSignUpModal && (
-            <SignUpModal 
-             onClose={() => setShowSignUpModal(false)}
-             initialView="signup"
-            />
-           )} */}
             </div>
       </div>
       )}

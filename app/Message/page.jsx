@@ -89,76 +89,107 @@ function MessageContent() {
   }, [profile, token]);
 
   // Auto-load last selected or open sellerId from URL
-  useEffect(() => {
-    const autoLoadLastChatOrNew = async () => {
-      // Check if we're on mobile (window width check)
-      const isMobile = window.innerWidth < 768;
-      
-      // If sellerId present in URL, try to open that first
-      if (initialSellerId && !initialMessageSent) {
-        // Try to find in contacts
-        let sellerUser = contacts.find((u) => u._id === initialSellerId);
-        // If not found in current contacts, fetch seller by id from backend
-        if (!sellerUser) {
-          try {
-            const res = await api.get(`/profile/users/${initialSellerId}`, {
-              headers: { Authorization: `Bearer ${token}` }
-            });
-            const u = res.data.user;
-            sellerUser = {
-              ...u,
-              img: u.image || "/profile-circles1.svg"
-            };
-          } catch (err) {
-            console.error("Failed to fetch seller by id:", err);
-            // continue and fallback to lastSelectedUser
-          }
-        }
+ useEffect(() => {
+  const autoLoadLastChatOrNew = async () => {
+     const isMobile = window.innerWidth < 768;
 
-        if (sellerUser) {
-          await handleUserClick(sellerUser, {
-            previewMessage: initialPreviewMessage,
-            productImageUrl: initialProductImageUrl,
-            productId: initialProductId,
-            productTitle: initialProductTitle,
+     // Check for conversationId in URL (from offer redirect)
+     const urlConversationId = searchParams.get("conversationId");
+
+     if (urlConversationId) {
+      try {
+      // Fetch conversation details 
+      const convRes = await api.get(`/conversation/${urlConversationId}`, {
+        headers: { Authorization: `Bearer ${token}`}
+      });
+
+        const conversation = convRes.data.conversation;
+        const otherUserId = conversation.sellerId._id.toString() === profile._id.toString()
+            ? conversation.buyerId._id
+            : conversation.sellerId._id;
+
+
+        // Fetch other user detasils 
+        const userRes = await api.get(`/profile/users/${otherUserId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        const otherUser = {
+          ...userRes.data.user,
+          img: userRes.data.user.image || "/profile-circles1.svg"
+        };
+        await handleUserClick(otherUser);
+        return;
+      } catch (err) {
+        console.error("Failed to load conversation from URL:", err);
+      }
+     }
+
+     if (initialSellerId && !initialMessageSent) {
+      // Try to find in contacts 
+      let sellerUser = contacts.find((u) => u._id === initialSellerId);
+
+      // if not found in current contaccts, fetch seller by id from backend 
+      if (!sellerUser) {
+        try {
+          const res = await api.get(`/profile/users/${initialSellerId}`, {
+            headers: { Authorization: `Bearer ${token}`}
           });
-          setInitialMessageSent(true);
-          return;
+          const u = res.data.user;
+          sellerUser = {
+            ...u,
+            img: u.image || "/profile-circles1.svg"
+          };
+        } catch (err) {
+           console.error("Failed to fetch seller by id:", err);
         }
       }
 
-      // On desktop, fallback to last selected user
-      // On mobile, only load if there are no contacts (show empty state)
-      if (!isMobile) {
-        const lastUserId = localStorage.getItem("lastSelectedUserId");
-        if (lastUserId && contacts.length > 0) {
-          const user = contacts.find((u) => u._id === lastUserId);
-          if (user) {
-            await handleUserClick(user);
-          }
-        }
-      } else {
-        // On mobile, if no initial seller and no contacts, show empty state
-        if (contacts.length === 0) {
-          setShowContacts(false);
+      if (sellerUser) {
+        await handleUserClick(sellerUser, {
+          previewMessage: initialPreviewMessage,
+          productImageUrl: initialProductImageUrl,
+          productId: initialProductId,
+          productTitle: initialProductTitle,
+        });
+        setInitialMessageSent(true);
+        return;
+      }
+     }
+
+     // On desktop, fallback to last selected user 
+     // On mobile, only load  if there are no contacts (show empty state)
+     if (!isMobile) {
+      const lastUserId = localStorage.getItem("lastSelectedUserId");
+      if (lastUserId && contacts.length > 0) {
+        const user = contacts.find((u) => u._id === lastUserId);
+        if (user) {
+          await handleUserClick(user);
         }
       }
-    };
+     } else {
+      // On mobile, if no initial seller and no contacts, show empty state 
+      if (contacts.length === 0) {
+        setShowContacts(false);
+      }
+     }
+  };
 
-    if (profile) {
-      autoLoadLastChatOrNew();
-    }
-  }, [
-    profile,
-    contacts,
-    initialSellerId,
-    initialPreviewMessage,
-    initialProductImageUrl,
-    initialProductId,
-    initialProductTitle,
-    initialMessageSent,
-    token
-  ]);
+  if (profile) {
+    autoLoadLastChatOrNew();
+  }
+ }, [
+   profile,
+   contacts,
+   initialSellerId,
+   initialPreviewMessage,
+   initialProductImageUrl,
+   initialProductId,
+   initialProductTitle,
+   initialMessageSent,
+   token,
+   searchParams
+ ]);
 
   // Socket useEffect for current chatRoomId
   useEffect(() => {

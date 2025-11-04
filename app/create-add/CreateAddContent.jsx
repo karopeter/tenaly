@@ -19,6 +19,46 @@ const routeMap = {
   "Land and Plot For Sale": "/land-sale",
   "Short Let Property": "/shortlet",
   "Event Center And Venues": "/event-center",
+
+  // Agriculture category routes 
+  "Fresh Produce (fruits, vegetables, grains)": "/agriculture-produce",
+  "Livestock (poultry, goats, cattle, pigs, etc.)": "/agriculture-livestock",
+  "Seeds & Seedlings": "/seeds-seedlings",
+  "Animal Feed": "/animal-feed",
+  "Fertilizers": "/fertilizers",
+  "Farm Tools & Equipment": "/farm-tool-equipment",
+  "Agro Chemicals (pesticides, herbicides)": "/agro-chemical",
+  "Farm Services (plowing, irrigation, consultancy)": "/farm-services",
+
+  // Kids routes 
+  "Baby Clothes": "/kids-baby-clothes",
+  "Kids Clothes": "/kids-clothes",
+  "Shoes": "/kids-shoes",
+  "Toys & Games": "/kids-toys-games",
+  "Baby Gear (strollers, car seats, carriers)": "/kids-baby-gear",
+  "Feeding (bottles, high chairs, breast pumps)": "/kids-baby-feeding",
+  "Furniture (cribs, cots, wardrobes)": "/kids-baby-furniture",
+  "Health & Safety (monitors, baby gates)": "/kids-baby-health&safety",
+  "School Supplies (bags, books, stationery)": "/kids-school-supplies",
+
+  //Animal & pets routes 
+  "Dogs": "/pets-dogs",
+  "Cats": "/pets-cats",
+  "Birds": "/pets-birds",
+  "Fish & Aquarium": "/fish-aquarium",
+  "Small Pets (rabbits, hamsters, guinea pigs)": "/pets-hamster",
+  "Pet Accessories": "/pets-accessories",
+  "Pet Food": "/pets-food",
+
+  // Standalone categories 
+  "Equipments & Machineries": "/equipment-machinery",
+  "Gadgets": "/gadgets",
+  "Fashion": "/fashion",
+  "Laptops & Computers": "/laptops-computers",
+  "Household Items": "/household-items",
+  "Job": "/jobs",
+  "Services": "/services",
+  "Available for hire": "/available-for-hire"
 };
 
   // Helper to reorder array 
@@ -57,15 +97,36 @@ export default function CreateCarContent() {
     setUploadedImages((prev) => reorder(prev, result.source.index, result.destination.index));
   };
 
-  useEffect(() => {
-    const isEdit = searchParams.get('edit');
-    const carAdId = searchParams.get('carAdId');
-    const isResubmit = searchParams.get('resubmit');
+  // useEffect(() => {
+  //   const isEdit = searchParams.get('edit');
+  //   const carAdId = searchParams.get('carAdId');
+  //   const isResubmit = searchParams.get('resubmit');
 
-    if (isEdit === 'true' && carAdId) {
-      loadCarAdForEditing(carAdId, isResubmit === 'true'); // Pass resubmit flag 
-    }
+  //   if (isEdit === 'true' && carAdId) {
+  //     loadCarAdForEditing(carAdId, isResubmit === 'true'); // Pass resubmit flag 
+  //   }
+  // }, [searchParams]);
+
+
+  useEffect(() => {
+     const isEdit = searchParams.get('edit');
+     const carAdId = searchParams.get('carAdId');
+     const isResubmit = searchParams.get('resubmit');
+
+     if (isEdit === 'true' && carAdId) {
+      loadCarAdForEditing(carAdId, isResubmit === 'true');
+     } else if (!isEdit && !carAdId) {
+      // user is creating a New Ad, clear any old draft data 
+      localStorage.removeItem('editingCarAdId');
+      localStorage.removeItem('editingCarAdData');
+      localStorage.removeItem('editingAdType');
+
+      // Alos reset the editing state 
+      setIsEditing(false);
+      setEditingCarAdId(null);
+     }
   }, [searchParams]);
+
 
   const loadCarAdForEditing = async (carAdId, isResubmitting = false) => {
      try {
@@ -82,9 +143,13 @@ export default function CreateCarContent() {
       setBusinessId(bizId);
 
       // Convert image URLs to file preview 
-      const imageUrls = carAdData.vehicleImage?.length > 0
-       ? carAdData.vehicleImage
-       : carAdData.propertyImage || [];
+      // const imageUrls = carAdData.vehicleImage?.length > 0
+      //  ? carAdData.vehicleImage
+      //  : carAdData.propertyImage || [];
+
+      const imageUrls = carAdData.images || [];
+
+
 
        // Create proper image object  with isExisting flag
        const existingImages = imageUrls.map((url, index) => ({
@@ -125,20 +190,103 @@ export default function CreateCarContent() {
     fetchBusinesses();
   }, []);
 
+  // const getCategoryDetails = () => {
+  //   if (category.includes(" - ")) {
+  //     const [base, value] = category.split(" - ");
+  //     return {
+  //       baseCategory: base,
+  //       categoryValue: value.trim(),
+  //     };
+  //   }
+  //   const value = category.trim();
+  //   return {
+  //     baseCategory: ["car", "bus", "tricycle"].includes(value) ? "Vehicle" : "Property",
+  //     categoryValue: value,
+  //   };
+  // };
+
   const getCategoryDetails = () => {
-    if (category.includes(" - ")) {
-      const [base, value] = category.split(" - ");
-      return {
-        baseCategory: base,
-        categoryValue: value.trim(),
-      };
-    }
-    const value = category.trim();
+  if (category.includes(" - ")) {
+    const [base, value] = category.split(" - ");
     return {
-      baseCategory: ["car", "bus", "tricycle"].includes(value) ? "Vehicle" : "Property",
-      categoryValue: value,
+      baseCategory: base,
+      categoryValue: value.trim(),
     };
-  };
+  }
+  
+  const value = category.trim();
+  
+  // Determine base category based on type
+  const vehicleCategories = ['car', 'bus', 'tricycle'];
+  
+  const agricultureCategories = [
+    'Fresh Produce (fruits, vegetables, grains)',
+    'Livestock (poultry, goats, cattle, pigs, etc.)',
+    'Seeds & Seedlings',
+    'Animal Feed',
+    'Fertilizers',
+    'Farm Tools & Equipment',
+    'Agro Chemicals (pesticides, herbicides)',
+    'Farm Services (plowing, irrigation, consultancy)'
+  ];
+  
+  const kidsCategories = [
+    'Baby Clothes', 'Kids Clothes', 'Shoes', 'Toys & Games',
+    'Baby Gear (strollers, car seats, carriers)',
+    'Feeding (bottles, high chairs, breast pumps)',
+    'Furniture (cribs, cots, wardrobes)',
+    'Health & Safety (monitors, baby gates)',
+    'School Supplies (bags, books, stationery)'
+  ];
+  
+  const petsCategories = [
+    'Dogs', 'Cats', 'Birds', 'Fish & Aquarium',
+    'Small Pets (rabbits, hamsters, guinea pigs)',
+    'Pet Accessories', 'Pet Food'
+  ];
+  
+  const propertyCategories = [
+    'Commercial Property For Rent',
+    'Commercial Property For Sale',
+    'House and Apartment Property For Rent',
+    'House and Apartment Property For Sale',
+    'Land and Plot For Rent',
+    'Land and Plot For Sale',
+    'Short Let Property',
+    'Event Center And Venues'
+  ];
+  
+  if (vehicleCategories.includes(value)) {
+    return { baseCategory: "Vehicle", categoryValue: value };
+  } else if (propertyCategories.includes(value)) {
+    return { baseCategory: "Property", categoryValue: value };
+  } else if (agricultureCategories.includes(value)) {
+    return { baseCategory: "Agriculture", categoryValue: value };
+  } else if (kidsCategories.includes(value)) {
+    return { baseCategory: "Kids", categoryValue: value };
+  } else if (petsCategories.includes(value)) {
+    return { baseCategory: "Pets", categoryValue: value };
+  } else if (value === 'Equipments & Machineries') {
+    return { baseCategory: "Equipment", categoryValue: value };
+  } else if (value === 'Gadgets') {
+    return { baseCategory: "Gadgets", categoryValue: value };
+  } else if (value === 'Fashion') {
+    return { baseCategory: "Fashion", categoryValue: value };
+  } else if (value === 'Laptops & Computers') {
+    return { baseCategory: "Laptops", categoryValue: value };
+  } else if (value === 'Household Items') {
+    return { baseCategory: "Household", categoryValue: value };
+  } else if (value === 'Job') {
+    return { baseCategory: "Job", categoryValue: value };
+  } else if (value === 'Services') {
+    return { baseCategory: "Services", categoryValue: value };
+  } else if (value === 'Available for hire') {
+    return { baseCategory: "Hire", categoryValue: value };
+  }
+  
+  return { baseCategory: "Property", categoryValue: value };
+};
+
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files || []);
@@ -199,12 +347,32 @@ export default function CreateCarContent() {
         formData.append("link", link);
       }
 
-      uploadedImages.forEach((img) => {
-        if (!img.isExisting) {
-          // This is a new file upload 
+      // uploadedImages.forEach((img) => {
+      //   if (!img.isExisting) {
+      //     // This is a new file upload 
+      //     formData.append("images", img);
+      //   }
+      // });
+
+      if (isEditing && editingCarAdId) {
+        const newFiles = uploadedImages.filter(img => !img.isExisting);
+        const existingUrls = uploadedImages.filter(img => img.isExisting).map(img => img.url);
+
+        // Append new files 
+        newFiles.forEach((img) => {
           formData.append("images", img);
+        });
+
+        // Send existing image URLS to keep 
+        if (existingUrls.length > 0) {
+          formData.append("existingImages", JSON.stringify(existingUrls));
         }
-      });
+      } else {
+        // For NEW AD: all images are new files 
+        uploadedImages.forEach((img) => {
+          formData.append("images", img);
+        });
+      }
 
       let res;
       if (isEditing && editingCarAdId) {
@@ -239,7 +407,7 @@ export default function CreateCarContent() {
       setEditingCarAdId(null);
 
        // Navigate to appropriate route
-    const route = routeMap[categoryValue];
+    const route = routeMap[categoryValue.trim()] || routeMap[categoryValue] || "";
     if (route) {
       router.push(route);
     } else if (baseCategory === "Vehicle") {
@@ -324,11 +492,30 @@ export default function CreateCarContent() {
 
           {/* Image upload */}
           <div className="text-left md:ml-20 mb-4">
-            <p className="text-[#525252] font-[500] md:text-[14px]">
+            {/* <p className="text-[#525252] font-[500] md:text-[14px]">
               {["car", "bus", "tricycle"].includes(category.toLowerCase())
                 ? "Upload Vehicle Images"
                 : "Upload Property Images"}
-            </p>
+            </p> */}
+            <p className="text-[#525252] font-[500] md:text-[14px]">
+  {category && (() => {
+    const cat = category.toLowerCase();
+    if (["car", "bus", "tricycle"].includes(cat)) return "Upload Vehicle Images";
+    if (category.includes("Property") || category.includes("Land") || category.includes("Short Let") || category.includes("Event Center")) return "Upload Property Images";
+    if (category.includes("Produce") || category.includes("Livestock") || category.includes("Farm") || category.includes("Feed") || category.includes("Fertilizers") || category.includes("Agro")) return "Upload Product Images";
+    if (category.includes("Baby") || category.includes("Kids") || category.includes("Toys") || category.includes("School")) return "Upload Product Images";
+    if (category.includes("Dog") || category.includes("Cat") || category.includes("Bird") || category.includes("Pet") || category.includes("Fish")) return "Upload Pet/Product Images";
+    if (category === "Equipments & Machineries") return "Upload Equipment Images";
+    if (category === "Gadgets") return "Upload Gadget Images";
+    if (category === "Fashion") return "Upload Fashion Images";
+    if (category === "Laptops & Computers") return "Upload Product Images";
+    if (category === "Household Items") return "Upload Product Images";
+    if (category === "Job") return "Upload Job Images";
+    if (category === "Services") return "Upload Service Images";
+    if (category === "Available for hire") return "Upload Images";
+    return "Upload Images";
+  })()}
+</p>
             <p className="text-[#4C4C4C] md:text-[14px] font-[400]">
               At least 5 images. First is your title image. You can drag to reorder.
             </p>
