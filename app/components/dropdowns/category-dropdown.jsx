@@ -3,6 +3,9 @@ import { useState, useEffect } from "react";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import VehicleDropdown from "./vehicleDropdown";
 import PropertyDropdown from "./property-dropdown";
+import AgricultureDropdown from "./AgricultureDropdown";
+import KidsDropdown from "./KidsDropdown";
+import PetsDropdown from "./PetsDropdown";
 import Img from "../Image";
 
 export default function MainCategoryDropdown({ value, onChange }) {
@@ -59,19 +62,149 @@ export default function MainCategoryDropdown({ value, onChange }) {
 
       {/* Main category options */}
       {open && !type && (
-        <div className="absolute top-[52px] left-0 right-0 bg-white border border-[#CDCDD7] border-t-0 rounded-b-[4px] z-10 max-h-60 overflow-y-auto">
-          <div
+        <div 
+          className="absolute top-[52px] left-0 right-0 bg-white border border-[#CDCDD7] border-t-0 rounded-b-[4px] z-10 max-h-60 overflow-y-auto">
+            <div 
             className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
-            onClick={() => handleTypeSelect("vehicle")}
-          >
+            onClick={() => handleTypeSelect("agriculture")}
+            >
+             <Img
+              src="/agricultureIcon.svg"
+              alt="Agriculature Icon"
+              width={24}
+              height={24}
+              className="w-5 h-5"
+             />
+             Agriculture & Food 
+          </div>
+          <div 
+            className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
+             onClick={() => handleTypeSelect("pets")}
+            >
+              <Img 
+               src="/petsIcon.svg"
+               alt="Pets Icon"
+               width={24}
+               height={24}
+               className="w-5 h-5"
+              />
+              Animal & Pets
+          </div>
+          <div 
+            className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
+            onClick={() => {
+              handleSubSelect("Available for hire");
+            }}
+            >
+              <Img 
+                src="/hireIcon.svg"
+                alt="Hire Icon"
+                width={24}
+                height={24}
+                className="w-5 h-5"
+              />
+              Available for hire 
+          </div>
+          <div 
+           className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
+           onClick={() => {
+            handleSubSelect("Equipments & Machineries");
+           }}
+           >
+            <Img 
+             src="/equipmentIcon.svg"
+             alt="Equipment Icon"
+             width={24}
+             height={24}
+             className="w-5 h-5"
+            />
+            Equipments & Machineries 
+          </div>
+          <div 
+            className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
+            onClick={() => handleTypeSelect("kids")}
+            >
+             <Img
+               src="/kidsIcon.svg"
+               alt="Kids Icon"
+               width={24}
+               height={24}
+               className="w-5 h-5" 
+             />
+             For Kids 
+          </div>
+          <div 
+           className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
+           onClick={() => {
+            handleSubSelect("Fashion");
+           }}
+           >
+           <Img 
+             src="/fashionIcon.svg"
+             alt="Fashion Icon"
+             width={24}
+             height={24}
+             className="w-5 h-5"
+           />
+           Fashion
+          </div>
+          <div 
+            className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
+            onClick={() => {
+              handleSubSelect("Gadgets");
+            }}
+            >
+             <Img 
+              src="/gadgetIcon.svg"
+              alt="Gadget Icon"
+              width={24}
+              height={24}
+              className="w-5 h-5"
+             />
+             Gadgets 
+          </div>
+          <div 
+           className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
+           onClick={() => handleSubSelect("Household Items")}
+           >
             <Img
-              src="/carDrop.svg"
-              alt="Vehicle Icon"
+              src="/householdIcon.svg"
+              alt="Household Icon"
               width={24}
               height={24}
               className="w-5 h-5"
             />
-            Vehicle
+            Household Items
+          </div>
+          <div 
+            className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
+            onClick={() => {
+              handleSubSelect("Job");
+            }}
+          >
+            <Img 
+             src="/jobIcon.svg"
+             alt="Job Icon"
+             width={24}
+             height={24}
+             className='w-5 h-5'
+            />
+            Job 
+          </div>
+          <div 
+            className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
+            onClick={() => {
+              handleSubSelect("Laptops & Computers");
+            }}
+            >
+            <Img 
+             src="/laptopIcon.svg"
+             alt="Laptop Icon"
+             width={24}
+             height={24}
+             className="w-5 h-5"
+            />
+            Laptops & Computers 
           </div>
           <div
             className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
@@ -86,6 +219,58 @@ export default function MainCategoryDropdown({ value, onChange }) {
             />
             Property
           </div>
+          <div 
+            className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
+            onClick={() => {
+              handleSubSelect("Services");
+            }}
+            >
+            <Img 
+              src="/servicesIcon.svg"
+              alt="Services Icon"
+              width={24}
+              height={24}
+              className="w-5 h-5"
+            />
+            Services 
+          </div>
+           <div
+            className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
+            onClick={() => handleTypeSelect("vehicle")}
+          >
+            <Img
+              src="/carDrop.svg"
+              alt="Vehicle Icon"
+              width={24}
+              height={24}
+              className="w-5 h-5"
+            />
+            Vehicle
+          </div>
+        </div>
+      )}
+
+      {/* Agriculture Drodown */}
+      {type === "agriculture" && (
+        <div 
+         className="absolute top-[52px] left-0 right-0 bg-white 
+         border border-[#CDCDD7] border-t-0 
+         rounded-b-[4px] z-10 max-h-60 overflow-y-auto">
+          <AgricultureDropdown onSelect={handleSubSelect} />
+        </div>
+      )}
+
+      {type === "kids" && (
+        <div className="absolute top-[52px] left-0 right-0 bg-white 
+         border border-[#CDCDD7] border-t-0 rounded-b-[4px] z-10 max-h-60 overflow-y-auto">
+          <KidsDropdown  onSelect={handleSubSelect} />
+        </div>
+      )}
+
+      {type === "pets" && (
+        <div className="absolute top-[52px] left-0 right-0
+         bg-white border border-[#CDCDD7] border-t-0 rounded-b-[4px] z-10 max-h-60 overflow-y-auto">
+          <PetsDropdown onSelect={handleSubSelect} />
         </div>
       )}
 

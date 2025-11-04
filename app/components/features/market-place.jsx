@@ -30,8 +30,8 @@ export default function MarketPlace({ category, search, location }) {
     };
 
     return adsArray.sort((a, b) => {
-      const adA = a.vehicleAd || a.propertyAd;
-      const adB = b.vehicleAd || b.propertyAd;
+      const adA = a.vehicleAd || a.propertyAd || a.petAd || a.agricultureAd;
+      const adB = b.vehicleAd || b.propertyAd || b.petAd || b.agricultureAd;
 
       if (!adA && !adB) return 0;
       if (!adA) return -1;
@@ -54,7 +54,7 @@ export default function MarketPlace({ category, search, location }) {
   };
 
   const isPremiumAd = (item) => {
-    const ad = item.vehicleAd || item.propertyAd;
+    const ad = item.vehicleAd || item.propertyAd || item.petAd || item.agricultureAd;
     if (!ad) return false;
     const premiumPlans = ["premium", "vip", "diamond", "enterprise"];
     return ad.paymentStatus === "success" && premiumPlans.includes(ad.plan);
@@ -132,8 +132,26 @@ export default function MarketPlace({ category, search, location }) {
      return diffDays <= 7;
   });
 
+  const petNewlyPosted = ads.filter((item) => {
+  const ad = item.petAd;
+  if (!ad) return false;
+  const createdAt = new Date(ad.createdAt);
+  const now = new Date();
+  const diffDays = (now - createdAt) / (1000 * 60 * 60 * 24);
+  return diffDays <= 7;
+});
+
+const agricultureNewlyPosted = ads.filter((item) => {
+  const ad = item.agricultureAd;
+  if (!ad) return false;
+  const createdAt = new Date(ad.createdAt);
+  const now = new Date();
+  const diffDays = (now - createdAt) / (1000 * 60 * 60 * 24);
+  return diffDays <= 7;
+});
+
   const recommendedAds = ads.filter((item) => {
-    const ad = item.vehicleAd || item.propertyAd;
+    const ad = item.vehicleAd || item.propertyAd || item.petAd || item.agricultureAd;
     if (!ad) return false;
     return ["free", "basic"].includes(ad.plan);
   });
@@ -169,6 +187,8 @@ export default function MarketPlace({ category, search, location }) {
     const adId = item?.adId || index;
     const isCarAd = !!item.carAd && !!item.vehicleAd;
     const isPropertyAd = !!item.propertyAd;
+    const isPetAd = !!item.petAd;
+    const isAgricultureAd = !!item.agricultureAd;
 
     let imageUrl = null;
     let title = "Untitled Ad";
@@ -180,6 +200,10 @@ export default function MarketPlace({ category, search, location }) {
     let transmission = null;
     let propertyType = null;
     let propertyCondition = null;
+    let petBreed = null;
+    let petAge = null;
+    let agricultureType = null;
+    let unit = null;
 
     if (isCarAd) {
       imageUrl = item.carAd.vehicleImage?.[0];
@@ -209,6 +233,28 @@ export default function MarketPlace({ category, search, location }) {
       plan = item.propertyAd?.plan;
       propertyType = item.propertyAd?.propertyType;
       propertyCondition = item.propertyAd?.propertyCondition;
+    } else if (isPetAd) {
+      imageUrl = item.carAd?.petsImage?.[0];
+      title = `${item.petAd?.breed || ""} ${item.petAd?.petType || ""}`.trim();
+      description = item.petAd?.description || "No description available.";
+      price = item.petAd?.amount
+         ? `₦${item.petAd.amount.toLocaleString()}`
+         : "Price not set.";
+      adLocation = item.carAd?.location || "Unknown";
+     plan = item.petAd?.plan;
+     petBreed = item.petAd?.breed;
+     petAge = item.petAd?.age;
+    } else if (isAgricultureAd) {
+      imageUrl = item.carAd?.agricultureImage?.[0];
+      title = `${item.agricultureAd?.title || ""} ${item.agricultureAd?.agricultureType || ""}`.trim();
+      description = item.agricultureAd?.description || "No description available.";
+      price = item.agricultureAd?.amount
+        ? `₦${item.agricultureAd.amount.toLocaleString()}`
+        : "Price not set.";
+      adLocation = item.carAd?.location || "Unknown";
+      plan = item.agricultureAd?.plan;
+      agricultureType = item?.agricultureAd?.agricultureType;
+      unit = item.agricultureAd?.unit;
     }
 
     return (
@@ -308,6 +354,36 @@ export default function MarketPlace({ category, search, location }) {
                   )}
                 </>
               )}
+
+              {/* ADD THIS ENTIRE BLOCK */}
+              {isPetAd && (
+                <>
+                 {petBreed && (
+                   <span className="bg-[#E8E8FF] font-inter whitespace-nowrap text-[#525252] px-2 py-1 rounded text-xs">
+                   {petBreed}
+                   </span> 
+                 )}
+                 {petAge && (
+                  <span className="bg-[#E8E8FF] font-inter whitespace-nowrap text-[#525252] px-2 py-1 rounded text-xs">
+                   {petAge}
+                  </span>
+                 )}
+                </>
+              )}
+              {isAgricultureAd && (
+                <>
+                 {agricultureType && (
+                  <span className="bg-[#E8E8FF] font-inter whitespace-nowrap text-[#525252] px-2 py-1 rounded text-xs">
+                     {agricultureType}
+                  </span>
+                 )}
+                 {unit && (
+                  <span className="bg-[#E8E8FF] font-inter whitespace-nowrap text-[#525252] px-2 py-1 rounded text-xs">
+                     {unit}
+                  </span>
+                 )}
+                </>
+              )}
             </div>
           </div>
         </li>
@@ -350,6 +426,32 @@ export default function MarketPlace({ category, search, location }) {
                 renderAdCard(item, index)
               )}
             </ul>
+          </div>
+        )}
+
+        {petNewlyPosted.length > 0 && (
+          <div>
+         <h2 className="text-[14px] md:text-[20px] font-inter font-[500] font-normal text-[#2E2E2E] mb-4">
+           Pets Newly Posted
+        </h2>
+        <ul className="grid gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+         {petNewlyPosted.map((item, index) =>
+           renderAdCard(item, index)
+        )}
+       </ul>
+     </div>
+     )}
+
+      {agricultureNewlyPosted.length > 0 && (
+          <div>
+             <h2 className="text-[14px] md:text-[20px] font-inter font-[500] font-normal text-[#2E2E2E] mb-4">
+           Agriculture & Foods Newly Posted
+        </h2>
+         <ul className="grid gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+         {agricultureNewlyPosted.map((item, index) =>
+           renderAdCard(item, index)
+        )}
+       </ul>
           </div>
         )}
 
