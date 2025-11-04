@@ -82,8 +82,8 @@ const checkVerificationStatus = async (authToken = token) => {
     // Update verification status for both personal and business
     setVerificationStatus(prev => ({
       ...prev,
-      personal: updatedProfile.verificationStatus.personal,
-      business: updatedProfile.verificationStatus.business,
+      personal: updatedProfile.verificationStatus?.personal ?? false,
+      business: updatedProfile.verificationStatus?.business ?? false,
       hasSubmitted: updatedProfile.hasSubmittedVerification || updatedProfile.isVerified,
     }));
   } catch (error) {
