@@ -45,6 +45,14 @@ export default function NotificationPage() {
               displayName = notif.adDetails.propertyType;
             } else if (notif.adDetails.category) {
               displayName = notif.adDetails.category;
+            } else if (notif.adDetails.petType && notif.adDetails.breed) {
+              displayName = `${notif.adDetails.petType} - ${notif.adDetails.breed}`;
+            } else if (notif.adDetails.title) {
+               displayName = notif.adDetails.title;
+            } else if (notif.adDetails.agricultyreType) {
+                displayName = Array.isArray(notif.adDetails.agricultureType) 
+                 ? notif.adDetails.agricultureType[0] 
+                 : notif.adDetails.agricultureType;
             }
           }
 
@@ -107,11 +115,17 @@ export default function NotificationPage() {
     const carAdId = notification.relatedCarAdId?._id || notification.relatedCarAdId;
     const vehicleAdId = notification.vehicleAd?._id;
     const propertyAdId = notification.propertyAd?._id;
+    const petAdId = notification.petAd?._id;
+    const agricultureAdId = notification.agricultureAd?._id;
 
     if (notification.adType === 'vehicle' && businessId && carAdId && vehicleAdId) {
       return `/ads/Vehicles/${businessId}/${carAdId}/${vehicleAdId}`;
     } else if (notification.adType === 'property' && businessId && carAdId && propertyAdId) {
       return `/ads/Property/${businessId}/${carAdId}/${propertyAdId}`;
+    } else if (notification.adType === 'pet' && businessId && carAdId && petAdId) {
+        return `/ads/Pets/${businessId}/${carAdId}/${petAdId}`;
+    } else if (notification.adType === 'agriculture' && businessId && carAdId && agricultureAdId) {
+        return `/ads/Agriculture/${businessId}/${carAdId}/${agricultureAdId}`;
     }
     
     // Fallback
@@ -232,7 +246,9 @@ export default function NotificationPage() {
                       {notif.adType && notif.adType !== 'unknown' && (
                         <span className={`absolute -top-1 -right-1 w-3 h-3 rounded-full border border-white ${
                           notif.adType === 'vehicle' ? 'bg-blue-500' : 
-                          notif.adType === 'property' ? 'bg-green-500' : 'bg-gray-500'
+                          notif.adType === 'property' ? 'bg-green-500' :  
+                          notif.adType === 'pet' ? 'bg-purple-500' : 
+                          notif.adType === 'agriculture' ? 'bg-orange-500' : 'bg-gray-500'
                         }`} title={`${notif.adType} ad`}></span>
                       )}
                     </div>
@@ -249,7 +265,7 @@ export default function NotificationPage() {
                         {/* Notification message */}
                         <p className="text-[#525252] font-[400] font-inter text-[12px] md:text-[14px] break-words leading-snug">
                           {notif.message}
-                          {notif.adDetails && (notif.vehicleAd || notif.propertyAd) && (
+                          {notif.adDetails && (notif.vehicleAd || notif.propertyAd || notif.petAd || notif.agricultureAd) && (
                             <span className="ml-1">
                               <Link 
                                 href={getViewAdLink(notif)} 
