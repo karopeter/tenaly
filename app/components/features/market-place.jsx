@@ -253,7 +253,10 @@ const agricultureNewlyPosted = ads.filter((item) => {
         : "Price not set.";
       adLocation = item.carAd?.location || "Unknown";
       plan = item.agricultureAd?.plan;
-      agricultureType = item?.agricultureAd?.agricultureType;
+      agricultureType = item?.agricultureAd?.agricultureType?.[0] || 
+                        item?.agricultureAd?.brand || 
+                        item?.agricultureAd.feedType?.[0] || 
+                        null;
       unit = item.agricultureAd?.unit;
     }
 

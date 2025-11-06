@@ -292,7 +292,7 @@ const handleSendOffer = async () => {
 const productTitle =
   propertyAd?.propertyName ||
   petAd?.breed ? `${petAd.breed} - ${petAd.petType}` : "" ||
-  (agricultureAd?.title ? `${agricultureAd.title}` : "") || 
+  (agricultureAd?.title ? `${agricultureAd.title} ` : "") || 
   (vehicleAd ? `${vehicleAd.vehicleType} ${vehicleAd.model}` : "") ||
   (carAd ? `${carAd.vehicleType} ${carAd.model}` : "");
 
@@ -891,14 +891,16 @@ const productImage =
                 <div className="mt-4">
                   <div className="flex flex-wrap justify-between gap-y-4 gap-x-[4%] max-w-[650px] mx-auto">
                    {/* Row 1 */}
-                   <div className="flex flex-col w-[48%] md:w-[30%]">
+                   {agricultureAd?.condition && (
+                    <div className="flex flex-col w-[48%] md:w-[30%]">
                     <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
                       Condition
                     </span>
                     <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                      {agricultureAd?.condition}
+                      {agricultureAd.condition}
                     </span>
                   </div>
+                   )}
 
                   {/* Bulk Pruce Section */}
                   {agricultureAd?.bulkPrice?.length > 0 && (

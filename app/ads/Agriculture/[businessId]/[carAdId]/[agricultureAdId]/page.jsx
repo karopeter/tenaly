@@ -4,23 +4,20 @@ import { useParams  } from 'next/navigation';
 import api from '@/services/api';
 import Img from '@/app/components/Image';
 import Link from "next/link";
-import { carColors } from '@/app/lib/carData';
 import Button from '@/app/components/Button';
 import { toast } from 'react-toastify';
 
-export default function CarAdDetails() {    
-  const [activeTab, setActiveTab] = useState("car");
+export default function AgricultureDetails() {
+  const [activeTab, setActiveTab] = useState("details");
   const [showInput, setShowInput] = useState(false);
   const [offerAmount, setOfferAmount] = useState("");
-    const { businessId, carAdId, vehicleAdId } = useParams();
+    const { businessId, carAdId, agricultureAdId } = useParams();
     const [carAd, setCarAd] = useState(null);
     const [showDetails, setShowDetails] = useState(false);
-    const [vehicleAd, setVehicleAd] = useState(null);
+    const [agricultureAd, setAgricultureAd] = useState(null);
     const [loading, setLoading] = useState(true);
     const [business, setBusiness] = useState(null);
     const [userProfile, setUserProfile] = useState(null);
-    const [showSignUpModal, setShowSignUpModal] = useState(false);
-    const [showSignInModal, setShowSignInModal] = useState(false);
 
 
     useEffect(() => {
@@ -31,13 +28,13 @@ export default function CarAdDetails() {
           const carRes = await api.get(`/carAdd/get-car-byId/${carAdId}`);
           setCarAd(carRes.data.ad || null);
          }
-         if (vehicleAdId && vehicleAdId !== "null") {
-          const vehicleRes = await api.get(`/vehicles/get-vehicle/${vehicleAdId}`);
-          setVehicleAd(vehicleRes.data.data || null);
+         if (agricultureAdId && agricultureAdId !== "null") {
+          const agricultureRes = await api.get(`/agriculture/get-agriculture/${agricultureAdId}`);
+          setAgricultureAd(agricultureRes.data.data || null);
         }
         } catch (error) {
           setCarAd(null);
-          setVehicleAd(null);
+          setAgricultureAd(null);
         } finally {
           setLoading(false);
         }
@@ -66,7 +63,7 @@ export default function CarAdDetails() {
       fetchBusiness();
       fetchAds();
       fetchProfile();
-    }, [carColors, vehicleAdId, businessId]);
+    }, [carAdId, agricultureAdId, businessId]);
 
     const handleSendOffer = () => {
       if (!offerAmount) return toast.error("Please enter an Amount");
@@ -80,12 +77,12 @@ export default function CarAdDetails() {
       <section className="px-4 md:px-10 mt-10 flex flex-col items-center justify-center min-h-[200px]">
          <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600 font-inter">Loading Vehicle Ads Details...</p>
+          <p className="mt-4 text-gray-600 font-inter">Loading Ad Details...</p>
         </div>
       </section>
     );
   }
-   if (!carAd && !vehicleAd) return <div>Ad not found.</div>;
+   if (!carAd && !agricultureAd) return <div>Ad not found.</div>;
 
     return  (
       <div className="md:px-[104px] px-4 md:ml-10">
@@ -98,18 +95,18 @@ export default function CarAdDetails() {
              {carAd.category}
            </span>
          )}
-         {vehicleAd && (
+         {agricultureAd && (
           <span className="text-[#000087] text-[13px] md:text-[14px] font-[500] font-inter whitespace-nowrap">
-            {vehicleAd.vehicleType} {vehicleAd.model} {vehicleAd.horsePower} {vehicleAd.trim} {vehicleAd.year}  {vehicleAd.color}
+            {agricultureAd.title}
           </span>
         )}
          </div>
 
          <div className="mt-5 container mx-auto flex flex-wrap items-center justify-center gap-4">
           <div className="flex-1">
-            {vehicleAd && (
+            {agricultureAd && (
               <h2 className="text-[#525252] text-[14px] md:text-[24px] font-[500] font-inter">
-                {vehicleAd.vehicleType} {vehicleAd.model} {vehicleAd.horsePower} {vehicleAd.trim} {vehicleAd.year}  {vehicleAd.color}
+                {agricultureAd.title}
               </h2>
             )}
           </div>
@@ -139,34 +136,20 @@ export default function CarAdDetails() {
          <div className="flex flex-col md:flex-row gap-2 mt-6">
           {/* Large Main Image */}
           <div className="md:w-2/3 w-full relative">
-           {carAd?.vehicleImage?.length > 0 && (
+           {carAd?.agricultureImage?.length > 0 && (
            <Img
-            src={carAd?.vehicleImage[0]}
+            src={carAd?.agricultureImage[0]}
             alt="Car Ad Main"
             width={686}
             height={354}
            className="w-full h-auto md:w-[686px] md:h-[354px] object-cover rounded"
           />
           )}
-          {/* {vehicleAd?.status && (
-           <div className="absolute top-5 left-[-10px] bg-[#F8EFEF] w-[100px] md:w-[120px] h-[40px] md:rounded-[8px] rounded-[4px] transform -rotate-45 flex items-center justify-center shadow-md">
-            <Img
-             src="/tick-circle.svg"
-             alt="Tick Circle"
-             width={16}
-            height={16}
-            className="mr-2"
-           />
-           <span className="text-[#CB0D0D] text-[12px] md:text-[14px] font-[500] font-inter">
-            Sold
-          </span>
-          </div>
-          )} */}
         </div>
        {/* Smaller Image Grid */}
       <div className="md:w-1/3 w-full grid grid-cols-2 grid-rows-2 gap-2">
-       {carAd.vehicleImage &&
-         carAd.vehicleImage.slice(1, 5).map((img, idx) => (
+       {carAd?.agricultureImage &&
+         carAd.agricultureImage.slice(1, 5).map((img, idx) => (
           <div key={idx} className="w-full h-full overflow-hidden">
           <Img
             src={img}
@@ -185,8 +168,8 @@ export default function CarAdDetails() {
    <div className="bg-[#FAFAFA] w-full rounded-[8px]">
      <div className="flex justify-between items-center p-4">
        <span className="text-[#525252] text-[15px] font-[400] font-inter">Price</span>
-       {vehicleAd && (
-        <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{vehicleAd.amount?.toLocaleString()}</span>
+       {agricultureAd && (
+        <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{agricultureAd.amount?.toLocaleString()}</span>
        )}
      </div>
      <div className="p-4">
@@ -226,10 +209,10 @@ export default function CarAdDetails() {
         <div className="flex space-x-4 mb-4">
           <Button
             className={`py-2 px-4 min-w-[120px] h-[40px] md:h-[44px] rounded-tl-[4px] whitespace-nowrap rounded-tr-[4px] text-center ${
-                  activeTab === "car" ? "bg-[#DFDFF9] text-[#000087]" : "bg-gray-200 text-gray-700"
+                  activeTab === "details" ? "bg-[#DFDFF9] text-[#000087]" : "bg-gray-200 text-gray-700"
                   }`}
-                  onClick={() => setActiveTab("car")}>
-             Car Details
+                  onClick={() => setActiveTab("details")}>
+             Service Details
           </Button>
           <Button
            className={`py-2 px-4 min-w-[120px] h-[40px] md:h-[44px] rounded-tl-[4px] whitespace-nowrap rounded-tr-[4px] text-center ${
@@ -242,13 +225,13 @@ export default function CarAdDetails() {
       </div>
 
       <div>
-         {activeTab === "car" ? (
+         {activeTab === "details" ? (
           <>
            <div className="bg-[#FAFAFA] w-full md:w-[650px] h-auto  rounded-[12px] p-4 md:p-6 mt-5">
              <div className="flex flex-row justify-between w-full">
-               {vehicleAd && (
+               {agricultureAd && (
                <h2 className="text-[#525252] text-[14px] md:text-[24px] font-[500] font-inter">
-                {vehicleAd.vehicleType} {vehicleAd.model} {vehicleAd.horsePower} {vehicleAd.year}  {vehicleAd.color}
+                {agricultureAd.title}
                </h2>
                )}
                <div className="flex space-x-2">
@@ -259,9 +242,9 @@ export default function CarAdDetails() {
                 height={16}
                 className="w-[16px] h-[16px] md:w-[24px] md:h-[24px]"
               />
-              {vehicleAd && (
+              {agricultureAd && (
                 <span className="text-[#868686] text-[14px] md:text-[14px] font-[400] font-inter whitespace-nowrap">
-                 {vehicleAd.priorityScore} Views
+                 {agricultureAd.viewCount} Views
               </span>
               )}
             </div>
@@ -276,47 +259,45 @@ export default function CarAdDetails() {
                   height={13.33}
                   className="mr-2"
                   />
-                  {carAd && (
-                    <span className="text-[#8C8C8C] text-[12px] md:text-[14px] font-[400] font-inter">{carAd.location}</span>
+                  {business && (
+                    <span className="text-[#8C8C8C] text-[12px] md:text-[14px] font-[400] font-inter">
+                      {business.addresses?.[0]?.address || "No location"}
+                    </span>
                   )}
                </div>
                <div className="mt-2 md:mt-0">
-                 {vehicleAd && (
+                 {agricultureAd && (
                    <Button
                  className="bg-[#DFDFF9] py-2 px-3 
                  text-[#000087] text-[10px] md:text-[12px] font-inter capitalize font-[500] rounded-[4px]">
-                    {vehicleAd.plan}
+                    {agricultureAd.plan}
                </Button>
                  )}
                </div>
              </div>
 
-             {/* Car Details */ }
-             <div className="flex flex-row gap-4 mt-2">
+             {/* Service Details */ }
+             <div className="flex flex-row gap-4 mt-2 flex-wrap">
                <div className="flex items-center gap-2">
-                <Img 
-                  src="/car.svg" 
-                  alt="Car" 
-                  width={24} height={24} />
-                {vehicleAd && (
+                {agricultureAd && (
                  <span className="text-[#868686] text-[12px] md:text-[14px] font-[500] font-inter whitespace-nowrap">
-                    {vehicleAd?.carType}
+                    {agricultureAd.experienceLevel}
                  </span>
                  )}
                </div>
                <div className="flex items-center gap-2">
-                 <Img src="/automatic.svg" alt="Auto" width={24} height={24} />
-                 {vehicleAd && (
+                 <Img src="/clock.svg" alt="Availability" width={18} height={18} />
+                 {agricultureAd && (
                   <span className="text-[#868686] text-[12px] md:text-[14px] font-[500] font-inter">
-                    {vehicleAd?.transmission}
+                    {agricultureAd.availability}
                   </span>
                  )}
                </div>
                <div className="flex items-center gap-2">
-                 <Img src="/meter.svg" alt="Meter" width={24} height={24} />
-                 {vehicleAd && (
+                 {/* <Img src="/handshake.svg" alt="Negotiation" width={18} height={18} /> */}
+                 {agricultureAd && (
                  <span className="text-[#868686] text-[12px] md:text-[14px] font-[500] font-inter">
-                    {vehicleAd?.horsePower}
+                    Negotiation: {agricultureAd.negotiation}
                   </span>
                  )}
                </div>
@@ -324,9 +305,9 @@ export default function CarAdDetails() {
 
              {/* Posted Text */}
              <div className="mt-4">
-                {vehicleAd && (
+                {agricultureAd && (
                  <span className="text-[#868686] text-[10px] md:text-[12px] font-[400] font-inter">
-                  Posted on {new Date(vehicleAd.createdAt).toLocaleDateString("en-US", {
+                  Posted on {new Date(agricultureAd.createdAt).toLocaleDateString("en-US", {
                   year: "numeric",
                   month: "long",
                   day: "numeric"
@@ -342,7 +323,7 @@ export default function CarAdDetails() {
              }`}>
              <div className="flex items-center justify-between">
                <span className="text-[#525252] md:text-[16px] font-inter font-[500]">
-                 Car Details
+                 Service Details
                </span>
 
                <div className="flex items-center space-x-2">
@@ -360,126 +341,143 @@ export default function CarAdDetails() {
                       </button>
                  </div>
              </div>
-             {showDetails && (
-              <div className="mt-4">
-                <div className="flex flex-wrap justify-between gap-y-4 gap-x-[4%] max-w-[650px] mx-auto">
-                  {/* Row 1 */}
-                  <div className="flex flex-col w-[48%] md:w-[30%]">
-                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-                      Make
-                    </span>
-                    {vehicleAd && (
-                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                        {vehicleAd?.vehicleType}
-                    </span>
-                    )}
-                  </div>
-                  <div className="flex flex-col w-[48%] md:w-[30%]">
-                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium  font-inter">Model</span>
-                    {vehicleAd && (
-                      <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium  font-inter">
-                      {vehicleAd?.model}
-                    </span>
-                    )}
-                  </div>
-                  <div className="flex flex-col w-[48%] md:w-[30%]">
-                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium  font-inter">
-                      Manufacturing Year
-                    </span>
-                    {vehicleAd && (
-                     <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                        {vehicleAd.year}
-                     </span>
-                    )}
-                  </div>
-
-                  {/* Row 2 */}
-                  <div className="flex flex-col w-[48%] md:w-[30%]">
-                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium  font-inter">Interior Color</span>
-                    {vehicleAd && (
-                     <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                       {vehicleAd?.interiorColor}
-                     </span>
-                    )}
-                  </div>
-                  <div className="flex flex-col w-[48%] md:w-[30%]">
-                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium  font-inter">Condition</span>
-                    {vehicleAd && (
-                      <span  className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                        {vehicleAd.carType}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex flex-col w-[48%] md:w-[30%]">
-                     <span className="text-[#868686] text-[12px] md:text-[14px] font-medium  font-inter">Color</span>
-                     {vehicleAd && (
-                      <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                        {vehicleAd.color}
-                      </span>
-                     )}
-                  </div>
-                </div>
-               {/* Fifth Row */}
-            <div className="flex flex-wrap justify-between gap-y-4 gap-x-[4%] mt-4 max-w-[650px] mx-auto">
-            <div className="flex flex-col w-[48%] md:w-[30%]">
-             <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-              No of Seats
-            </span>
-           {vehicleAd && (
-            <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-             {vehicleAd?.seat}
-           </span>
-          )}
+            {showDetails && (
+  <div className="mt-4">
+    <div className="flex flex-wrap justify-between gap-y-4 gap-x-[4%] max-w-[650px] mx-auto">
+      
+      {/* Service Type / Feed Type - Only show if exists */}
+      {agricultureAd?.feedType && agricultureAd.feedType.length > 0 && agricultureAd.feedType[0] !== null && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Service Type
+          </span>
+          <div className="mt-2">
+            {agricultureAd.feedType.map((service, idx) => (
+              service && <span key={idx} className="text-[#525252] text-[14px] md:text-[16px] font-medium font-inter block">
+                {service}
+              </span>
+            ))}
+          </div>
         </div>
-
-       <div className="flex flex-col w-[48%] md:w-[30%]">
-        <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-          Fuel Type
-       </span>
-       {vehicleAd && (
-         <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-          {vehicleAd.fuel}
-        </span>
-        )}
-      </div>
-
-      <div className="flex flex-col w-[48%] md:w-[30%]">
-       <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-         Car Key Features
-      </span>
-      {vehicleAd && vehicleAd.carKeyFeatures && (
-        <ul className="list-disc list-inside mt-2 text-[#525252] text-[14px] md:text-[16px] font-medium font-inter">
-          {vehicleAd.carKeyFeatures.map((feature, index) => (
-           <li key={index}>{feature}</li>
-         ))}
-      </ul>
       )}
+      
+      {/* Service Mode - Only show if exists and not empty */}
+      {agricultureAd?.serviceMode && agricultureAd.serviceMode.length > 0 && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">Service Mode</span>
+          <div className="mt-2">
+            {agricultureAd.serviceMode.map((mode, idx) => (
+              <span key={idx} className="text-[#525252] text-[14px] md:text-[16px] font-medium font-inter block">
+                {mode}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+      
+      {/* Experience Level - Only show if exists */}
+      {agricultureAd?.experienceLevel && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Experience Level
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {agricultureAd.experienceLevel}
+          </span>
+        </div>
+      )}
+
+      {/* Availability - Only show if exists */}
+      {agricultureAd?.availability && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">Availability</span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {agricultureAd.availability}
+          </span>
+        </div>
+      )}
+      
+      {/* Negotiation - Only show if exists */}
+      {agricultureAd?.negotiation && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">Negotiation</span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {agricultureAd.negotiation}
+          </span>
+        </div>
+      )}
+      
+      {/* Status - Only show if exists */}
+      {agricultureAd?.status && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">Status</span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter capitalize">
+            {agricultureAd.status}
+          </span>
+        </div>
+      )}
+      
+      {/* Agriculture Type - Add if needed */}
+      {agricultureAd?.agricultureType && agricultureAd.agricultureType.length > 0 && agricultureAd.agricultureType[0] !== null && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">Agriculture Type</span>
+          <div className="mt-2">
+            {agricultureAd.agricultureType.map((type, idx) => (
+              type && <span key={idx} className="text-[#525252] text-[14px] md:text-[16px] font-medium font-inter block">
+                {type}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+      
+      {/* Condition - Add if needed */}
+      {agricultureAd?.condition && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">Condition</span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {agricultureAd.condition}
+          </span>
+        </div>
+      )}
+      
+      {/* Brand - Add if needed */}
+      {agricultureAd?.brand && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">Brand</span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {agricultureAd.brand}
+          </span>
+        </div>
+      )}
+      
+      {/* Formulation Type - Add if needed */}
+      {agricultureAd?.formulationType && agricultureAd.formulationType.length > 0 && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">Formulation Type</span>
+          <div className="mt-2">
+            {agricultureAd.formulationType.map((type, idx) => (
+              <span key={idx} className="text-[#525252] text-[14px] md:text-[16px] font-medium font-inter block">
+                {type}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+      
     </div>
-
-   </div>
-
-   <div className="flex flex-col">
-  <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-    VIN / Chassis Number
-  </span>
-  {vehicleAd && (
-    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-      {vehicleAd.vinChassisNumber || "N/A"}
-    </span>
-  )}
-</div>
-   </div>
-      )}
   </div>
+)}
+       </div>
 
             {/* Description Information */}
            <div className="bg-[#FAFAFA] w-full max-w-[650px] h-auto rounded-[12px] p-4 md:p-8 mt-4 mx-auto">
               <h3 className="text-[#525252] text-[14px] md:text-[16px] font-[500] font-inter">
                 More Info
               </h3>
-              {vehicleAd && (
+              {agricultureAd && (
                 <p className="text-[#868686] mt-2 text-[12px] md:text-[14px] font-[400] font-inter">
-                  {vehicleAd?.description}
+                  {agricultureAd.description}
                 </p>
               )}
            </div>
@@ -674,9 +672,6 @@ export default function CarAdDetails() {
           {userProfile?.isVerified ? "Verified" : "Unverified"}
         </span>
       </div>
-      {/* <span className="mt-1 text-[#868686] text-[10px] font-[400] font-inter">
-        Last Seen 20h ago
-      </span> */}
       <span className="text-[#868686] text-[10px] font-[400] font-inter">
         {userProfile?.createdAt
           ? `Joined Tenaly on ${new Date(userProfile.createdAt).toLocaleDateString("en-US", {
@@ -713,8 +708,8 @@ export default function CarAdDetails() {
         <div className="bg-[#FAFAFA] md:w-[330px] md:h-[141px] md:rounded-[8px]">
      <div className="flex justify-between items-center p-4">
        <span className="text-[#525252] md:text-[15px] font-[400] font-inter">Price</span>
-       {vehicleAd && (
-        <span className="text-[#525252] md:text-[24px] font-[500] font-inter">₦{vehicleAd.amount?.toLocaleString()}</span>
+       {agricultureAd && (
+        <span className="text-[#525252] md:text-[24px] font-[500] font-inter">₦{agricultureAd.amount?.toLocaleString()}</span>
        )}
      </div>
      <div className="p-4">
@@ -778,9 +773,6 @@ export default function CarAdDetails() {
           {userProfile?.isVerified ? "Verified" : "Unverified"}
         </span>
       </div>
-      {/* <span className="mt-1 text-[#868686] font-inter font-[400] md:text-[12px]">
-        Last Seen 20h ago
-      </span> */}
       <span className="text-[#868686] text-[10px] font-[400] font-inter">
         {userProfile?.createdAt
           ? `Joined Tenaly on ${new Date(userProfile.createdAt).toLocaleDateString("en-US", {

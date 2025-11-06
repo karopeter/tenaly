@@ -72,19 +72,13 @@ export default function FarmToolsContent() {
 
   // Form states
   const [title, setTitle] = useState("");
-  const [agricultureType, setAgricultureType] = useState("");
+  const [feedType, setFeedType] = useState([]);
+  const [brand, setBrand] = useState("");
   const [condition, setCondition] = useState("");
   const [unit, setUnit] = useState("");
 
   const [amount, setAmount] = useState("");
   const [negotiation, setNegotiation] = useState("");
-  const [bulkPrices, setBulkPrices] = useState([]);
-  const [showBulkPriceModal, setShowBulkPriceModal] = useState(false);
-  const [currentBulkPrice, setCurrentBulkPrice] = useState({
-    quantity: "",
-    unit: "",
-    amountPerUnit: ""
-  });
   const [business, setBusiness] = useState("");
   const [description, setDescription] = useState("");
   
@@ -125,90 +119,93 @@ export default function FarmToolsContent() {
         idToUse 
       });
 
-      if (!idToUse || adType !== 'pets') {
-        console.log("⚠️ No pets draft to load");
-        return;
-      }
+    //   if (!idToUse || adType !== 'pets') {
+    //     console.log("⚠️ No pets draft to load");
+    //     return;
+    //   }
+
+    if (!carAdIdFromQuery && !carAdIdFromStorage) {
+      console.log("⚠️ No draft to load - creating new ad");
+      return; 
+    }
+
+    const isEditMode = searchParams.get('edit') === 'true';
+    const isDraftMode = searchParams.get('draft') === 'true';
+
+    if (!isEditMode && isDraftMode && !idToUse) {
+      console.log("⚠️ Fresh ad creation - skipping draft load");
+      return;
+    }
 
       setIsLoadingDraft(true);
 
       try {
-        // ✅ Fetch PetsAd draft by carAdId (adjust endpoint when created)
-        const petsResponse = await api.get(`/pets/draft/${idToUse}`);
-        
-        if (!petsResponse.data || !petsResponse.data.petsAd) {
-          console.log("⚠️ No PetsAd draft found");
-          setIsLoadingDraft(false);
-          return;
-        }
-
-        const petsAd = petsResponse.data.petsAd;
-        console.log("✅ Loaded PetsAd draft:", petsAd);
-
-        // ✅ Also fetch CarAd for images and location
-        let carAd = null;
+       const agriResponse = await api.get(`/agriculture/draft/${idToUse}`);
+                 
+       if (!agriResponse.data || !agriResponse.data.agricultureAd) {
+         console.log("⚠️ No Agriculture draft found");
+         setIsLoadingDraft(false);
+         return;
+      }   
+         
+      const agriAd = agriResponse.data.agricultureAd;
+      console.log("✅ Loaded AgricultureAd draft:", agriAd);
+         
+     let carAd = null;
         try {
-          const carResponse = await api.get(`/carAdd/get-car-byId/${idToUse}`);
-          carAd = carResponse.data.ad;
-          console.log("✅ Loaded CarAd:", carAd);
+         const carResponse = await api.get(`/carAdd/get-car-byId/${idToUse}`);
+         carAd = carResponse.data.ad;
+         console.log("✅ Loaded CarAd:", carAd);
         } catch (carError) {
           console.warn("⚠️ Could not load CarAd:", carError);
         }
-
-        // ✅ Pre-fill form fields from PetsAd
-        setTitle(petsAd.title || "");
-        setAgricultureType(petsAd.agricultureType || "");
-        setCondition(petsAd.condition || "");
-        setUnit(petsAd.unit || "");
-        if (petsAd.bulkPrice && petsAd.bulkPrice.length > 0) {
-          setBulkPrices(petsAd.bulkPrice.map(bp => ({
-           quantity: bp.quantity?.toString() || "",
-          unit: bp.unit || "",
-          amountPerUnit: bp.amountPerUnit?.toString() || ""
-         })));
-        }
-        setAmount(petsAd.amount?.toString() || "");
-        setNegotiation(petsAd.negotiation || "");
-        setDescription(petsAd.description || "");
-
-        // ✅ Set business from either petsAd or carAd
-        const businessId = petsAd.businessCategory?._id 
-          || petsAd.businessCategory 
-          || carAdId?.businessCategory?._id 
-          || carAd?.businessCategory;
-        setBusiness(businessId || "");
-
-        // ✅ Store editing state
-        setEditingCarAd({
-          carAdId: idToUse,
-          businessId: businessId,
-          category: carAd?.category || 'Dogs',
-          location: carAd?.location || '',
-          images: carAd?.petsImage || [],
-        });
-
-        
-
-        toast.success("Draft loaded successfully! Complete your ad details.");
-        setIsLoadingDraft(false);
-
-      } catch (error) {
-        console.error("❌ Error loading draft:", error);
-        toast.error("Failed to load draft. Starting fresh.");
-        
+         
+       setTitle(agriAd.title || "");
+       const feeds = Array.isArray(agriAd.feedType) 
+         ? agriAd.feedType 
+         : [];
+       setFeedType(feeds);
+       setBrand(agriAd.brand || "");
+       setCondition(agriAd.condition || "");
+       setUnit(agriAd.unit || "");
+      setAmount(agriAd.amount?.toString() || "");
+      setNegotiation(agriAd.negotiation || "");
+     setDescription(agriAd.description || "");
+         
+     const businessId = agriAd.businessCategory?._id 
+           || agriAd.businessCategory 
+           || carAdId?.businessCategory?._id 
+           || carAd?.businessCategory;
+          setBusiness(businessId || "");
+         
+       setEditingCarAd({
+         carAdId: idToUse,
+         businessId: businessId,
+         category: carAd?.category || 'Farm Tools & Equipment',
+         location: carAd?.location || '',
+         images: carAd?.agricultureImage || [],
+      });
+         
+                 
+      toast.success("Draft loaded successfully! Complete your ad details.");
+      setIsLoadingDraft(false);
+    } catch (error) {
+       console.error("❌ Error loading draft:", error);
+       toast.error("Failed to load draft. Starting fresh.");
+                 
         // Clear invalid data
-        localStorage.removeItem('editingCarAdId');
-        localStorage.removeItem('editingCarAdData');
-        localStorage.removeItem('editingAdType');
-        
-        setIsLoadingDraft(false);
-      }
+       localStorage.removeItem('editingCarAdId');
+      localStorage.removeItem('editingCarAdData');
+      localStorage.removeItem('editingAdType');
+                 
+      setIsLoadingDraft(false);
+     }
     };
 
     if (mounted) {
       fetchDraftData();
     }
-  }, [mounted, carAdId]);
+  }, [mounted, carAdId, searchParams]);
 
   useEffect(() => {
     setMounted(true);
@@ -286,35 +283,20 @@ export default function FarmToolsContent() {
 
   const handleGoBack = () => router.back();
 
-  const handleAddBulkPrice = () => {
-  if (currentBulkPrice.quantity && currentBulkPrice.unit && currentBulkPrice.amountPerUnit) {
-    setBulkPrices([...bulkPrices, currentBulkPrice]);
-    setCurrentBulkPrice({ quantity: "", unit: "", amountPerUnit: "" });
-    setShowBulkPriceModal(false);
-    toast.success("Bulk price added!");
-  } else {
-    toast.error("Please fill all bulk price fields");
-  }
-};
-
-const handleRemoveBulkPrice = (index) => {
-  setBulkPrices(bulkPrices.filter((_, i) => i !== index));
-};
 
   const buildPayload = (planType, useWallet = false) => {
     const payload = {
       title,
-      agricultureType,
+      feedType: Array.isArray(feedType)
+         ? feedType.map((f) => (typeof f == "string" ? f : f.name))
+         : [],
+      brand,
       amount: parseFloat(amount),
       negotiation,
+      condition,
       unit,
       businessCategory: business,
       description,
-      bulkPrice: bulkPrices.map(bp => ({
-         quantity: parseFloat(bp.quantity),
-      unit: bp.unit,
-      amountPerUnit: parseFloat(bp.amountPerUnit)
-      })),
       plan: planType,
       promotionAmount: planAmounts[planType] || 0,
       useWalletBalance: useWallet,
@@ -340,7 +322,7 @@ const handleRemoveBulkPrice = (index) => {
       const payload = buildPayload(planToSubmit, useWallet);
 
       // TODO: Update endpoint when pets route is created
-      const res = await api.post("/pets/post-pets-ad", payload);
+      const res = await api.post("/agriculture/create-agriculture-ad", payload);
 
       if (res.data.data?.paymentUrl && !useWallet) {
         toast.info("Redirecting to Paystack for payment...");
@@ -376,6 +358,9 @@ const handleRemoveBulkPrice = (index) => {
         localStorage.removeItem("editingCarAdId");
         localStorage.removeItem("editingCarAdData");
         localStorage.removeItem("editingAdType");
+
+        const profileRes = await api.get("/profile");
+        login(profileRes.data, token);
       }
     } catch (error) {
       console.error("Ad submission error:", error.response?.data || error.message);
@@ -385,8 +370,8 @@ const handleRemoveBulkPrice = (index) => {
       );
     }
   }, [
-    title,  agricultureType, condition, unit, amount, negotiation, business, description,
-    token, login, router, editingCarAd, carAdId
+    title, feedType, brand, unit, condition, amount, negotiation, business, description,
+    token, login, router, editingCarAd, carAdId, buildPayload
   ]);
 
   const postAdForFree = useCallback(async () => {
@@ -459,7 +444,9 @@ const handleRemoveBulkPrice = (index) => {
       delete payload.promotionAmount;
       delete payload.useWalletBalance;
 
-      // TODO: Update endpoint when pets draft route is created
+
+      payload.isDraft = true;
+
       const res = await api.post("/pets/save-draft", payload);
 
       const savedPlan = res.data.data?.plan || 'free';
@@ -499,7 +486,7 @@ const handleRemoveBulkPrice = (index) => {
         </button>
 
         <h3 className="text-[#525252] font-[500] font-inter text-[16px] mb-4 text-left md:text-center">
-          {editingCarAd ? "Complete Your Pet Ad" : "Post Farm Tools & Equipment Ad"}
+          {editingCarAd ? "Complete Your Farm Tools & Equipment Ad" : "Post Farm Tools & Equipment Ad"}
         </h3>
 
         <form>
@@ -512,8 +499,8 @@ const handleRemoveBulkPrice = (index) => {
             />
             <MultiSelectDropdown
               label="Farm Tools & Equipment Type"
-              value={agricultureType}
-              onChange={setAgricultureType}
+              value={feedType}
+              onChange={setFeedType}
               options={[
                "Hand Tools(e.g hoes, cutlass, spades, rakes)",
                "Power Tools (e.g brush cutters, chainsaws)",
@@ -526,10 +513,10 @@ const handleRemoveBulkPrice = (index) => {
               ]}
             />
 
-            <MultiSelectDropdown
+            <PostDropdown
              label="Conditions"
-             value={unit}
-             onChange={setUnit}
+             value={condition}
+             onChange={setCondition}
              options={[
                "Brand New",
                "Fairly Used"
@@ -538,6 +525,8 @@ const handleRemoveBulkPrice = (index) => {
 
             <PostDropdown
               label="Brand"
+              value={brand}
+              onChange={setBrand}
               options={[
                 "Equipment brand",
                 "Machinery brand",
@@ -581,7 +570,7 @@ const handleRemoveBulkPrice = (index) => {
           <div className="mt-4">
             <label className="block mb-1 text-[#525252] font-[500] font-inter">Description</label>
             <textarea
-              placeholder="Enter the description of the pet"
+              placeholder="Enter the description of the Farm & Tools Equipment"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="w-full h-[120px] border border-[#CDCDD7] rounded-[4px] px-3 py-2 bg-white focus:outline-none resize-none"

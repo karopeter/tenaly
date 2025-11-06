@@ -9,10 +9,51 @@ import PostDropdown from "../components/dropdowns/car-post-dropdown";
 import InputField from "../components/input";
 import api from "@/services/api";
 import { toast } from "react-toastify";
+import MultiSelectDropdown from "../components/dropdowns/MultiSelectDropdown";
 import PromoteAdModal from "../components/PromoteModal/promote-modal";
 import WalletPaymentModal from "../components/WalletModal/walletModal";
 import FreeSuccessModal from "../components/free-success-modal";
 import Link from "next/link";
+
+const customStyles = {
+  control: (base, state) => ({
+    ...base,
+    backgroundColor: '#fff',
+    borderColor: state.isFocused ? '#000087' : '#d1d5db', // Tailwind: border-gray-300
+    boxShadow: state.isFocused ? '0 0 0 1px #000087' : 'none',
+    '&:hover': {
+      borderColor: '#000087',
+    },
+    borderRadius: '0.375rem', 
+    minHeight: '2.75rem',    
+    fontSize: '0.875rem',   
+  }),
+  option: (base, { isFocused, isSelected }) => ({
+    ...base,
+    backgroundColor: isSelected
+      ? '#000087'
+      : isFocused
+      ? '#e5e7eb' 
+      : 'white',
+    color: isSelected ? 'white' : '#111827', 
+    fontSize: '0.875rem', 
+    padding: '0.5rem 0.75rem', 
+    cursor: 'pointer',
+  }),
+  menu: (base) => ({
+    ...base,
+    borderRadius: '0.375rem',
+    marginTop: '0.25rem',
+    boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
+    zIndex: 10,
+  }),
+  placeholder: (base) => ({
+    ...base,
+    color: '#6b7280', 
+    fontSize: '0.875rem',
+  }),
+};
+
 
 const planAmounts = {
   free: 0,
@@ -33,6 +74,7 @@ export default function HamsterPostContent() {
   const [breed, setBreed] = useState("");
   const [age, setAge] = useState("");
   const [gender, setGender] = useState("");
+  const [healthStatus, setHealthStatus] = useState([]);
   const [amount, setAmount] = useState("");
   const [negotiation, setNegotiation] = useState("");
   const [business, setBusiness] = useState("");
@@ -124,6 +166,10 @@ export default function HamsterPostContent() {
         setPetType(petsAd.petType || "");
         setBreed(petsAd.breed || "");
         setAge(petsAd.age || "");
+        const health = Array.isArray(petsAd.healthStatus)
+            ? petsAd.healthStatus
+            : [];
+        setHealthStatus(health);
         setGender(petsAd.gender || "");
         setAmount(petsAd.amount?.toString() || "");
         setNegotiation(petsAd.negotiation || "");
@@ -248,6 +294,9 @@ export default function HamsterPostContent() {
       breed,
       age,
       gender,
+      healthStatus: Array.isArray(healthStatus) 
+         ? healthStatus.map((f) => (typeof f == "string" ? f : f.name))
+         : [],
       amount: parseFloat(amount),
       negotiation,
       businessCategory: business,
@@ -322,7 +371,7 @@ export default function HamsterPostContent() {
       );
     }
   }, [
-    petType, breed, age, gender, amount, negotiation, business, description,
+    petType, breed, age, gender, amount, negotiation, healthStatus, business, description,
     token, login, router, editingCarAd, carAdId, buildPayload
   ]);
 
@@ -398,7 +447,6 @@ export default function HamsterPostContent() {
 
       payload.isDraft = true;
 
-      // TODO: Update endpoint when pets draft route is created
       const res = await api.post("/pets/save-draft", payload);
 
       const savedPlan = res.data.data?.plan || 'free';
@@ -475,6 +523,19 @@ export default function HamsterPostContent() {
               onChange={setGender}
               options={["Male", "Female", "Others"]}
             />
+
+            <MultiSelectDropdown
+               label="Health Status"
+               value={healthStatus}
+               onChange={setHealthStatus}
+               options={[
+                 "Vaccinated",
+                "Not Vaccinated",
+                "Dewormed",
+                "Vet Checked",
+                "Has Allergies"
+               ]}
+            />
             <InputField
               label="Amount"
               placeholder="₦ Enter your amount"
@@ -487,22 +548,26 @@ export default function HamsterPostContent() {
               }}
               type="text"
             />
-            <PostDropdown
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+             <PostDropdown
               label="Are you open for negotiation"
               value={negotiation}
               onChange={setNegotiation}
               options={["Yes", "No"]}
             />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 mt-4">
-            <Select
+            <div className="mt-4">
+              <label htmlFor="business" className="block text-[#525252] font-[500] mb-1">Select your business</label>
+             <Select
               options={businessOptions}
               value={businessOptions.find((opt) => opt.value === business)}
               onChange={(selected) => setBusiness(selected?.value)}
               placeholder="Select a business"
               isClearable
+              styles={customStyles}
             />
+            </div>
           </div>
 
           <div className="mt-4">

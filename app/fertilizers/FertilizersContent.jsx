@@ -72,8 +72,8 @@ export default function FertilizerContent() {
 
   // Form states
   const [title, setTitle] = useState("");
-  const [agricultureType, setAgricultureType] = useState("");
-  const [condition, setCondition] = useState("");
+  const [feedType, setFeedType] = useState([]);
+  const [brand, setBrand] = useState("");
   const [unit, setUnit] = useState("");
 
   const [amount, setAmount] = useState("");
@@ -125,82 +125,90 @@ export default function FertilizerContent() {
         idToUse 
       });
 
-      if (!idToUse || adType !== 'pets') {
-        console.log("⚠️ No pets draft to load");
-        return;
-      }
+    //   if (!idToUse || adType !== 'pets') {
+    //     console.log("⚠️ No pets draft to load");
+    //     return;
+    //   }
+
+    if (!carAdIdFromQuery && !carAdIdFromStorage) {
+      console.log("⚠️ No draft to load - creating new ad");
+     return;   
+    }
+
+    const isEditMode = searchParams.get('editi') === 'true';
+    const isDraftMode = searchParams.get('draft') === 'true';
+
+    if (!isEditMode && isDraftMode && !idToUse) {
+      console.log("⚠️ Fresh ad creation - skipping draft load");
+     return;
+    }
 
       setIsLoadingDraft(true);
 
-      try {
-        // ✅ Fetch PetsAd draft by carAdId (adjust endpoint when created)
-        const petsResponse = await api.get(`/pets/draft/${idToUse}`);
-        
-        if (!petsResponse.data || !petsResponse.data.petsAd) {
-          console.log("⚠️ No PetsAd draft found");
+     try {
+       const agriResponse = await api.get(`/agriculture/draft/${idToUse}`);
+                 
+       if (!agriResponse.data || !agriResponse.data.agricultureAd) {
+          console.log("⚠️ No Agriculture draft found");
           setIsLoadingDraft(false);
           return;
-        }
-
-        const petsAd = petsResponse.data.petsAd;
-        console.log("✅ Loaded PetsAd draft:", petsAd);
-
-        // ✅ Also fetch CarAd for images and location
-        let carAd = null;
-        try {
+       }   
+         
+       const agriAd = agriResponse.data.agricultureAd;
+       console.log("✅ Loaded AgricultureAd draft:", agriAd);
+         
+       let carAd = null;
+         try {
           const carResponse = await api.get(`/carAdd/get-car-byId/${idToUse}`);
           carAd = carResponse.data.ad;
           console.log("✅ Loaded CarAd:", carAd);
-        } catch (carError) {
-          console.warn("⚠️ Could not load CarAd:", carError);
-        }
-
-        // ✅ Pre-fill form fields from PetsAd
-        setTitle(petsAd.title || "");
-        setAgricultureType(petsAd.agricultureType || "");
-        setCondition(petsAd.condition || "");
-        setUnit(petsAd.unit || "");
-        if (petsAd.bulkPrice && petsAd.bulkPrice.length > 0) {
-          setBulkPrices(petsAd.bulkPrice.map(bp => ({
-           quantity: bp.quantity?.toString() || "",
-          unit: bp.unit || "",
-          amountPerUnit: bp.amountPerUnit?.toString() || ""
-         })));
-        }
-        setAmount(petsAd.amount?.toString() || "");
-        setNegotiation(petsAd.negotiation || "");
-        setDescription(petsAd.description || "");
-
-        // ✅ Set business from either petsAd or carAd
-        const businessId = petsAd.businessCategory?._id 
-          || petsAd.businessCategory 
-          || carAdId?.businessCategory?._id 
-          || carAd?.businessCategory;
-        setBusiness(businessId || "");
-
-        // ✅ Store editing state
-        setEditingCarAd({
-          carAdId: idToUse,
-          businessId: businessId,
-          category: carAd?.category || 'Dogs',
-          location: carAd?.location || '',
-          images: carAd?.petsImage || [],
-        });
-
+         } catch (carError) {
+           console.warn("⚠️ Could not load CarAd:", carError);
+         }
+         
+        setTitle(agriAd.title || "");
+         const feeds = Array.isArray(agriAd.feedType) 
+           ? agriAd.feedType 
+              :[];
+         setFeedType(feeds);
+         setBrand(agriAd.brand || "");
+         setUnit(agriAd.unit || "");
+           if (agriAd.bulkPrice && agriAd.bulkPrice.length > 0) {
+             setBulkPrices(agriAd.bulkPrice.map(bp => ({
+            quantity: bp.quantity?.toString() || "",
+            unit: bp.unit || "",
+            amountPerUnit: bp.amountPerUnit?.toString() || ""
+          })));
+          }
+        setAmount(agriAd.amount?.toString() || "");
+       setNegotiation(agriAd.negotiation || "");
+       setDescription(agriAd.description || "");
+         
+      const businessId = agriAd.businessCategory?._id 
+           || agriAd.businessCategory 
+           || carAdId?.businessCategory?._id 
+           || carAd?.businessCategory;
+          setBusiness(businessId || "");
+         
+          setEditingCarAd({
+              carAdId: idToUse,
+              businessId: businessId,
+             category: carAd?.category || 'Animal Feed',
+             location: carAd?.location || '',
+             images: carAd?.agricultureImage || [],
+         });
         
-
         toast.success("Draft loaded successfully! Complete your ad details.");
         setIsLoadingDraft(false);
-
       } catch (error) {
-        console.error("❌ Error loading draft:", error);
-        toast.error("Failed to load draft. Starting fresh.");
-        
+          console.error("❌ Error loading draft:", error);
+          toast.error("Failed to load draft. Starting fresh.");
+                 
         // Clear invalid data
         localStorage.removeItem('editingCarAdId');
         localStorage.removeItem('editingCarAdData');
         localStorage.removeItem('editingAdType');
-        
+                 
         setIsLoadingDraft(false);
       }
     };
@@ -208,7 +216,7 @@ export default function FertilizerContent() {
     if (mounted) {
       fetchDraftData();
     }
-  }, [mounted, carAdId]);
+  }, [mounted, carAdId, searchParams]);
 
   useEffect(() => {
     setMounted(true);
@@ -304,7 +312,10 @@ const handleRemoveBulkPrice = (index) => {
   const buildPayload = (planType, useWallet = false) => {
     const payload = {
       title,
-      agricultureType,
+      feedType: Array.isArray(feedType)
+        ? feedType.map((f) => (typeof f === "string" ? f : f.name))
+        : [],
+      brand,
       amount: parseFloat(amount),
       negotiation,
       unit,
@@ -340,7 +351,7 @@ const handleRemoveBulkPrice = (index) => {
       const payload = buildPayload(planToSubmit, useWallet);
 
       // TODO: Update endpoint when pets route is created
-      const res = await api.post("/pets/post-pets-ad", payload);
+      const res = await api.post("/agriculture/create-agriculture-ad", payload);
 
       if (res.data.data?.paymentUrl && !useWallet) {
         toast.info("Redirecting to Paystack for payment...");
@@ -376,6 +387,9 @@ const handleRemoveBulkPrice = (index) => {
         localStorage.removeItem("editingCarAdId");
         localStorage.removeItem("editingCarAdData");
         localStorage.removeItem("editingAdType");
+
+        const profileRes = await api.get("/profile");
+        login(profileRes.data, token);
       }
     } catch (error) {
       console.error("Ad submission error:", error.response?.data || error.message);
@@ -385,8 +399,8 @@ const handleRemoveBulkPrice = (index) => {
       );
     }
   }, [
-    title,  agricultureType, condition, unit, amount, negotiation, business, description,
-    token, login, router, editingCarAd, carAdId
+    title, feedType, brand, unit, amount, negotiation, business, description,
+    token, login, router, editingCarAd, carAdId, buildPayload
   ]);
 
   const postAdForFree = useCallback(async () => {
@@ -459,8 +473,9 @@ const handleRemoveBulkPrice = (index) => {
       delete payload.promotionAmount;
       delete payload.useWalletBalance;
 
-      // TODO: Update endpoint when pets draft route is created
-      const res = await api.post("/pets/save-draft", payload);
+      payload.isDraft = true;
+
+      const res = await api.post("/agriculture/save-draft", payload);
 
       const savedPlan = res.data.data?.plan || 'free';
 
@@ -499,7 +514,7 @@ const handleRemoveBulkPrice = (index) => {
         </button>
 
         <h3 className="text-[#525252] font-[500] font-inter text-[16px] mb-4 text-left md:text-center">
-          {editingCarAd ? "Complete Your Pet Ad" : "Post Fertilizer Ad"}
+          {editingCarAd ? "Complete Your Agriculture Ad" : "Post Fertilizer Ad"}
         </h3>
 
         <form>
@@ -512,8 +527,8 @@ const handleRemoveBulkPrice = (index) => {
             />
             <MultiSelectDropdown
               label="Fertilizer Type"
-              value={agricultureType}
-              onChange={setAgricultureType}
+              value={feedType}
+              onChange={setFeedType}
               options={[
                 "Organic Fertilizer",
                 "Inorganic / Chemical Fertilizer",
@@ -540,6 +555,8 @@ const handleRemoveBulkPrice = (index) => {
 
             <PostDropdown
               label="Brand"
+              value={brand}
+              onChange={setBrand}
               options={[
                 "Dangote Fertilizer",
                 "Golden Fertilzer",
@@ -624,7 +641,7 @@ const handleRemoveBulkPrice = (index) => {
           <div className="mt-4">
             <label className="block mb-1 text-[#525252] font-[500] font-inter">Description</label>
             <textarea
-              placeholder="Enter the description of the pet"
+              placeholder="Enter the description of the Fertilizer"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="w-full h-[120px] border border-[#CDCDD7] rounded-[4px] px-3 py-2 bg-white focus:outline-none resize-none"

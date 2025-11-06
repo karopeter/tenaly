@@ -7,14 +7,14 @@ import Select from "../components/clientOnlySelect";
 import { useAuth } from "../context/AuthContext";
 import PostDropdown from "../components/dropdowns/car-post-dropdown";
 import InputField from "../components/input";
-import MultiSelectDropdown from "../components/dropdowns/MultiSelectDropdown";
 import api from "@/services/api";
+import MultiSelectDropdown from "../components/dropdowns/MultiSelectDropdown";
 import { toast } from "react-toastify";
+import Img from "../components/Image";
 import PromoteAdModal from "../components/PromoteModal/promote-modal";
 import WalletPaymentModal from "../components/WalletModal/walletModal";
 import FreeSuccessModal from "../components/free-success-modal";
 import Link from "next/link";
-
 
 const customStyles = {
   control: (base, state) => ({
@@ -55,6 +55,7 @@ const customStyles = {
   }),
 };
 
+
 const planAmounts = {
   free: 0,
   basic: 15000,
@@ -64,17 +65,18 @@ const planAmounts = {
   enterprise: 100000
 };
 
-export default function BirdPostContent() {
+export default function FarmServicesContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { profile, token, login } = useAuth();
 
   // Form states
-  const [petType, setPetType] = useState("");
-  const [breed, setBreed] = useState("");
-  const [age, setAge] = useState("");
-  const [gender, setGender] = useState("");
-  const [healthStatus, setHealthStatus] = useState([]);
+  const [title, setTitle] = useState("");
+  const [feedType, setFeedType] = useState([]);
+  const [serviceMode, setServiceMode] = useState([]);
+  const [experienceLevel, setExperienceLevel] = useState("");
+  const [availability, setAvailability] = useState("");
+
   const [amount, setAmount] = useState("");
   const [negotiation, setNegotiation] = useState("");
   const [business, setBusiness] = useState("");
@@ -117,87 +119,98 @@ export default function BirdPostContent() {
         idToUse 
       });
 
-      if (!carAdIdFromQuery && !carAdIdFromStorage) {
-        console.log("⚠️ No draft to load - creating new ad");
-        return;
-      }
+    //   if (!idToUse || adType !== 'pets') {
+    //     console.log("⚠️ No pets draft to load");
+    //     return;
+    //   }
 
-      const isEditMode = searchParams.get('edit') === 'true';
-      const isDraftMode = searchParams.get('draft') === 'true';
 
-      if (!isEditMode && !isDraftMode && !idToUse) {
-        console.log("⚠️ Fresh ad creation - skipping draft load");
-        return;
-      }
+    if (!carAdIdFromQuery && !carAdIdFromStorage) {
+     console.log("⚠️ No draft to load - creating new ad");
+     return; 
+    }
+
+    const isEditMode = searchParams.get('edit') === 'true';
+    const isDraftMode = searchParams.get('draft') === 'true';
+
+    if (!isEditMode && isDraftMode && !idToUse) {
+     console.log("⚠️ Fresh ad creation - skipping draft load");
+     return;
+    }
 
       setIsLoadingDraft(true);
 
-      try {
-        // ✅ Fetch PetsAd draft by carAdId (adjust endpoint when created)
-        const petsResponse = await api.get(`/pets/draft/${idToUse}`);
-        
-        if (!petsResponse.data || !petsResponse.data.petsAd) {
-          console.log("⚠️ No PetsAd draft found");
-          setIsLoadingDraft(false);
-          return;
-        }
-
-        const petsAd = petsResponse.data.petsAd;
-        console.log("✅ Loaded PetsAd draft:", petsAd);
-
-        // ✅ Also fetch CarAd for images and location
+     try {
+       const agriResponse = await api.get(`/agriculture/draft/${idToUse}`);
+            
+       if (!agriResponse.data || !agriResponse.data.agricultureAd) {
+        console.log("⚠️ No Agriculture draft found");
+         setIsLoadingDraft(false);
+         return;
+       }   
+    
+       const agriAd = agriResponse.data.agricultureAd;
+       console.log("✅ Loaded AgricultureAd draft:", agriAd);
+    
         let carAd = null;
         try {
-          const carResponse = await api.get(`/carAdd/get-car-byId/${idToUse}`);
-          carAd = carResponse.data.ad;
-          console.log("✅ Loaded CarAd:", carAd);
+         const carResponse = await api.get(`/carAdd/get-car-byId/${idToUse}`);
+         carAd = carResponse.data.ad;
+         console.log("✅ Loaded CarAd:", carAd);
         } catch (carError) {
           console.warn("⚠️ Could not load CarAd:", carError);
         }
-
-        // ✅ Pre-fill form fields from PetsAd
-        setPetType(petsAd.petType || "");
-        setBreed(petsAd.breed || "");
-        setAge(petsAd.age || "");
-        const health = Array.isArray(petsAd.healthStatus)
-            ? petsAd.healthStatus
+    
+        setTitle(agriAd.title || "");
+        const feeds = Array.isArray(agriAd.feedType) 
+         ? agriAd.feedType 
+         :[];
+        setFeedType(feeds);
+        const services = Array.isArray(agriAd.serviceMode) 
+            ? agriAd.serviceMode
             : [];
-        setHealthStatus(health);
-        setGender(petsAd.gender || "");
-        setAmount(petsAd.amount?.toString() || "");
-        setNegotiation(petsAd.negotiation || "");
-        setDescription(petsAd.description || "");
-
-        // ✅ Set business from either petsAd or carAd
-        const businessId = petsAd.businessCategory?._id 
-          || petsAd.businessCategory 
-          || carAd?.businessCategory?._id 
-          || carAd?.businessCategory;
-        setBusiness(businessId || "");
-
-        // ✅ Store editing state
-        setEditingCarAd({
-          carAdId: idToUse,
-          businessId: businessId,
-          category: carAd?.category || 'Birds',
-          location: carAd?.location || '',
-          images: carAd?.petsImage || [],
-        });
-
-        toast.success("Draft loaded successfully! Complete your ad details.");
-        setIsLoadingDraft(false);
-
-      } catch (error) {
-        console.error("❌ Error loading draft:", error);
-        toast.error("Failed to load draft. Starting fresh.");
-        
-        // Clear invalid data
-        localStorage.removeItem('editingCarAdId');
-        localStorage.removeItem('editingCarAdData');
-        localStorage.removeItem('editingAdType');
-        
-        setIsLoadingDraft(false);
-      }
+        setServiceMode(services);
+        setExperienceLevel(agriAd.experienceLevel || "");
+        setAvailability(agriAd.availability || "");
+        setCondition(agriAd.condition || "");
+        const formulations = Array.isArray(agriAd.formulationType)
+           ? agriAd.formulationType
+           : [];
+        setFormulationType(formulations);
+         setAmount(agriAd.amount?.toString() || "");
+         setNegotiation(agriAd.negotiation || "");
+         setDescription(agriAd.description || "");
+    
+         const businessId = agriAd.businessCategory?._id 
+              || agriAd.businessCategory 
+              || carAdId?.businessCategory?._id 
+              || carAd?.businessCategory;
+            setBusiness(businessId || "");
+    
+            setEditingCarAd({
+              carAdId: idToUse,
+              businessId: businessId,
+              category: carAd?.category || 'Farm Services (plowing, irrigation, consultancy)',
+              location: carAd?.location || '',
+              images: carAd?.agricultureImage || [],
+            });
+    
+            
+    
+            toast.success("Draft loaded successfully! Complete your ad details.");
+            setIsLoadingDraft(false);
+    
+          } catch (error) {
+            console.error("❌ Error loading draft:", error);
+            toast.error("Failed to load draft. Starting fresh.");
+            
+            // Clear invalid data
+            localStorage.removeItem('editingCarAdId');
+            localStorage.removeItem('editingCarAdData');
+            localStorage.removeItem('editingAdType');
+            
+            setIsLoadingDraft(false);
+          }
     };
 
     if (mounted) {
@@ -281,15 +294,18 @@ export default function BirdPostContent() {
 
   const handleGoBack = () => router.back();
 
+
   const buildPayload = (planType, useWallet = false) => {
     const payload = {
-      petType,
-      breed,
-      age,
-      gender,
-      healthStatus: Array.isArray(healthStatus)
-        ? healthStatus.map((f) => (typeof f == "string" ? f : f.name))
+      title,
+      feedType: Array.isArray(feedType) 
+        ? feedType.map((f) => (typeof f == "string" ? f : f.name))
         : [],
+      serviceMode: Array.isArray(serviceMode)
+         ? serviceMode.map((f) => (typeof f == "string" ? f : f.name))
+         : [],
+      experienceLevel,
+      availability,
       amount: parseFloat(amount),
       negotiation,
       businessCategory: business,
@@ -318,7 +334,7 @@ export default function BirdPostContent() {
     try {
       const payload = buildPayload(planToSubmit, useWallet);
 
-      const res = await api.post("/pets/post-pets-ad", payload);
+      const res = await api.post("/agriculture/create-agriculture-ad", payload);
 
       if (res.data.data?.paymentUrl && !useWallet) {
         toast.info("Redirecting to Paystack for payment...");
@@ -356,7 +372,7 @@ export default function BirdPostContent() {
         localStorage.removeItem("editingAdType");
 
         const profileRes = await api.get("/profile");
-         login(profileRes.data, token);
+        login(profileRes.data, token);
       }
     } catch (error) {
       console.error("Ad submission error:", error.response?.data || error.message);
@@ -366,7 +382,7 @@ export default function BirdPostContent() {
       );
     }
   }, [
-    petType, breed, age, gender, amount, negotiation, healthStatus, business, description,
+    title, feedType, serviceMode, experienceLevel, availability, amount, negotiation, business, description,
     token, login, router, editingCarAd, carAdId, buildPayload
   ]);
 
@@ -440,10 +456,10 @@ export default function BirdPostContent() {
       delete payload.promotionAmount;
       delete payload.useWalletBalance;
 
+     
       payload.isDraft = true;
 
-      // TODO: Update endpoint when pets draft route is created
-      const res = await api.post("/pets/save-draft", payload);
+      const res = await api.post("/agriculture/save-draft", payload);
 
       const savedPlan = res.data.data?.plan || 'free';
 
@@ -482,48 +498,69 @@ export default function BirdPostContent() {
         </button>
 
         <h3 className="text-[#525252] font-[500] font-inter text-[16px] mb-4 text-left md:text-center">
-          {editingCarAd ? "Complete Your Pet Ad" : "Post an Animal or Pet Ad"}
+          {editingCarAd ? "Complete Your Post Agro Chemicals Ad" : "Post Agro Chemical Ad"}
         </h3>
 
         <form>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
             <InputField
               label="Title"
-              placeholder="Enter title"
-              value={petType}
-              onChange={(e) => setPetType(e.target.value)}
+              placeholder="E.g Hybrid Maize Seeds"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
             />
-            <PostDropdown
-              label="Breed"
-              value={breed}
-              onChange={setBreed}
-              options={["Budgerigar", "Cockatiel", "Lovebird", "Canary", "Finch", "Parrotlet", "Duck", "Dove", "Peacock", "Goose"]}
-            />
-            <InputField
-             label="Age"
-             value={age}
-             onChange={(e) => setAge(e.target.value)}
-             placeholder="3 Months"
-            />
-            <PostDropdown
-             label="Gender"
-             value={gender}
-            onChange={setGender}
-            options={["Male", "Female", "Others"]}
-            />
-
-            <MultiSelectDropdown 
-              label="Health Status"
-              value={healthStatus}
-              onChange={setHealthStatus}
+            <MultiSelectDropdown
+              label="Feed Type"
+              value={feedType}
+              onChange={setFeedType}
               options={[
-                "Vaccinated",
-                "Not Vaccinated",
-                "Dewormed",
-                "Vet Checked",
-                "Has Allergies"
+               "Plowing",
+               "Harrowing",
+               "Planting",
+               "Harvesting",
+               "Irrigation",
+               "Spraying",
+               "Soil Testing",
+               "Farm Setup",
+               "Agricultural Consultancy",
+               "Equipment Leasing",
+               "Others"
               ]}
             />
+
+            <MultiSelectDropdown
+               label="Service Mode"
+               value={serviceMode}
+               onChange={setServiceMode}
+               options={[
+                 "On-Site",
+                 "Remote",
+                 "On-Site & Remote"
+               ]}
+            />
+
+            <PostDropdown
+             label="Experience Level"
+             value={experienceLevel}
+             onChange={setExperienceLevel}
+             options={[
+              "Brand New",
+              "Intermediate",
+              "Expert"
+             ]}
+            />
+
+            <PostDropdown
+              label="Availability"
+              value={availability}
+              onChange={setAvailability}
+              options={[
+               "Full-Time",
+               "Part-Time",
+               "On Request"
+              ]}
+            />
+
             <InputField
               label="Amount"
               placeholder="₦ Enter your amount"
@@ -539,15 +576,15 @@ export default function BirdPostContent() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-             <PostDropdown
+            <PostDropdown
               label="Are you open for negotiation"
               value={negotiation}
               onChange={setNegotiation}
               options={["Yes", "No"]}
             />
-           <div className="mt-4">
-            <label htmlFor="business" className="block text-[#525252] font-[500] mb-1">Select your business</label>
-             <Select
+            <div className="mt-4">
+              <label htmlFor="business" className="block text-[#525252] font-[500] mb-1">Select your business</label>
+              <Select
               options={businessOptions}
               value={businessOptions.find((opt) => opt.value === business)}
               onChange={(selected) => setBusiness(selected?.value)}
@@ -555,13 +592,13 @@ export default function BirdPostContent() {
               isClearable
               styles={customStyles}
             />
-           </div>
+            </div>
           </div>
 
           <div className="mt-4">
             <label className="block mb-1 text-[#525252] font-[500] font-inter">Description</label>
             <textarea
-              placeholder="Enter the description of the pet"
+              placeholder="Enter the description of the Farm Services"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="w-full h-[120px] border border-[#CDCDD7] rounded-[4px] px-3 py-2 bg-white focus:outline-none resize-none"
