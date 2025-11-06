@@ -9,7 +9,6 @@ import PostDropdown from "../components/dropdowns/car-post-dropdown";
 import InputField from "../components/input";
 import api from "@/services/api";
 import { toast } from "react-toastify";
-import MultiSelectDropdown from "../components/dropdowns/MultiSelectDropdown";
 import Img from "../components/Image";
 import PromoteAdModal from "../components/PromoteModal/promote-modal";
 import WalletPaymentModal from "../components/WalletModal/walletModal";
@@ -146,7 +145,6 @@ export default function AgricultureProduceContent() {
       setIsLoadingDraft(true);
 
       try {
-        // ✅ Fetch PetsAd draft by carAdId (adjust endpoint when created)
         const agriResponse = await api.get(`/agriculture/draft/${idToUse}`);
         
         if (!agriResponse.data || !agriResponse.data.agricultureAd) {
@@ -353,7 +351,7 @@ const handleRemoveBulkPrice = (index) => {
     try {
       const payload = buildPayload(planToSubmit, useWallet);
 
-      // TODO: Update endpoint when pets route is created
+
       const res = await api.post("/agriculture/create-agriculture-ad", payload);
 
       if (res.data.data?.paymentUrl && !useWallet) {
@@ -478,7 +476,7 @@ const handleRemoveBulkPrice = (index) => {
       
       payload.isDraft = true;
 
-      // TODO: Update endpoint when pets draft route is created
+     
       const res = await api.post("/agriculture/save-draft", payload);
 
       const savedPlan = res.data.data?.plan || 'free';
@@ -646,7 +644,7 @@ const handleRemoveBulkPrice = (index) => {
           <div className="mt-4">
             <label className="block mb-1 text-[#525252] font-[500] font-inter">Description</label>
             <textarea
-              placeholder="Enter the description of the pet"
+              placeholder="Enter the description of the Agriculture & Foods"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="w-full h-[120px] border border-[#CDCDD7] rounded-[4px] px-3 py-2 bg-white focus:outline-none resize-none"
