@@ -856,6 +856,18 @@ const productImage =
                        {petAd?.gender}
                      </span>
                  </div>
+      {petAd?.healthStatus && petAd.healthStatus.length > 0 && (
+  <div className="flex flex-col w-[48%] md:w-[30%]">
+    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">Health Status</span>
+    <div className="mt-2">
+      {petAd.healthStatus.map((status, idx) => (
+        <span key={idx} className="text-[#525252] text-[14px] md:text-[16px] font-medium font-inter block">
+          {status}
+        </span>
+      ))}
+    </div>
+  </div>
+)}
                 </div>
               </div>
             )}
