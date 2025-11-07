@@ -338,8 +338,23 @@ const productImage =
           </span>
         )}
         {vehicleAd && (
-          <span href="/vehicles" className="text-[#000087] text-[13px] md:text-[14px] font-[500] font-inter whitespace-nowrap">
+          <span className="text-[#000087] text-[13px] md:text-[14px] font-[500] font-inter whitespace-nowrap">
             {vehicleAd.vehicleType} {vehicleAd.model} {vehicleAd.horsePower} {vehicleAd.trim} {vehicleAd.year}  {vehicleAd.color}
+          </span>
+        )}
+        {petAd && (
+         <span className="text-[#000087] text-[13px] md:text-[14px] font-[500] font-inter whitespace-nowrap">
+             {petAd.petType} {petAd.breed} {petAd.gender}
+          </span>
+        )}
+        {agricultureAd && (
+         <span className="text-[#000087] text-[13px] md:text-[14px] font-[500] font-inter whitespace-nowrap">
+             {agricultureAd.title} {agricultureAd.agricultureType} {agricultureAd.condition}
+          </span>
+        )}
+        {kidsAd && (
+          <span className="text-[#000087] text-[13px] md:text-[14px] font-[500] font-inter whitespace-nowrap">
+             {kidsAd.title} {kidsAd.condition} {kidsAd.color}
           </span>
         )}
       </div>
@@ -355,6 +370,21 @@ const productImage =
             <h2 className="text-[#525252] text-[14px] md:text-[18px] font-[500] font-inter">
               {vehicleAd.vehicleType} {vehicleAd.model} {vehicleAd.year}
             </h2>
+          )}
+          {kidsAd && (
+             <h2 className="text-[#525252] text-[14px] md:text-[18px] font-[500] font-inter">
+               {kidsAd.title}
+            </h2>  
+          )}
+          {petAd && (
+            <h2 className="text-[#525252] text-[14px] md:text-[18px] font-[500] font-inter">
+               {petAd.petType}
+            </h2>  
+          )}
+          {agricultureAd && (
+            <h2 className="text-[#525252] text-[14px] md:text-[18px] font-[500] font-inter">
+               {agricultureAd.title}
+            </h2> 
           )}
         </div>
         <div className="flex items-center space-x-3">
