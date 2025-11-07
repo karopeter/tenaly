@@ -30,8 +30,8 @@ export default function MarketPlace({ category, search, location }) {
     };
 
     return adsArray.sort((a, b) => {
-      const adA = a.vehicleAd || a.propertyAd || a.petAd || a.agricultureAd;
-      const adB = b.vehicleAd || b.propertyAd || b.petAd || b.agricultureAd;
+      const adA = a.vehicleAd || a.propertyAd || a.petAd || a.agricultureAd || a.kidsAd;
+      const adB = b.vehicleAd || b.propertyAd || b.petAd || b.agricultureAd || b.kidsAd;
 
       if (!adA && !adB) return 0;
       if (!adA) return -1;
@@ -54,7 +54,7 @@ export default function MarketPlace({ category, search, location }) {
   };
 
   const isPremiumAd = (item) => {
-    const ad = item.vehicleAd || item.propertyAd || item.petAd || item.agricultureAd;
+    const ad = item.vehicleAd || item.propertyAd || item.petAd || item.agricultureAd || item.kidsAd;
     if (!ad) return false;
     const premiumPlans = ["premium", "vip", "diamond", "enterprise"];
     return ad.paymentStatus === "success" && premiumPlans.includes(ad.plan);
@@ -150,6 +150,15 @@ const agricultureNewlyPosted = ads.filter((item) => {
   return diffDays <= 7;
 });
 
+const kidsNewlyPosted = ads.filter((item) => {
+  const ad = item.kidsAd;
+  if (!ad) return false;
+  const createdAt = new Date(ad.createdAt);
+  const now = new Date();
+  const diffDays = (now - createdAt) / (1000 * 60 * 60 * 24);
+  return diffDays <= 7;
+});
+
   const recommendedAds = ads.filter((item) => {
     const ad = item.vehicleAd || item.propertyAd || item.petAd || item.agricultureAd;
     if (!ad) return false;
@@ -189,6 +198,7 @@ const agricultureNewlyPosted = ads.filter((item) => {
     const isPropertyAd = !!item.propertyAd;
     const isPetAd = !!item.petAd;
     const isAgricultureAd = !!item.agricultureAd;
+    const isKidsAd = !!item.kidsAd;
 
     let imageUrl = null;
     let title = "Untitled Ad";
@@ -204,6 +214,9 @@ const agricultureNewlyPosted = ads.filter((item) => {
     let petAge = null;
     let agricultureType = null;
     let unit = null;
+    let kidsTitle = null;
+    let kidsGender = null;
+    let kidsAgeGroup = null;
 
     if (isCarAd) {
       imageUrl = item.carAd.vehicleImage?.[0];
@@ -258,6 +271,17 @@ const agricultureNewlyPosted = ads.filter((item) => {
                         item?.agricultureAd.feedType?.[0] || 
                         null;
       unit = item.agricultureAd?.unit;
+    } else if (isKidsAd) {
+        imageUrl = item.carAd?.kidsImage?.[0];
+       title = item.kidsAd?.title || "Kids Item";
+      description = item.kidsAd?.description || "No description available.";
+      price = item.kidsAd?.amount
+      ? `₦${item.kidsAd.amount.toLocaleString()}`
+      : "Price not set.";
+      adLocation = item.carAd?.location || "Unknown";
+      plan = item.kidsAd?.plan;
+      kidsGender = item.kidsAd?.gender;
+      kidsAgeGroup = item.kidsAd?.ageGroup;
     }
 
     return (
@@ -327,7 +351,7 @@ const agricultureNewlyPosted = ads.filter((item) => {
               <span>{adLocation}</span>
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {isCarAd && (
                 <>
                   {carType && (
@@ -383,6 +407,20 @@ const agricultureNewlyPosted = ads.filter((item) => {
                  {unit && (
                   <span className="bg-[#E8E8FF] font-inter whitespace-nowrap text-[#525252] px-2 py-1 rounded text-xs">
                      {unit}
+                  </span>
+                 )}
+                </>
+              )}
+               {isKidsAd && (
+                <>
+                 {kidsAgeGroup && (
+                  <span className="bg-[#E8E8FF] font-inter whitespace-nowrap text-[#525252] px-2 py-1 rounded text-xs">
+                     {kidsAgeGroup}
+                  </span>
+                 )}
+                 {kidsGender && (
+                  <span className="bg-[#E8E8FF] font-inter whitespace-nowrap text-[#525252] px-2 py-1 rounded text-xs">
+                     {kidsGender}
                   </span>
                  )}
                 </>
@@ -457,6 +495,19 @@ const agricultureNewlyPosted = ads.filter((item) => {
        </ul>
           </div>
         )}
+
+         {kidsNewlyPosted.length > 0 && (
+                <div>
+                <h2 className="text-[14px] md:text-[20px] font-inter font-[500] font-normal text-[#2E2E2E] mb-4">
+               Kids & Baby Products Newly Posted
+               </h2>
+             <ul className="grid gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                {kidsNewlyPosted.map((item, index) =>
+               renderAdCard(item, index)
+               )}
+             </ul>
+              </div>
+              )}
 
         {recommendedAds.length > 0 && (
           <div>

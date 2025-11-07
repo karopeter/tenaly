@@ -247,7 +247,7 @@ const handleSendOffer = async () => {
   }
 
 
-  const { carAd, vehicleAd, propertyAd, petAd, agricultureAd, business } = adData;
+  const { carAd, vehicleAd, propertyAd, petAd, agricultureAd, kidsAd, business } = adData;
   const actualBusinessId = carAd?.businessCategory?._id || carAd?.businessCategory;
   const sellerId = business?.userId || carAd?.userId || vehicleAd?.userId || propertyAd?.userId;
 
@@ -266,6 +266,8 @@ const handleSendOffer = async () => {
   } else if (agricultureAd) {
     mainAd = carAd;
     adDetails = agricultureAd;
+  } else if (kidsAd) {
+    adDetails = kidsAd;
   }
 
   const businessName = business?.businessName || "Unknown Seller";
@@ -283,8 +285,10 @@ const handleSendOffer = async () => {
                  petAd?.negotiation === "yes" || 
                  petAd?.negotiation === true;
   const agricultureNeg = agricultureAd?.negotiation === "Yes"; 
+  const kidsNeg = kidsAd?.negotiation === "Yes";
+
   
-  return vehicleNeg || propertyNeg || petNeg || agricultureNeg;
+  return vehicleNeg || propertyNeg || petNeg || agricultureNeg || kidsNeg;
 };
 
 
@@ -293,6 +297,7 @@ const productTitle =
   propertyAd?.propertyName ||
   petAd?.breed ? `${petAd.breed} - ${petAd.petType}` : "" ||
   (agricultureAd?.title ? `${agricultureAd.title} ` : "") || 
+  (kidsAd?.title ? `${kidsAd.title}` : "") ||
   (vehicleAd ? `${vehicleAd.vehicleType} ${vehicleAd.model}` : "") ||
   (carAd ? `${carAd.vehicleType} ${carAd.model}` : "");
 
@@ -300,6 +305,7 @@ const productTitle =
     ? (carAd.propertyImage?.length > 0 ? carAd.propertyImage  :
       carAd.petsImage?.length > 0 ? carAd.petsImage : 
       carAd.agricultureImage?.length > 0 ? carAd.agricultureImage :
+      carAd.kidsImage?.length > 0 ? carAd.kidsImage :
         carAd.vehicleImage || [])
     : [];
 
@@ -307,13 +313,14 @@ const productTitle =
     const smallImages = mainImageArray.slice(1, 5);
 
     // const productId = mainAd?._id;
-    const productId = vehicleAd?._id || propertyAd?._id || petAd?._id || agricultureAd?._id;
+    const productId = vehicleAd?._id || propertyAd?._id || petAd?._id || agricultureAd?._id || kidsAd?._id;
 
 // Pick correct product image
 const productImage =
   propertyAd?.propertyImage?.[0] ||
   petAd?.petsImage?.[0] || 
   agricultureAd?.agricultureImage?.[0] || 
+  kidsAd?.kidsImage?.[0] || 
   vehicleAd?.vehicleImage?.[0] ||
   carAd?.vehicleImage?.[0];
 
@@ -479,6 +486,9 @@ const productImage =
        {agricultureAd?.amount && (
          <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{agricultureAd.amount?.toLocaleString()}</span>
        )}
+       {kidsAd?.amount && (
+         <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{kidsAd.amount?.toLocaleString()}</span>
+       )}
      </div>
      {isNegotiable() && (
   <div className="p-4">
@@ -570,6 +580,16 @@ const productImage =
            Agriculture & Food Details
           </Button>
          )}
+          {kidsAd && (  
+          <Button 
+           className={`py-2 px-4 min-w-[120px] h-[40px] md:h-[44px] rounded-tl-[4px] whitespace-nowrap rounded-tr-[4px] text-center ${
+            activeTab === "car" ? "bg-[#DFDFF9] text-[#000087]" : "bg-gray-200 text-gray-700"
+           }`}
+           onClick={() => setActiveTab("car")}
+          >
+           Kids Product Details
+          </Button>
+         )}
    
            {propertyAd && (
             <Button
@@ -607,6 +627,15 @@ const productImage =
               Review 
            </Button>
            )}
+            {kidsAd && (  
+              <Button
+            className={`py-2 px-4 min-w-[120px] h-[40px] md:h-[44px] rounded-tl-[4px] whitespace-nowrap rounded-tr-[4px] text-center ${
+               activeTab === "review" ? "bg-[#DFDFF9] text-[#000087]" : "bg-gray-200 text-gray-700"
+             }`}
+              onClick={() => setActiveTab("review")}>
+              Review 
+           </Button>
+           )}
         </div>
       </div>
 
@@ -635,6 +664,11 @@ const productImage =
                    {agricultureAd.title} - {agricultureAd.agricultureType}
                </h2>
               )}
+              {kidsAd && (  
+                 <h2 className="text-[#525252] text-[14px] md:text-[18px] font-[500] font-inter">
+                   {kidsAd.title} - {kidsAd.ageGroup}
+               </h2>
+              )}
               <div className="flex space-x-2">
                  <Img 
                    src="/eye.svg"
@@ -661,6 +695,11 @@ const productImage =
                   {agricultureAd && (
                      <span className="text-[#868686] text-[14px] md:text-[14px] font-[400] font-inter whitespace-nowrap">
                       {agricultureAd.viewCount} Views
+                   </span>
+                  )}
+                   {kidsAd && (  
+                     <span className="text-[#868686] text-[14px] md:text-[14px] font-[400] font-inter whitespace-nowrap">
+                      {kidsAd.viewCount} Views
                    </span>
                   )}
               </div>
@@ -707,6 +746,13 @@ const productImage =
                     text-[#000087] text-[10px] md:text-[12px] 
                     font-inter capitalize font-[500] rounded-[4px]">
                       {agricultureAd.plan}
+                    </Button>
+                  )}
+                   {kidsAd && ( 
+                    <Button className="bg-[#DFDFF9] py-2 px-3 
+                    text-[#000087] text-[10px] md:text-[12px] 
+                    font-inter capitalize font-[500] rounded-[4px]">
+                      {kidsAd.plan}
                     </Button>
                   )}
                </div>
@@ -795,6 +841,20 @@ const productImage =
                   day: "numeric"
                 })}
              </span>
+             )}
+
+             {kidsAd && (  
+              <>
+               <div>
+                <span className="text-[#868686] text-[10px] md:text-[12px] font-[400] font-inter">
+                  Posted on {new Date(kidsAd.createdAt).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric"
+                  })}
+               </span>
+               </div>
+              </>
              )}
           </div>
 
@@ -944,6 +1004,81 @@ const productImage =
               )}
             </div>
            )}
+
+           
+           {kidsAd && (  
+            <div className="bg-[#FAFAFA] md:w-[650px] h-auto md:rounded-[12px] p-8 mt-4">
+              <div className="flex items-center justify-between">
+                <span className="text-[#525252] md:text-[16px] font-inter font-[500]">
+                 Kids Product Details 
+               </span> 
+
+               <div className="flex items-center space-x-2">
+                  <span className="text-[#000087] text-[16px] font-[400] font-inter">
+                    Show More
+                  </span>
+                    <button 
+                   onClick={() => setShowDetails(!showDetails)} 
+                   aria-expanded={showDetails}>
+                    <Img
+                      src={showDetails ? "/dropup.svg" : "/dropdown.svg"}
+                      alt="Dropdown Icon"
+                      width={8}
+                      height={4}
+                      className="mr-2 mt-[2px] cursor-pointer"
+                    />
+                  </button>
+                </div>
+              </div>
+              {showDetails && (
+                <div className="mt-4">
+                  <div className="flex flex-wrap justify-between gap-y-4 gap-x-[4%] max-w-[650px] mx-auto">
+                   {kidsAd?.condition && (
+                    <div className="flex flex-col w-[48%] md:w-[30%]">
+                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+                      Condition
+                    </span>
+                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+                      {kidsAd.condition}
+                    </span>
+                  </div>
+                   )}
+                   {kidsAd?.color && (
+                    <div className="flex flex-col w-[48%] md:w-[30%]">
+                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+                      Color
+                    </span>
+                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+                      {kidsAd.color}
+                    </span>
+                  </div>
+                   )}
+                   {kidsAd?.gender && (
+                    <div className="flex flex-col w-[48%] md:w-[30%]">
+                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+                      Gender
+                    </span>
+                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+                      {kidsAd.gender}
+                    </span>
+                  </div>
+                   )}
+                   {kidsAd?.ageGroup && (
+                    <div className="flex flex-col w-[48%] md:w-[30%]">
+                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+                      Age Group
+                    </span>
+                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+                      {kidsAd.ageGroup}
+                    </span>
+                  </div>
+                   )}
+                  </div>
+                </div>
+              )}
+            </div>
+           )}
+           
            
 
 
@@ -1225,6 +1360,11 @@ const productImage =
                   {agricultureAd?.description}
                 </p>  
               )}
+              {kidsAd && (  
+               <p className="text-[#868686] mt-2 text-[12px] md:text-[14px] font-[400] font-inter">
+                  {kidsAd?.description}
+                </p>  
+              )}
            </div>
           </>
         ): (
@@ -1354,6 +1494,9 @@ const productImage =
        )}
        {agricultureAd && (
          <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{agricultureAd.amount?.toLocaleString()}</span>
+       )}
+       {kidsAd && (  
+         <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{kidsAd.amount?.toLocaleString()}</span>
        )}
      </div>
      {isNegotiable() && (
