@@ -149,7 +149,7 @@ export default function BookMarkedContent({sellerId}) {
 
   return (
     <>
-      {userAds.map(({ adId, carAd, vehicleAd, propertyAd, petAd, agricultureAd, isSold }) => {
+      {userAds.map(({ adId, carAd, vehicleAd, propertyAd, petAd, agricultureAd, kidAd, isSold }) => {
         // Determine images array and amount to display
         const images = carAd?.vehicleImage?.length
           ? carAd.vehicleImage
@@ -159,13 +159,15 @@ export default function BookMarkedContent({sellerId}) {
           ? carAd.petsImage 
           : carAd?.agricultureImage?.length
           ? carAd.agricultureImage
+          : carAd?.kidsImage?.length 
+          ? carAd.kidsImage 
           : [];
 
         const imageUrl = images.length > 0
           ? images[0]
           : "/placeholder-image.svg";
         
-        const amount = vehicleAd?.amount || propertyAd?.amount || petAd?.amount || agricultureAd?.amount ||  "N/A";
+        const amount = vehicleAd?.amount || propertyAd?.amount || petAd?.amount || agricultureAd?.amount || kidAd?.amount ||   "N/A";
 
         const mainInfo = vehicleAd
           ? `${vehicleAd.vehicleType} ${vehicleAd.model}`
@@ -175,6 +177,8 @@ export default function BookMarkedContent({sellerId}) {
           ? `${petAd.petType} - ${petAd.breed}`
           : agricultureAd
           ? agricultureAd.title || agricultureAd.agricultureType?.[0]
+          : kidAd
+          ? kidAd.title || `${kidAd.gender} - ${kidAd.ageGroup}`
           : "";
 
         const location = carAd?.location || "";
@@ -223,6 +227,12 @@ export default function BookMarkedContent({sellerId}) {
             { iconSrc: "/cross-props.svg", text: agricultureAd.condition || "N/A"},
             { iconSrc: "/cross-props.svg", text: agricultureAd.agricultureType || "N/A" },
            ]
+           : kidAd 
+           ? [
+            { iconSrc: "/cross-props.svg", text: kidAd.condition || "N/A" },
+            { iconSrc: "/cross-props.svg", text: kidAd.color || "N/A" },
+            { iconSrc: "/cross-props.svg", text: kidAd.ageGroup || "N/A" },
+           ]
           : [];
 
         return (
@@ -251,7 +261,7 @@ export default function BookMarkedContent({sellerId}) {
               )}
 
               {/* Show plan badge if not sold */}
-              {!isSold && (vehicleAd?.plan || propertyAd?.plan || petAd?.plan || agricultureAd?.plan) && (
+              {!isSold && (vehicleAd?.plan || propertyAd?.plan || petAd?.plan || agricultureAd?.plan || kidAd?.plan) && (
                 <div className="absolute bottom-0 left-0 z-30 w-[139px] h-[35px] flex items-center px-4"
                   style={{
                     backgroundImage: `url(${machineImage})`,
@@ -265,7 +275,8 @@ export default function BookMarkedContent({sellerId}) {
                       {vehicleAd?.plan || 
                        propertyAd?.plan || 
                        petAd?.plan || 
-                       agricultureAd?.plan || 
+                       agricultureAd?.plan ||
+                       kidAd?.plan ||  
                       ""}
                     </span>
                   </div>
