@@ -247,7 +247,7 @@ const handleSendOffer = async () => {
   }
 
 
-  const { carAd, vehicleAd, propertyAd, petAd, agricultureAd, kidsAd, business } = adData;
+  const { carAd, vehicleAd, propertyAd, petAd, agricultureAd, kidsAd, serviceAd, business } = adData;
   const actualBusinessId = carAd?.businessCategory?._id || carAd?.businessCategory;
   const sellerId = business?.userId || carAd?.userId || vehicleAd?.userId || propertyAd?.userId;
 
@@ -268,7 +268,10 @@ const handleSendOffer = async () => {
     adDetails = agricultureAd;
   } else if (kidsAd) {
     adDetails = kidsAd;
-  }
+  } else if (serviceAd) { 
+      mainAd = carAd;
+      adDetails = serviceAd;
+   }
 
   const businessName = business?.businessName || "Unknown Seller";
   const aboutBusiness = business?.aboutBusiness || "No 'About' section provided.";
@@ -286,9 +289,10 @@ const handleSendOffer = async () => {
                  petAd?.negotiation === true;
   const agricultureNeg = agricultureAd?.negotiation === "Yes"; 
   const kidsNeg = kidsAd?.negotiation === "Yes";
+  const serviceNeg = serviceAd?.negotiation === "Yes";
 
   
-  return vehicleNeg || propertyNeg || petNeg || agricultureNeg || kidsNeg;
+  return vehicleNeg || propertyNeg || petNeg || agricultureNeg || kidsNeg || serviceNeg;
 };
 
 
@@ -298,6 +302,7 @@ const productTitle =
   petAd?.breed ? `${petAd.breed} - ${petAd.petType}` : "" ||
   (agricultureAd?.title ? `${agricultureAd.title} ` : "") || 
   (kidsAd?.title ? `${kidsAd.title}` : "") ||
+  (serviceAd?.serviceTitle ? `${serviceAd.serviceTitle}` : "") ||
   (vehicleAd ? `${vehicleAd.vehicleType} ${vehicleAd.model}` : "") ||
   (carAd ? `${carAd.vehicleType} ${carAd.model}` : "");
 
@@ -306,6 +311,7 @@ const productTitle =
       carAd.petsImage?.length > 0 ? carAd.petsImage : 
       carAd.agricultureImage?.length > 0 ? carAd.agricultureImage :
       carAd.kidsImage?.length > 0 ? carAd.kidsImage :
+       carAd.serviceImage?.length > 0 ? carAd.serviceImage :
         carAd.vehicleImage || [])
     : [];
 
@@ -313,7 +319,7 @@ const productTitle =
     const smallImages = mainImageArray.slice(1, 5);
 
     // const productId = mainAd?._id;
-    const productId = vehicleAd?._id || propertyAd?._id || petAd?._id || agricultureAd?._id || kidsAd?._id;
+    const productId = vehicleAd?._id || propertyAd?._id || petAd?._id || agricultureAd?._id || kidsAd?._id || serviceAd?._id;
 
 // Pick correct product image
 const productImage =
@@ -321,6 +327,7 @@ const productImage =
   petAd?.petsImage?.[0] || 
   agricultureAd?.agricultureImage?.[0] || 
   kidsAd?.kidsImage?.[0] || 
+   serviceAd?.serviceImage?.[0] ||
   vehicleAd?.vehicleImage?.[0] ||
   carAd?.vehicleImage?.[0];
 
@@ -357,6 +364,11 @@ const productImage =
              {kidsAd.title} {kidsAd.condition} {kidsAd.color}
           </span>
         )}
+        {serviceAd && ( 
+          <span className="text-[#000087] text-[13px] md:text-[14px] font-[500] font-inter whitespace-nowrap">
+             {serviceAd.serviceTitle} {serviceAd.serviceExperience}
+          </span>
+        )}
       </div>
 
       <div className="mt-5 container mx-auto flex flex-wrap items-center justify-center gap-4">
@@ -385,6 +397,11 @@ const productImage =
             <h2 className="text-[#525252] text-[14px] md:text-[18px] font-[500] font-inter">
                {agricultureAd.title}
             </h2> 
+          )}
+           {serviceAd && ( 
+             <h2 className="text-[#525252] text-[14px] md:text-[18px] font-[500] font-inter">
+               {serviceAd.serviceTitle}
+            </h2>  
           )}
         </div>
         <div className="flex items-center space-x-3">
@@ -519,6 +536,9 @@ const productImage =
        {kidsAd?.amount && (
          <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{kidsAd.amount?.toLocaleString()}</span>
        )}
+        {serviceAd?.amount && ( 
+         <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{serviceAd.amount?.toLocaleString()}</span>
+       )}
      </div>
      {isNegotiable() && (
   <div className="p-4">
@@ -620,6 +640,16 @@ const productImage =
            Kids Product Details
           </Button>
          )}
+         {serviceAd && ( 
+          <Button 
+           className={`py-2 px-4 min-w-[120px] h-[40px] md:h-[44px] rounded-tl-[4px] whitespace-nowrap rounded-tr-[4px] text-center ${
+            activeTab === "car" ? "bg-[#DFDFF9] text-[#000087]" : "bg-gray-200 text-gray-700"
+           }`}
+           onClick={() => setActiveTab("car")}
+          >
+           Service Details
+          </Button>
+         )}
    
            {propertyAd && (
             <Button
@@ -666,6 +696,15 @@ const productImage =
               Review 
            </Button>
            )}
+            {serviceAd && ( 
+              <Button
+            className={`py-2 px-4 min-w-[120px] h-[40px] md:h-[44px] rounded-tl-[4px] whitespace-nowrap rounded-tr-[4px] text-center ${
+               activeTab === "review" ? "bg-[#DFDFF9] text-[#000087]" : "bg-gray-200 text-gray-700"
+             }`}
+              onClick={() => setActiveTab("review")}>
+              Review 
+           </Button>
+           )}
         </div>
       </div>
 
@@ -699,6 +738,12 @@ const productImage =
                    {kidsAd.title} - {kidsAd.ageGroup}
                </h2>
               )}
+              {serviceAd && ( 
+                 <h2 className="text-[#525252] text-[14px] md:text-[18px] font-[500] font-inter">
+                   {serviceAd.serviceTitle}
+               </h2>
+              )}
+
               <div className="flex space-x-2">
                  <Img 
                    src="/eye.svg"
@@ -730,6 +775,11 @@ const productImage =
                    {kidsAd && (  
                      <span className="text-[#868686] text-[14px] md:text-[14px] font-[400] font-inter whitespace-nowrap">
                       {kidsAd.viewCount} Views
+                   </span>
+                  )}
+                    {serviceAd && ( 
+                     <span className="text-[#868686] text-[14px] md:text-[14px] font-[400] font-inter whitespace-nowrap">
+                      {serviceAd.viewCount} Views
                    </span>
                   )}
               </div>
@@ -783,6 +833,13 @@ const productImage =
                     text-[#000087] text-[10px] md:text-[12px] 
                     font-inter capitalize font-[500] rounded-[4px]">
                       {kidsAd.plan}
+                    </Button>
+                  )}
+                   {serviceAd && ( 
+                    <Button className="bg-[#DFDFF9] py-2 px-3 
+                    text-[#000087] text-[10px] md:text-[12px] 
+                    font-inter capitalize font-[500] rounded-[4px]">
+                      {serviceAd.plan}
                     </Button>
                   )}
                </div>
@@ -878,6 +935,20 @@ const productImage =
                <div>
                 <span className="text-[#868686] text-[10px] md:text-[12px] font-[400] font-inter">
                   Posted on {new Date(kidsAd.createdAt).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric"
+                  })}
+               </span>
+               </div>
+              </>
+             )}
+
+             {serviceAd && ( 
+              <>
+               <div>
+                <span className="text-[#868686] text-[10px] md:text-[12px] font-[400] font-inter">
+                  Posted on {new Date(serviceAd.createdAt).toLocaleDateString("en-US", {
                   year: "numeric",
                   month: "long",
                   day: "numeric"
@@ -1101,6 +1172,105 @@ const productImage =
                     <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
                       {kidsAd.ageGroup}
                     </span>
+                  </div>
+                   )}
+                  </div>
+                </div>
+              )}
+            </div>
+           )}
+
+
+           
+           {serviceAd && ( 
+            <div className="bg-[#FAFAFA] md:w-[650px] h-auto md:rounded-[12px] p-8 mt-4">
+              <div className="flex items-center justify-between">
+                <span className="text-[#525252] md:text-[16px] font-inter font-[500]">
+                 Service Details 
+               </span> 
+
+               <div className="flex items-center space-x-2">
+                  <span className="text-[#000087] text-[16px] font-[400] font-inter">
+                    Show More
+                  </span>
+                    <button 
+                   onClick={() => setShowDetails(!showDetails)} 
+                   aria-expanded={showDetails}>
+                    <Img
+                      src={showDetails ? "/dropup.svg" : "/dropdown.svg"}
+                      alt="Dropdown Icon"
+                      width={8}
+                      height={4}
+                      className="mr-2 mt-[2px] cursor-pointer"
+                    />
+                  </button>
+                </div>
+              </div>
+              {showDetails && (
+                <div className="mt-4">
+                  <div className="flex flex-wrap justify-between gap-y-4 gap-x-[4%] max-w-[650px] mx-auto">
+                   {serviceAd?.serviceDuration && (
+                    <div className="flex flex-col w-[48%] md:w-[30%]">
+                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+                      Duration
+                    </span>
+                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+                      {serviceAd.serviceDuration}
+                    </span>
+                  </div>
+                   )}
+                   {serviceAd?.serviceExperience && (
+                    <div className="flex flex-col w-[48%] md:w-[30%]">
+                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+                      Experience Level
+                    </span>
+                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+                      {serviceAd.serviceExperience}
+                    </span>
+                  </div>
+                   )}
+                   {serviceAd?.serviceAvailability && (
+                    <div className="flex flex-col w-[48%] md:w-[30%]">
+                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+                      Availability
+                    </span>
+                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+                      {serviceAd.serviceAvailability}
+                    </span>
+                  </div>
+                   )}
+                   {serviceAd?.yearOfExperience && (
+                    <div className="flex flex-col w-[48%] md:w-[30%]">
+                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+                      Years of Experience
+                    </span>
+                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+                      {serviceAd.yearOfExperience}
+                    </span>
+                  </div>
+                   )}
+                   {serviceAd?.pricingType && (
+                    <div className="flex flex-col w-[48%] md:w-[30%]">
+                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+                      Pricing Type
+                    </span>
+                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+                      {serviceAd.pricingType}
+                    </span>
+                  </div>
+                   )}
+                   {serviceAd?.serviceLocation && serviceAd.serviceLocation.length > 0 && (
+                    <div className="flex flex-col w-[48%] md:w-[30%]">
+                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+                      Service Location
+                    </span>
+                    <div className="mt-2">
+                      {serviceAd.serviceLocation.map((loc, idx) => (
+                        <span key={idx} className="text-[#525252] text-[14px] md:text-[16px] font-medium font-inter block">
+                          {loc}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                    )}
                   </div>
@@ -1395,6 +1565,11 @@ const productImage =
                   {kidsAd?.description}
                 </p>  
               )}
+               {serviceAd && ( 
+               <p className="text-[#868686] mt-2 text-[12px] md:text-[14px] font-[400] font-inter">
+                  {serviceAd?.description}
+                </p>  
+              )}
            </div>
           </>
         ): (
@@ -1527,6 +1702,11 @@ const productImage =
        )}
        {kidsAd && (  
          <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{kidsAd.amount?.toLocaleString()}</span>
+       )}
+        {serviceAd && ( 
+         <span className="text-[#525252] text-[24px] font-[500] font-inter">
+           {serviceAd.amount ? `₦${serviceAd.amount.toLocaleString()}` : serviceAd.pricingType || "Contact for pricing"}
+         </span>
        )}
      </div>
      {isNegotiable() && (

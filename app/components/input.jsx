@@ -13,7 +13,7 @@ const InputField = ({
   return (
     <div className="flex flex-col w-full mt-5">
       {label && (
-        <label className="block text-left mb-1 text-[#000] md:text-[12px] font-[500] font-inter">
+        <label className="block text-left mb-1 text-[#525252] md:text-[12px] font-[500] font-inter">
           {label}
         </label>
       )}
