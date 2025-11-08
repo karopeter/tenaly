@@ -49,6 +49,22 @@ const routeMap = {
   "Small Pets (rabbits, hamsters, guinea pigs)": "/pets-hamster",
   "Pet Accessories": "/pets-accessories",
   "Pet Food": "/pets-food",
+  
+
+  // Services 
+  "Tech & IT": "/services-tech-it",
+  "Lessons & Training": "/services-lessons-training",
+  "Cleaning": "/services-cleaning",
+  "Repairs & Maintenance": "/services-repairs-maintenance",
+  "Painting & Well Finishing": "/services-painting",
+  "Plumbing": "/services-plumbing",
+  "Electrical Wiring & Installation": "/services-electrical",
+  "Furniture Assembly": "/services-furniture-assembly",
+  "Beauty & Wellness": "/services-beauty-wellness",
+  "Creative & Media": "/services-creative-media",
+  "Event Planning & Coordination": "/services-event-planning",
+  "Dj Services": "/services-dj",
+  "MC / Host Services": "/services-mc-host",
 
   // Standalone categories 
   "Equipments & Machineries": "/equipment-machinery",
@@ -57,7 +73,6 @@ const routeMap = {
   "Laptops & Computers": "/laptops-computers",
   "Household Items": "/household-items",
   "Job": "/jobs",
-  "Services": "/services",
   "Available for hire": "/available-for-hire"
 };
 
@@ -142,10 +157,6 @@ export default function CreateCarContent() {
       const bizId = carAdData.business?.businessId || carAdData.businessCategory?._id || carAdData.businessCategory;
       setBusinessId(bizId);
 
-      // Convert image URLs to file preview 
-      // const imageUrls = carAdData.vehicleImage?.length > 0
-      //  ? carAdData.vehicleImage
-      //  : carAdData.propertyImage || [];
 
       const imageUrls = carAdData.images || [];
 
@@ -255,6 +266,22 @@ export default function CreateCarContent() {
     'Short Let Property',
     'Event Center And Venues'
   ];
+
+  const servicesCategories = [
+     'Tech & IT',
+  'Lessons & Training',
+  'Cleaning',
+  'Repairs & Maintenance',
+  'Painting & Well Finishing',
+  'Plumbing',
+  'Electrical Wiring & Installation',
+  'Furniture Assembly',
+  'Beauty & Wellness',
+  'Creative & Media',
+  'Event Planning & Coordination',
+  'Dj Services',
+  'MC / Host Services'
+  ];
   
   if (vehicleCategories.includes(value)) {
     return { baseCategory: "Vehicle", categoryValue: value };
@@ -278,8 +305,8 @@ export default function CreateCarContent() {
     return { baseCategory: "Household", categoryValue: value };
   } else if (value === 'Job') {
     return { baseCategory: "Job", categoryValue: value };
-  } else if (value === 'Services') {
-    return { baseCategory: "Services", categoryValue: value };
+  } else if (servicesCategories.includes(value)) {
+      return { baseCategory: "Services", categoryValue: value };
   } else if (value === 'Available for hire') {
     return { baseCategory: "Hire", categoryValue: value };
   }

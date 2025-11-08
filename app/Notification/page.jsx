@@ -57,6 +57,10 @@ export default function NotificationPage() {
               displayName = notif.adDetails.title;
             } else if (notif.adDetails.gender && notif.adDetails.ageGroup) {
               displayName = `${notif.adDetails.gender} - ${notif.adDetails.ageGroup}`;
+            } else if (notif.adDetails.serviceTitle && notif.adType === 'service') {
+              displayName = notif.adDetails.serviceTitle;
+            } else if (notif.adDetails.serviceExperience && notif.adDetails.serviceDuration) {
+              displayName = `${notif.adDetails.serviceExperience} - ${notif.adDetails.serviceDuration}`;
             }
           }
 
@@ -122,6 +126,7 @@ export default function NotificationPage() {
     const petAdId = notification.petAd?._id;
     const agricultureAdId = notification.agricultureAd?._id;
     const kidAdId = notification.kidAd?._id;
+    const serviceAdId = notification.serviceAd?._id;
 
     if (notification.adType === 'vehicle' && businessId && carAdId && vehicleAdId) {
       return `/ads/Vehicles/${businessId}/${carAdId}/${vehicleAdId}`;
@@ -133,6 +138,8 @@ export default function NotificationPage() {
         return `/ads/Agriculture/${businessId}/${carAdId}/${agricultureAdId}`;
     } else if (notification.adType === 'kids' && businessId && carAdId && kidAdId) {
       return `/ads/Kids/${businessId}/${carAdId}/${kidAdId}`;
+    } else if (notification.adType === 'service' && businessId && carAdId && serviceAdId) {
+       return `/ads/Service/${businessId}/${carAdId}/${serviceAdId}`;
     }
     
     // Fallback
@@ -256,7 +263,8 @@ export default function NotificationPage() {
                           notif.adType === 'property' ? 'bg-green-500' :  
                           notif.adType === 'pet' ? 'bg-purple-500' : 
                           notif.adType === 'agriculture' ? 'bg-orange-500' : 
-                          notif.adType === 'kids' ? 'bg-pink-500' : 
+                          notif.adType === 'kids' ? 'bg-pink-500' :
+                          notif.adType === 'service' ? 'bg-orange-500' : 
                           'bg-gray-500'
                         }`} title={`${notif.adType} ad`}></span>
                       )}
@@ -274,7 +282,7 @@ export default function NotificationPage() {
                         {/* Notification message */}
                         <p className="text-[#525252] font-[400] font-inter text-[12px] md:text-[14px] break-words leading-snug">
                           {notif.message}
-                          {notif.adDetails && (notif.vehicleAd || notif.propertyAd || notif.petAd || notif.agricultureAd || notif.kidAd) && (
+                          {notif.adDetails && (notif.vehicleAd || notif.propertyAd || notif.petAd || notif.agricultureAd || notif.kidAd || notif.serviceAd) && (
                             <span className="ml-1">
                               <Link 
                                 href={getViewAdLink(notif)} 

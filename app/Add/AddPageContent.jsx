@@ -18,6 +18,7 @@ export default function AddCarPostContent() {
   const [petAds, setPetAds] = useState([]);
   const [kidAds, setKidAds] = useState([]);
   const [agricultureAds, setAgricultureAds] = useState([]);
+  const [serviceAds, setServiceAds] = useState([]);
   const [activeTab, setActiveTab] = useState('vehicles'); 
   const [showMenu, setShowMenu] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -80,6 +81,11 @@ export default function AddCarPostContent() {
         );
         setKidAds(kidRes.data.data || []);
 
+        const serviceRes = await api.get(
+          `/services/ads/combined-services?businessId=${selectedBusiness}&page=1&limit=10`
+        );
+        setServiceAds(serviceRes.data.data || []);
+
 
         setAdsLoaded(true);
         setLoading(false);
@@ -130,7 +136,7 @@ useEffect(() => {
       setActiveTab(availableTabs[0].id);
     }
   }
-}, [adsLoaded, vehicleAds.length, propertyAds.length, petAds.length, agricultureAds.length, kidAds.length]);
+}, [adsLoaded, vehicleAds.length, propertyAds.length, petAds.length, agricultureAds.length, kidAds.length, serviceAds.length]);
 
 
   useEffect(() => {
@@ -237,7 +243,24 @@ const handleEditIncompleteAd = async (carAdId, category) => {
        } catch (agricultureError) {
         console.log("⚠️ No AgricultureAd draft found, using CarAd only");
        }
-    } else if (adType === 'kid') {
+    } else if (adType === 'service') {
+       try {
+         const serviceResponse = await api.get(`/services/draft/${actualCarAdId}`);
+         if (serviceResponse.data && serviceResponse.data.serviceAd) {
+          const serviceAd = serviceResponse.data.serviceAd;
+
+          mergedData = {
+            ...carAd,
+            ...serviceAd,
+            businessCategory: carAd.businessCategory
+          };
+
+         console.log("✅ Merged service draft data:", mergedData);
+         }
+       } catch (serviceError) {
+        console.log("⚠️ No ServiceAd draft found, using CarAd only");
+       }
+      } else if (adType === 'kid') {
         try {
          const kidResponse = await api.get(`/kids/draft/${actualCarAdId}`);
          if (kidResponse.data && kidResponse.data.kidAd) {
@@ -292,6 +315,21 @@ const handleEditIncompleteAd = async (carAdId, category) => {
     'Health & Safety (monitors, baby gates)',
      'School Supplies (bags, books, stationery)'
     ];
+     const serviceCategories = [
+        'Tech & IT',
+        'Lessons & Training',
+        'Cleaning',
+        'Repairs & Maintenance',
+        'Painting & Well Finishing',
+        'Plumbing',
+        'Electrical Wiring & Installation',
+        'Furniture Assembly',
+        'Beauty & Wellness',
+        'Creative & Media',
+        'Event Planning & Coordination',
+        'Dj Services',
+        'MC / Host Services'
+        ];
      const petRouteMap = {
       "Dogs": "/pets-dogs",
   "Cats": "/pets-cats",
@@ -333,6 +371,22 @@ const handleEditIncompleteAd = async (carAdId, category) => {
       "Health & Safety (monitors, baby gates)": "/kids-baby-health&safety",
      "School Supplies (bags, books, stationery)": "/kids-school-supplies",
     };
+    
+    const serviceRouteMap = {
+      "Tech & IT": "/services-tech-it",
+      "Lessons & Training": "/services-lessons-training",
+      "Cleaning": "/services-cleaning",
+      "Repairs & Maintenance": "/services-repairs-maintenance",
+      "Painting & Well Finishing": "/services-painting",
+      "Plumbing": "/services-plumbing",
+      "Electrical Wiring & Installation": "/services-electrical",
+      "Furniture Assembly": "/services-furniture-assembly",
+      "Beauty & Wellness": "/services-beauty-wellness",
+      "Creative & Media": "/services-creative-media",
+      "Event Planning & Coordination": "/services-event-planning",
+      "Dj Services": "/services-dj",
+      "MC / Host Services": "/services-mc-host",
+    };
   
      let targetRoute = "";
     if (vehicleCategories.includes(category?.toLowerCase())) {
@@ -343,7 +397,9 @@ const handleEditIncompleteAd = async (carAdId, category) => {
       targetRoute = agricultureRouteMap[category];
     }  else if (kidCategories.includes(category)) {
       targetRoute = kidRouteMap[category];
-    } else {
+    } else if (serviceCategories.includes(category)) {
+      targetRoute = serviceRouteMap[category];
+    }  else {
       targetRoute = propertyRouteMap[category] || `/more-property-post?carAdId=${actualCarAdId}`;
     }
 
@@ -508,6 +564,31 @@ useEffect(() => {
      }
   };
 
+    const handleServiceDelete = async (adId) => {
+     const confirmed = window.confirm("Are you sure you want to delete this ad?");
+     if (!confirmed) return;
+
+     try {
+      await api.delete(`/services/delete-services/${adId}`);
+      setServiceAds((prev) => 
+        prev.filter(({ serviceAd, carAd }) => (serviceAd?._id || carAd?._id) !== adId)
+      );
+      toast.success("Service ad deleted successfully.");
+     } catch (serviceError) {
+       console.warn("Service ad delete failed, trying car ad...");
+       try {
+       await api.delete(`/carAdd/delete-car-ad/${adId}`);
+       setServiceAds((prev) => 
+          prev.filter(({ serviceAd, carAd }) => (serviceAd?._id || carAd?._id) !== adId)
+       );
+       toast.success("Service Ad Image Ad deleted successfully.");
+       } catch (carError) {
+         console.error("Delete error:", carError.message);
+         toast.error("Failed to delete ad.");
+       }
+     }
+  };
+
 
 
   const handleMarkVehicleAsSold = async (vehicleId, carAdId) => {
@@ -626,7 +707,7 @@ useEffect(() => {
   };
 
    const handleMarkKidAsSold = async (kidId, carAdId) => {
-     const confirmed = window.confirm("Are you sure you want to mark this agriculture ad as sold?");
+     const confirmed = window.confirm("Are you sure you want to mark this kid ad as sold?");
      if (!confirmed) return;
 
      try {
@@ -647,6 +728,34 @@ useEffect(() => {
        console.error("Error marking Kid Ad as sold:", error);
        const message = 
           error?.response?.data?.message || error?.message || "Failed to mark kd as sold.";
+      toast.error(message);
+     } finally {
+      setMarkingSold(null);
+     }
+  };
+
+     const handleMarkServiceAsSold = async (serviceId, carAdId) => {
+     const confirmed = window.confirm("Are you sure you want to mark this kid ad as sold?");
+     if (!confirmed) return;
+
+     try {
+       setMarkingSold(serviceId);
+       setShowMenu(null);
+
+       await api.patch(`/services/mark-services-ad-as-sold/${serviceId}`);
+
+       setServiceAds((prev) => 
+        prev.map(({ adId, carAd, serviceAd }) => 
+           serviceAd?._id === serviceId 
+             ? { adId, carAd, serviceAd: { ...serviceAd, status: "sold" } }
+             : {adId, carAd, serviceAd }
+         )
+      );
+      toast.success("Service Ad marked as sold.");
+     } catch (error) {
+       console.error("Error marking Service Ad as sold:", error);
+       const message = 
+          error?.response?.data?.message || error?.message || "Failed to mark Service  as sold.";
       toast.error(message);
      } finally {
       setMarkingSold(null);
@@ -674,7 +783,7 @@ useEffect(() => {
     }
   }
 
-  const totalAds = vehicleAds.length + propertyAds.length + petAds.length + agricultureAds.length + kidAds.length;
+  const totalAds = vehicleAds.length + propertyAds.length + petAds.length + agricultureAds.length + kidAds.length + serviceAds.length;
 
   const getAvailableTabs = () => {
     const tabs = [];
@@ -683,6 +792,7 @@ useEffect(() => {
     if (petAds.length > 0) tabs.push({ id: 'pets', label: 'Pet', count: petAds.length });
     if (agricultureAds.length > 0) tabs.push({ id: 'agriculture', label: 'Agriculture', count: agricultureAds.length });
     if (kidAds.length > 0) tabs.push({ id: 'kid', label: 'Kid', count: kidAds.length });
+    if (serviceAds.length > 0) tabs.push({ id: 'service', label: 'Service', count: serviceAds.length });
     return tabs;
   }
 
@@ -874,6 +984,16 @@ useEffect(() => {
               onClick={() => setActiveTab('kid')}
             >
                Kid Ads ({kidAds.length})
+            </button>
+             <button
+              className={`px-4 py-2 font-inter font-[500] text-[14px] border-b-2 transition-colors ${
+              activeTab === 'service'
+                ? "border-[#00A8DF] text-[#00A8DF]"
+               : "border-transparent text-[#525252] hover:text-[#00A8DF]"
+              }`}
+              onClick={() => setActiveTab('service')}
+            >
+               Service Ads ({serviceAds.length})
             </button>
           </div>
 
@@ -2313,6 +2433,294 @@ useEffect(() => {
                        {carAd?.kidsImage?.length > 4 && (
                         <div className="w-16 h-16 bg-gray-100 rounded border border-gray-200 flex items-center justify-center text-gray-600 text-xs">
                           +{carAd.kidsImage.length - 4}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                       <Button
+                        onClick={() => handleEditIncompleteAd(carAd._id, carAd.category)}
+                        className="flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-[8px] transition-all text-[14px]"
+                      >
+                        <Edit size={16} /> Complete Ad
+                      </Button>
+
+                      <button 
+                        className="text-[#CB0D0D] text-[14px] font-[400] font-inter hover:underline"
+                        onClick={() => {
+                          setShowMenu(null);
+                          handleEditCarAd(carAd._id, carAd.category);
+                        }}
+                      >
+                        Edit
+                      </button>
+
+                       <button
+                        onClick={() => handleAgricultureDelete(carAd._id)}
+                        className="text-[#CB0D0D] text-[14px] font-[400] font-inter hover:underline"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                </div>
+              )}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+     )}
+   </div>
+ )}
+
+
+    {activeTab === 'service' && (
+   <div className="mt-5">
+    {serviceAds.length === 0 ? (
+       <div className="w-full h-[490px] p-6 md:p-10 text-center flex flex-col justify-center items-center">
+        <Img 
+          src="/postAds.svg"
+          width={158}
+          height={158}
+          className="mx-auto mb-4"
+          alt="No Posts"
+        />
+        <p className="font-[500] text-[#868686] text-sm md:text-[14px] font-inter mb-4">
+          No Service Ads for this business
+        </p>
+        <div className="flex justify-center">
+           <Link href="/create-add" passHref>
+            <Button className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] transition-all hover:scale-105">
+              <Plus size={20} /> Post an Ad
+            </Button>
+          </Link>
+        </div>
+       </div>  
+     ): (
+      <div className="flex flex-col gap-4">
+        {serviceAds.map(({adId, carAd, serviceAd}) => {
+          const businessId = carAd?.businessCategory?._id || serviceAd?.businessCategory;
+          const serviceId = serviceAd?._id;
+          const isIncomplete = isIncompleteAd(carAd, serviceAd);
+
+          return (
+            <div
+             key={adId}
+             className="flex flex-col md:flex-row justify-between 
+             gap-4 w-full border border-[#EDEDED] rounded-[12px] overflow-visible relative"
+            >
+            <div className="relative w-full md:w-[300px] shrink-0 overflow-hidden">
+              {carAd?.serviceImage?.length > 0 && (
+                <>
+                 <Img 
+                   src={carAd.serviceImage[0]}
+                   alt="Service Image Ad"
+                   width={340}
+                   height={210}
+                   className="w-full h-[160px] md:h-full object-cover rounded-[8px]"
+                 />
+
+                 {isIncomplete && (
+                  <div className="absolute top-2 right-2 bg-orange-500 text-white px-3 py-1 rounded-md text-xs font-semibold z-30 shadow-md">
+                    Incomplete
+                  </div>
+                 )}
+
+                 {serviceAd?.status === "sold" && (
+                  <div className="absolute top-5 left-[-10px] bg-[#F8EFEF] w-[100px] 
+                  md:w-[120px] h-[40px] md:rounded-[8px] rounded-[4px] 
+                  transform -rotate-45 flex items-center justify-center shadow-md z-40">
+                    <Img 
+                      src="/tick-circle.svg"
+                      alt="Tick Circle"
+                      width={16}
+                      height={16}
+                      className="mr-2"
+                    />
+                    <span className="text-[#CB0D0D] text-[12px] md:text-[14px] font-[500] font-inter">
+                     SOLD
+                    </span>
+                  </div>
+                 )}
+                </>
+              )}
+
+              {serviceAd?.plan && !isIncomplete && (
+                <div
+                  className="absolute bottom-0 left-0 z-30 w-[139px] h-[35px] flex items-center px-4"
+                  style={{
+                     backgroundImage: `url(${machineImage})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                 }}
+                >
+                 <div className="bg-[#DFDFF9] w-[100px] h-[24px] rounded-[4px] border flex justify-center items-center gap-2 border-[#2C2CCD]">
+                   <Img src="/medal-star1.svg" alt="Plan" width={24} height={24} />
+                   <span className="text-[#000087] text-[12px] font-[400] font-inter uppercase">
+                        {serviceAd.plan}
+                   </span>
+                  </div>
+                </div>
+              )}
+              </div>
+
+              <div className="flex-1 flex flex-col p-2">
+               <div className="flex justify-between items-start w-full">
+                <div className='flex-1'>
+                  {isIncomplete ? (
+                    <>
+                     <h4 className="text-[#525252] text-[18px] font-[500] font-inter line-clamp-1">
+                      {carAd?.category} - Incomplete Ad
+                    </h4>
+                     <p className="text-orange-600 text-[14px] font-[400] font-inter mt-1">
+                      Please complete your ad details to publish
+                    </p>
+                    </>
+                  ): (
+                    <h4 className="text-[#525252] text-[18px] font-[500] font-inter line-clamp-1">
+                        {serviceAd?.serviceTitle} - {serviceAd?.serviceDuration}
+                      </h4>
+                  )}
+                </div>
+                {!isIncomplete && serviceAd?.amount && (
+                  <div className="flex items-start gap-4">
+                   <div className="text-[#000087] text-[16px] font-[600] font-inter whitespace-nowrap">
+                        ₦{serviceAd.amount.toLocaleString()}
+                      </div>
+                  </div>
+                )}
+              </div>
+
+              {!isIncomplete ? (
+              <>
+                <p className="text-[#8C8C8C] text-[14px] font-[400] font-inter break-words">
+                {serviceAd?.description || "No description provided"}
+                </p>
+                 <div className="flex items-center gap-2 mt-2">
+                      <Img src="/location.svg" alt="Location" width={10} height={13} />
+                      <span className="text-[#8C8C8C] text-[14px] font-[400] font-inter">
+                        {carAd?.location || "Location not specified"}
+                      </span>
+                  </div>
+
+                  <div  className="flex flex-col md:flex-row gap-x-3 items-center justify-between">
+                     <div className='flex flex-wrap gap-3 mt-2'>
+                       {serviceAd?.serviceAvailability && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-[#868686] text-[12px] font-inter">
+                              Availability: {serviceAd.serviceAvailability}
+                            </span>
+                          </div>
+                        )}
+                         {serviceAd?.serviceExperience  && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-[#868686] text-[12px] font-inter">
+                              {serviceAd.serviceExperience}
+                            </span>
+                          </div>
+                        )}
+                     </div>
+                     <div className="relative">
+                      <button 
+                        className="p-2 rounded-full hover:bg-[#F7F7FF] transition"
+                         onClick={() => 
+                          setShowMenu((prev) => (prev === adId ? null : adId))
+                         }
+                        >
+                        <FiMoreHorizontal size={20} color="#767676" />
+                      </button>
+
+                      {showMenu === adId && (
+                        <div 
+                          className="absolute right-0 top-full mt-2 w-40 z-50 bg-white 
+                          border border-[#EDEDED] rounded-lg shadow-lg overflow-hidden">
+                            <button
+                               className="flex items-center w-full px-4 py-3 text-[16px] font-inter font-[400] text-[#525252] hover:bg-[#F7F7FF] transition-colors"
+                               onClick={() => {
+                                 setShowMenu(null);
+                                 if (businessId && adId && serviceId) {
+                                  router.push(`/ads/Service/${businessId}/${adId}/${serviceId}`);
+                                 }
+                               }}
+                            >
+                              <FiEye className="mr-2" size={16} /> 
+                              View Details 
+                            </button>
+
+                            {serviceAd.isDraft ? (
+                              <button  
+                               className="flex items-center w-full px-4 py-3 text-[16px] 
+                               font-inter font-[400] text-[#525252] hover:bg-[#F7F7FF] transition-colors"
+                               onClick={() => handleEditIncompleteAd(carAd._id, carAd.category)}
+                               >
+                                 <Edit className="mr-2 flex-shrink-0" size={16} />
+                                <span className="whitespace-nowrap">Complete Draft</span>
+                              </button>
+                            ): (
+                             <>
+                              {serviceAd?.status === 'rejected' && (
+                                  <button
+                                    className="flex items-center w-full px-4 py-3 text-[16px] font-inter font-[400] text-[#525252] hover:bg-[#F7F7FF] transition-colors"
+                                    onClick={() => handleResubmitAd(carAd._id, 'service')}
+                                  >
+                                    <Edit className="mr-3" size={16} />
+                                    Resubmit 
+                                  </button>
+                                )}
+                                  {serviceAd?.status === 'approved' && (
+                                  <button
+                                    className="flex items-center w-full px-4 py-3 text-[16px] whitespace-nowrap font-inter font-[400] text-[#525252] hover:bg-[#F7F7FF] transition-colors"
+                                    onClick={() => handleMarkServiceAsSold(serviceAd?._id, carAd?._id)}
+                                  >
+                                    <FiCheck className="mr-3" size={16} />
+                                    Mark As Sold
+                                  </button>
+                                )}
+                             </>
+                            )}
+
+                               {serviceAd?.status !== 'sold' && (
+                              <button
+                                className="flex items-center w-full px-4 py-2 text-[#CB0D0D] text-[16px] font-[400] font-inter hover:bg-[#F7F7FF] border-t border-[#EDEDED]"
+                                onClick={() => {
+                                  setShowMenu(null);
+                                  handleServiceDelete(serviceAd?._id || carAd?._id);
+                                }}
+                              >
+                                <FiTrash2 className="mr-2" /> Delete
+                              </button>
+                            )}
+                        </div>
+                      )}
+                     </div>
+                  </div>
+                  <StatusBadge
+                    status={serviceAd?.status}
+                    isDraft={serviceAd?.isDraft}
+                    rejectionReason={serviceAd?.rejectionReason}
+                  />
+              </>
+              ): (
+                <div className="mt-3">
+                   <div className="flex items-center gap-2 mb-3">
+                      <Img src="/location.svg" alt="Location" width={10} height={13} />
+                      <span className="text-[#8C8C8C] text-[14px] font-[400] font-inter">
+                        {carAd?.location || "Location not specified"}
+                      </span>
+                    </div>
+
+                    <div className="flexgap-2 mb-3 overflow-x-auto">
+                        {carAd?.serviceImage?.slice(0, 4).map((img, idx) => (
+                        <img 
+                          key={idx} 
+                          src={img} 
+                          alt={`Preview ${idx + 1}`} 
+                          className="w-16 h-16 object-cover rounded border border-gray-200"
+                        />
+                      ))}
+                       {carAd?.serviceImage?.length > 4 && (
+                        <div className="w-16 h-16 bg-gray-100 rounded border border-gray-200 flex items-center justify-center text-gray-600 text-xs">
+                          +{carAd.serviceImage.length - 4}
                         </div>
                       )}
                     </div>

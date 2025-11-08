@@ -30,8 +30,8 @@ export default function MarketPlace({ category, search, location }) {
     };
 
     return adsArray.sort((a, b) => {
-      const adA = a.vehicleAd || a.propertyAd || a.petAd || a.agricultureAd || a.kidsAd;
-      const adB = b.vehicleAd || b.propertyAd || b.petAd || b.agricultureAd || b.kidsAd;
+      const adA = a.vehicleAd || a.propertyAd || a.petAd || a.agricultureAd || a.kidsAd || a.serviceAd;
+      const adB = b.vehicleAd || b.propertyAd || b.petAd || b.agricultureAd || b.kidsAd || b.serviceAd;
 
       if (!adA && !adB) return 0;
       if (!adA) return -1;
@@ -54,7 +54,7 @@ export default function MarketPlace({ category, search, location }) {
   };
 
   const isPremiumAd = (item) => {
-    const ad = item.vehicleAd || item.propertyAd || item.petAd || item.agricultureAd || item.kidsAd;
+    const ad = item.vehicleAd || item.propertyAd || item.petAd || item.agricultureAd || item.kidsAd || item.serviceAd;
     if (!ad) return false;
     const premiumPlans = ["premium", "vip", "diamond", "enterprise"];
     return ad.paymentStatus === "success" && premiumPlans.includes(ad.plan);
@@ -159,8 +159,17 @@ const kidsNewlyPosted = ads.filter((item) => {
   return diffDays <= 7;
 });
 
+const serviceNewlyPosted = ads.filter((item) => {
+  const ad = item.serviceAd;
+  if (!ad) return false;
+  const createdAt = new Date(ad.createdAt);
+  const now = new Date();
+  const diffDays = (now - createdAt) / (1000 * 60 * 60 * 24);
+  return diffDays <= 7;
+});
+
   const recommendedAds = ads.filter((item) => {
-    const ad = item.vehicleAd || item.propertyAd || item.petAd || item.agricultureAd;
+    const ad = item.vehicleAd || item.propertyAd || item.petAd || item.agricultureAd || item.serviceAd;
     if (!ad) return false;
     return ["free", "basic"].includes(ad.plan);
   });
@@ -199,6 +208,7 @@ const kidsNewlyPosted = ads.filter((item) => {
     const isPetAd = !!item.petAd;
     const isAgricultureAd = !!item.agricultureAd;
     const isKidsAd = !!item.kidsAd;
+    const isServiceAd = !!item.serviceAd;
 
     let imageUrl = null;
     let title = "Untitled Ad";
@@ -217,6 +227,9 @@ const kidsNewlyPosted = ads.filter((item) => {
     let kidsTitle = null;
     let kidsGender = null;
     let kidsAgeGroup = null;
+    let serviceTitle = null; 
+    let servicePricing = null;
+    let serviceExperience = null;
 
     if (isCarAd) {
       imageUrl = item.carAd.vehicleImage?.[0];
@@ -282,7 +295,18 @@ const kidsNewlyPosted = ads.filter((item) => {
       plan = item.kidsAd?.plan;
       kidsGender = item.kidsAd?.gender;
       kidsAgeGroup = item.kidsAd?.ageGroup;
-    }
+    } else if (isServiceAd) {
+      imageUrl = item.carAd?.serviceImage?.[0];
+      title = item.serviceAd?.serviceTitle || "Service";
+      description = item.serviceAd?.description || "No description available.";
+     price = item.serviceAd?.amount
+        ? `₦${item.serviceAd.amount.toLocaleString()}`
+       : item.serviceAd?.pricingType || "Contact for pricing";
+       adLocation = item.carAd?.location || "Unknown";
+       plan = item.serviceAd?.plan;
+      serviceExperience = item.serviceAd?.serviceExperience;
+     servicePricing = item.serviceAd?.pricingType;
+  }
 
     return (
       <Link href={`/HomeList/${adId}`} key={adId}>
@@ -425,6 +449,20 @@ const kidsNewlyPosted = ads.filter((item) => {
                  )}
                 </>
               )}
+                {isServiceAd && (
+                <>
+                 {serviceExperience && (
+                  <span className="bg-[#E8E8FF] font-inter whitespace-nowrap text-[#525252] px-2 py-1 rounded text-xs">
+                     {serviceExperience}
+                  </span>
+                 )}
+                 {servicePricing && (
+                  <span className="bg-[#E8E8FF] font-inter whitespace-nowrap text-[#525252] px-2 py-1 rounded text-xs">
+                     {servicePricing}
+                  </span>
+                 )}
+                </>
+              )}
             </div>
           </div>
         </li>
@@ -508,6 +546,19 @@ const kidsNewlyPosted = ads.filter((item) => {
              </ul>
               </div>
               )}
+
+          {serviceNewlyPosted.length > 0 && (
+            <div>
+             <h2 className="text-[14px] md:text-[20px] font-inter font-[500] font-normal text-[#2E2E2E] mb-4">
+               Services Newly Posted
+            </h2>
+            <ul className="grid gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+             {serviceNewlyPosted.map((item, index) =>
+              renderAdCard(item, index)
+             )}
+            </ul>
+          </div>
+          )}
 
         {recommendedAds.length > 0 && (
           <div>
