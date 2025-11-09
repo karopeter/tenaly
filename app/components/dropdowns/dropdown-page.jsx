@@ -10,72 +10,7 @@ export default function DropdownPage({ onCategoryChange }) {
   const [isVehicleDropdownOpen, setIsVehicleDropdownOpen] = useState(false);
 
 
- const propertyOptions = [
-  { value: "Commercial Property For Rent", label: "Commercial Property For Rent" },
-  { value: "Commercial Property For Sale", label: "Commercial Property For Sale" },
-  { value: "House and Apartment Property For Rent", label: "House and Apartment Property For Rent" },
-  { value: "House and Apartment Property For Sale", label: "House and Apartment Property For Sale" },
-  { value: "Land and Plot For Rent", label: "Land and Plot For Rent" },
-  { value: "Land and Plot For Sale", label: "Land and Plot For Sale" },
-  { value: "Event Center And Venues", label: "Event Center And Venues" },
-  { value: "Short Let Property", label: "Short Let Property" }
-];
-
-const vehicleOptions = [
-  { value: "car", label: "Car" }, 
-  { value: "bus", label: "Bus" },
-  { value: "tricycle", label: "Tricycle" },
-];
-
-// ADD THESE NEW OPTIONS:
-const petOptions = [
-  { value: "Dogs", label: "Dogs" },
-  { value: "Cats", label: "Cats" },
-  { value: "Birds", label: "Birds" },
-  { value: "Fish & Aquarium", label: "Fish & Aquarium" },
-  { value: "Small Pets (rabbits, hamsters, guinea pigs)", label: "Small Pets" },
-  { value: "Pet Accessories", label: "Pet Accessories" },
-  { value: "Pet Food", label: "Pet Food" }
-];
-
-const agricultureOptions = [
-  { value: "Fresh Produce (fruits, vegetables, grains)", label: "Fresh Produce" },
-  { value: "Livestock (poultry, goats, cattle, pigs, etc.)", label: "Livestock" },
-  { value: "Seeds & Seedlings", label: "Seeds & Seedlings" },
-  { value: "Animal Feed", label: "Animal Feed" },
-  { value: "Fertilizers", label: "Fertilizers" },
-  { value: "Farm Tools & Equipment", label: "Farm Tools & Equipment" },
-  { value: "Agro Chemicals (pesticides, herbicides)", label: "Agro Chemicals" },
-  { value: "Farm Services (plowing, irrigation, consultancy)", label: "Farm Services" }
-];
-
-const kidsOptions = [
-  { value: "Baby Clothes", label: "Baby Clothes" },
-  { value: "Kids Clothes", label: "Kids Clothes" },
-  { value: "Shoes", label: "Shoes" },
-  { value: "Toys & Games", label: "Toys & Games" },
-  { value: "Baby Gear (strollers, car seats, carriers)", label: "Baby Gear" },
-  { value: "Feeding (bottles, high chairs, breast pumps)", label: "Feeding" },
-  { value: "Furniture (cribs, cots, wardrobes)", label: "Furniture" },
-  { value: "Health & Safety (monitors, baby gates)", label: "Health & Safety" },
-  { value: "School Supplies (bags, books, stationery)", label: "School Supplies" }
-];
-
-const serviceOptions = [
-  { value: "Tech & IT", label: "Tech & IT" },
-  { value: "Lessons & Training", label: "Lessons & Training" },
-  { value: "Cleaning", label: "Cleaning" },
-  { value: "Repairs & Maintenance", label: "Repairs & Maintenance" },
-  { value: "Painting & Well Finishing", label: "Painting & Well Finishing" },
-  { value: "Plumbing", label: "Plumbing" },
-  { value: "Electrical Wiring & Installation", label: "Electrical Wiring & Installation" },
-  { value: "Furniture Assembly", label: "Furniture Assembly" },
-  { value: "Beauty & Wellness", label: "Beauty & Wellness" },
-  { value: "Creative & Media", label: "Creative & Media" },
-  { value: "Event Planning & Coordination", label: "Event Planning & Coordination" },
-  { value: "Dj Services", label: "DJ Services" },
-  { value: "MC / Host Services", label: "MC / Host Services" }
-];
+ 
 
   const handlePropertySelect = (option) => {
     setSelectedProperty(option.value);

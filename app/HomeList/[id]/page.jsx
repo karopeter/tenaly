@@ -247,7 +247,17 @@ const handleSendOffer = async () => {
   }
 
 
-  const { carAd, vehicleAd, propertyAd, petAd, agricultureAd, kidsAd, serviceAd, business } = adData;
+  const { 
+     carAd, 
+     vehicleAd, 
+     propertyAd, 
+     petAd, 
+     agricultureAd, 
+     kidsAd, 
+     serviceAd,
+     equipmentAd,
+     business
+    } = adData;
   const actualBusinessId = carAd?.businessCategory?._id || carAd?.businessCategory;
   const sellerId = business?.userId || carAd?.userId || vehicleAd?.userId || propertyAd?.userId;
 
@@ -271,8 +281,11 @@ const handleSendOffer = async () => {
   } else if (serviceAd) { 
       mainAd = carAd;
       adDetails = serviceAd;
+   } else if (equipmentAd) {
+      mainAd = carAd;
+      adDetails = equipmentAd;
    }
-
+ 
   const businessName = business?.businessName || "Unknown Seller";
   const aboutBusiness = business?.aboutBusiness || "No 'About' section provided.";
   const businessLocation = business?.location || "N/A";
@@ -290,9 +303,10 @@ const handleSendOffer = async () => {
   const agricultureNeg = agricultureAd?.negotiation === "Yes"; 
   const kidsNeg = kidsAd?.negotiation === "Yes";
   const serviceNeg = serviceAd?.negotiation === "Yes";
+  const equipmentNeg = equipmentAd?.negotiation === "Yes";
 
   
-  return vehicleNeg || propertyNeg || petNeg || agricultureNeg || kidsNeg || serviceNeg;
+  return vehicleNeg || propertyNeg || petNeg || agricultureNeg || kidsNeg || serviceNeg || equipmentNeg;
 };
 
 
@@ -303,6 +317,7 @@ const productTitle =
   (agricultureAd?.title ? `${agricultureAd.title} ` : "") || 
   (kidsAd?.title ? `${kidsAd.title}` : "") ||
   (serviceAd?.serviceTitle ? `${serviceAd.serviceTitle}` : "") ||
+  (equipmentAd?.equipmentTitle ? `${equipmentAd.equipmentTitle}` : "") ||
   (vehicleAd ? `${vehicleAd.vehicleType} ${vehicleAd.model}` : "") ||
   (carAd ? `${carAd.vehicleType} ${carAd.model}` : "");
 
@@ -312,6 +327,7 @@ const productTitle =
       carAd.agricultureImage?.length > 0 ? carAd.agricultureImage :
       carAd.kidsImage?.length > 0 ? carAd.kidsImage :
        carAd.serviceImage?.length > 0 ? carAd.serviceImage :
+       carAd.equipmentImage?.length > 0 ? carAd.equipmentImage :
         carAd.vehicleImage || [])
     : [];
 
@@ -319,7 +335,7 @@ const productTitle =
     const smallImages = mainImageArray.slice(1, 5);
 
     // const productId = mainAd?._id;
-    const productId = vehicleAd?._id || propertyAd?._id || petAd?._id || agricultureAd?._id || kidsAd?._id || serviceAd?._id;
+    const productId = vehicleAd?._id || propertyAd?._id || petAd?._id || agricultureAd?._id || kidsAd?._id || serviceAd?._id || equipmentAd?._id;
 
 // Pick correct product image
 const productImage =
@@ -328,6 +344,7 @@ const productImage =
   agricultureAd?.agricultureImage?.[0] || 
   kidsAd?.kidsImage?.[0] || 
    serviceAd?.serviceImage?.[0] ||
+   equipmentAd?.equipmentImage?.[0] ||
   vehicleAd?.vehicleImage?.[0] ||
   carAd?.vehicleImage?.[0];
 
@@ -369,6 +386,11 @@ const productImage =
              {serviceAd.serviceTitle} {serviceAd.serviceExperience}
           </span>
         )}
+        {equipmentAd && (
+          <span className="text-[#000087] text-[13px] md:text-[14px] font-[500] font-inter whitespace-nowrap">
+             {equipmentAd.equipmentTitle} {equipmentAd.condition}
+          </span>
+        )}
       </div>
 
       <div className="mt-5 container mx-auto flex flex-wrap items-center justify-center gap-4">
@@ -401,6 +423,11 @@ const productImage =
            {serviceAd && ( 
              <h2 className="text-[#525252] text-[14px] md:text-[18px] font-[500] font-inter">
                {serviceAd.serviceTitle}
+            </h2>  
+          )}
+          {equipmentAd && (
+              <h2 className="text-[#525252] text-[14px] md:text-[18px] font-[500] font-inter">
+               {equipmentAd.equipmentTitle}
             </h2>  
           )}
         </div>
@@ -539,6 +566,9 @@ const productImage =
         {serviceAd?.amount && ( 
          <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{serviceAd.amount?.toLocaleString()}</span>
        )}
+       {equipmentAd?.amount && (
+        <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{equipmentAd.amount?.toLocaleString()}</span>
+       )}
      </div>
      {isNegotiable() && (
   <div className="p-4">
@@ -650,6 +680,16 @@ const productImage =
            Service Details
           </Button>
          )}
+         {equipmentAd && (
+           <Button 
+           className={`py-2 px-4 min-w-[120px] h-[40px] md:h-[44px] rounded-tl-[4px] whitespace-nowrap rounded-tr-[4px] text-center ${
+            activeTab === "car" ? "bg-[#DFDFF9] text-[#000087]" : "bg-gray-200 text-gray-700"
+           }`}
+           onClick={() => setActiveTab("car")}
+          >
+          Work & Equipment Details
+          </Button>
+         )}
    
            {propertyAd && (
             <Button
@@ -705,6 +745,15 @@ const productImage =
               Review 
            </Button>
            )}
+            {equipmentAd && ( 
+              <Button
+            className={`py-2 px-4 min-w-[120px] h-[40px] md:h-[44px] rounded-tl-[4px] whitespace-nowrap rounded-tr-[4px] text-center ${
+               activeTab === "review" ? "bg-[#DFDFF9] text-[#000087]" : "bg-gray-200 text-gray-700"
+             }`}
+              onClick={() => setActiveTab("review")}>
+              Review 
+           </Button>
+           )}
         </div>
       </div>
 
@@ -741,6 +790,11 @@ const productImage =
               {serviceAd && ( 
                  <h2 className="text-[#525252] text-[14px] md:text-[18px] font-[500] font-inter">
                    {serviceAd.serviceTitle}
+               </h2>
+              )}
+               {equipmentAd && ( 
+                 <h2 className="text-[#525252] text-[14px] md:text-[18px] font-[500] font-inter">
+                   {equipmentAd.equipmentTitle}
                </h2>
               )}
 
@@ -780,6 +834,11 @@ const productImage =
                     {serviceAd && ( 
                      <span className="text-[#868686] text-[14px] md:text-[14px] font-[400] font-inter whitespace-nowrap">
                       {serviceAd.viewCount} Views
+                   </span>
+                  )}
+                    {equipmentAd && ( 
+                     <span className="text-[#868686] text-[14px] md:text-[14px] font-[400] font-inter whitespace-nowrap">
+                      {equipmentAd.viewCount} Views
                    </span>
                   )}
               </div>
@@ -840,6 +899,13 @@ const productImage =
                     text-[#000087] text-[10px] md:text-[12px] 
                     font-inter capitalize font-[500] rounded-[4px]">
                       {serviceAd.plan}
+                    </Button>
+                  )}
+                  {equipmentAd && ( 
+                    <Button className="bg-[#DFDFF9] py-2 px-3 
+                    text-[#000087] text-[10px] md:text-[12px] 
+                    font-inter capitalize font-[500] rounded-[4px]">
+                      {equipmentAd.plan}
                     </Button>
                   )}
                </div>
@@ -949,6 +1015,19 @@ const productImage =
                <div>
                 <span className="text-[#868686] text-[10px] md:text-[12px] font-[400] font-inter">
                   Posted on {new Date(serviceAd.createdAt).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric"
+                  })}
+               </span>
+               </div>
+              </>
+             )}
+             {equipmentAd && ( 
+              <>
+               <div>
+                <span className="text-[#868686] text-[10px] md:text-[12px] font-[400] font-inter">
+                  Posted on {new Date(equipmentAd.createdAt).toLocaleDateString("en-US", {
                   year: "numeric",
                   month: "long",
                   day: "numeric"
@@ -1279,6 +1358,88 @@ const productImage =
             </div>
            )}
            
+             {equipmentAd && ( 
+            <div className="bg-[#FAFAFA] md:w-[650px] h-auto md:rounded-[12px] p-8 mt-4">
+              <div className="flex items-center justify-between">
+                <span className="text-[#525252] md:text-[16px] font-inter font-[500]">
+                 Work & Equipment Details 
+               </span> 
+
+               <div className="flex items-center space-x-2">
+                  <span className="text-[#000087] text-[16px] font-[400] font-inter">
+                    Show More
+                  </span>
+                    <button 
+                   onClick={() => setShowDetails(!showDetails)} 
+                   aria-expanded={showDetails}>
+                    <Img
+                      src={showDetails ? "/dropup.svg" : "/dropdown.svg"}
+                      alt="Dropdown Icon"
+                      width={8}
+                      height={4}
+                      className="mr-2 mt-[2px] cursor-pointer"
+                    />
+                  </button>
+                </div>
+              </div>
+              {showDetails && (
+                <div className="mt-4">
+                  <div className="flex flex-wrap justify-between gap-y-4 gap-x-[4%] max-w-[650px] mx-auto">
+                   {equipmentAd?.condition && (
+                    <div className="flex flex-col w-[48%] md:w-[30%]">
+                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+                      Equipment Condition
+                    </span>
+                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+                      {equipmentAd.condition}
+                    </span>
+                  </div>
+                   )}
+                   {equipmentAd?.powerSource && (
+                    <div className="flex flex-col w-[48%] md:w-[30%]">
+                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+                      Equipment Power Source 
+                    </span>
+                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+                      {equipmentAd.powerSource}
+                    </span>
+                  </div>
+                   )}
+                   {equipmentAd?.brand && (
+                    <div className="flex flex-col w-[48%] md:w-[30%]">
+                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+                      Equipment Brand
+                    </span>
+                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+                      {equipmentAd.brand}
+                    </span>
+                  </div>
+                   )}
+                   {equipmentAd?.usageType && (
+                    <div className="flex flex-col w-[48%] md:w-[30%]">
+                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+                      Equipment Usage 
+                    </span>
+                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+                      {equipmentAd.usageType}
+                    </span>
+                  </div>
+                   )}
+                     {equipmentAd?.negotiation && (
+                    <div className="flex flex-col w-[48%] md:w-[30%]">
+                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+                      Negotiation
+                    </span>
+                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+                      {equipmentAd.negotiation}
+                    </span>
+                  </div>
+                   )}
+                  </div>
+                </div>
+              )}
+            </div>
+           )}
            
 
 
@@ -1570,6 +1731,11 @@ const productImage =
                   {serviceAd?.description}
                 </p>  
               )}
+              {equipmentAd && (
+                 <p className="text-[#868686] mt-2 text-[12px] md:text-[14px] font-[400] font-inter">
+                  {equipmentAd?.description}
+                </p>   
+              )}
            </div>
           </>
         ): (
@@ -1707,6 +1873,9 @@ const productImage =
          <span className="text-[#525252] text-[24px] font-[500] font-inter">
            {serviceAd.amount ? `₦${serviceAd.amount.toLocaleString()}` : serviceAd.pricingType || "Contact for pricing"}
          </span>
+       )}
+       {equipmentAd && ( 
+          <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{equipmentAd.amount?.toLocaleString()}</span>
        )}
      </div>
      {isNegotiable() && (

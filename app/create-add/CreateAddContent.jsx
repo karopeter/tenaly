@@ -66,8 +66,19 @@ const routeMap = {
   "Dj Services": "/services-dj",
   "MC / Host Services": "/services-mc-host",
 
+  // Equipments 
+   'Industrial Machines': '/industrial-machines',
+   'Construction Equipment': '/construction-equipment',
+   'Power Tools': '/power-tools',
+   'Manufacturing Equipment': '/manufacturing-equipment',
+   'Medical & Laboratory Equipment': '/medical-laboratory-equipment',
+  'Kitchen & Restaurant Equipment': '/kitchen-resturant-equipment',
+   'Printing & Packaging Machines': '/printing-packaging',
+   'Agricultural Machinery':'/agricultural-machinery',
+   'Cleaning & Laundry Equipment': '/cleaning-laundry-equipment',
+   'Office Equipment': '/office-equipment',
+
   // Standalone categories 
-  "Equipments & Machineries": "/equipment-machinery",
   "Gadgets": "/gadgets",
   "Fashion": "/fashion",
   "Laptops & Computers": "/laptops-computers",
@@ -282,6 +293,19 @@ export default function CreateCarContent() {
   'Dj Services',
   'MC / Host Services'
   ];
+
+  const equipmentsCategories = [
+     'Industrial Machines',
+     'Construction Equipment',
+     'Power Tools',
+     'Manufacturing Equipment',
+     'Medical & Laboratory Equipment',
+     'Kitchen & Restaurant Equipment',
+     'Printing & Packaging Machines',
+     'Agricultural Machinery',
+     'Cleaning & Laundry Equipment',
+     'Office Equipment',
+  ];
   
   if (vehicleCategories.includes(value)) {
     return { baseCategory: "Vehicle", categoryValue: value };
@@ -293,7 +317,7 @@ export default function CreateCarContent() {
     return { baseCategory: "Kids", categoryValue: value };
   } else if (petsCategories.includes(value)) {
     return { baseCategory: "Pets", categoryValue: value };
-  } else if (value === 'Equipments & Machineries') {
+  } else if (equipmentsCategories.includes(value))  {
     return { baseCategory: "Equipment", categoryValue: value };
   } else if (value === 'Gadgets') {
     return { baseCategory: "Gadgets", categoryValue: value };

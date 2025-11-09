@@ -19,6 +19,7 @@ export default function AddCarPostContent() {
   const [kidAds, setKidAds] = useState([]);
   const [agricultureAds, setAgricultureAds] = useState([]);
   const [serviceAds, setServiceAds] = useState([]);
+  const [equipmentAds, setEquipmentAds] = useState([]);
   const [activeTab, setActiveTab] = useState('vehicles'); 
   const [showMenu, setShowMenu] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -85,6 +86,11 @@ export default function AddCarPostContent() {
           `/services/ads/combined-services?businessId=${selectedBusiness}&page=1&limit=10`
         );
         setServiceAds(serviceRes.data.data || []);
+
+        const equipmentRes = await api.get(
+          `/equipments/ads/combined-equipment?businessId=${selectedBusiness}&page=1&limit=10`
+        );
+        setEquipmentAds(equipmentRes.data.data || []);
 
 
         setAdsLoaded(true);
@@ -277,6 +283,23 @@ const handleEditIncompleteAd = async (carAdId, category) => {
        } catch (kidError) {
         console.log("⚠️ No KidAd draft found, using CarAd only");
        }
+    }  else if (adType === 'equipment') {
+        try {
+         const equipmentResponse = await api.get(`/equipments/draft/${actualCarAdId}`);
+         if (equipmentResponse.data && equipmentResponse.data.equipmentAd) {
+          const equipmentAd = equipmentResponse.data.equipmentAd;
+
+          mergedData = {
+            ...carAd,
+            ...equipmentAd,
+            businessCategory: carAd.businessCategory
+          };
+
+         console.log("✅ Merged equipment draft data:", mergedData);
+         }
+       } catch (equipmentError) {
+        console.log("⚠️ No EquipmentAd draft found, using CarAd only");
+       }
     }
 
     localStorage.setItem("editingCarAdId", actualCarAdId);
@@ -330,6 +353,18 @@ const handleEditIncompleteAd = async (carAdId, category) => {
         'Dj Services',
         'MC / Host Services'
         ];
+          const equipmentCategories = [
+            'Industrial Machines',
+            'Construction Equipment',
+            'Power Tools',
+            'Manufacturing Equipment',
+            'Medical & Laboratory Equipment',
+            'Kitchen & Restaurant Equipment',
+            'Printing & Packaging Machines',
+            'Agricultural Machinery',
+            'Cleaning & Laundry Equipment',
+            'Office Equipment'
+          ];
      const petRouteMap = {
       "Dogs": "/pets-dogs",
   "Cats": "/pets-cats",
@@ -387,6 +422,19 @@ const handleEditIncompleteAd = async (carAdId, category) => {
       "Dj Services": "/services-dj",
       "MC / Host Services": "/services-mc-host",
     };
+
+    const equipmentRouteMap = {
+       'Industrial Machines': '/industrial-machines',
+      'Construction Equipment': '/construction-equipment',
+      'Power Tools': '/power-tools',
+      'Manufacturing Equipment': '/manufacturing-equipment',
+      'Medical & Laboratory Equipment': '/medical-laboratory-equipment',
+      'Kitchen & Resturant Equipment': '/kitchen-resturant-equipment',
+      'Printing & Packaging Machines': '/printing-packaging',
+      'Agricultural Machinery':'/agricultural-machinery',
+      'Cleaning & Laundry Equipment': '/cleaning-laundry-equipment',
+      'Office Equipment': '/office-equipment',
+    }
   
      let targetRoute = "";
     if (vehicleCategories.includes(category?.toLowerCase())) {
@@ -399,7 +447,9 @@ const handleEditIncompleteAd = async (carAdId, category) => {
       targetRoute = kidRouteMap[category];
     } else if (serviceCategories.includes(category)) {
       targetRoute = serviceRouteMap[category];
-    }  else {
+    } else if (equipmentCategories.includes(category)) {
+       targetRoute = equipmentRouteMap[category];
+    } else {
       targetRoute = propertyRouteMap[category] || `/more-property-post?carAdId=${actualCarAdId}`;
     }
 
@@ -589,6 +639,31 @@ useEffect(() => {
      }
   };
 
+ const handleEquipmentDelete = async (adId) => {
+     const confirmed = window.confirm("Are you sure you want to delete this ad?");
+     if (!confirmed) return;
+
+     try {
+      await api.delete(`/equipments/delete-equipment/${adId}`);
+      setEquipmentAds((prev) => 
+        prev.filter(({ equipmentAd, carAd }) => (equipmentAd?._id || carAd?._id) !== adId)
+      );
+      toast.success("Equipment ad deleted successfully.");
+     } catch (equipmentError) {
+       console.warn("Equipment ad delete failed, trying car ad...");
+       try {
+       await api.delete(`/carAdd/delete-car-ad/${adId}`);
+       setEquipmentAds((prev) => 
+          prev.filter(({ equipmentAd, carAd }) => (equipmentAd?._id || carAd?._id) !== adId)
+       );
+       toast.success("Equipment Ad Image Ad deleted successfully.");
+       } catch (carError) {
+         console.error("Delete error:", carError.message);
+         toast.error("Failed to delete ad.");
+       }
+     }
+  };
+
 
 
   const handleMarkVehicleAsSold = async (vehicleId, carAdId) => {
@@ -734,7 +809,7 @@ useEffect(() => {
      }
   };
 
-     const handleMarkServiceAsSold = async (serviceId, carAdId) => {
+  const handleMarkServiceAsSold = async (serviceId, carAdId) => {
      const confirmed = window.confirm("Are you sure you want to mark this kid ad as sold?");
      if (!confirmed) return;
 
@@ -762,6 +837,34 @@ useEffect(() => {
      }
   };
 
+ const handleMarkEquipmentAsSold = async (equipmentId, carAdId) => {
+     const confirmed = window.confirm("Are you sure you want to mark this equipment ad as sold?");
+     if (!confirmed) return;
+
+     try {
+       setMarkingSold(equipmentId);
+       setShowMenu(null);
+
+       await api.patch(`/equipments/mark-equipment-ad-as-sold/${equipmentId}`);
+
+       setEquipmentAds((prev) => 
+        prev.map(({ adId, carAd, equipmentAd }) => 
+           equipmentAd?._id === equipmentId 
+             ? { adId, carAd, equipmentAd: { ...equipmentAd, status: "sold" } }
+             : {adId, carAd, equipmentAd }
+         )
+      );
+      toast.success("Equipment Ad marked as sold.");
+     } catch (error) {
+       console.error("Error marking Equipment Ad as sold:", error);
+       const message = 
+          error?.response?.data?.message || error?.message || "Failed to mark Equipment as sold.";
+      toast.error(message);
+     } finally {
+      setMarkingSold(null);
+     }
+  };
+
 
 
 
@@ -783,7 +886,7 @@ useEffect(() => {
     }
   }
 
-  const totalAds = vehicleAds.length + propertyAds.length + petAds.length + agricultureAds.length + kidAds.length + serviceAds.length;
+  const totalAds = vehicleAds.length + propertyAds.length + petAds.length + agricultureAds.length + kidAds.length + serviceAds.length + equipmentAds.length;
 
   const getAvailableTabs = () => {
     const tabs = [];
@@ -793,6 +896,7 @@ useEffect(() => {
     if (agricultureAds.length > 0) tabs.push({ id: 'agriculture', label: 'Agriculture', count: agricultureAds.length });
     if (kidAds.length > 0) tabs.push({ id: 'kid', label: 'Kid', count: kidAds.length });
     if (serviceAds.length > 0) tabs.push({ id: 'service', label: 'Service', count: serviceAds.length });
+    if (equipmentAds.length > 0) tabs.push({ id: 'equipment', label: 'Equipment', count: equipmentAds.length });
     return tabs;
   }
 
@@ -994,6 +1098,16 @@ useEffect(() => {
               onClick={() => setActiveTab('service')}
             >
                Service Ads ({serviceAds.length})
+            </button>
+             <button
+              className={`px-4 py-2 font-inter font-[500] text-[14px] border-b-2 transition-colors ${
+              activeTab === 'equipment'
+                ? "border-[#00A8DF] text-[#00A8DF]"
+               : "border-transparent text-[#525252] hover:text-[#00A8DF]"
+              }`}
+              onClick={() => setActiveTab('equipment')}
+            >
+               Equipment Ads ({equipmentAds.length})
             </button>
           </div>
 
@@ -2472,9 +2586,7 @@ useEffect(() => {
      )}
    </div>
  )}
-
-
-    {activeTab === 'service' && (
+   {activeTab === 'service' && (
    <div className="mt-5">
     {serviceAds.length === 0 ? (
        <div className="w-full h-[490px] p-6 md:p-10 text-center flex flex-col justify-center items-center">
@@ -2759,7 +2871,295 @@ useEffect(() => {
       </div>
      )}
    </div>
+    )}
+
+
+  {activeTab === 'equipment' && (
+   <div className="mt-5">
+    {equipmentAds.length === 0 ? (
+       <div className="w-full h-[490px] p-6 md:p-10 text-center flex flex-col justify-center items-center">
+        <Img 
+          src="/postAds.svg"
+          width={158}
+          height={158}
+          className="mx-auto mb-4"
+          alt="No Posts"
+        />
+        <p className="font-[500] text-[#868686] text-sm md:text-[14px] font-inter mb-4">
+          No Equipment Ads for this business
+        </p>
+        <div className="flex justify-center">
+           <Link href="/create-add" passHref>
+            <Button className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] transition-all hover:scale-105">
+              <Plus size={20} /> Post an Ad
+            </Button>
+          </Link>
+        </div>
+       </div>  
+     ): (
+      <div className="flex flex-col gap-4">
+        {equipmentAds.map(({adId, carAd, equipmentAd}) => {
+          const businessId = carAd?.businessCategory?._id || equipmentAd?.businessCategory;
+          const equipmentId = equipmentAd?._id;
+          const isIncomplete = isIncompleteAd(carAd, equipmentAd);
+
+          return (
+            <div
+             key={adId}
+             className="flex flex-col md:flex-row justify-between 
+             gap-4 w-full border border-[#EDEDED] rounded-[12px] overflow-visible relative"
+            >
+            <div className="relative w-full md:w-[300px] shrink-0 overflow-hidden">
+              {carAd?.equipmentImage?.length > 0 && (
+                <>
+                 <Img 
+                   src={carAd.equipmentImage[0]}
+                   alt="Equipment Image Ad"
+                   width={340}
+                   height={210}
+                   className="w-full h-[160px] md:h-full object-cover rounded-[8px]"
+                 />
+
+                 {isIncomplete && (
+                  <div className="absolute top-2 right-2 bg-orange-500 text-white px-3 py-1 rounded-md text-xs font-semibold z-30 shadow-md">
+                    Incomplete
+                  </div>
+                 )}
+
+                 {equipmentAd?.status === "sold" && (
+                  <div className="absolute top-5 left-[-10px] bg-[#F8EFEF] w-[100px] 
+                  md:w-[120px] h-[40px] md:rounded-[8px] rounded-[4px] 
+                  transform -rotate-45 flex items-center justify-center shadow-md z-40">
+                    <Img 
+                      src="/tick-circle.svg"
+                      alt="Tick Circle"
+                      width={16}
+                      height={16}
+                      className="mr-2"
+                    />
+                    <span className="text-[#CB0D0D] text-[12px] md:text-[14px] font-[500] font-inter">
+                     SOLD
+                    </span>
+                  </div>
+                 )}
+                </>
+              )}
+
+              {equipmentAd?.plan && !isIncomplete && (
+                <div
+                  className="absolute bottom-0 left-0 z-30 w-[139px] h-[35px] flex items-center px-4"
+                  style={{
+                     backgroundImage: `url(${machineImage})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                 }}
+                >
+                 <div className="bg-[#DFDFF9] w-[100px] h-[24px] rounded-[4px] border flex justify-center items-center gap-2 border-[#2C2CCD]">
+                   <Img src="/medal-star1.svg" alt="Plan" width={24} height={24} />
+                   <span className="text-[#000087] text-[12px] font-[400] font-inter uppercase">
+                        {equipmentAd.plan}
+                   </span>
+                  </div>
+                </div>
+              )}
+              </div>
+
+              <div className="flex-1 flex flex-col p-2">
+               <div className="flex justify-between items-start w-full">
+                <div className='flex-1'>
+                  {isIncomplete ? (
+                    <>
+                     <h4 className="text-[#525252] text-[18px] font-[500] font-inter line-clamp-1">
+                      {carAd?.category} - Incomplete Ad
+                    </h4>
+                     <p className="text-orange-600 text-[14px] font-[400] font-inter mt-1">
+                      Please complete your ad details to publish
+                    </p>
+                    </>
+                  ): (
+                    <h4 className="text-[#525252] text-[18px] font-[500] font-inter line-clamp-1">
+                        {equipmentAd?.equipmentTitle} - {equipmentAd?.condition}
+                      </h4>
+                  )}
+                </div>
+                {!isIncomplete && equipmentAd?.amount && (
+                  <div className="flex items-start gap-4">
+                   <div className="text-[#000087] text-[16px] font-[600] font-inter whitespace-nowrap">
+                        ₦{equipmentAd.amount.toLocaleString()}
+                      </div>
+                  </div>
+                )}
+              </div>
+
+              {!isIncomplete ? (
+              <>
+                <p className="text-[#8C8C8C] text-[14px] font-[400] font-inter break-words">
+                {equipmentAd?.description || "No description provided"}
+                </p>
+                 <div className="flex items-center gap-2 mt-2">
+                      <Img src="/location.svg" alt="Location" width={10} height={13} />
+                      <span className="text-[#8C8C8C] text-[14px] font-[400] font-inter">
+                        {carAd?.location || "Location not specified"}
+                      </span>
+                  </div>
+
+                  <div  className="flex flex-col md:flex-row gap-x-3 items-center justify-between">
+                     <div className='flex flex-wrap gap-3 mt-2'>
+                       {equipmentAd?.powerSource && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-[#868686] text-[12px] font-inter">
+                              Power Sourcce: {equipmentAd.powerSource}
+                            </span>
+                          </div>
+                        )}
+                         {equipmentAd?.usageType  && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-[#868686] text-[12px] font-inter">
+                              {equipmentAd.usageType}
+                            </span>
+                          </div>
+                        )}
+                     </div>
+                     <div className="relative">
+                      <button 
+                        className="p-2 rounded-full hover:bg-[#F7F7FF] transition"
+                         onClick={() => 
+                          setShowMenu((prev) => (prev === adId ? null : adId))
+                         }
+                        >
+                        <FiMoreHorizontal size={20} color="#767676" />
+                      </button>
+
+                      {showMenu === adId && (
+                        <div 
+                          className="absolute right-0 top-full mt-2 w-40 z-50 bg-white 
+                          border border-[#EDEDED] rounded-lg shadow-lg overflow-hidden">
+                            <button
+                               className="flex items-center w-full px-4 py-3 text-[16px] font-inter font-[400] text-[#525252] hover:bg-[#F7F7FF] transition-colors"
+                               onClick={() => {
+                                 setShowMenu(null);
+                                 if (businessId && adId && equipmentId) {
+                                  router.push(`/ads/Equipment/${businessId}/${adId}/${equipmentId}`);
+                                 }
+                               }}
+                            >
+                              <FiEye className="mr-2" size={16} /> 
+                              View Details 
+                            </button>
+
+                            {equipmentAd.isDraft ? (
+                              <button  
+                               className="flex items-center w-full px-4 py-3 text-[16px] 
+                               font-inter font-[400] text-[#525252] hover:bg-[#F7F7FF] transition-colors"
+                               onClick={() => handleEditIncompleteAd(carAd._id, carAd.category)}
+                               >
+                                 <Edit className="mr-2 flex-shrink-0" size={16} />
+                                <span className="whitespace-nowrap">Complete Draft</span>
+                              </button>
+                            ): (
+                             <>
+                              {equipmentAd?.status === 'rejected' && (
+                                  <button
+                                    className="flex items-center w-full px-4 py-3 text-[16px] font-inter font-[400] text-[#525252] hover:bg-[#F7F7FF] transition-colors"
+                                    onClick={() => handleResubmitAd(carAd._id, 'service')}
+                                  >
+                                    <Edit className="mr-3" size={16} />
+                                    Resubmit 
+                                  </button>
+                                )}
+                                  {equipmentAd?.status === 'approved' && (
+                                  <button
+                                    className="flex items-center w-full px-4 py-3 text-[16px] whitespace-nowrap font-inter font-[400] text-[#525252] hover:bg-[#F7F7FF] transition-colors"
+                                    onClick={() => handleMarkEquipmentAsSold(equipmentAd?._id, carAd?._id)}
+                                  >
+                                    <FiCheck className="mr-3" size={16} />
+                                    Mark As Sold
+                                  </button>
+                                )}
+                             </>
+                            )}
+
+                               {equipmentAd?.status !== 'sold' && (
+                              <button
+                                className="flex items-center w-full px-4 py-2 text-[#CB0D0D] text-[16px] font-[400] font-inter hover:bg-[#F7F7FF] border-t border-[#EDEDED]"
+                                onClick={() => {
+                                  setShowMenu(null);
+                                 handleEquipmentDelete(equipmentAd?._id || carAd?._id);
+                                }}
+                              >
+                                <FiTrash2 className="mr-2" /> Delete
+                              </button>
+                            )}
+                        </div>
+                      )}
+                     </div>
+                  </div>
+                  <StatusBadge
+                    status={equipmentAd?.status}
+                    isDraft={equipmentAd?.isDraft}
+                    rejectionReason={equipmentAd?.rejectionReason}
+                  />
+              </>
+              ): (
+                <div className="mt-3">
+                   <div className="flex items-center gap-2 mb-3">
+                      <Img src="/location.svg" alt="Location" width={10} height={13} />
+                      <span className="text-[#8C8C8C] text-[14px] font-[400] font-inter">
+                        {carAd?.location || "Location not specified"}
+                      </span>
+                    </div>
+
+                    <div className="flexgap-2 mb-3 overflow-x-auto">
+                        {carAd?.equipmentImage?.slice(0, 4).map((img, idx) => (
+                        <img 
+                          key={idx} 
+                          src={img} 
+                          alt={`Preview ${idx + 1}`} 
+                          className="w-16 h-16 object-cover rounded border border-gray-200"
+                        />
+                      ))}
+                       {carAd?.equipmentImage?.length > 4 && (
+                        <div className="w-16 h-16 bg-gray-100 rounded border border-gray-200 flex items-center justify-center text-gray-600 text-xs">
+                          +{carAd.equipmentImage.length - 4}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                       <Button
+                        onClick={() => handleEditIncompleteAd(carAd._id, carAd.category)}
+                        className="flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-[8px] transition-all text-[14px]"
+                      >
+                        <Edit size={16} /> Complete Ad
+                      </Button>
+
+                      <button 
+                        className="text-[#CB0D0D] text-[14px] font-[400] font-inter hover:underline"
+                        onClick={() => {
+                          setShowMenu(null);
+                          handleEditCarAd(carAd._id, carAd.category);
+                        }}
+                      >
+                        Edit
+                      </button>
+
+                       <button
+                        onClick={() => handleEquipmentDelete(carAd._id)}
+                        className="text-[#CB0D0D] text-[14px] font-[400] font-inter hover:underline"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                </div>
+              )}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+     )}
+   </div>
  )}
-    </div>
+  </div>
   );
 }

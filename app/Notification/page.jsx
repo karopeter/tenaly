@@ -61,6 +61,10 @@ export default function NotificationPage() {
               displayName = notif.adDetails.serviceTitle;
             } else if (notif.adDetails.serviceExperience && notif.adDetails.serviceDuration) {
               displayName = `${notif.adDetails.serviceExperience} - ${notif.adDetails.serviceDuration}`;
+            } else if (notif.adDetails.equipmentTitle && notif.adType === 'equipment') {
+               displayName = notif.adDetails.equipmentTitle;
+            } else if (notif.adDetails.brand && notif.adDetails.usageType) {
+              displayName = `${notif.adDetails.brand} - ${notif.adDetails.usageType}`;
             }
           }
 
@@ -127,6 +131,7 @@ export default function NotificationPage() {
     const agricultureAdId = notification.agricultureAd?._id;
     const kidAdId = notification.kidAd?._id;
     const serviceAdId = notification.serviceAd?._id;
+    const equipmentAdId = notification.equipmentAd?._id;
 
     if (notification.adType === 'vehicle' && businessId && carAdId && vehicleAdId) {
       return `/ads/Vehicles/${businessId}/${carAdId}/${vehicleAdId}`;
@@ -140,6 +145,8 @@ export default function NotificationPage() {
       return `/ads/Kids/${businessId}/${carAdId}/${kidAdId}`;
     } else if (notification.adType === 'service' && businessId && carAdId && serviceAdId) {
        return `/ads/Service/${businessId}/${carAdId}/${serviceAdId}`;
+    } else if (notification.adType === 'equipment' && businessId && carAdId && equipmentAdId) {
+      return `/ads/Equipment/${businessId}/${carAdId}/${equipmentAdId}`;
     }
     
     // Fallback
@@ -265,6 +272,7 @@ export default function NotificationPage() {
                           notif.adType === 'agriculture' ? 'bg-orange-500' : 
                           notif.adType === 'kids' ? 'bg-pink-500' :
                           notif.adType === 'service' ? 'bg-orange-500' : 
+                          notif.adType === 'equipment' ? 'bg-yellow-500' :
                           'bg-gray-500'
                         }`} title={`${notif.adType} ad`}></span>
                       )}
@@ -282,7 +290,7 @@ export default function NotificationPage() {
                         {/* Notification message */}
                         <p className="text-[#525252] font-[400] font-inter text-[12px] md:text-[14px] break-words leading-snug">
                           {notif.message}
-                          {notif.adDetails && (notif.vehicleAd || notif.propertyAd || notif.petAd || notif.agricultureAd || notif.kidAd || notif.serviceAd) && (
+                          {notif.adDetails && (notif.vehicleAd || notif.propertyAd || notif.petAd || notif.agricultureAd || notif.kidAd || notif.serviceAd || notif.equipmentAd) && (
                             <span className="ml-1">
                               <Link 
                                 href={getViewAdLink(notif)} 
