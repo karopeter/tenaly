@@ -149,7 +149,7 @@ export default function BookMarkedContent({sellerId}) {
 
   return (
     <>
-      {userAds.map(({ adId, carAd, vehicleAd, propertyAd, petAd, agricultureAd, kidAd, serviceAd, equipmentAd, isSold }) => {
+      {userAds.map(({ adId, carAd, vehicleAd, propertyAd, petAd, agricultureAd, kidAd, serviceAd, equipmentAd, gadgetAd, isSold }) => {
         // Determine images array and amount to display
         const images = carAd?.vehicleImage?.length
           ? carAd.vehicleImage
@@ -165,13 +165,15 @@ export default function BookMarkedContent({sellerId}) {
           ? carAd?.serviceImage
           : carAd?.equipmentImage?.length 
           ? carAd?.equipmentImage
+          : carAd?.gadgetImage?.length
+          ? carAd?.gadgetImage
           : [];
 
         const imageUrl = images.length > 0
           ? images[0]
           : "/placeholder-image.svg";
         
-        const amount = vehicleAd?.amount || propertyAd?.amount || petAd?.amount || agricultureAd?.amount || kidAd?.amount || serviceAd?.amount || equipmentAd?.amount ||    "N/A";
+        const amount = vehicleAd?.amount || propertyAd?.amount || petAd?.amount || agricultureAd?.amount || kidAd?.amount || serviceAd?.amount || equipmentAd?.amount || gadgetAd?.amount ||    "N/A";
 
         const mainInfo = vehicleAd
           ? `${vehicleAd.vehicleType} ${vehicleAd.model}`
@@ -187,6 +189,8 @@ export default function BookMarkedContent({sellerId}) {
           ? serviceAd.serviceTitle || serviceAd.serviceExperience
           : equipmentAd 
           ? equipmentAd.equipmentTitle || equipmentAd.powerSource
+          : gadgetAd
+          ? gadgetAd.gadgetTitle || gadgetAd.gadgetBrand
           : "";
 
         const location = carAd?.location || "";
@@ -253,6 +257,12 @@ export default function BookMarkedContent({sellerId}) {
              { iconSrc: "/cross-props.svg", text: equipmentAd.powerSource || "N/A" },
              { iconSrc: "/cross-props.svg", text: equipmentAd.usageType || "N/A" },
           ]
+          : gadgetAd 
+          ? [
+            { iconSrc: "/cross-props.svg", text: gadgetAd.gadgetTitle || "N/A" },
+            { iconSrc: "/cross-props.svg", text: gadgetAd.gadgetBrand || "N/A" },
+            { iconSrc: "/cross-props.svg", text: gadgetAd.storageCapacity || "N/A" }, 
+          ]
           : [];
 
         return (
@@ -281,7 +291,7 @@ export default function BookMarkedContent({sellerId}) {
               )}
 
               {/* Show plan badge if not sold */}
-              {!isSold && (vehicleAd?.plan || propertyAd?.plan || petAd?.plan || agricultureAd?.plan || kidAd?.plan || serviceAd?.plan || equipmentAd?.plan) && (
+              {!isSold && (vehicleAd?.plan || propertyAd?.plan || petAd?.plan || agricultureAd?.plan || kidAd?.plan || serviceAd?.plan || equipmentAd?.plan || gadgetAd?.plan) && (
                 <div className="absolute bottom-0 left-0 z-30 w-[139px] h-[35px] flex items-center px-4"
                   style={{
                     backgroundImage: `url(${machineImage})`,
@@ -298,7 +308,8 @@ export default function BookMarkedContent({sellerId}) {
                        agricultureAd?.plan ||
                        kidAd?.plan ||  
                        serviceAd?.plan || 
-                       equipmentAd?.plan || 
+                       equipmentAd?.plan ||
+                       gadgetAd?.plan || 
                       ""}
                     </span>
                   </div>

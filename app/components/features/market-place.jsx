@@ -30,8 +30,8 @@ export default function MarketPlace({ category, search, location }) {
     };
 
     return adsArray.sort((a, b) => {
-      const adA = a.vehicleAd || a.propertyAd || a.petAd || a.agricultureAd || a.kidsAd || a.serviceAd || a.equipmentAd;
-      const adB = b.vehicleAd || b.propertyAd || b.petAd || b.agricultureAd || b.kidsAd || b.serviceAd || b.equipmentAd;
+      const adA = a.vehicleAd || a.propertyAd || a.petAd || a.agricultureAd || a.kidsAd || a.serviceAd || a.equipmentAd || a.gadgetAd;
+      const adB = b.vehicleAd || b.propertyAd || b.petAd || b.agricultureAd || b.kidsAd || b.serviceAd || b.equipmentAd || b.gadgetAd;
 
       if (!adA && !adB) return 0;
       if (!adA) return -1;
@@ -54,7 +54,7 @@ export default function MarketPlace({ category, search, location }) {
   };
 
   const isPremiumAd = (item) => {
-    const ad = item.vehicleAd || item.propertyAd || item.petAd || item.agricultureAd || item.kidsAd || item.serviceAd || item.equipmentAd;
+    const ad = item.vehicleAd || item.propertyAd || item.petAd || item.agricultureAd || item.kidsAd || item.serviceAd || item.equipmentAd || item.gadgetAd;
     if (!ad) return false;
     const premiumPlans = ["premium", "vip", "diamond", "enterprise"];
     return ad.paymentStatus === "success" && premiumPlans.includes(ad.plan);
@@ -177,8 +177,17 @@ const equipmentNewlyPosted = ads.filter((item) => {
   return diffDays <= 7;
 });
 
+const gadgetNewlyPosted = ads.filter((item) => {
+  const ad = item.gadgetAd;
+  if (!ad) return false;
+  const createdAt = new Date(ad.createdAt);
+  const now = new Date();
+  const diffDays = (now - createdAt) / (1000 * 60 * 60 * 24);
+  return diffDays <= 7;
+})
+
   const recommendedAds = ads.filter((item) => {
-    const ad = item.vehicleAd || item.propertyAd || item.petAd || item.agricultureAd || item.serviceAd || item.equipmentAd;
+    const ad = item.vehicleAd || item.propertyAd || item.petAd || item.agricultureAd || item.serviceAd || item.equipmentAd || item.gadgetAd;
     if (!ad) return false;
     return ["free", "basic"].includes(ad.plan);
   });
@@ -219,6 +228,7 @@ const equipmentNewlyPosted = ads.filter((item) => {
     const isKidsAd = !!item.kidsAd;
     const isServiceAd = !!item.serviceAd;
     const isEquipmentAd = !!item.equipmentAd;
+    const isGadgetAd = !!item.gadgetAd;
 
     let imageUrl = null;
     let title = "Untitled Ad";
@@ -241,8 +251,11 @@ const equipmentNewlyPosted = ads.filter((item) => {
     let servicePricing = null;
     let serviceExperience = null;
     let equipmentTitle = null;
+    let gadgetTitle = null;
    let equipmentCondition = null;
    let equipmentBrand = null;
+   let gadgetCondition = null;
+   let gadgetBrand = null;
 
     if (isCarAd) {
       imageUrl = item.carAd.vehicleImage?.[0];
@@ -320,17 +333,29 @@ const equipmentNewlyPosted = ads.filter((item) => {
       serviceExperience = item.serviceAd?.serviceExperience;
      servicePricing = item.serviceAd?.pricingType;
   } else if (isEquipmentAd) {
-  imageUrl = item.carAd?.equipmentImage?.[0];
-  title = item.equipmentAd?.equipmentTitle || "Equipment";
-  description = item.equipmentAd?.description || "No description available.";
-  price = item.equipmentAd?.amount
-    ? `₦${item.equipmentAd.amount.toLocaleString()}`
+      imageUrl = item.carAd?.equipmentImage?.[0];
+      title = item.equipmentAd?.equipmentTitle || "Equipment";
+     description = item.equipmentAd?.description || "No description available.";
+      price = item.equipmentAd?.amount
+       ? `₦${item.equipmentAd.amount.toLocaleString()}`
+       : "Price not set.";
+      adLocation = item.carAd?.location || "Unknown";
+     plan = item.equipmentAd?.plan;
+     equipmentTitle = item.equipmentAd?.equipmentTitle;
+     equipmentCondition = item.equipmentAd?.condition;
+    equipmentBrand = item.equipmentAd?.brand;
+} else if (isGadgetAd) {
+  imageUrl = item.carAd?.gadgetImage?.[0];
+  title = item.gadgetAd?.gadgetTitle || "Gadget";
+  description = item.gadgetAd.description || "No description available";
+  price = item.gadgetAd?.amount
+    ? `₦${item.gadgetAd.amount.toLocaleString()}`
     : "Price not set.";
   adLocation = item.carAd?.location || "Unknown";
-  plan = item.equipmentAd?.plan;
-  equipmentTitle = item.equipmentAd?.equipmentTitle;
-  equipmentCondition = item.equipmentAd?.condition;
-  equipmentBrand = item.equipmentAd?.brand;
+  plan = item.gadgetAd?.plan;
+  gadgetTitle = item.gadgetAd?.gadgetTitle;
+  gadgetCondition = item.gadgetAd?.condition;
+  gadgetBrand = item.gadgetAd?.gadgetBrand;
 }
 
     return (
@@ -503,6 +528,21 @@ const equipmentNewlyPosted = ads.filter((item) => {
        )}
       </>
       )}
+
+      {isGadgetAd && (
+        <>
+           {gadgetCondition && (
+             <span className="bg-[#E8E8FF] font-inter whitespace-nowrap text-[#525252] px-2 py-1 rounded text-xs">
+              {gadgetCondition}
+            </span>
+           )}
+           {gadgetBrand && (
+             <span className="bg-[#E8E8FF] font-inter whitespace-nowrap text-[#525252] px-2 py-1 rounded text-xs">
+              {gadgetBrand}
+            </span>
+           )}
+        </>
+      )}
      </div>
       </div>
     </li>
@@ -599,6 +639,7 @@ const equipmentNewlyPosted = ads.filter((item) => {
             </ul>
           </div>
           )}
+
           {equipmentNewlyPosted.length > 0 && (
          <div>
          <h2 className="text-[14px] md:text-[20px] font-inter font-[500] font-normal text-[#2E2E2E] mb-4">
@@ -611,6 +652,19 @@ const equipmentNewlyPosted = ads.filter((item) => {
     </ul>
   </div>
    )}
+
+    {gadgetNewlyPosted.length > 0 && (
+        <div>
+         <h2 className="text-[14px] md:text-[20px] font-inter font-[500] font-normal text-[#2E2E2E] mb-4">
+           Gadget Newly Posted
+         </h2>
+         <ul className="grid gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {gadgetNewlyPosted.map((item, index) => 
+             renderAdCard(item, index)
+          )}
+         </ul>
+        </div>
+      )}
 
         {recommendedAds.length > 0 && (
           <div>
