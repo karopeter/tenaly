@@ -30,6 +30,20 @@
     .scroll-snap-inline {
       scroll-snap-type: inline mandatory;
     }
+
+     .scrollbar-hide {
+     -ms-overflow-style: none;
+     scrollbar-width: none;
+  }
+
+    .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+   .scrollbar-hide {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
   
     .scrollbar::-webkit-scrollbar { height: 12px; }
   

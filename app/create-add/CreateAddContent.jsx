@@ -78,8 +78,20 @@ const routeMap = {
    'Cleaning & Laundry Equipment': '/cleaning-laundry-equipment',
    'Office Equipment': '/office-equipment',
 
+   // Gadgets 
+    'Mobile Phones': '/gadget-mobile-phones',
+    'Tablets': '/gadget-mobile-tablets',
+    'Smartwatches': '/gadget-smart-watches',
+    'Phone Accessories': '/gadget-phone-accessories',
+    'Tablet Accessories': '/gadget-tablet-accessories',
+    'Power Banks': '/gadget-power-banks',
+    'Chargers & Cables': '/gadget-chargers-cables',
+    'Screen Protectors': '/gadget-screen-protectors',
+    'Pouch': '/gadget-pouch',
+    'Covers': '/gadget-covers',
+    'Earphones / Headsets': '/gadget-earphones-headsets',
+
   // Standalone categories 
-  "Gadgets": "/gadgets",
   "Fashion": "/fashion",
   "Laptops & Computers": "/laptops-computers",
   "Household Items": "/household-items",
@@ -306,6 +318,20 @@ export default function CreateCarContent() {
      'Cleaning & Laundry Equipment',
      'Office Equipment',
   ];
+
+  const gadgetsCategories = [
+     'Mobile Phones',
+    'Tablets',
+    'Smartwatches',
+    'Phone Accessories',
+    'Tablet Accessories',
+    'Power Banks',
+    'Chargers & Cables',
+    'Screen Protectors',
+    'Pouch',
+    'Covers',
+    'Earphones / Headsets',
+  ]
   
   if (vehicleCategories.includes(value)) {
     return { baseCategory: "Vehicle", categoryValue: value };
@@ -319,7 +345,7 @@ export default function CreateCarContent() {
     return { baseCategory: "Pets", categoryValue: value };
   } else if (equipmentsCategories.includes(value))  {
     return { baseCategory: "Equipment", categoryValue: value };
-  } else if (value === 'Gadgets') {
+  } else if (gadgetsCategories.includes(value)) {
     return { baseCategory: "Gadgets", categoryValue: value };
   } else if (value === 'Fashion') {
     return { baseCategory: "Fashion", categoryValue: value };

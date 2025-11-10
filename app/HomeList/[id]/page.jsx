@@ -256,10 +256,11 @@ const handleSendOffer = async () => {
      kidsAd, 
      serviceAd,
      equipmentAd,
+     gadgetAd,
      business
     } = adData;
   const actualBusinessId = carAd?.businessCategory?._id || carAd?.businessCategory;
-  const sellerId = business?.userId || carAd?.userId || vehicleAd?.userId || propertyAd?.userId;
+  const sellerId = business?.userId || carAd?.userId || vehicleAd?.userId || propertyAd?.userId || petAd?.userId || agricultureAd?.userId || kidsAd?.userId || serviceAd?.userId || equipmentAd?.userId || gadgetAd?.userId;
 
 
   let mainAd = null; 
@@ -284,6 +285,9 @@ const handleSendOffer = async () => {
    } else if (equipmentAd) {
       mainAd = carAd;
       adDetails = equipmentAd;
+   } else if (gadgetAd) {
+    mainAd = carAd;
+    adDetails = gadgetAd;
    }
  
   const businessName = business?.businessName || "Unknown Seller";
@@ -304,9 +308,10 @@ const handleSendOffer = async () => {
   const kidsNeg = kidsAd?.negotiation === "Yes";
   const serviceNeg = serviceAd?.negotiation === "Yes";
   const equipmentNeg = equipmentAd?.negotiation === "Yes";
+  const gadgetNeg = gadgetAd?.negotiation === "Yes";
 
   
-  return vehicleNeg || propertyNeg || petNeg || agricultureNeg || kidsNeg || serviceNeg || equipmentNeg;
+  return vehicleNeg || propertyNeg || petNeg || agricultureNeg || kidsNeg || serviceNeg || equipmentNeg || gadgetNeg;
 };
 
 
@@ -318,6 +323,7 @@ const productTitle =
   (kidsAd?.title ? `${kidsAd.title}` : "") ||
   (serviceAd?.serviceTitle ? `${serviceAd.serviceTitle}` : "") ||
   (equipmentAd?.equipmentTitle ? `${equipmentAd.equipmentTitle}` : "") ||
+  (gadgetAd?.gadgetTitle ? `${gadgetAd.gadgetTitle}` : "") || 
   (vehicleAd ? `${vehicleAd.vehicleType} ${vehicleAd.model}` : "") ||
   (carAd ? `${carAd.vehicleType} ${carAd.model}` : "");
 
@@ -328,6 +334,7 @@ const productTitle =
       carAd.kidsImage?.length > 0 ? carAd.kidsImage :
        carAd.serviceImage?.length > 0 ? carAd.serviceImage :
        carAd.equipmentImage?.length > 0 ? carAd.equipmentImage :
+       carAd.gadgetImage?.length > 0 ? carAd.gadgetImage :
         carAd.vehicleImage || [])
     : [];
 
@@ -335,7 +342,7 @@ const productTitle =
     const smallImages = mainImageArray.slice(1, 5);
 
     // const productId = mainAd?._id;
-    const productId = vehicleAd?._id || propertyAd?._id || petAd?._id || agricultureAd?._id || kidsAd?._id || serviceAd?._id || equipmentAd?._id;
+    const productId = vehicleAd?._id || propertyAd?._id || petAd?._id || agricultureAd?._id || kidsAd?._id || serviceAd?._id || equipmentAd?._id || gadgetAd?._id;
 
 // Pick correct product image
 const productImage =
@@ -345,6 +352,7 @@ const productImage =
   kidsAd?.kidsImage?.[0] || 
    serviceAd?.serviceImage?.[0] ||
    equipmentAd?.equipmentImage?.[0] ||
+   gadgetAd?.gadgetImage?.[0] || 
   vehicleAd?.vehicleImage?.[0] ||
   carAd?.vehicleImage?.[0];
 
@@ -391,6 +399,11 @@ const productImage =
              {equipmentAd.equipmentTitle} {equipmentAd.condition}
           </span>
         )}
+        {gadgetAd && (
+           <span className="text-[#000087] text-[13px] md:text-[14px] font-[500] font-inter whitespace-nowrap">
+             {gadgetAd.gadgetTitle} {gadgetAd.condition}
+          </span>
+        )}
       </div>
 
       <div className="mt-5 container mx-auto flex flex-wrap items-center justify-center gap-4">
@@ -430,20 +443,25 @@ const productImage =
                {equipmentAd.equipmentTitle}
             </h2>  
           )}
+          {gadgetAd && (
+              <h2 className="text-[#525252] text-[14px] md:text-[18px] font-[500] font-inter">
+               {gadgetAd.gadgetTitle}
+            </h2> 
+          )}
         </div>
         <div className="flex items-center space-x-3">
         <button
-         className={`cursor-pointer transition duration-300 ${
-        isBookmarked ? "saturate-150 brightness-110" : "grayscale" }`}
-        onClick={handleBookmark}
-        disabled={bookmarkLoading}
-        title={isBookmarked ? "Remove from Bookmarks" : "Add to Bookmarks"}>
-        <Img
-          src={isBookmarked ? "/bookmark-filled.svg" : "/bookmark.svg"}
-          alt="Bookmark"
-          width={20}
-         height={20}
-        className="w-5 h-5 md:w-10 md:h-10"
+           className={`cursor-pointer transition duration-300 ${
+           isBookmarked ? "saturate-150 brightness-110" : "grayscale" }`}
+           onClick={handleBookmark}
+           disabled={bookmarkLoading}
+           title={isBookmarked ? "Remove from Bookmarks" : "Add to Bookmarks"}>
+          <Img
+            src={isBookmarked ? "/bookmark-filled.svg" : "/bookmark.svg"}
+            alt="Bookmark"
+           width={20}
+           height={20}
+          className="w-5 h-5 md:w-10 md:h-10"
         />
         </button>
 
@@ -451,7 +469,13 @@ const productImage =
             className="cursor-pointer"
             onClick={handleShare}
           >
-            <Img src="/share.svg" alt="Share" width={44} height={44} className="w-[36px] h-[36px] md:w-[44px] md:h-[44px]" />
+            <Img 
+             src="/share.svg" 
+             alt="Share" 
+             width={44}
+            height={44} 
+            className="w-[36px] h-[36px] md:w-[44px] md:h-[44px]" 
+          />
           </button>
         </div>
       </div>
@@ -568,6 +592,9 @@ const productImage =
        )}
        {equipmentAd?.amount && (
         <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{equipmentAd.amount?.toLocaleString()}</span>
+       )}
+       {gadgetAd?.amount && (
+        <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{gadgetAd.amount?.toLocaleString()}</span>
        )}
      </div>
      {isNegotiable() && (
@@ -690,6 +717,17 @@ const productImage =
           Work & Equipment Details
           </Button>
          )}
+
+          {gadgetAd && (
+           <Button 
+           className={`py-2 px-4 min-w-[120px] h-[40px] md:h-[44px] rounded-tl-[4px] whitespace-nowrap rounded-tr-[4px] text-center ${
+            activeTab === "car" ? "bg-[#DFDFF9] text-[#000087]" : "bg-gray-200 text-gray-700"
+           }`}
+           onClick={() => setActiveTab("car")}
+          >
+          Gadet Details 
+          </Button>
+         )}
    
            {propertyAd && (
             <Button
@@ -754,6 +792,15 @@ const productImage =
               Review 
            </Button>
            )}
+           {gadgetAd && ( 
+              <Button
+            className={`py-2 px-4 min-w-[120px] h-[40px] md:h-[44px] rounded-tl-[4px] whitespace-nowrap rounded-tr-[4px] text-center ${
+               activeTab === "review" ? "bg-[#DFDFF9] text-[#000087]" : "bg-gray-200 text-gray-700"
+             }`}
+              onClick={() => setActiveTab("review")}>
+              Review 
+           </Button>
+           )}
         </div>
       </div>
 
@@ -795,6 +842,11 @@ const productImage =
                {equipmentAd && ( 
                  <h2 className="text-[#525252] text-[14px] md:text-[18px] font-[500] font-inter">
                    {equipmentAd.equipmentTitle}
+               </h2>
+              )}
+              {gadgetAd && (
+                <h2 className="text-[#525252] text-[14px] md:text-[18px] font-[500] font-inter">
+                 {gadgetAd.gadgetTitle}
                </h2>
               )}
 
@@ -839,6 +891,11 @@ const productImage =
                     {equipmentAd && ( 
                      <span className="text-[#868686] text-[14px] md:text-[14px] font-[400] font-inter whitespace-nowrap">
                       {equipmentAd.viewCount} Views
+                   </span>
+                  )}
+                  {gadgetAd && (
+                    <span className="text-[#868686] text-[14px] md:text-[14px] font-[400] font-inter whitespace-nowrap">
+                      {gadgetAd.viewCount} Views
                    </span>
                   )}
               </div>
@@ -906,6 +963,13 @@ const productImage =
                     text-[#000087] text-[10px] md:text-[12px] 
                     font-inter capitalize font-[500] rounded-[4px]">
                       {equipmentAd.plan}
+                    </Button>
+                  )}
+                  {gadgetAd && (
+                    <Button className="bg-[#DFDFF9] py-2 px-3 
+                    text-[#000087] text-[10px] md:text-[12px] 
+                    font-inter capitalize font-[500] rounded-[4px]">
+                      {gadgetAd.plan}
                     </Button>
                   )}
                </div>
@@ -1028,6 +1092,19 @@ const productImage =
                <div>
                 <span className="text-[#868686] text-[10px] md:text-[12px] font-[400] font-inter">
                   Posted on {new Date(equipmentAd.createdAt).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric"
+                  })}
+               </span>
+               </div>
+              </>
+             )}
+             {gadgetAd && (
+              <>
+               <div>
+                <span className="text-[#868686] text-[10px] md:text-[12px] font-[400] font-inter">
+                  Posted on {new Date(gadgetAd.createdAt).toLocaleDateString("en-US", {
                   year: "numeric",
                   month: "long",
                   day: "numeric"
@@ -1440,6 +1517,150 @@ const productImage =
               )}
             </div>
            )}
+
+
+              {gadgetAd && ( 
+            <div className="bg-[#FAFAFA] md:w-[650px] h-auto md:rounded-[12px] p-8 mt-4">
+              <div className="flex items-center justify-between">
+                <span className="text-[#525252] md:text-[16px] font-inter font-[500]">
+                 Gadget Details 
+               </span> 
+
+               <div className="flex items-center space-x-2">
+                  <span className="text-[#000087] text-[16px] font-[400] font-inter">
+                    Show More
+                  </span>
+                    <button 
+                   onClick={() => setShowDetails(!showDetails)} 
+                   aria-expanded={showDetails}>
+                    <Img
+                      src={showDetails ? "/dropup.svg" : "/dropdown.svg"}
+                      alt="Dropdown Icon"
+                      width={8}
+                      height={4}
+                      className="mr-2 mt-[2px] cursor-pointer"
+                    />
+                  </button>
+                </div>
+              </div>
+              {showDetails && (
+                <div className="mt-4">
+                  <div className="flex flex-wrap justify-between gap-y-4 gap-x-[4%] max-w-[650px] mx-auto">
+                   {gadgetAd?.condition && (
+                    <div className="flex flex-col w-[48%] md:w-[30%]">
+                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+                       Gadget Condition
+                    </span>
+                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+                      {gadgetAd.condition}
+                    </span>
+                  </div>
+                   )}
+                   {gadgetAd?.gadgetBrand && (
+                    <div className="flex flex-col w-[48%] md:w-[30%]">
+                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+                      Gadget Brand 
+                    </span>
+                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+                      {gadgetAd.gadgetBrand}
+                    </span>
+                  </div>
+                   )}
+                   {gadgetAd?.storageCapacity && (
+                    <div className="flex flex-col w-[48%] md:w-[30%]">
+                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+                      Gadget Storage Capacity
+                    </span>
+                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+                      {gadgetAd.storageCapacity}
+                    </span>
+                  </div>
+                   )}
+                   {gadgetAd?.ram && (
+                    <div className="flex flex-col w-[48%] md:w-[30%]">
+                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+                     Gadget Ram
+                    </span>
+                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+                      {gadgetAd.ram}
+                    </span>
+                  </div>
+                   )}
+                     {gadgetAd?.operatingSystem && (
+                    <div className="flex flex-col w-[48%] md:w-[30%]">
+                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+                      Gadget Operating System
+                    </span>
+                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+                      {gadgetAd.operatingSystem}
+                    </span>
+                  </div>
+                   )}
+                    {gadgetAd?.simType && (
+                    <div className="flex flex-col w-[48%] md:w-[30%]">
+                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+                     Sim Type 
+                    </span>
+                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+                      {gadgetAd.simType}
+                    </span>
+                  </div>
+                   )}
+                     {gadgetAd?.network && (
+                    <div className="flex flex-col w-[48%] md:w-[30%]">
+                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+                      Network
+                    </span>
+                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+                      {gadgetAd.network}
+                    </span>
+                  </div>
+                   )}
+                     {gadgetAd?.batteryHealth && (
+                    <div className="flex flex-col w-[48%] md:w-[30%]">
+                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+                      Battery Health
+                    </span>
+                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+                      {gadgetAd.batteryHealth}
+                    </span>
+                  </div>
+                   )}
+                  {gadgetAd?.accessories && (
+                    <div className="flex flex-col w-[48%] md:w-[30%]">
+                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+                      Gadget Accessories 
+                    </span>
+                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+                      {gadgetAd.accessories}
+                    </span>
+                  </div>
+                   )}
+                   {gadgetAd?.warranty && (
+                    <div className="flex flex-col w-[48%] md:w-[30%]">
+                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+                      Warranty
+                    </span>
+                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+                      {gadgetAd.warranty}
+                    </span>
+                  </div>
+                   )}
+                    {gadgetAd?.negotiation && (
+                    <div className="flex flex-col w-[48%] md:w-[30%]">
+                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+                      Negotiation
+                    </span>
+                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+                      {gadgetAd.negotiation}
+                    </span>
+                  </div>
+                   )}
+                  </div>
+                </div>
+              )}
+            </div>
+           )}
            
 
 
@@ -1736,6 +1957,11 @@ const productImage =
                   {equipmentAd?.description}
                 </p>   
               )}
+              {gadgetAd && (
+                <p className="text-[#868686] mt-2 text-[12px] md:text-[14px] font-[400] font-inter">
+                  {gadgetAd?.description}
+                </p>  
+              )}
            </div>
           </>
         ): (
@@ -1876,6 +2102,9 @@ const productImage =
        )}
        {equipmentAd && ( 
           <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{equipmentAd.amount?.toLocaleString()}</span>
+       )}
+       {gadgetAd && (
+        <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{gadgetAd.amount?.toLocaleString()}</span>
        )}
      </div>
      {isNegotiable() && (

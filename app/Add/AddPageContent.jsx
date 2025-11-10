@@ -20,6 +20,7 @@ export default function AddCarPostContent() {
   const [agricultureAds, setAgricultureAds] = useState([]);
   const [serviceAds, setServiceAds] = useState([]);
   const [equipmentAds, setEquipmentAds] = useState([]);
+  const [gadgetAds, setGadgetAds] = useState([]);
   const [activeTab, setActiveTab] = useState('vehicles'); 
   const [showMenu, setShowMenu] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -92,6 +93,11 @@ export default function AddCarPostContent() {
         );
         setEquipmentAds(equipmentRes.data.data || []);
 
+        const gadgetRes = await api.get(
+          `/gadget/ads/combined-gadget?businessId=${selectedBusiness}&page=1&limit=10`
+        );
+        setGadgetAds(gadgetRes.data.data || []);
+
 
         setAdsLoaded(true);
         setLoading(false);
@@ -142,7 +148,7 @@ useEffect(() => {
       setActiveTab(availableTabs[0].id);
     }
   }
-}, [adsLoaded, vehicleAds.length, propertyAds.length, petAds.length, agricultureAds.length, kidAds.length, serviceAds.length]);
+}, [adsLoaded, vehicleAds.length, propertyAds.length, petAds.length, agricultureAds.length, kidAds.length, serviceAds.length, gadgetAds.length]);
 
 
   useEffect(() => {
@@ -283,7 +289,7 @@ const handleEditIncompleteAd = async (carAdId, category) => {
        } catch (kidError) {
         console.log("⚠️ No KidAd draft found, using CarAd only");
        }
-    }  else if (adType === 'equipment') {
+    }   else if (adType === 'equipment') {
         try {
          const equipmentResponse = await api.get(`/equipments/draft/${actualCarAdId}`);
          if (equipmentResponse.data && equipmentResponse.data.equipmentAd) {
@@ -300,7 +306,24 @@ const handleEditIncompleteAd = async (carAdId, category) => {
        } catch (equipmentError) {
         console.log("⚠️ No EquipmentAd draft found, using CarAd only");
        }
-    }
+    } else if (adType === 'gadget') {
+       try {
+         const gadgetResponse = await api.get(`/gadget/draft/${actualCarAdId}`);
+         if (gadgetResponse.data && gadgetResponse.data.gadgetAd) {
+          const gadgetAd = gadgetResponse.data.gadgetAd;
+
+          mergedData = {
+            ...carAd,
+            gadgetAd,
+            businessCategory: carAd.businessCategory
+          };
+
+          console.log("✅ Merged gadget draft data:", mergedData);
+         }
+       } catch (gadgetError) {
+         console.log("⚠️ No EquipmentAd draft found, using CarAd only");
+       }
+    } 
 
     localStorage.setItem("editingCarAdId", actualCarAdId);
     localStorage.setItem("editingCarAdData", JSON.stringify(mergedData));
@@ -365,8 +388,21 @@ const handleEditIncompleteAd = async (carAdId, category) => {
             'Cleaning & Laundry Equipment',
             'Office Equipment'
           ];
+          const gadgetCategories = [
+             'Mobile Phones',
+            'Tablets',
+            'Smartwatches',
+            'Phone Accessories',
+            'Tablet Accessories',
+            'Power Banks',
+            'Chargers & Cables',
+            'Screen Protectors',
+            'Pouch',
+            'Covers',
+            'Earphones / Headsets',
+          ];
      const petRouteMap = {
-      "Dogs": "/pets-dogs",
+       "Dogs": "/pets-dogs",
   "Cats": "/pets-cats",
   "Birds": "/pets-birds",
   "Fish & Aquarium": "/fish-aquarium",
@@ -434,6 +470,20 @@ const handleEditIncompleteAd = async (carAdId, category) => {
       'Agricultural Machinery':'/agricultural-machinery',
       'Cleaning & Laundry Equipment': '/cleaning-laundry-equipment',
       'Office Equipment': '/office-equipment',
+    };
+
+    const gadgetRouteMap = {
+    'Mobile Phones': '/gadget-mobile-phones',
+    'Tablets': '/gadget-mobile-tablets',
+    'Smartwatches': '/gadget-smart-watches',
+    'Phone Accessories': '/gadget-phone-accessories',
+    'Tablet Accessories': '/gadget-tablet-accessories',
+    'Power Banks': '/gadget-power-banks',
+    'Chargers & Cables': '/gadget-chargers-cables',
+    'Screen Protectors': '/gadget-screen-protectors',
+    'Pouch': '/gadget-pouch',
+    'Covers': '/gadget-covers',
+    'Earphones / Headsets': '/gadget-earphones-headsets',
     }
   
      let targetRoute = "";
@@ -449,6 +499,8 @@ const handleEditIncompleteAd = async (carAdId, category) => {
       targetRoute = serviceRouteMap[category];
     } else if (equipmentCategories.includes(category)) {
        targetRoute = equipmentRouteMap[category];
+    }  else if (gadgetCategories.includes(category)) {
+      targetRoute = gadgetRouteMap[category];
     } else {
       targetRoute = propertyRouteMap[category] || `/more-property-post?carAdId=${actualCarAdId}`;
     }
@@ -665,6 +717,32 @@ useEffect(() => {
   };
 
 
+   const handleGadgetDelete = async (adId) => {
+     const confirmed = window.confirm("Are you sure you want to delete this ad?");
+     if (!confirmed) return;
+
+     try {
+      await api.delete(`/gadget/delete-gadget/${adId}`);
+      setGadgetAds((prev) => 
+        prev.filter(({ gadgetAd, carAd }) => (gadgetAd?._id || carAd?._id) !== adId)
+      );
+      toast.success("Gadget ad deleted successfully.");
+     } catch (gadgetError) {
+       console.warn("Gadget ad delete failed, trying car ad...");
+       try {
+       await api.delete(`/carAdd/delete-car-ad/${adId}`);
+        setGadgetAds((prev) => 
+          prev.filter(({ gadgetAd, carAd }) => (gadgetAd?._id || carAd?._id) !== adId)
+       );
+       toast.success("Gadget Ad Image Ad deleted successfully.");
+       } catch (carError) {
+         console.error("Delete error:", carError.message);
+         toast.error("Failed to delete ad.");
+       }
+     }
+  };
+
+
 
   const handleMarkVehicleAsSold = async (vehicleId, carAdId) => {
     const confirmed = window.confirm("Are you sure you want to mark this vehicle as sold?");
@@ -866,6 +944,34 @@ useEffect(() => {
   };
 
 
+   const handleMarkGadgetAsSold = async (gadgetId, carAdId) => {
+     const confirmed = window.confirm("Are you sure you want to mark this gadget ad as sold?");
+     if (!confirmed) return;
+
+     try {
+       setMarkingSold(gadgetId);
+       setShowMenu(null);
+
+       await api.patch(`/gadget/mark-gadget-ad-as-sold/${gadgetId}`);
+
+       setEquipmentAds((prev) => 
+        prev.map(({ adId, carAd, gadgetAd }) => 
+           gadgetAd?._id === gadgetId
+             ? { adId, carAd, gadgetAd: { ...gadgetAd, status: "sold" } }
+             : {adId, carAd, gadgetAd }
+         )
+      );
+      toast.success("Gadget Ad marked as sold.");
+     } catch (error) {
+       console.error("Error marking Gadget Ad as sold:", error);
+       const message = 
+          error?.response?.data?.message || error?.message || "Failed to mark Gadget as sold.";
+      toast.error(message);
+     } finally {
+      setMarkingSold(null);
+     }
+  };
+
 
 
   const handleResubmitAd = async (carAdId, adType) => {
@@ -886,7 +992,7 @@ useEffect(() => {
     }
   }
 
-  const totalAds = vehicleAds.length + propertyAds.length + petAds.length + agricultureAds.length + kidAds.length + serviceAds.length + equipmentAds.length;
+  const totalAds = vehicleAds.length + propertyAds.length + petAds.length + agricultureAds.length + kidAds.length + serviceAds.length + equipmentAds.length + gadgetAds.length;
 
   const getAvailableTabs = () => {
     const tabs = [];
@@ -897,6 +1003,7 @@ useEffect(() => {
     if (kidAds.length > 0) tabs.push({ id: 'kid', label: 'Kid', count: kidAds.length });
     if (serviceAds.length > 0) tabs.push({ id: 'service', label: 'Service', count: serviceAds.length });
     if (equipmentAds.length > 0) tabs.push({ id: 'equipment', label: 'Equipment', count: equipmentAds.length });
+    if (gadgetAds.length > 0) tabs.push({ id: 'gadget', label: 'Gadget', count: gadgetAds.length  });
     return tabs;
   }
 
@@ -946,7 +1053,9 @@ useEffect(() => {
 
     return (
       <div className="space-y-2">
-        <div className={`inline-flex items-center gap-2 px-3 py-1.5 mt-2 rounded-md border ${config.bgColor} ${config.textColor} ${config.borderColor}`}>
+        <div 
+          className={`inline-flex items-center gap-2 px-3 py-1.5 mt-2 rounded-md border 
+          ${config.bgColor} ${config.textColor} ${config.borderColor}`}>
           {config.icon}
           <span className="text-sm font-medium">{config.text}</span>
         </div>
@@ -1008,7 +1117,7 @@ useEffect(() => {
   </div>
       )}
 
-      {!loading && !error && adsLoaded && businesses.length > 0 && (
+      {!loading && !error && adsLoaded && businesses.length > 0 && 
         <div>
           <div className="flex flex-row justify-between items-center mb-4">
             <h3 className="text-[#525252] font-[500] font-inter text-[16px] md:text-[24px]">
@@ -1038,94 +1147,68 @@ useEffect(() => {
             ))}
           </div>
 
-          <div className="flex gap-4 mt-4 border-b border-[#EDEDED]">
-            <button
-              className={`px-4 py-2 font-inter font-[500] text-[14px] border-b-2 transition-colors ${
-                activeTab === 'vehicles'
-                  ? "border-[#00A8DF] text-[#00A8DF]"
-                  : "border-transparent text-[#525252] hover:text-[#00A8DF]"
-              }`}
-              onClick={() => setActiveTab('vehicles')}
-            >
-              Vehicle Ads ({vehicleAds.length})
-            </button>
-            <button
-              className={`px-4 py-2 font-inter font-[500] text-[14px] border-b-2 transition-colors ${
-                activeTab === 'properties'
-                  ? "border-[#00A8DF] text-[#00A8DF]"
-                  : "border-transparent text-[#525252] hover:text-[#00A8DF]"
-              }`}
-              onClick={() => setActiveTab('properties')}
-            >
-              Property Ads ({propertyAds.length})
-            </button>
-            <button
-              className={`px-4 py-2 font-inter font-[500] text-[14px] border-b-2 transition-colors ${
-              activeTab === 'pets'
-                ? "border-[#00A8DF] text-[#00A8DF]"
-               : "border-transparent text-[#525252] hover:text-[#00A8DF]"
-              }`}
-              onClick={() => setActiveTab('pets')}
-            >
-               Pet Ads ({petAds.length})
-            </button>
-             <button
-              className={`px-4 py-2 font-inter font-[500] text-[14px] border-b-2 transition-colors ${
-              activeTab === 'agriculture'
-                ? "border-[#00A8DF] text-[#00A8DF]"
-               : "border-transparent text-[#525252] hover:text-[#00A8DF]"
-              }`}
-              onClick={() => setActiveTab('agriculture')}
-            >
-               Agriculture Ads ({agricultureAds.length})
-            </button>
-             <button
-              className={`px-4 py-2 font-inter font-[500] text-[14px] border-b-2 transition-colors ${
-              activeTab === 'kid'
-                ? "border-[#00A8DF] text-[#00A8DF]"
-               : "border-transparent text-[#525252] hover:text-[#00A8DF]"
-              }`}
-              onClick={() => setActiveTab('kid')}
-            >
-               Kid Ads ({kidAds.length})
-            </button>
-             <button
-              className={`px-4 py-2 font-inter font-[500] text-[14px] border-b-2 transition-colors ${
-              activeTab === 'service'
-                ? "border-[#00A8DF] text-[#00A8DF]"
-               : "border-transparent text-[#525252] hover:text-[#00A8DF]"
-              }`}
-              onClick={() => setActiveTab('service')}
-            >
-               Service Ads ({serviceAds.length})
-            </button>
-             <button
-              className={`px-4 py-2 font-inter font-[500] text-[14px] border-b-2 transition-colors ${
-              activeTab === 'equipment'
-                ? "border-[#00A8DF] text-[#00A8DF]"
-               : "border-transparent text-[#525252] hover:text-[#00A8DF]"
-              }`}
-              onClick={() => setActiveTab('equipment')}
-            >
-               Equipment Ads ({equipmentAds.length})
-            </button>
-          </div>
+          <div className="relative mt-4 w-full overflow-x-hidden">
+  {/* Left gradient overlay for scroll fade */}
+  {availableTabs.length > 4 && (
+    <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white to-transparent pointer-events-none z-10 md:hidden" />
+  )}
 
-          {/* <div className="flex gap-2 md:gap-4 mt-4 border-b border-[#EDEDED] overflow-x-auto scrollbar-hide pb-1">
-           {availableTabs.map(tab => {
-            <button
-              key={tab.id}
-               className={`px-3 md:px-4 py-2 font-inter font-[500] text-[12px] md:text-[14px] 
-                border-b-2 transition-colors whitespace-nowrap flex-shrink-0 ${
+  {/* ✅ Tabs container - isolated horizontal scroll */}
+  <div
+    className="
+      flex gap-2 md:gap-4 border-b border-[#EDEDED]
+      overflow-x-auto overflow-y-hidden pb-2
+      snap-x snap-mandatory scrollbar-hide
+      w-full box-border
+    "
+    style={{
+      WebkitOverflowScrolling: "touch",
+      overscrollBehaviorX: "contain",
+      paddingInline: "0.5rem", // keeps buttons inside width
+    }}
+  >
+    {availableTabs.map((tab) => (
+      <button
+        key={tab.id}
+        className={`px-4 py-2.5 font-inter font-[500] text-[13px] md:text-[14px]
+          border-b-2 transition-all flex-shrink-0 snap-start
+          ${
+            activeTab === tab.id
+              ? "border-[#00A8DF] text-[#00A8DF]"
+              : "border-transparent text-[#525252] hover:text-[#00A8DF] hover:border-gray-200"
+          }`}
+        onClick={() => setActiveTab(tab.id)}
+      >
+        {tab.label} Ads ({tab.count})
+      </button>
+    ))}
+  </div>
+
+  {/* Right gradient overlay for scroll fade */}
+  {availableTabs.length > 4 && (
+    <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none z-10 md:hidden" />
+  )}
+</div>
+
+
+  
+
+          {/* <div className="flex gap-2 md:gap-4 mt-4 border-b border-[#EDEDED] overflow-x-auto pb-2 scrollbar-hide">
+             {availableTabs.map(tab => (
+              <button 
+               key={tab.id}
+               className={`px-4 py-2.5 font-inter font-[500] text-[13px] md:text-[14px] 
+                border-b-2 transition-all whitespace-nowrap flex-shrink-0 
+               min-w-fit ${
                 activeTab === tab.id
-               ? "border-[#00A8DF] text-[#00A8DF]"
-               : "border-transparent text-[#525252] hover:text-[#00A8DF]"
-             }`}
+                 ? "border-[#00A8DF] text-[#00A8DF]"
+                : "border-transparent text-[#525252] hover:text-[#00A8DF] hover:border-gray-200"
+              }`}
               onClick={() => setActiveTab(tab.id)}
-             >
-               {tab.label} Ads ({tab.count})
-            </button>
-           })}
+              >
+              {tab.label} Ads ({tab.count})
+              </button>
+             ))}
           </div> */}
 
           {/* Vehicle Ads */}
@@ -1728,7 +1811,7 @@ useEffect(() => {
             </div>
           )}
         </div>
-      )}
+      }
 
       {activeTab === 'pets' && (
   <div className="mt-5">
@@ -3061,7 +3144,7 @@ useEffect(() => {
                               {equipmentAd?.status === 'rejected' && (
                                   <button
                                     className="flex items-center w-full px-4 py-3 text-[16px] font-inter font-[400] text-[#525252] hover:bg-[#F7F7FF] transition-colors"
-                                    onClick={() => handleResubmitAd(carAd._id, 'service')}
+                                    onClick={() => handleResubmitAd(carAd._id, 'equipment')}
                                   >
                                     <Edit className="mr-3" size={16} />
                                     Resubmit 
@@ -3145,6 +3228,297 @@ useEffect(() => {
 
                        <button
                         onClick={() => handleEquipmentDelete(carAd._id)}
+                        className="text-[#CB0D0D] text-[14px] font-[400] font-inter hover:underline"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                </div>
+              )}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+     )}
+   </div>
+ )}
+
+   
+     {activeTab === 'gadget' && (
+   <div className="mt-5">
+    {gadgetAds.length === 0 ? (
+       <div className="w-full h-[490px] p-6 md:p-10 text-center flex flex-col justify-center items-center">
+        <Img 
+          src="/postAds.svg"
+          width={158}
+          height={158}
+          className="mx-auto mb-4"
+          alt="No Posts"
+        />
+        <p className="font-[500] text-[#868686] text-sm md:text-[14px] font-inter mb-4">
+          No Gadget Ads for this business
+        </p>
+        <div className="flex justify-center">
+           <Link href="/create-add" passHref>
+            <Button className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] transition-all hover:scale-105">
+              <Plus size={20} /> Post an Ad
+            </Button>
+          </Link>
+        </div>
+       </div>  
+     ): (
+      <div className="flex flex-col gap-4">
+        {gadgetAds.map(({adId, carAd, gadgetAd}) => {
+          const businessId = carAd?.businessCategory?._id || gadgetAd?.businessCategory;
+          const gadgetId = gadgetAd?._id;
+          const isIncomplete = isIncompleteAd(carAd, gadgetAd);
+
+          return (
+            <div
+             key={adId}
+             className="flex flex-col md:flex-row justify-between 
+             gap-4 w-full border border-[#EDEDED] rounded-[12px] overflow-visible relative"
+            >
+            <div className="relative w-full md:w-[300px] shrink-0 overflow-hidden">
+              {carAd?.gadgetImage?.length > 0 && (
+                <>
+                 <Img 
+                   src={carAd.gadgetImage[0]}
+                   alt="Gadget Image Ad"
+                   width={340}
+                   height={210}
+                   className="w-full h-[160px] md:h-full object-cover rounded-[8px]"
+                 />
+
+                 {isIncomplete && (
+                  <div className="absolute top-2 right-2 bg-orange-500 text-white px-3 py-1 rounded-md text-xs font-semibold z-30 shadow-md">
+                    Incomplete
+                  </div>
+                 )}
+
+                 {gadgetAd?.status === "sold" && (
+                  <div className="absolute top-5 left-[-10px] bg-[#F8EFEF] w-[100px] 
+                  md:w-[120px] h-[40px] md:rounded-[8px] rounded-[4px] 
+                  transform -rotate-45 flex items-center justify-center shadow-md z-40">
+                    <Img 
+                      src="/tick-circle.svg"
+                      alt="Tick Circle"
+                      width={16}
+                      height={16}
+                      className="mr-2"
+                    />
+                    <span className="text-[#CB0D0D] text-[12px] md:text-[14px] font-[500] font-inter">
+                     SOLD
+                    </span>
+                  </div>
+                 )}
+                </>
+              )}
+
+              {gadgetAd?.plan && !isIncomplete && (
+                <div
+                  className="absolute bottom-0 left-0 z-30 w-[139px] h-[35px] flex items-center px-4"
+                  style={{
+                     backgroundImage: `url(${machineImage})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                 }}
+                >
+                 <div className="bg-[#DFDFF9] w-[100px] h-[24px] rounded-[4px] border flex justify-center items-center gap-2 border-[#2C2CCD]">
+                   <Img src="/medal-star1.svg" alt="Plan" width={24} height={24} />
+                   <span className="text-[#000087] text-[12px] font-[400] font-inter uppercase">
+                        {gadgetAd.plan}
+                   </span>
+                  </div>
+                </div>
+              )}
+              </div>
+
+              <div className="flex-1 flex flex-col p-2">
+               <div className="flex justify-between items-start w-full">
+                <div className='flex-1'>
+                  {isIncomplete ? (
+                    <>
+                     <h4 className="text-[#525252] text-[18px] font-[500] font-inter line-clamp-1">
+                      {carAd?.category} - Incomplete Ad
+                    </h4>
+                     <p className="text-orange-600 text-[14px] font-[400] font-inter mt-1">
+                      Please complete your ad details to publish
+                    </p>
+                    </>
+                  ): (
+                    <h4 className="text-[#525252] text-[18px] font-[500] font-inter line-clamp-1">
+                        {gadgetAd.gadgetTitle} - {gadgetAd.condition}
+                      </h4>
+                  )}
+                </div>
+                {!isIncomplete && gadgetAd?.amount && (
+                  <div className="flex items-start gap-4">
+                   <div className="text-[#000087] text-[16px] font-[600] font-inter whitespace-nowrap">
+                        ₦{gadgetAd.amount.toLocaleString()}
+                      </div>
+                  </div>
+                )}
+              </div>
+
+              {!isIncomplete ? (
+              <>
+                <p className="text-[#8C8C8C] text-[14px] font-[400] font-inter break-words">
+                {gadgetAd?.description || "No description provided"}
+                </p>
+                 <div className="flex items-center gap-2 mt-2">
+                      <Img src="/location.svg" alt="Location" width={10} height={13} />
+                      <span className="text-[#8C8C8C] text-[14px] font-[400] font-inter">
+                        {carAd?.location || "Location not specified"}
+                      </span>
+                  </div>
+
+                  <div  className="flex flex-col md:flex-row gap-x-3 items-center justify-between">
+                     <div className='flex flex-wrap gap-3 mt-2'>
+                       {gadgetAd?.gadgetBrand && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-[#868686] text-[12px] font-inter">
+                              Gadget Brand: {gadgetAd.gadgetBrand}
+                            </span>
+                          </div>
+                        )}
+                         {gadgetAd?.storageCapacity && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-[#868686] text-[12px] font-inter">
+                              {gadgetAd.storageCapacity}
+                            </span>
+                          </div>
+                        )}
+                     </div>
+                     <div className="relative">
+                      <button 
+                        className="p-2 rounded-full hover:bg-[#F7F7FF] transition"
+                         onClick={() => 
+                          setShowMenu((prev) => (prev === adId ? null : adId))
+                         }
+                        >
+                        <FiMoreHorizontal size={20} color="#767676" />
+                      </button>
+
+                      {showMenu === adId && (
+                        <div 
+                          className="absolute right-0 top-full mt-2 w-40 z-50 bg-white 
+                          border border-[#EDEDED] rounded-lg shadow-lg overflow-hidden">
+                            <button
+                               className="flex items-center w-full px-4 py-3 text-[16px] font-inter font-[400] text-[#525252] hover:bg-[#F7F7FF] transition-colors"
+                               onClick={() => {
+                                 setShowMenu(null);
+                                 if (businessId && adId && equipmentId) {
+                                  router.push(`/ads/Gadget/${businessId}/${adId}/${gadgetId}`);
+                                 }
+                               }}
+                            >
+                              <FiEye className="mr-2" size={16} /> 
+                              View Details 
+                            </button>
+
+                            {gadgetAd.isDraft ? (
+                              <button  
+                               className="flex items-center w-full px-4 py-3 text-[16px] 
+                               font-inter font-[400] text-[#525252] hover:bg-[#F7F7FF] transition-colors"
+                               onClick={() => handleEditIncompleteAd(carAd._id, carAd.category)}
+                               >
+                                 <Edit className="mr-2 flex-shrink-0" size={16} />
+                                <span className="whitespace-nowrap">Complete Draft</span>
+                              </button>
+                            ): (
+                             <>
+                              {gadgetAd?.status === 'rejected' && (
+                                  <button
+                                    className="flex items-center w-full px-4 py-3 text-[16px] font-inter font-[400] text-[#525252] hover:bg-[#F7F7FF] transition-colors"
+                                    onClick={() => handleResubmitAd(carAd._id, 'gadget')}
+                                  >
+                                    <Edit className="mr-3" size={16} />
+                                    Resubmit 
+                                  </button>
+                                )}
+                                  {gadgetAd?.status === 'approved' && (
+                                  <button
+                                    className="flex items-center w-full px-4 py-3 text-[16px] 
+                                    whitespace-nowrap font-inter font-[400] text-[#525252]
+                                     hover:bg-[#F7F7FF] transition-colors"
+                                    onClick={() => handleMarkGadgetAsSold(gadgetAd?._id, carAd?._id)}
+                                  >
+                                    <FiCheck className="mr-3" size={16} />
+                                    Mark As Sold
+                                  </button>
+                                )}
+                             </>
+                            )}
+
+                               {gadgetAd?.status !== 'sold' && (
+                              <button
+                                className="flex items-center w-full px-4 py-2 text-[#CB0D0D] text-[16px] font-[400] 
+                                font-inter hover:bg-[#F7F7FF] border-t border-[#EDEDED]"
+                                onClick={() => {
+                                  setShowMenu(null);
+                                 handleGadgetDelete(gadgetAd?._id || carAd?._id);
+                                }}
+                              >
+                                <FiTrash2 className="mr-2" /> Delete
+                              </button>
+                            )}
+                        </div>
+                      )}
+                     </div>
+                  </div>
+                  <StatusBadge
+                    status={gadgetAd?.status}
+                    isDraft={gadgetAd?.isDraft}
+                    rejectionReason={gadgetAd?.rejectionReason}
+                  />
+              </>
+              ): (
+                <div className="mt-3">
+                   <div className="flex items-center gap-2 mb-3">
+                      <Img src="/location.svg" alt="Location" width={10} height={13} />
+                      <span className="text-[#8C8C8C] text-[14px] font-[400] font-inter">
+                        {carAd?.location || "Location not specified"}
+                      </span>
+                    </div>
+
+                    <div className="flexgap-2 mb-3 overflow-x-auto">
+                        {carAd?.gadgetImage?.slice(0, 4).map((img, idx) => (
+                        <img 
+                          key={idx} 
+                          src={img} 
+                          alt={`Preview ${idx + 1}`} 
+                          className="w-16 h-16 object-cover rounded border border-gray-200"
+                        />
+                      ))}
+                       {carAd?.gadgetImage?.length > 4 && (
+                        <div className="w-16 h-16 bg-gray-100 rounded border border-gray-200 flex items-center justify-center text-gray-600 text-xs">
+                          +{carAd.gadgetImage.length - 4}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                       <Button
+                        onClick={() => handleEditIncompleteAd(carAd._id, carAd.category)}
+                        className="flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-[8px] transition-all text-[14px]"
+                      >
+                        <Edit size={16} /> Complete Ad
+                      </Button>
+
+                      <button 
+                        className="text-[#CB0D0D] text-[14px] font-[400] font-inter hover:underline"
+                        onClick={() => {
+                          setShowMenu(null);
+                          handleEditCarAd(carAd._id, carAd.category);
+                        }}
+                      >
+                        Edit
+                      </button>
+
+                       <button
+                        onClick={() => handleGadgetDelete(carAd._id)}
                         className="text-[#CB0D0D] text-[14px] font-[400] font-inter hover:underline"
                       >
                         Delete
