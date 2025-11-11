@@ -176,13 +176,13 @@ export default function TabletAccessoriesPostContent() {
        setNetwork(gadgetAd.network || "");
        setBatteryHealth(gadgetAd.batteryHealth || "");
        setGadgetColor(gadgetAd.gadgetColor || "");
-       setAccessories(gadgetAd.setAccessories || "");
+       setAccessories(gadgetAd.accessories || "");
        setWarranty(gadgetAd.warranty || "");
       setAmount(gadgetAd.amount?.toString() || "");
       setNegotiation(gadgetAd.negotiation || "");
      setDescription(gadgetAd.description || "");
          
-     const businessId = agriAd.businessCategory?._id 
+     const businessId = gadgetAd.businessCategory?._id 
            || gadgetAd.businessCategory 
            || carAdId?.businessCategory?._id 
            || carAd?.businessCategory;

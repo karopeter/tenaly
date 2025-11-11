@@ -3409,7 +3409,7 @@ useEffect(() => {
                                className="flex items-center w-full px-4 py-3 text-[16px] font-inter font-[400] text-[#525252] hover:bg-[#F7F7FF] transition-colors"
                                onClick={() => {
                                  setShowMenu(null);
-                                 if (businessId && adId && equipmentId) {
+                                 if (businessId && adId && gadgetId) {
                                   router.push(`/ads/Gadget/${businessId}/${adId}/${gadgetId}`);
                                  }
                                }}
