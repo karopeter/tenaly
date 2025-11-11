@@ -10,10 +10,12 @@ import InputField from "../components/input";
 import api from "@/services/api";
 import { toast } from "react-toastify";
 import Img from "../components/Image";
+import MultiSelectdropdown from "../components/dropdowns/MultiSelectDropdown";
 import PromoteAdModal from "../components/PromoteModal/promote-modal";
 import WalletPaymentModal from "../components/WalletModal/walletModal";
 import FreeSuccessModal from "../components/free-success-modal";
 import Link from "next/link";
+import MultiSelectDropdown from "../components/dropdowns/MultiSelectDropdown";
 
 const customStyles = {
   control: (base, state) => ({
@@ -75,6 +77,7 @@ export default function ChargerCablesPostContent() {
   const [gadgetBrand, setGadgetBrand] = useState("");
   const [storageCapacity, setStorageCapacity] = useState("");
   const [ram, setRam] = useState("");
+  const [connectivityType, setConnectivityType] = useState([]);
   const [operatingSystem, setOperatingSystem] = useState("");
   const [simType, setSimType] = useState("");
   const [network, setNetwork] = useState("");
@@ -168,6 +171,10 @@ export default function ChargerCablesPostContent() {
          
        setGadgetTitle(gadgetAd.gadgetTitle || "");
        setCondition(gadgetAd.condition || "");
+       const connect = Array.isArray(gadgetAd.connectivityType)
+           ? gadgetAd.connectivityType
+           : [];
+        setConnectivityType(connect);
        setGadgetBrand(gadgetAd.gadgetBrand || "");
        setStorageCapacity(gadgetAd.storageCapacity || "");
        setRam(gadgetAd.ram || "");
@@ -176,13 +183,13 @@ export default function ChargerCablesPostContent() {
        setNetwork(gadgetAd.network || "");
        setBatteryHealth(gadgetAd.batteryHealth || "");
        setGadgetColor(gadgetAd.gadgetColor || "");
-       setAccessories(gadgetAd.setAccessories || "");
+       setAccessories(gadgetAd.accessories || "");
        setWarranty(gadgetAd.warranty || "");
       setAmount(gadgetAd.amount?.toString() || "");
       setNegotiation(gadgetAd.negotiation || "");
      setDescription(gadgetAd.description || "");
          
-     const businessId = agriAd.businessCategory?._id 
+     const businessId = gadgetAd.businessCategory?._id 
            || gadgetAd.businessCategory 
            || carAdId?.businessCategory?._id 
            || carAd?.businessCategory;
@@ -191,7 +198,7 @@ export default function ChargerCablesPostContent() {
        setEditingCarAd({
          carAdId: idToUse,
          businessId: businessId,
-         category: carAd?.category || 'Chargers & Cables',
+         category: carAd?.category || 'Power Banks',
          location: carAd?.location || '',
          images: carAd?.gadgetImage || [],
       });
@@ -302,6 +309,9 @@ export default function ChargerCablesPostContent() {
       storageCapacity,
       ram,
       operatingSystem,
+      connectivityType: Array.isArray(connectivityType)
+      ? connectivityType.map((c) => (typeof c === "string" ? c : c.name || c.value))
+      : [],
       simType,
       network,
       batteryHealth,
@@ -385,7 +395,7 @@ export default function ChargerCablesPostContent() {
       );
     }
   }, [
-    gadgetTitle, condition, gadgetBrand, storageCapacity, ram, operatingSystem, simType, network,
+    gadgetTitle, condition, gadgetBrand, storageCapacity, connectivityType, ram, operatingSystem, simType, network,
    batteryHealth, gadgetColor, accessories, warranty, amount, negotiation, business, description,
     token, login, router, editingCarAd, carAdId, buildPayload
   ]);
@@ -540,7 +550,7 @@ export default function ChargerCablesPostContent() {
             />
 
             <PostDropdown
-             label="Storage Capacity"
+             label="Power Capacity (optional)"
              value={storageCapacity}
              onChange={setStorageCapacity}
              options={[
@@ -555,58 +565,17 @@ export default function ChargerCablesPostContent() {
              ]}
             />
 
-            <PostDropdown 
-             label="RAM (Optional)"
-             value={ram}
-             onChange={setRam}
-             options={[
-               "8 GB",
-              "16 GB",
-              "32 GB",
-              "64 GB",
-             ]}
-            />
-
-            <PostDropdown 
-              label="Operating System"
-              value={operatingSystem}
-              onChange={setOperatingSystem}
+            <MultiSelectDropdown
+              label="Connectivity Type"
+              value={connectivityType}
+              onChange={setConnectivityType}
               options={[
-                "Andriod",
-                "iOS",
-                "HarmonyOS",
-                "Windows"
+                "Wired",
+                "Wireless",
+                "Bluetooth",
+                "USB-C",
+                "Lightning"
               ]}
-            />
-
-            <PostDropdown
-              label="SIM Type"
-              value={simType}
-              onChange={setSimType}
-              options={[
-                "Single SIM",
-                "Dual SIM",
-                "eSIM"
-              ]}
-            />
-
-            <PostDropdown
-             label="Network"
-             value={network}
-             onChange={setNetwork}
-             options={[
-              "2G",
-              "3G",
-              "4G",
-              "5G"
-             ]}
-            /> 
-
-            <InputField 
-              label="Battery Health/ Capacity"
-              placeholder="e.g 5000mAh or 92%"
-              value={batteryHealth}
-              onChange={(e) => setBatteryHealth(e.target.value)}
             />
 
             <InputField
@@ -647,7 +616,7 @@ export default function ChargerCablesPostContent() {
               }}
               type="text"
             />
-               <PostDropdown
+            <PostDropdown
               label="Are you open for negotiation"
               value={negotiation}
               onChange={setNegotiation}

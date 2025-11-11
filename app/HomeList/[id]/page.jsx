@@ -1544,123 +1544,162 @@ const productImage =
                 </div>
               </div>
               {showDetails && (
-                <div className="mt-4">
-                  <div className="flex flex-wrap justify-between gap-y-4 gap-x-[4%] max-w-[650px] mx-auto">
-                   {gadgetAd?.condition && (
-                    <div className="flex flex-col w-[48%] md:w-[30%]">
-                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-                       Gadget Condition
-                    </span>
-                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                      {gadgetAd.condition}
-                    </span>
-                  </div>
-                   )}
-                   {gadgetAd?.gadgetBrand && (
-                    <div className="flex flex-col w-[48%] md:w-[30%]">
-                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-                      Gadget Brand 
-                    </span>
-                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                      {gadgetAd.gadgetBrand}
-                    </span>
-                  </div>
-                   )}
-                   {gadgetAd?.storageCapacity && (
-                    <div className="flex flex-col w-[48%] md:w-[30%]">
-                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-                      Gadget Storage Capacity
-                    </span>
-                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                      {gadgetAd.storageCapacity}
-                    </span>
-                  </div>
-                   )}
-                   {gadgetAd?.ram && (
-                    <div className="flex flex-col w-[48%] md:w-[30%]">
-                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-                     Gadget Ram
-                    </span>
-                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                      {gadgetAd.ram}
-                    </span>
-                  </div>
-                   )}
-                     {gadgetAd?.operatingSystem && (
-                    <div className="flex flex-col w-[48%] md:w-[30%]">
-                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-                      Gadget Operating System
-                    </span>
-                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                      {gadgetAd.operatingSystem}
-                    </span>
-                  </div>
-                   )}
-                    {gadgetAd?.simType && (
-                    <div className="flex flex-col w-[48%] md:w-[30%]">
-                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-                     Sim Type 
-                    </span>
-                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                      {gadgetAd.simType}
-                    </span>
-                  </div>
-                   )}
-                     {gadgetAd?.network && (
-                    <div className="flex flex-col w-[48%] md:w-[30%]">
-                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-                      Network
-                    </span>
-                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                      {gadgetAd.network}
-                    </span>
-                  </div>
-                   )}
-                     {gadgetAd?.batteryHealth && (
-                    <div className="flex flex-col w-[48%] md:w-[30%]">
-                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-                      Battery Health
-                    </span>
-                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                      {gadgetAd.batteryHealth}
-                    </span>
-                  </div>
-                   )}
-                  {gadgetAd?.accessories && (
-                    <div className="flex flex-col w-[48%] md:w-[30%]">
-                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-                      Gadget Accessories 
-                    </span>
-                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                      {gadgetAd.accessories}
-                    </span>
-                  </div>
-                   )}
-                   {gadgetAd?.warranty && (
-                    <div className="flex flex-col w-[48%] md:w-[30%]">
-                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-                      Warranty
-                    </span>
-                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                      {gadgetAd.warranty}
-                    </span>
-                  </div>
-                   )}
-                    {gadgetAd?.negotiation && (
-                    <div className="flex flex-col w-[48%] md:w-[30%]">
-                    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
-                      Negotiation
-                    </span>
-                    <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
-                      {gadgetAd.negotiation}
-                    </span>
-                  </div>
-                   )}
-                  </div>
-                </div>
-              )}
-            </div>
-           )}
+  <div className="mt-4">
+    <div className="flex flex-wrap justify-between gap-y-4 gap-x-[4%] max-w-[650px] mx-auto">
+      {gadgetAd?.condition && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Gadget Condition
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {gadgetAd.condition}
+          </span>
+        </div>
+      )}
+      
+      {gadgetAd?.gadgetBrand && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Gadget Brand 
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {gadgetAd.gadgetBrand}
+          </span>
+        </div>
+      )}
+      
+      {gadgetAd?.storageCapacity && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Storage Capacity
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {gadgetAd.storageCapacity}
+          </span>
+        </div>
+      )}
+
+      {gadgetAd?.ram && gadgetAd.ram.trim() !== "" && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            RAM
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {gadgetAd.ram}
+          </span>
+        </div>
+      )}
+      
+      {gadgetAd?.operatingSystem && gadgetAd.operatingSystem.trim() !== "" && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Operating System
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {gadgetAd.operatingSystem}
+          </span>
+        </div>
+      )}
+      
+      {gadgetAd?.simType && gadgetAd.simType.trim() !== "" && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            SIM Type 
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {gadgetAd.simType}
+          </span>
+        </div>
+      )}
+      
+      {gadgetAd?.network && gadgetAd.network.trim() !== "" && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Network
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {gadgetAd.network}
+          </span>
+        </div>
+      )}
+      
+      {gadgetAd?.batteryHealth && gadgetAd.batteryHealth.trim() !== "" && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Battery Health
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {gadgetAd.batteryHealth}
+          </span>
+        </div>
+      )}
+      
+      {gadgetAd?.gadgetColor && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Color
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {gadgetAd.gadgetColor}
+          </span>
+        </div>
+      )}
+      
+      {gadgetAd?.accessories && gadgetAd.accessories.trim() !== "" && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Accessories 
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {gadgetAd.accessories}
+          </span>
+        </div>
+      )}
+      
+       {gadgetAd?.warranty && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Warranty
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {gadgetAd.warranty}
+          </span>
+        </div>
+      )}
+      
+      {gadgetAd?.connectivityType && gadgetAd.connectivityType.length > 0 && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Connectivity Type
+          </span>
+          <div className="mt-2 flex flex-wrap gap-1">
+            {gadgetAd.connectivityType.map((type, idx) => (
+              <span 
+                key={idx} 
+                className="bg-[#E5E7EB] text-[#525252] text-[12px] md:text-[13px] font-medium font-inter px-2 py-1 rounded"
+              >
+                {type}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+      
+      {gadgetAd?.negotiation && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Negotiation
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {gadgetAd.negotiation}
+          </span>
+        </div>
+         )}
+        </div>
+        </div>
+       )}
+     </div>
+    )}
            
 
 
