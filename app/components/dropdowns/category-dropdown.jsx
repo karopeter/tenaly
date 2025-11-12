@@ -10,6 +10,7 @@ import ServicesDropdown from "./ServicesDropdown";
 import EquipmentDropdown from "./equipmentDropdown";
 import GadgetDropdown from "./gadgetDropdown";
 import LaptopDropdown from "./laptopDropdown";
+import FashionDropdown from "./fashionDropdown";
 import Img from "../Image";
 
 export default function MainCategoryDropdown({ value, onChange }) {
@@ -140,7 +141,7 @@ export default function MainCategoryDropdown({ value, onChange }) {
           <div 
            className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
            onClick={() => {
-            handleSubSelect("Fashion");
+            handleTypeSelect("fashion");
            }}
            >
            <Img 
@@ -296,6 +297,13 @@ export default function MainCategoryDropdown({ value, onChange }) {
         <div className="absolute top-[52px] left-0 right-0
          bg-white border border-[#CDCDD7] border-t-0 rounded-b-[4px] z-10 max-h-60 overflow-y-auto">
           <LaptopDropdown onSelect={handleSubSelect} />
+        </div>
+      )}
+
+      {type === "fashion" && (
+        <div className="absolute top-[52px] left-0 right-0 
+        bg-white border border-[#CDCDD7] bordder-t-0 rounded-b-[4px] z-10 max-h-60 overflow-y-auto">
+          <FashionDropdown onSelect={handleSubSelect} />
         </div>
       )}
 
