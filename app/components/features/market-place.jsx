@@ -30,8 +30,8 @@ export default function MarketPlace({ category, search, location }) {
     };
 
     return adsArray.sort((a, b) => {
-      const adA = a.vehicleAd || a.propertyAd || a.petAd || a.agricultureAd || a.kidsAd || a.serviceAd || a.equipmentAd || a.gadgetAd;
-      const adB = b.vehicleAd || b.propertyAd || b.petAd || b.agricultureAd || b.kidsAd || b.serviceAd || b.equipmentAd || b.gadgetAd;
+      const adA = a.vehicleAd || a.propertyAd || a.petAd || a.agricultureAd || a.kidsAd || a.serviceAd || a.equipmentAd || a.gadgetAd || a.laptopAd;
+      const adB = b.vehicleAd || b.propertyAd || b.petAd || b.agricultureAd || b.kidsAd || b.serviceAd || b.equipmentAd || b.gadgetAd || b.laptopAd;
 
       if (!adA && !adB) return 0;
       if (!adA) return -1;
@@ -54,7 +54,7 @@ export default function MarketPlace({ category, search, location }) {
   };
 
   const isPremiumAd = (item) => {
-    const ad = item.vehicleAd || item.propertyAd || item.petAd || item.agricultureAd || item.kidsAd || item.serviceAd || item.equipmentAd || item.gadgetAd;
+    const ad = item.vehicleAd || item.propertyAd || item.petAd || item.agricultureAd || item.kidsAd || item.serviceAd || item.equipmentAd || item.gadgetAd || item.laptopAd;
     if (!ad) return false;
     const premiumPlans = ["premium", "vip", "diamond", "enterprise"];
     return ad.paymentStatus === "success" && premiumPlans.includes(ad.plan);
@@ -184,10 +184,19 @@ const gadgetNewlyPosted = ads.filter((item) => {
   const now = new Date();
   const diffDays = (now - createdAt) / (1000 * 60 * 60 * 24);
   return diffDays <= 7;
+});
+
+const laptopNewlyPosted = ads.filter((item) => {
+  const ad = item.laptopAd;
+  if (!ad) return false;
+  const createdAt = new Date(ad.createdAt);
+  const now = new Date();
+  const diffDays = (now - createdAt) / (1000 * 60 * 60 * 24);
+  return diffDays <= 7;
 })
 
   const recommendedAds = ads.filter((item) => {
-    const ad = item.vehicleAd || item.propertyAd || item.petAd || item.agricultureAd || item.serviceAd || item.equipmentAd || item.gadgetAd;
+    const ad = item.vehicleAd || item.propertyAd || item.petAd || item.agricultureAd || item.serviceAd || item.equipmentAd || item.gadgetAd || item.laptopAd;
     if (!ad) return false;
     return ["free", "basic"].includes(ad.plan);
   });
@@ -229,6 +238,7 @@ const gadgetNewlyPosted = ads.filter((item) => {
     const isServiceAd = !!item.serviceAd;
     const isEquipmentAd = !!item.equipmentAd;
     const isGadgetAd = !!item.gadgetAd;
+    const isLaptopAd = !!item.laptopAd;
 
     let imageUrl = null;
     let title = "Untitled Ad";
@@ -256,6 +266,9 @@ const gadgetNewlyPosted = ads.filter((item) => {
    let equipmentBrand = null;
    let gadgetCondition = null;
    let gadgetBrand = null;
+   let laptopTitle = null;
+   let laptopCondition = null;
+   let laptopBrand = null;
 
     if (isCarAd) {
       imageUrl = item.carAd.vehicleImage?.[0];
@@ -356,6 +369,18 @@ const gadgetNewlyPosted = ads.filter((item) => {
   gadgetTitle = item.gadgetAd?.gadgetTitle;
   gadgetCondition = item.gadgetAd?.condition;
   gadgetBrand = item.gadgetAd?.gadgetBrand;
+} else if (isLaptopAd) {
+  imageUrl = item.carAd?.laptopImage?.[0];
+  title  = item.laptopAd?.laptopTitle || "Laptop";
+  description = item.laptopAd.description || "No description available";
+  price = item.laptopAd?.amount 
+    ? `₦${item.laptopAd.amount.toLocaleString()}`
+    : "Price not set.";
+    adLocation = item.carAd?.location || "Unknown";
+    plan = item.laptopAd?.plan;
+    laptopTitle = item.laptopAd?.laptopTitle;
+    laptopCondition = item.laptopAd?.condition;
+    laptopBrand = item.laptopAd?.laptopBrand;
 }
 
     return (
@@ -543,6 +568,21 @@ const gadgetNewlyPosted = ads.filter((item) => {
            )}
         </>
       )}
+
+      {isLaptopAd && (
+        <>
+         {laptopCondition && (
+         <span className="bg-[#E8E8FF] font-inter whitespace-nowrap text-[#525252] px-2 py-1 rounded text-xs">
+          {laptopCondition}
+         </span>
+         )}
+         {laptopBrand && (
+           <span className="bg-[#E8E8FF] font-inter whitespace-nowrap text-[#525252] px-2 py-1 rounded text-xs">
+              {laptopBrand}
+            </span>
+         )}
+        </>
+      )}
      </div>
       </div>
     </li>
@@ -663,6 +703,19 @@ const gadgetNewlyPosted = ads.filter((item) => {
              renderAdCard(item, index)
           )}
          </ul>
+        </div>
+      )}
+
+      {laptopNewlyPosted.length > 0 && (
+        <div>
+          <h2  className="text-[14px] md:text-[20px] font-inter font-[500] font-normal text-[#2E2E2E] mb-4">
+             Laptop Newlty Posted
+          </h2>
+          <ul className="grid gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {laptopNewlyPosted.map((item, index) => 
+              renderAdCard(item, index)
+            )}
+          </ul>
         </div>
       )}
 

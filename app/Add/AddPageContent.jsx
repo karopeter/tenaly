@@ -21,6 +21,7 @@ export default function AddCarPostContent() {
   const [serviceAds, setServiceAds] = useState([]);
   const [equipmentAds, setEquipmentAds] = useState([]);
   const [gadgetAds, setGadgetAds] = useState([]);
+  const [laptopAds, setLaptopAds] = useState([]);
   const [activeTab, setActiveTab] = useState('vehicles'); 
   const [showMenu, setShowMenu] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -98,6 +99,11 @@ export default function AddCarPostContent() {
         );
         setGadgetAds(gadgetRes.data.data || []);
 
+        const laptopRes = await api.get(
+          `/laptops/ads/combined-laptop?businessId=${selectedBusiness}&page=1&limit=10`
+        );
+        setLaptopAds(laptopRes.data.data || []);
+
 
         setAdsLoaded(true);
         setLoading(false);
@@ -148,7 +154,7 @@ useEffect(() => {
       setActiveTab(availableTabs[0].id);
     }
   }
-}, [adsLoaded, vehicleAds.length, propertyAds.length, petAds.length, agricultureAds.length, kidAds.length, serviceAds.length, gadgetAds.length]);
+}, [adsLoaded, vehicleAds.length, propertyAds.length, petAds.length, agricultureAds.length, kidAds.length, serviceAds.length, gadgetAds.length, laptopAds.length]);
 
 
   useEffect(() => {
@@ -321,9 +327,26 @@ const handleEditIncompleteAd = async (carAdId, category) => {
           console.log("✅ Merged gadget draft data:", mergedData);
          }
        } catch (gadgetError) {
-         console.log("⚠️ No EquipmentAd draft found, using CarAd only");
+         console.log("⚠️ No GadgetAd draft found, using CarAd only");
        }
-    } 
+    } else if (adType === 'laptop') {
+       try {
+         const laptopResponse = await api.get(`/laptops/draft/${actualCarAdId}`);
+         if (laptopResponse.data && laptopResponse.data.laptopAd) {
+          const laptopAd = laptopResponse.data.laptopAd;
+
+          mergedData = {
+            ...carAd,
+            laptopAd,
+            businessCategory: carAd.businessCategory
+          };
+
+          console.log("✅ Merged laptop draft data:", mergedData);
+         }
+       } catch (laptopError) {
+         console.log("⚠️ No LaptopAd draft found, using CarAd Only");
+       }
+    }
 
     localStorage.setItem("editingCarAdId", actualCarAdId);
     localStorage.setItem("editingCarAdData", JSON.stringify(mergedData));
@@ -400,6 +423,18 @@ const handleEditIncompleteAd = async (carAdId, category) => {
             'Pouch',
             'Covers',
             'Earphones / Headsets',
+          ];
+
+          const laptopCategories = [
+            'Laptops',
+            'Desktop Computers',
+            'Computer Accessories',
+            'Monitors',
+            'Printers & Scanners',
+            'Networking Equipment',
+            'Storage Devices',
+            'Software',
+            'Others',
           ];
      const petRouteMap = {
        "Dogs": "/pets-dogs",
@@ -484,6 +519,18 @@ const handleEditIncompleteAd = async (carAdId, category) => {
     'Pouch': '/gadget-pouch',
     'Covers': '/gadget-covers',
     'Earphones / Headsets': '/gadget-earphones-headsets',
+    };
+
+    const laptopRouteMap = {
+       'Laptops': '/laptops',
+      'Desktop Computers': '/desktop-computers',
+      'Computer Accessories': '/desktop-accessories',
+      'Monitors': '/monitors',
+      'Printers & Scanners': '/printers-scanners',
+      'Networking Equipment': '/networking-equipment',
+       'Storage Devices': '/storage-devices',
+      'Software': '/software',
+      'Others': '/others',
     }
   
      let targetRoute = "";
@@ -501,6 +548,8 @@ const handleEditIncompleteAd = async (carAdId, category) => {
        targetRoute = equipmentRouteMap[category];
     }  else if (gadgetCategories.includes(category)) {
       targetRoute = gadgetRouteMap[category];
+    } else if (laptopCategories.includes(category)) {
+       targetRoute = laptopRouteMap[category];
     } else {
       targetRoute = propertyRouteMap[category] || `/more-property-post?carAdId=${actualCarAdId}`;
     }
@@ -743,6 +792,31 @@ useEffect(() => {
   };
 
 
+   const handleLaptopDelete = async (adId) => {
+     const confirmed = window.confirm("Are you sure you want to delete this ad?");
+     if (!confirmed) return;
+
+     try {
+      await api.delete(`/laptops/delete-laptop/${adId}`);
+      setLaptopAds((prev) => 
+        prev.filter(({ laptopAd, carAd }) => (laptopAd?._id || carAd?._id) !== adId)
+      );
+      toast.success("Laptop ad deleted successfully.");
+     } catch (laptopError) {
+       console.warn("Laptop ad delete failed, trying car ad...");
+       try {
+       await api.delete(`/carAdd/delete-car-ad/${adId}`);
+        setLaptopAds((prev) => 
+          prev.filter(({ laptopAd, carAd }) => (laptopAd?._id || carAd?._id) !== adId)
+       );
+       toast.success("Laptop Ad Image Ad deleted successfully.");
+       } catch (carError) {
+         console.error("Delete error:", carError.message);
+         toast.error("Failed to delete ad.");
+       }
+     }
+  };
+
 
   const handleMarkVehicleAsSold = async (vehicleId, carAdId) => {
     const confirmed = window.confirm("Are you sure you want to mark this vehicle as sold?");
@@ -973,6 +1047,36 @@ useEffect(() => {
   };
 
 
+   const handleMarkLaptopAsSold = async (laptopId, carAdId) => {
+     const confirmed = window.confirm("Are you sure you want to mark this Laptop ad as sold?");
+     if (!confirmed) return;
+
+     try {
+       setMarkingSold(laptopId);
+       setShowMenu(null);
+
+       await api.patch(`/laptops/mark-laptop-ad-as-sold/${laptopId}`);
+
+       setLaptopAds((prev) => 
+        prev.map(({ adId, carAd, laptopAd }) => 
+          laptopAd?._id === laptopId
+             ? { adId, carAd, laptopAd: { ...laptopAd, status: "sold" } }
+             : {adId, carAd, laptopAd }
+         )
+      );
+      toast.success("Laptop Ad marked as sold.");
+     } catch (error) {
+       console.error("Error marking Laptop  Ad as sold:", error);
+       const message = 
+          error?.response?.data?.message || error?.message || "Failed to mark Laptop as sold.";
+      toast.error(message);
+     } finally {
+      setMarkingSold(null);
+     }
+  };
+
+
+
 
   const handleResubmitAd = async (carAdId, adType) => {
     try {
@@ -1004,6 +1108,7 @@ useEffect(() => {
     if (serviceAds.length > 0) tabs.push({ id: 'service', label: 'Service', count: serviceAds.length });
     if (equipmentAds.length > 0) tabs.push({ id: 'equipment', label: 'Equipment', count: equipmentAds.length });
     if (gadgetAds.length > 0) tabs.push({ id: 'gadget', label: 'Gadget', count: gadgetAds.length  });
+    if (laptopAds.length > 0) tabs.push({ id: 'laptop', label: 'Laptop', count: laptopAds.length });
     return tabs;
   }
 
@@ -3519,6 +3624,297 @@ useEffect(() => {
 
                        <button
                         onClick={() => handleGadgetDelete(carAd._id)}
+                        className="text-[#CB0D0D] text-[14px] font-[400] font-inter hover:underline"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                </div>
+              )}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+     )}
+   </div>
+ )}
+
+
+ {activeTab === 'laptop' && (
+   <div className="mt-5">
+    {laptopAds.length === 0 ? (
+       <div className="w-full h-[490px] p-6 md:p-10 text-center flex flex-col justify-center items-center">
+        <Img 
+          src="/postAds.svg"
+          width={158}
+          height={158}
+          className="mx-auto mb-4"
+          alt="No Posts"
+        />
+        <p className="font-[500] text-[#868686] text-sm md:text-[14px] font-inter mb-4">
+          No Laptop Ads for this business
+        </p>
+        <div className="flex justify-center">
+           <Link href="/create-add" passHref>
+            <Button className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] transition-all hover:scale-105">
+              <Plus size={20} /> Post an Ad
+            </Button>
+          </Link>
+        </div>
+       </div>  
+     ): (
+      <div className="flex flex-col gap-4">
+        {laptopAds.map(({adId, carAd, laptopAd}) => {
+          const businessId = carAd?.businessCategory?._id || laptopAd?.businessCategory;
+          const laptopId = laptopAd?._id;
+          const isIncomplete = isIncompleteAd(carAd, laptopAd);
+
+          return (
+            <div
+             key={adId}
+             className="flex flex-col md:flex-row justify-between 
+             gap-4 w-full border border-[#EDEDED] rounded-[12px] overflow-visible relative"
+            >
+            <div className="relative w-full md:w-[300px] shrink-0 overflow-hidden">
+              {carAd?.laptopImage?.length > 0 && (
+                <>
+                 <Img 
+                   src={carAd.laptopImage[0]}
+                   alt="Gadget Image Ad"
+                   width={340}
+                   height={210}
+                   className="w-full h-[160px] md:h-full object-cover rounded-[8px]"
+                 />
+
+                 {isIncomplete && (
+                  <div className="absolute top-2 right-2 bg-orange-500 text-white px-3 py-1 rounded-md text-xs font-semibold z-30 shadow-md">
+                    Incomplete
+                  </div>
+                 )}
+
+                 {laptopAd?.status === "sold" && (
+                  <div className="absolute top-5 left-[-10px] bg-[#F8EFEF] w-[100px] 
+                  md:w-[120px] h-[40px] md:rounded-[8px] rounded-[4px] 
+                  transform -rotate-45 flex items-center justify-center shadow-md z-40">
+                    <Img 
+                      src="/tick-circle.svg"
+                      alt="Tick Circle"
+                      width={16}
+                      height={16}
+                      className="mr-2"
+                    />
+                    <span className="text-[#CB0D0D] text-[12px] md:text-[14px] font-[500] font-inter">
+                     SOLD
+                    </span>
+                  </div>
+                 )}
+                </>
+              )}
+
+              {laptopAd?.plan && !isIncomplete && (
+                <div
+                  className="absolute bottom-0 left-0 z-30 w-[139px] h-[35px] flex items-center px-4"
+                  style={{
+                     backgroundImage: `url(${machineImage})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                 }}
+                >
+                 <div className="bg-[#DFDFF9] w-[100px] h-[24px] rounded-[4px] border flex justify-center items-center gap-2 border-[#2C2CCD]">
+                   <Img src="/medal-star1.svg" alt="Plan" width={24} height={24} />
+                   <span className="text-[#000087] text-[12px] font-[400] font-inter uppercase">
+                        {laptopAd.plan}
+                   </span>
+                  </div>
+                </div>
+              )}
+              </div>
+
+              <div className="flex-1 flex flex-col p-2">
+               <div className="flex justify-between items-start w-full">
+                <div className='flex-1'>
+                  {isIncomplete ? (
+                    <>
+                     <h4 className="text-[#525252] text-[18px] font-[500] font-inter line-clamp-1">
+                      {carAd?.category} - Incomplete Ad
+                    </h4>
+                     <p className="text-orange-600 text-[14px] font-[400] font-inter mt-1">
+                      Please complete your ad details to publish
+                    </p>
+                    </>
+                  ): (
+                    <h4 className="text-[#525252] text-[18px] font-[500] font-inter line-clamp-1">
+                        {laptopAd.laptopTitle} - {laptopAd.condition}
+                      </h4>
+                  )}
+                </div>
+                {!isIncomplete && laptopAd?.amount && (
+                  <div className="flex items-start gap-4">
+                   <div className="text-[#000087] text-[16px] font-[600] font-inter whitespace-nowrap">
+                        ₦{laptopAd.amount.toLocaleString()}
+                      </div>
+                  </div>
+                )}
+              </div>
+
+              {!isIncomplete ? (
+              <>
+                <p className="text-[#8C8C8C] text-[14px] font-[400] font-inter break-words">
+                {laptopAd?.description || "No description provided"}
+                </p>
+                 <div className="flex items-center gap-2 mt-2">
+                      <Img src="/location.svg" alt="Location" width={10} height={13} />
+                      <span className="text-[#8C8C8C] text-[14px] font-[400] font-inter">
+                        {carAd?.location || "Location not specified"}
+                      </span>
+                  </div>
+
+                  <div  className="flex flex-col md:flex-row gap-x-3 items-center justify-between">
+                     <div className='flex flex-wrap gap-3 mt-2'>
+                       {laptopAd?.laptopBrand && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-[#868686] text-[12px] font-inter">
+                              Laptop & Computer: {laptopAd.laptopBrand}
+                            </span>
+                          </div>
+                        )}
+                         {laptopAd?.laptopStorage && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-[#868686] text-[12px] font-inter">
+                              {laptopAd.laptopStorage}
+                            </span>
+                          </div>
+                        )}
+                     </div>
+                     <div className="relative">
+                      <button 
+                        className="p-2 rounded-full hover:bg-[#F7F7FF] transition"
+                         onClick={() => 
+                          setShowMenu((prev) => (prev === adId ? null : adId))
+                         }
+                        >
+                        <FiMoreHorizontal size={20} color="#767676" />
+                      </button>
+
+                      {showMenu === adId && (
+                        <div 
+                          className="absolute right-0 top-full mt-2 w-40 z-50 bg-white 
+                          border border-[#EDEDED] rounded-lg shadow-lg overflow-hidden">
+                            <button
+                               className="flex items-center w-full px-4 py-3 text-[16px] font-inter font-[400] text-[#525252] hover:bg-[#F7F7FF] transition-colors"
+                               onClick={() => {
+                                 setShowMenu(null);
+                                 if (businessId && adId && laptopId) {
+                                  router.push(`/ads/Laptop/${businessId}/${adId}/${laptopId}`);
+                                 }
+                               }}
+                            >
+                              <FiEye className="mr-2" size={16} /> 
+                              View Details 
+                            </button>
+
+                            {laptopAd.isDraft ? (
+                              <button  
+                               className="flex items-center w-full px-4 py-3 text-[16px] 
+                               font-inter font-[400] text-[#525252] hover:bg-[#F7F7FF] transition-colors"
+                               onClick={() => handleEditIncompleteAd(carAd._id, carAd.category)}
+                               >
+                                 <Edit className="mr-2 flex-shrink-0" size={16} />
+                                <span className="whitespace-nowrap">Complete Draft</span>
+                              </button>
+                            ): (
+                             <>
+                              {laptopAd?.status === 'rejected' && (
+                                  <button
+                                    className="flex items-center w-full px-4 py-3 text-[16px] font-inter font-[400] text-[#525252] hover:bg-[#F7F7FF] transition-colors"
+                                    onClick={() => handleResubmitAd(carAd._id, 'laptop')}
+                                  >
+                                    <Edit className="mr-3" size={16} />
+                                    Resubmit 
+                                  </button>
+                                )}
+                                  {laptopAd?.status === 'approved' && (
+                                  <button
+                                    className="flex items-center w-full px-4 py-3 text-[16px] 
+                                    whitespace-nowrap font-inter font-[400] text-[#525252]
+                                     hover:bg-[#F7F7FF] transition-colors"
+                                    onClick={() => handleMarkLaptopAsSold(laptopAd?._id, carAd?._id)}
+                                  >
+                                    <FiCheck className="mr-3" size={16} />
+                                    Mark As Sold
+                                  </button>
+                                )}
+                             </>
+                            )}
+
+                               {laptopAd?.status !== 'sold' && (
+                              <button
+                                className="flex items-center w-full px-4 py-2 text-[#CB0D0D] text-[16px] font-[400] 
+                                font-inter hover:bg-[#F7F7FF] border-t border-[#EDEDED]"
+                                onClick={() => {
+                                  setShowMenu(null);
+                                 handleLaptopDelete(laptopAd?._id || carAd?._id);
+                                }}
+                              >
+                                <FiTrash2 className="mr-2" /> Delete
+                              </button>
+                            )}
+                        </div>
+                      )}
+                     </div>
+                  </div>
+                  <StatusBadge
+                    status={laptopAd?.status}
+                    isDraft={laptopAd?.isDraft}
+                    rejectionReason={laptopAd?.rejectionReason}
+                  />
+              </>
+              ): (
+                <div className="mt-3">
+                   <div className="flex items-center gap-2 mb-3">
+                      <Img src="/location.svg" alt="Location" width={10} height={13} />
+                      <span className="text-[#8C8C8C] text-[14px] font-[400] font-inter">
+                        {carAd?.location || "Location not specified"}
+                      </span>
+                    </div>
+
+                    <div className="flexgap-2 mb-3 overflow-x-auto">
+                        {carAd?.laptopImage?.slice(0, 4).map((img, idx) => (
+                        <img 
+                          key={idx} 
+                          src={img} 
+                          alt={`Preview ${idx + 1}`} 
+                          className="w-16 h-16 object-cover rounded border border-gray-200"
+                        />
+                      ))}
+                       {carAd?.laptopImage?.length > 4 && (
+                        <div className="w-16 h-16 bg-gray-100 rounded border border-gray-200 flex items-center justify-center text-gray-600 text-xs">
+                          +{carAd.laptopImage.length - 4}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                       <Button
+                        onClick={() => handleEditIncompleteAd(carAd._id, carAd.category)}
+                        className="flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-[8px] transition-all text-[14px]"
+                      >
+                        <Edit size={16} /> Complete Ad
+                      </Button>
+
+                      <button 
+                        className="text-[#CB0D0D] text-[14px] font-[400] font-inter hover:underline"
+                        onClick={() => {
+                          setShowMenu(null);
+                          handleEditCarAd(carAd._id, carAd.category);
+                        }}
+                      >
+                        Edit
+                      </button>
+
+                       <button
+                        onClick={() => handleLaptopDelete(carAd._id)}
                         className="text-[#CB0D0D] text-[14px] font-[400] font-inter hover:underline"
                       >
                         Delete
