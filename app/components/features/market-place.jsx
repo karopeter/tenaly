@@ -30,8 +30,8 @@ export default function MarketPlace({ category, search, location }) {
     };
 
     return adsArray.sort((a, b) => {
-      const adA = a.vehicleAd || a.propertyAd || a.petAd || a.agricultureAd || a.kidsAd || a.serviceAd || a.equipmentAd || a.gadgetAd || a.laptopAd;
-      const adB = b.vehicleAd || b.propertyAd || b.petAd || b.agricultureAd || b.kidsAd || b.serviceAd || b.equipmentAd || b.gadgetAd || b.laptopAd;
+      const adA = a.vehicleAd || a.propertyAd || a.petAd || a.agricultureAd || a.kidsAd || a.serviceAd || a.equipmentAd || a.gadgetAd || a.laptopAd || a.fashionAd;
+      const adB = b.vehicleAd || b.propertyAd || b.petAd || b.agricultureAd || b.kidsAd || b.serviceAd || b.equipmentAd || b.gadgetAd || b.laptopAd || b.fashionAd;
 
       if (!adA && !adB) return 0;
       if (!adA) return -1;
@@ -54,7 +54,7 @@ export default function MarketPlace({ category, search, location }) {
   };
 
   const isPremiumAd = (item) => {
-    const ad = item.vehicleAd || item.propertyAd || item.petAd || item.agricultureAd || item.kidsAd || item.serviceAd || item.equipmentAd || item.gadgetAd || item.laptopAd;
+    const ad = item.vehicleAd || item.propertyAd || item.petAd || item.agricultureAd || item.kidsAd || item.serviceAd || item.equipmentAd || item.gadgetAd || item.laptopAd || item.fashionAd;
     if (!ad) return false;
     const premiumPlans = ["premium", "vip", "diamond", "enterprise"];
     return ad.paymentStatus === "success" && premiumPlans.includes(ad.plan);
@@ -193,10 +193,19 @@ const laptopNewlyPosted = ads.filter((item) => {
   const now = new Date();
   const diffDays = (now - createdAt) / (1000 * 60 * 60 * 24);
   return diffDays <= 7;
+});
+
+const fashionNewlyPosted = ads.filter((item) => {
+  const ad = item.fashionAd;
+  if (!ad) return false;
+  const createdAt = new Date(ad.createdAt);
+  const now = new Date();
+  const diffDays = (now - createdAt) / (1000 * 60 * 60 * 24);
+  return diffDays <= 7;
 })
 
   const recommendedAds = ads.filter((item) => {
-    const ad = item.vehicleAd || item.propertyAd || item.petAd || item.agricultureAd || item.serviceAd || item.equipmentAd || item.gadgetAd || item.laptopAd;
+    const ad = item.vehicleAd || item.propertyAd || item.petAd || item.agricultureAd || item.serviceAd || item.equipmentAd || item.gadgetAd || item.laptopAd || item.fashionAd;
     if (!ad) return false;
     return ["free", "basic"].includes(ad.plan);
   });
@@ -239,6 +248,7 @@ const laptopNewlyPosted = ads.filter((item) => {
     const isEquipmentAd = !!item.equipmentAd;
     const isGadgetAd = !!item.gadgetAd;
     const isLaptopAd = !!item.laptopAd;
+    const isFashionAd = !!item.fashionAd;
 
     let imageUrl = null;
     let title = "Untitled Ad";
@@ -269,6 +279,11 @@ const laptopNewlyPosted = ads.filter((item) => {
    let laptopTitle = null;
    let laptopCondition = null;
    let laptopBrand = null;
+   let fashionTitle = null;
+   let fashionType = null;
+   let fashionCondition = null;
+   let fashionMaterial = null;
+   let fashionBrand = null;
 
     if (isCarAd) {
       imageUrl = item.carAd.vehicleImage?.[0];
@@ -381,6 +396,17 @@ const laptopNewlyPosted = ads.filter((item) => {
     laptopTitle = item.laptopAd?.laptopTitle;
     laptopCondition = item.laptopAd?.condition;
     laptopBrand = item.laptopAd?.laptopBrand;
+} else if (isFashionAd) {
+  imageUrl = item.carAd?.fashionImage?.[0];
+  title = item.fashionAd?.fashionTitle || "Fashion";
+  description = item.fashionAd?.description || "No description available";
+  price = item.fashionAd?.amount 
+     ? `₦${item.fashionAd.amount.toLocaleString()}`
+     : "Price not set.";
+  adLocation = item.carAd?.location || "Unknown";
+  plan = item.fashionAd?.plan;
+  fashionType = item.fashionAd?.fashionType;
+  fashionCondition = item.fashionAd?.condition;
 }
 
     return (
@@ -583,6 +609,21 @@ const laptopNewlyPosted = ads.filter((item) => {
          )}
         </>
       )}
+
+      {isFashionAd && (
+        <>
+         {fashionCondition && (
+         <span className="bg-[#E8E8FF] font-inter whitespace-nowrap text-[#525252] px-2 py-1 rounded text-xs">
+          {fashionCondition}
+         </span>
+         )}
+         {fashionType && (
+           <span className="bg-[#E8E8FF] font-inter whitespace-nowrap text-[#525252] px-2 py-1 rounded text-xs">
+              {fashionType}
+            </span>
+         )}
+        </>
+      )}
      </div>
       </div>
     </li>
@@ -716,6 +757,19 @@ const laptopNewlyPosted = ads.filter((item) => {
               renderAdCard(item, index)
             )}
           </ul>
+        </div>
+      )}
+
+      {fashionNewlyPosted.length > 0 && (
+        <div>
+        <h2 className="text-[14px] md:text-[20px] font-inter font-[500] font-normal text-[#2E2E2E] mb-4">
+           Fashion Newly Posted 
+        </h2>
+        <ul className="grid gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {fashionNewlyPosted.map((item, index) => 
+            renderAdCard(item, index)
+          )}
+        </ul>
         </div>
       )}
 

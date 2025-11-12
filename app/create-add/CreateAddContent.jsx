@@ -102,8 +102,16 @@ const routeMap = {
     'Software': '/software',
     'Others': '/others',
 
+     'Clothing': '/fashion-clothing',
+     'Footwear': '/fashion-footwear',
+     'Bags': '/fashion-bags',
+     'Jewellery': '/fashion-jewellery',
+     'Watches': '/fashion-watches',
+     'Accessories': '/fashion-accesories',
+     'Eyewear (Glasses & Sunglasses)': '/fashion-eyewear',
+     'Wedding & Event Wear': '/fashion-wedding-eventwear',
+
   // Standalone categories 
-  "Fashion": "/fashion",
   "Household Items": "/household-items",
   "Job": "/jobs",
   "Available for hire": "/available-for-hire"
@@ -353,7 +361,18 @@ export default function CreateCarContent() {
     'Storage Devices',
     'Software',
     'Others',
-  ]
+  ];
+
+  const fashionCategories = [
+    'Clothing',
+    'Footwear',
+    'Bags',
+    'Jewellery',
+    'Watches',
+    'Accessories',
+    'Eyewear (Glasses & Sunglasses)',
+    'Wedding & Event Wear',
+  ];
   
   if (vehicleCategories.includes(value)) {
     return { baseCategory: "Vehicle", categoryValue: value };
@@ -369,7 +388,7 @@ export default function CreateCarContent() {
     return { baseCategory: "Equipment", categoryValue: value };
   } else if (gadgetsCategories.includes(value)) {
     return { baseCategory: "Gadgets", categoryValue: value };
-  } else if (value === 'Fashion') {
+  } else if (fashionCategories.includes(value)) {
     return { baseCategory: "Fashion", categoryValue: value };
   } else if (laptopCategories.includes(value)) {
     return { baseCategory: "Laptops", categoryValue: value };

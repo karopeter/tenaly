@@ -140,6 +140,7 @@ export default function NotificationPage() {
     const equipmentAdId = notification.equipmentAd?._id;
     const gadgetAdId = notification.gadgetAd?._id;
     const laptopAdId = notification.laptopAd?._id;
+    const fashionAdId = notification.fashionAd?._id;
 
     if (notification.adType === 'vehicle' && businessId && carAdId && vehicleAdId) {
       return `/ads/Vehicles/${businessId}/${carAdId}/${vehicleAdId}`;
@@ -159,6 +160,8 @@ export default function NotificationPage() {
       return `/ads/Gadget/${businessId}/${carAdId}/${gadgetAdId}`;
     } else if (notification.adType === 'laptop' && businessId && carAdId && laptopAdId) {
       return `/ads/Laptop/${businessId}/${carAdId}/${laptopAdId}`;
+    } else if (notification.adType === 'fashion' && businessId && carAdId && fashionAdId) {
+      return `/ads/Fashion/${businessId}/${fashionAdId}/${fashionAdId}`;
     }
     
     // Fallback
@@ -287,6 +290,7 @@ export default function NotificationPage() {
                           notif.adType === 'equipment' ? 'bg-yellow-500' :
                           notif.adType === 'gadget' ? 'bg-blue-500' :
                           notif.adType === 'laptop' ? 'bg-green-500' :
+                          notif.adType === 'fashion' ? 'bg-red-500' :
                           'bg-gray-500'
                         }`} title={`${notif.adType} ad`}></span>
                       )}
@@ -304,7 +308,7 @@ export default function NotificationPage() {
                         {/* Notification message */}
                         <p className="text-[#525252] font-[400] font-inter text-[12px] md:text-[14px] break-words leading-snug">
                           {notif.message}
-                          {notif.adDetails && (notif.vehicleAd || notif.propertyAd || notif.petAd || notif.agricultureAd || notif.kidAd || notif.serviceAd || notif.equipmentAd || notif.gadgetAd || notif.laptopAd) && (
+                          {notif.adDetails && (notif.vehicleAd || notif.propertyAd || notif.petAd || notif.agricultureAd || notif.kidAd || notif.serviceAd || notif.equipmentAd || notif.gadgetAd || notif.laptopAd || notif.fashionAd) && (
                             <span className="ml-1">
                               <Link 
                                 href={getViewAdLink(notif)} 
