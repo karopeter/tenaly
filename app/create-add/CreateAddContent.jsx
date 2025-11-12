@@ -91,9 +91,19 @@ const routeMap = {
     'Covers': '/gadget-covers',
     'Earphones / Headsets': '/gadget-earphones-headsets',
 
+    // Laptops & Computers
+     'Laptops': '/laptops',
+    'Desktop Computers': '/desktop-computers',
+    'Computer Accessories': '/desktop-accessories',
+    'Monitors': '/monitors',
+    'Printers & Scanners': '/printers-scanners',
+    'Networking Equipment': '/networking-equipment',
+    'Storage Devices': '/storage-devices',
+    'Software': '/software',
+    'Others': '/others',
+
   // Standalone categories 
   "Fashion": "/fashion",
-  "Laptops & Computers": "/laptops-computers",
   "Household Items": "/household-items",
   "Job": "/jobs",
   "Available for hire": "/available-for-hire"
@@ -332,6 +342,18 @@ export default function CreateCarContent() {
     'Covers',
     'Earphones / Headsets',
   ]
+
+  const laptopCategories = [
+     'Laptops',
+    'Desktop Computers',
+    'Computer Accessories',
+    'Monitors',
+    'Printers & Scanners',
+    'Networking Equipment',
+    'Storage Devices',
+    'Software',
+    'Others',
+  ]
   
   if (vehicleCategories.includes(value)) {
     return { baseCategory: "Vehicle", categoryValue: value };
@@ -349,7 +371,7 @@ export default function CreateCarContent() {
     return { baseCategory: "Gadgets", categoryValue: value };
   } else if (value === 'Fashion') {
     return { baseCategory: "Fashion", categoryValue: value };
-  } else if (value === 'Laptops & Computers') {
+  } else if (laptopCategories.includes(value)) {
     return { baseCategory: "Laptops", categoryValue: value };
   } else if (value === 'Household Items') {
     return { baseCategory: "Household", categoryValue: value };

@@ -257,10 +257,11 @@ const handleSendOffer = async () => {
      serviceAd,
      equipmentAd,
      gadgetAd,
+     laptopAd,
      business
     } = adData;
   const actualBusinessId = carAd?.businessCategory?._id || carAd?.businessCategory;
-  const sellerId = business?.userId || carAd?.userId || vehicleAd?.userId || propertyAd?.userId || petAd?.userId || agricultureAd?.userId || kidsAd?.userId || serviceAd?.userId || equipmentAd?.userId || gadgetAd?.userId;
+  const sellerId = business?.userId || carAd?.userId || vehicleAd?.userId || propertyAd?.userId || petAd?.userId || agricultureAd?.userId || kidsAd?.userId || serviceAd?.userId || equipmentAd?.userId || gadgetAd?.userId || laptopAd?.userId;
 
 
   let mainAd = null; 
@@ -288,6 +289,9 @@ const handleSendOffer = async () => {
    } else if (gadgetAd) {
     mainAd = carAd;
     adDetails = gadgetAd;
+   } else if (laptopAd) {
+    mainAd = carAd;
+    adDetails = laptopAd;
    }
  
   const businessName = business?.businessName || "Unknown Seller";
@@ -309,9 +313,10 @@ const handleSendOffer = async () => {
   const serviceNeg = serviceAd?.negotiation === "Yes";
   const equipmentNeg = equipmentAd?.negotiation === "Yes";
   const gadgetNeg = gadgetAd?.negotiation === "Yes";
+  const laptopNeg = laptopAd?.negotiation === "Yes";
 
   
-  return vehicleNeg || propertyNeg || petNeg || agricultureNeg || kidsNeg || serviceNeg || equipmentNeg || gadgetNeg;
+  return vehicleNeg || propertyNeg || petNeg || agricultureNeg || kidsNeg || serviceNeg || equipmentNeg || gadgetNeg || laptopNeg;
 };
 
 
@@ -324,6 +329,7 @@ const productTitle =
   (serviceAd?.serviceTitle ? `${serviceAd.serviceTitle}` : "") ||
   (equipmentAd?.equipmentTitle ? `${equipmentAd.equipmentTitle}` : "") ||
   (gadgetAd?.gadgetTitle ? `${gadgetAd.gadgetTitle}` : "") || 
+  (laptopAd?.laptopTitle ? `${laptopAd.laptopTitle}` : "") ||
   (vehicleAd ? `${vehicleAd.vehicleType} ${vehicleAd.model}` : "") ||
   (carAd ? `${carAd.vehicleType} ${carAd.model}` : "");
 
@@ -335,6 +341,7 @@ const productTitle =
        carAd.serviceImage?.length > 0 ? carAd.serviceImage :
        carAd.equipmentImage?.length > 0 ? carAd.equipmentImage :
        carAd.gadgetImage?.length > 0 ? carAd.gadgetImage :
+       carAd.laptopImage?.length > 0 ? carAd.laptopImage : 
         carAd.vehicleImage || [])
     : [];
 
@@ -342,7 +349,7 @@ const productTitle =
     const smallImages = mainImageArray.slice(1, 5);
 
     // const productId = mainAd?._id;
-    const productId = vehicleAd?._id || propertyAd?._id || petAd?._id || agricultureAd?._id || kidsAd?._id || serviceAd?._id || equipmentAd?._id || gadgetAd?._id;
+    const productId = vehicleAd?._id || propertyAd?._id || petAd?._id || agricultureAd?._id || kidsAd?._id || serviceAd?._id || equipmentAd?._id || gadgetAd?._id || laptopAd?._id;
 
 // Pick correct product image
 const productImage =
@@ -353,6 +360,7 @@ const productImage =
    serviceAd?.serviceImage?.[0] ||
    equipmentAd?.equipmentImage?.[0] ||
    gadgetAd?.gadgetImage?.[0] || 
+   laptopAd?.laptopImage?.[0] || 
   vehicleAd?.vehicleImage?.[0] ||
   carAd?.vehicleImage?.[0];
 
@@ -404,6 +412,11 @@ const productImage =
              {gadgetAd.gadgetTitle} {gadgetAd.condition}
           </span>
         )}
+        {laptopAd && (
+          <span className="text-[#000087] text-[13px] md:text-[14px] font-[500] font-inter whitespace-nowrap">
+            {laptopAd.laptopTitle}
+          </span>
+        )}
       </div>
 
       <div className="mt-5 container mx-auto flex flex-wrap items-center justify-center gap-4">
@@ -446,6 +459,11 @@ const productImage =
           {gadgetAd && (
               <h2 className="text-[#525252] text-[14px] md:text-[18px] font-[500] font-inter">
                {gadgetAd.gadgetTitle}
+            </h2> 
+          )}
+          {laptopAd && (
+            <h2 className="text-[#525252] text-[14px] md:text-[18px] font-[500] font-inter">
+               {laptopAd.laptopTitle}
             </h2> 
           )}
         </div>
@@ -596,6 +614,9 @@ const productImage =
        {gadgetAd?.amount && (
         <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{gadgetAd.amount?.toLocaleString()}</span>
        )}
+       {laptopAd?.amount && (
+        <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{laptopAd.amount?.toLocaleString()}</span>
+       )}
      </div>
      {isNegotiable() && (
   <div className="p-4">
@@ -728,6 +749,17 @@ const productImage =
           Gadet Details 
           </Button>
          )}
+
+         {laptopAd && ( 
+          <Button
+           className={`py-2 px-4 min-w-[120px] h-[40px] md:h-[44px] rounded-tl-[4px] whitespace-nowrap rounded-tr-[4px] text-center ${
+            activeTab === "car" ? "bg-[#DFDFF9] text-[#000087]" : "bg-gray-200 text-gray-700"
+           }`}
+           onClick={() => setActiveTab("car")}
+          >
+           Laptop & Computer Details 
+          </Button>
+         )}
    
            {propertyAd && (
             <Button
@@ -801,6 +833,15 @@ const productImage =
               Review 
            </Button>
            )}
+           {laptopAd && (
+            <Button
+            className={`py-2 px-4 min-w-[120px] h-[40px] md:h-[44px] rounded-tl-[4px] whitespace-nowrap rounded-tr-[4px] text-center ${
+               activeTab === "review" ? "bg-[#DFDFF9] text-[#000087]" : "bg-gray-200 text-gray-700"
+             }`}
+              onClick={() => setActiveTab("review")}>
+              Review 
+           </Button>
+           )}
         </div>
       </div>
 
@@ -847,6 +888,11 @@ const productImage =
               {gadgetAd && (
                 <h2 className="text-[#525252] text-[14px] md:text-[18px] font-[500] font-inter">
                  {gadgetAd.gadgetTitle}
+               </h2>
+              )}
+              {laptopAd && (
+               <h2 className="text-[#525252] text-[14px] md:text-[18px] font-[500] font-inter">
+                 {laptopAd.laptopTitle}
                </h2>
               )}
 
@@ -896,6 +942,11 @@ const productImage =
                   {gadgetAd && (
                     <span className="text-[#868686] text-[14px] md:text-[14px] font-[400] font-inter whitespace-nowrap">
                       {gadgetAd.viewCount} Views
+                   </span>
+                  )}
+                  {laptopAd && (
+                   <span className="text-[#868686] text-[14px] md:text-[14px] font-[400] font-inter whitespace-nowrap">
+                    {laptopAd.viewCount} Views 
                    </span>
                   )}
               </div>
@@ -971,6 +1022,13 @@ const productImage =
                     font-inter capitalize font-[500] rounded-[4px]">
                       {gadgetAd.plan}
                     </Button>
+                  )}
+                  {laptopAd && (
+                   <Button className="bg-[#DFDFF9] py-2 px-3 
+                    text-[#000087] text-[10px] md:text-[12px] 
+                    font-inter capitalize font-[500] rounded-[4px]">
+                    {laptopAd.plan}
+                   </Button>
                   )}
                </div>
              </div>
@@ -1105,6 +1163,19 @@ const productImage =
                <div>
                 <span className="text-[#868686] text-[10px] md:text-[12px] font-[400] font-inter">
                   Posted on {new Date(gadgetAd.createdAt).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric"
+                  })}
+               </span>
+               </div>
+              </>
+             )}
+             {laptopAd && (
+              <>
+              <div>
+                <span className="text-[#868686] text-[10px] md:text-[12px] font-[400] font-inter">
+                  Posted on {new Date(laptopAd.createdAt).toLocaleDateString("en-US", {
                   year: "numeric",
                   month: "long",
                   day: "numeric"
@@ -1519,7 +1590,7 @@ const productImage =
            )}
 
 
-              {gadgetAd && ( 
+    {gadgetAd && ( 
             <div className="bg-[#FAFAFA] md:w-[650px] h-auto md:rounded-[12px] p-8 mt-4">
               <div className="flex items-center justify-between">
                 <span className="text-[#525252] md:text-[16px] font-inter font-[500]">
@@ -1700,6 +1771,247 @@ const productImage =
        )}
      </div>
     )}
+
+
+       {laptopAd && ( 
+            <div className="bg-[#FAFAFA] md:w-[650px] h-auto md:rounded-[12px] p-8 mt-4">
+              <div className="flex items-center justify-between">
+                <span className="text-[#525252] md:text-[16px] font-inter font-[500]">
+                 Gadget Details 
+               </span> 
+
+               <div className="flex items-center space-x-2">
+                  <span className="text-[#000087] text-[16px] font-[400] font-inter">
+                    Show More
+                  </span>
+                    <button 
+                   onClick={() => setShowDetails(!showDetails)} 
+                   aria-expanded={showDetails}>
+                    <Img
+                      src={showDetails ? "/dropup.svg" : "/dropdown.svg"}
+                      alt="Dropdown Icon"
+                      width={8}
+                      height={4}
+                      className="mr-2 mt-[2px] cursor-pointer"
+                    />
+                  </button>
+                </div>
+              </div>
+              {showDetails && (
+  <div className="mt-4">
+    <div className="flex flex-wrap justify-between gap-y-4 gap-x-[4%] max-w-[650px] mx-auto">
+      {laptopAd?.condition && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+           Computer Condition
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {laptopAd.condition}
+          </span>
+        </div>
+      )}
+      
+      {laptopAd?.laptopBrand && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Gadget Brand 
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {laptopAd.laptopBrand}
+          </span>
+        </div>
+      )}
+      
+      {laptopAd?.laptopStorage && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Storage Capacity
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {laptopAd.laptopStorage}
+          </span>
+        </div>
+      )}
+
+      {laptopAd?.laptopRam && laptopAd.laptopRam.trim() !== "" && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            RAM
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {laptopAd.laptopRam}
+          </span>
+        </div>
+      )}
+      
+      {laptopAd?.laptopOperating && laptopAd.laptopOperating.trim() !== "" && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Operating System
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {laptopAd.laptopOperating}
+          </span>
+        </div>
+      )}
+      
+      {laptopAd?.laptopProcessor && laptopAd.laptopProcessor.trim() !== "" && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Laptop / Computer Processor 
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {laptopAd.laptopProcessor}
+          </span>
+        </div>
+      )}
+
+      {laptopAd?.laptopScreenSize && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Screen Size 
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {laptopAd.laptopScreenSize}
+          </span>
+        </div>
+      )}
+
+      {laptopAd?.resolution && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Resolution
+          </span>
+           <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {laptopAd.resolution}
+          </span>
+        </div>
+      )}
+
+      {laptopAd?.refreshRate && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+           <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Refresh Rate 
+          </span>
+           <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {laptopAd.refreshRate}
+          </span>
+        </div>
+      )}
+
+      {laptopAd?.laptopType && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Desktop Type 
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {laptopAd.laptopType}
+          </span>
+        </div>
+      )}
+
+      
+      {laptopAd?.speedRating && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Speed Rating 
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter" >
+            {laptopAd?.speedRating}
+          </span>
+        </div>
+      )}
+    
+      
+      {laptopAd?.laptopBatteryHealth && laptopAd.laptopBatteryHealth.trim() !== "" && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Battery Health
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {laptopAd.laptopBatteryHealth}
+          </span>
+        </div>
+      )}
+      
+      {laptopAd?.laptopColor && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Color
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {laptopAd.laptopColor}
+          </span>
+        </div>
+      )}
+      
+      {laptopAd?.laptopAccessories && laptopAd.laptopAccessories.trim() !== "" && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Accessories 
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {laptopAd.laptopAccessories}
+          </span>
+        </div>
+      )}
+
+      {laptopAd?.capacity && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+           Power Capacity
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {laptopAd.capacity}
+          </span>
+        </div>
+      )}
+      
+       {laptopAd?.laptopWarranty && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Warranty
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {laptopAd.laptopWarranty}
+          </span>
+        </div>
+      )}
+      
+      {laptopAd?.laptopConnectivityType && laptopAd.laptopConnectivityType.length > 0 && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Connectivity Type
+          </span>
+          <div className="mt-2 flex flex-wrap gap-1">
+            {laptopAd.laptopConnectivityType.map((type, idx) => (
+              <span 
+                key={idx} 
+                className="bg-[#E5E7EB] text-[#525252] text-[12px] md:text-[13px] font-medium font-inter px-2 py-1 rounded"
+              >
+                {type}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+      
+      {laptopAd?.negotiation && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Negotiation
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {laptopAd.negotiation}
+          </span>
+        </div>
+         )}
+        </div>
+        </div>
+       )}
+     </div>
+    )}
+         
            
 
 
@@ -2001,6 +2313,11 @@ const productImage =
                   {gadgetAd?.description}
                 </p>  
               )}
+              {laptopAd && (
+               <p className="text-[#868686] mt-2 text-[12px] md:text-[14px] font-[400] font-inter">
+                 {laptopAd?.description}
+               </p>
+              )}
            </div>
           </>
         ): (
@@ -2144,6 +2461,9 @@ const productImage =
        )}
        {gadgetAd && (
         <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{gadgetAd.amount?.toLocaleString()}</span>
+       )}
+       {laptopAd && (
+        <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{laptopAd.amount?.toLocaleString()}</span>
        )}
      </div>
      {isNegotiable() && (
