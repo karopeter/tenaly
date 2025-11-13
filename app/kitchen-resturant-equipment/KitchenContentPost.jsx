@@ -476,7 +476,7 @@ export default function KitchenResturantPostContent() {
         </button>
 
         <h3 className="text-[#525252] font-[500] font-inter text-[16px] mb-4 text-left md:text-center">
-          {editingCarAd ? "Complete Ads for Work Tools & Machinery" : "Post Work Tools & Machinery Ad"}
+          {editingCarAd ? "Complete Ads for Kitchen Equipment" : "Post Kitched Eqiupment tools Ad"}
         </h3>
 
         <form>
