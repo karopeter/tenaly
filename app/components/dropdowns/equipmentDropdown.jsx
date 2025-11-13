@@ -7,7 +7,7 @@ export default function EquipmentDropdown({ onSelect }) {
     'Power Tools',
     'Manufacturing Equipment',
     'Medical & Laboratory Equipment',
-    'Kitchen & Resturant Equipment',
+    'Kitchen & Restaurant Equipment',
     'Printing & Packaging Machines',
     'Agricultural Machinery',
     'Cleaning & Laundry Equipment',
