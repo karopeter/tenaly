@@ -11,6 +11,7 @@ import EquipmentDropdown from "./equipmentDropdown";
 import GadgetDropdown from "./gadgetDropdown";
 import LaptopDropdown from "./laptopDropdown";
 import FashionDropdown from "./fashionDropdown";
+import HouseholdDropdown from "./HouseholdDropdown";
 import Img from "../Image";
 
 export default function MainCategoryDropdown({ value, onChange }) {
@@ -170,7 +171,7 @@ export default function MainCategoryDropdown({ value, onChange }) {
           </div>
           <div 
            className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
-           onClick={() => handleSubSelect("Household Items")}
+           onClick={() => handleTypeSelect("households")}
            >
             <Img
               src="/householdIcon.svg"
@@ -311,6 +312,13 @@ export default function MainCategoryDropdown({ value, onChange }) {
         <div className="absolute top-[52px] left-0 right-0
          bg-white border border-[#CDCDD7] border-t-0 rounded-b-[4px] z-10 max-h-60 overflow-y-auto">
           <EquipmentDropdown onSelect={handleSubSelect} />
+        </div>
+      )}
+
+      {type === "households" && (
+        <div className="absolute top-[52px] left-0 right-0
+         bg-white border border-[#CDCDD7] border-t-0 rounded-b-[4px] z-10 max-h-60 overflow-y-auto">
+          <HouseholdDropdown onSelect={handleSubSelect} />
         </div>
       )}
 

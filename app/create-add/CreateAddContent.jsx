@@ -111,8 +111,23 @@ const routeMap = {
      'Eyewear (Glasses & Sunglasses)': '/fashion-eyewear',
      'Wedding & Event Wear': '/fashion-wedding-eventwear',
 
+     // Household 
+     
+      'Furniture': '/household-furniture',
+      'Home Appliances': '/household-appliances',
+      'Kitchen Appliances': '/kitchen-appliances',
+      'Home Decor': '/household-home-decor',
+      'Lighting': '/household-lighting',
+      'Bedding & Linen': '/household-bedding-linen',
+      'Curtains & Blinds': '/household-curtains',
+      'Kitchenware & Cookware': '/household-kitchenware',
+      'Cleaning Equipment': '/household-cleaning-equipment',
+      'Bathroom Accessories': '/household-bathroom-accessories',
+      'Garden & Outdoor': '/household-garden-outdoor',
+      'Others': '/household-others',
+
+
   // Standalone categories 
-  "Household Items": "/household-items",
   "Job": "/jobs",
   "Available for hire": "/available-for-hire"
 };
@@ -373,6 +388,23 @@ export default function CreateCarContent() {
     'Eyewear (Glasses & Sunglasses)',
     'Wedding & Event Wear',
   ];
+
+  const householdCategories = [
+      'Furniture',
+      'Home Appliances',
+      'Kitchen Appliances',
+      'Home Decor',
+      'Lighting',
+      'Bedding & Linen',
+      'Curtains & Blinds',
+      'Kitchenware & Cookware',
+      'Cleaning Equipment',
+      'Bathroom Accessories',
+      'Garden & Outdoor',
+      'Others',
+  ];
+  
+
   
   if (vehicleCategories.includes(value)) {
     return { baseCategory: "Vehicle", categoryValue: value };
@@ -392,7 +424,7 @@ export default function CreateCarContent() {
     return { baseCategory: "Fashion", categoryValue: value };
   } else if (laptopCategories.includes(value)) {
     return { baseCategory: "Laptops", categoryValue: value };
-  } else if (value === 'Household Items') {
+  } else if (householdCategories.includes(value)) {
     return { baseCategory: "Household", categoryValue: value };
   } else if (value === 'Job') {
     return { baseCategory: "Job", categoryValue: value };

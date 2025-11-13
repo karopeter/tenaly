@@ -30,8 +30,8 @@ export default function MarketPlace({ category, search, location }) {
     };
 
     return adsArray.sort((a, b) => {
-      const adA = a.vehicleAd || a.propertyAd || a.petAd || a.agricultureAd || a.kidsAd || a.serviceAd || a.equipmentAd || a.gadgetAd || a.laptopAd || a.fashionAd;
-      const adB = b.vehicleAd || b.propertyAd || b.petAd || b.agricultureAd || b.kidsAd || b.serviceAd || b.equipmentAd || b.gadgetAd || b.laptopAd || b.fashionAd;
+      const adA = a.vehicleAd || a.propertyAd || a.petAd || a.agricultureAd || a.kidsAd || a.serviceAd || a.equipmentAd || a.gadgetAd || a.laptopAd || a.fashionAd || a.householdAd;
+      const adB = b.vehicleAd || b.propertyAd || b.petAd || b.agricultureAd || b.kidsAd || b.serviceAd || b.equipmentAd || b.gadgetAd || b.laptopAd || b.fashionAd || b.householdAd;
 
       if (!adA && !adB) return 0;
       if (!adA) return -1;
@@ -54,7 +54,7 @@ export default function MarketPlace({ category, search, location }) {
   };
 
   const isPremiumAd = (item) => {
-    const ad = item.vehicleAd || item.propertyAd || item.petAd || item.agricultureAd || item.kidsAd || item.serviceAd || item.equipmentAd || item.gadgetAd || item.laptopAd || item.fashionAd;
+    const ad = item.vehicleAd || item.propertyAd || item.petAd || item.agricultureAd || item.kidsAd || item.serviceAd || item.equipmentAd || item.gadgetAd || item.laptopAd || item.fashionAd || item.householdAd;
     if (!ad) return false;
     const premiumPlans = ["premium", "vip", "diamond", "enterprise"];
     return ad.paymentStatus === "success" && premiumPlans.includes(ad.plan);
@@ -202,10 +202,19 @@ const fashionNewlyPosted = ads.filter((item) => {
   const now = new Date();
   const diffDays = (now - createdAt) / (1000 * 60 * 60 * 24);
   return diffDays <= 7;
-})
+});
+
+const householdNewlyPosted = ads.filter((item) => {
+   const ad = item.householdAd;
+   if (!ad) return false;
+   const createdAt = new Date(ad.createdAt);
+   const now = new Date();
+   const diffDays = (now - createdAt) / (1000 * 60 * 60 * 24);
+   return diffDays <= 7;
+});
 
   const recommendedAds = ads.filter((item) => {
-    const ad = item.vehicleAd || item.propertyAd || item.petAd || item.agricultureAd || item.serviceAd || item.equipmentAd || item.gadgetAd || item.laptopAd || item.fashionAd;
+    const ad = item.vehicleAd || item.propertyAd || item.petAd || item.agricultureAd || item.serviceAd || item.equipmentAd || item.gadgetAd || item.laptopAd || item.fashionAd || item.householdAd;
     if (!ad) return false;
     return ["free", "basic"].includes(ad.plan);
   });
@@ -249,6 +258,7 @@ const fashionNewlyPosted = ads.filter((item) => {
     const isGadgetAd = !!item.gadgetAd;
     const isLaptopAd = !!item.laptopAd;
     const isFashionAd = !!item.fashionAd;
+    const isHouseholdAd = !!item.householdAd;
 
     let imageUrl = null;
     let title = "Untitled Ad";
@@ -284,6 +294,9 @@ const fashionNewlyPosted = ads.filter((item) => {
    let fashionCondition = null;
    let fashionMaterial = null;
    let fashionBrand = null;
+   let householdTitle = null;
+   let householdCondition = null;
+   let householdType = null;
 
     if (isCarAd) {
       imageUrl = item.carAd.vehicleImage?.[0];
@@ -407,6 +420,17 @@ const fashionNewlyPosted = ads.filter((item) => {
   plan = item.fashionAd?.plan;
   fashionType = item.fashionAd?.fashionType;
   fashionCondition = item.fashionAd?.condition;
+} else if (isHouseholdAd) {
+  imageUrl = item.carAd?.householdImage?.[0];
+  title = item.householdAd?.householdTitle || "Household";
+  description = item.householdAd?.description || "No description available";
+  price = item.householdAd?.amount 
+     ? `₦${item.householdAd.amount.toLocaleString()}`
+     : "Price not set.";
+  adLocation = item.carAd?.location || "Unknown";
+  plan = item.householdAd?.plan;
+  householdType = item.householdAd?.householdType;
+  householdCondition = item.householdAd?.condition;
 }
 
     return (
@@ -624,6 +648,21 @@ const fashionNewlyPosted = ads.filter((item) => {
          )}
         </>
       )}
+
+      {isHouseholdAd && (
+        <>
+          {householdCondition && (
+         <span className="bg-[#E8E8FF] font-inter whitespace-nowrap text-[#525252] px-2 py-1 rounded text-xs">
+          {householdCondition}
+         </span>
+         )} 
+          {householdType && (
+           <span className="bg-[#E8E8FF] font-inter whitespace-nowrap text-[#525252] px-2 py-1 rounded text-xs">
+              {householdType}
+            </span>
+         )}
+        </>
+      )}
      </div>
       </div>
     </li>
@@ -767,6 +806,19 @@ const fashionNewlyPosted = ads.filter((item) => {
         </h2>
         <ul className="grid gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {fashionNewlyPosted.map((item, index) => 
+            renderAdCard(item, index)
+          )}
+        </ul>
+        </div>
+      )}
+
+        {householdNewlyPosted.length > 0 && (
+        <div>
+        <h2 className="text-[14px] md:text-[20px] font-inter font-[500] font-normal text-[#2E2E2E] mb-4">
+           Household Items 
+        </h2>
+        <ul className="grid gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {householdNewlyPosted.map((item, index) => 
             renderAdCard(item, index)
           )}
         </ul>
