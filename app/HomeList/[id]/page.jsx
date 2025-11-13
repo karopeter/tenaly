@@ -259,10 +259,11 @@ const handleSendOffer = async () => {
      gadgetAd,
      laptopAd,
      fashionAd,
+     householdAd,
      business
     } = adData;
   const actualBusinessId = carAd?.businessCategory?._id || carAd?.businessCategory;
-  const sellerId = business?.userId || carAd?.userId || vehicleAd?.userId || propertyAd?.userId || petAd?.userId || agricultureAd?.userId || kidsAd?.userId || serviceAd?.userId || equipmentAd?.userId || gadgetAd?.userId || laptopAd?.userId || fashionAd?.userId;
+  const sellerId = business?.userId || carAd?.userId || vehicleAd?.userId || propertyAd?.userId || petAd?.userId || agricultureAd?.userId || kidsAd?.userId || serviceAd?.userId || equipmentAd?.userId || gadgetAd?.userId || laptopAd?.userId || fashionAd?.userId || householdAd?.userId;
 
 
   let mainAd = null; 
@@ -296,6 +297,9 @@ const handleSendOffer = async () => {
    } else if (fashionAd) {
     mainAd = carAd;
     adDetails = fashionAd;
+   } else if (householdAd) {
+    mainAd = carAd;
+    adDetails = householdAd;
    }
  
   const businessName = business?.businessName || "Unknown Seller";
@@ -319,9 +323,10 @@ const handleSendOffer = async () => {
   const gadgetNeg = gadgetAd?.negotiation === "Yes";
   const laptopNeg = laptopAd?.negotiation === "Yes";
   const fashionNeg = fashionAd?.negotiation === "Yes";
+  const householdNeg = householdAd?.negotiation === "Yes";
 
   
-  return vehicleNeg || propertyNeg || petNeg || agricultureNeg || kidsNeg || serviceNeg || equipmentNeg || gadgetNeg || laptopNeg || fashionNeg;
+  return vehicleNeg || propertyNeg || petNeg || agricultureNeg || kidsNeg || serviceNeg || equipmentNeg || gadgetNeg || laptopNeg || fashionNeg || householdNeg;
 };
 
 
@@ -336,6 +341,7 @@ const productTitle =
   (gadgetAd?.gadgetTitle ? `${gadgetAd.gadgetTitle}` : "") || 
   (laptopAd?.laptopTitle ? `${laptopAd.laptopTitle}` : "") ||
   (fashionAd?.fashionTitle ? `${fashionAd.fashionTitle}` : "") ||
+  (householdAd.householdTitle ? `${householdAd.householdTitle}` :  "") || 
   (vehicleAd ? `${vehicleAd.vehicleType} ${vehicleAd.model}` : "") ||
   (carAd ? `${carAd.vehicleType} ${carAd.model}` : "");
 
@@ -349,6 +355,7 @@ const productTitle =
        carAd.gadgetImage?.length > 0 ? carAd.gadgetImage :
        carAd.laptopImage?.length > 0 ? carAd.laptopImage : 
        carAd.fashionImage?.length > 0 ? carAd.fashionImage :
+       carAd?.householdImage?.length > 0 ? carAd.householdImage :
         carAd.vehicleImage || [])
     : [];
 
@@ -356,7 +363,7 @@ const productTitle =
     const smallImages = mainImageArray.slice(1, 5);
 
     // const productId = mainAd?._id;
-    const productId = vehicleAd?._id || propertyAd?._id || petAd?._id || agricultureAd?._id || kidsAd?._id || serviceAd?._id || equipmentAd?._id || gadgetAd?._id || laptopAd?._id || fashionAd?._id;
+    const productId = vehicleAd?._id || propertyAd?._id || petAd?._id || agricultureAd?._id || kidsAd?._id || serviceAd?._id || equipmentAd?._id || gadgetAd?._id || laptopAd?._id || fashionAd?._id || householdAd?._id;
 
 // Pick correct product image
 const productImage =
@@ -369,6 +376,7 @@ const productImage =
    gadgetAd?.gadgetImage?.[0] || 
    laptopAd?.laptopImage?.[0] || 
    fashionAd?.fashionImage?.[0] ||
+   householdAd?.householdImage?.[0] ||
   vehicleAd?.vehicleImage?.[0] ||
   carAd?.vehicleImage?.[0];
 
@@ -430,6 +438,11 @@ const productImage =
             {fashionAd.fashionTitle} {fashionAd.fashionType}
           </span>
         )}
+        {householdAd && (
+           <span className="text-[#000087] text-[13px] md:text-[14px] font-[500] font-inter whitespace-nowrap">
+            {householdAd.householdTitle} {householdAd.householdType}
+          </span>
+        )}
       </div>
 
       <div className="mt-5 container mx-auto flex flex-wrap items-center justify-center gap-4">
@@ -482,6 +495,11 @@ const productImage =
           {fashionAd && (
             <h2 className="text-[#525252] text-[14px] md:text-[18px] font-[500] font-inter">
               {fashionAd.fashionTitle}
+            </h2>
+          )}
+          {householdAd && (
+              <h2 className="text-[#525252] text-[14px] md:text-[18px] font-[500] font-inter">
+              {householdAd.householdTitle}
             </h2>
           )}
         </div>
@@ -638,6 +656,9 @@ const productImage =
        {fashionAd?.amount && (
         <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{fashionAd.amount?.toLocaleString()}</span>
        )}
+       {householdAd?.amount && (
+        <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{householdAd.amount?.toLocaleString()}</span>
+       )}
      </div>
      {isNegotiable() && (
   <div className="p-4">
@@ -792,6 +813,17 @@ const productImage =
            Fashion Details  
           </Button>
          )}
+
+         {householdAd && (
+           <Button
+           className={`py-2 px-4 min-w-[120px] h-[40px] md:h-[44px] rounded-tl-[4px] whitespace-nowrap rounded-tr-[4px] text-center ${
+            activeTab === "car" ? "bg-[#DFDFF9] text-[#000087]" : "bg-gray-200 text-gray-700"
+           }`}
+           onClick={() => setActiveTab("car")}
+          >
+           Household Details
+          </Button>
+         )}
    
            {propertyAd && (
             <Button
@@ -883,6 +915,15 @@ const productImage =
               Review 
            </Button>
            )}
+           {householdAd && (
+             <Button
+            className={`py-2 px-4 min-w-[120px] h-[40px] md:h-[44px] rounded-tl-[4px] whitespace-nowrap rounded-tr-[4px] text-center ${
+               activeTab === "review" ? "bg-[#DFDFF9] text-[#000087]" : "bg-gray-200 text-gray-700"
+             }`}
+              onClick={() => setActiveTab("review")}>
+              Review 
+           </Button>
+           )}
         </div>
       </div>
 
@@ -939,6 +980,11 @@ const productImage =
               {fashionAd && (
                  <h2 className="text-[#525252] text-[14px] md:text-[18px] font-[500] font-inter">
                  {fashionAd.fashionTitle}
+               </h2>
+              )}
+              {householdAd && (
+                  <h2 className="text-[#525252] text-[14px] md:text-[18px] font-[500] font-inter">
+                 {householdAd.householdTitle}
                </h2>
               )}
 
@@ -999,6 +1045,11 @@ const productImage =
                     <span className="text-[#868686] text-[14px] md:text-[14px] font-[400] font-inter whitespace-nowrap">
                     {fashionAd.viewCount} Views 
                    </span>
+                  )}
+                  {householdAd && (
+                    <span className="text-[#868686] text-[14px] md:text-[14px] font-[400] font-inter whitespace-nowrap">
+                      {householdAd.viewCount} Views 
+                    </span>
                   )}
               </div>
              </div>
@@ -1086,6 +1137,13 @@ const productImage =
                     text-[#000087] text-[10px] md:text-[12px] 
                     font-inter capitalize font-[500] rounded-[4px]">
                     {fashionAd.plan}
+                   </Button>
+                  )}
+                  {householdAd && (
+                     <Button className="bg-[#DFDFF9] py-2 px-3 
+                    text-[#000087] text-[10px] md:text-[12px] 
+                    font-inter capitalize font-[500] rounded-[4px]">
+                    {householdAd.plan}
                    </Button>
                   )}
                </div>
@@ -1247,6 +1305,19 @@ const productImage =
               <div>
                 <span className="text-[#868686] text-[10px] md:text-[12px] font-[400] font-inter">
                   Posted on {new Date(fashionAd.createdAt).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric"
+                  })}
+               </span>
+               </div>
+              </>
+             )}
+              {householdAd && (
+              <>
+              <div>
+                <span className="text-[#868686] text-[10px] md:text-[12px] font-[400] font-inter">
+                  Posted on {new Date(householdAd.createdAt).toLocaleDateString("en-US", {
                   year: "numeric",
                   month: "long",
                   day: "numeric"
@@ -2250,8 +2321,176 @@ const productImage =
        )}
      </div>
     )}
-           
+        
 
+      
+         {householdAd && ( 
+            <div className="bg-[#FAFAFA] md:w-[650px] h-auto md:rounded-[12px] p-8 mt-4">
+              <div className="flex items-center justify-between">
+                <span className="text-[#525252] md:text-[16px] font-inter font-[500]">
+                Household Items Details 
+               </span> 
+
+               <div className="flex items-center space-x-2">
+                  <span className="text-[#000087] text-[16px] font-[400] font-inter">
+                    Show More
+                  </span>
+                    <button 
+                   onClick={() => setShowDetails(!showDetails)} 
+                   aria-expanded={showDetails}>
+                    <Img
+                      src={showDetails ? "/dropup.svg" : "/dropdown.svg"}
+                      alt="Dropdown Icon"
+                      width={8}
+                      height={4}
+                      className="mr-2 mt-[2px] cursor-pointer"
+                    />
+                  </button>
+                </div>
+              </div>
+              {showDetails && (
+  <div className="mt-4">
+    <div className="flex flex-wrap justify-between gap-y-4 gap-x-[4%] max-w-[650px] mx-auto">
+      {householdAd?.condition && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Household Condition
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {householdAd.condition}
+          </span>
+        </div>
+      )}
+      
+      {householdAd?.householdBrand && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Household Item Brand
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {householdAd.householdBrand}
+          </span>
+        </div>
+      )}
+      
+      {householdAd?.householdType && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Household Type
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {householdAd.householdType}
+          </span>
+        </div>
+      )}
+
+      {householdAd?.householdMaterial && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Household Items Material
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {householdAd.householdMaterial}
+          </span>
+        </div>
+      )}
+      
+      {householdAd?.roomType  && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Room Type 
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {householdAd.roomType}
+          </span>
+        </div>
+      )}
+      
+      {householdAd?.size  && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Size 
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {householdAd.size}
+          </span>
+        </div>
+      )}
+      
+      {householdAd?.householdColor && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+           Household Color 
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {householdAd.householdColor}
+          </span>
+        </div>
+      )}
+
+       {householdAd?.householdPowersource && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+           Power Source 
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {householdAd.householdPowersource}
+          </span>
+        </div>
+      )}
+
+       {householdAd?.householdPowersource && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+           Power Source 
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {householdAd.householdPowersource}
+          </span>
+        </div>
+      )}
+
+
+   {householdAd?.powerType && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+           Power Type
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {householdAd.powerType}
+          </span>
+        </div>
+      )}
+
+       {householdAd?.colorTemperature && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Temperature
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {householdAd.colorTemperature}
+          </span>
+        </div>
+      )}
+
+      
+      
+      {householdAd?.negotiation && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Negotiation
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {householdAd.negotiation}
+          </span>
+        </div>
+         )}
+        </div>
+        </div>
+       )}
+     </div>
+    )}
+           
 
            {propertyAd && (
             <>
@@ -2561,6 +2800,11 @@ const productImage =
                  {fashionAd?.description}
                </p> 
               )}
+              {householdAd && (
+               <p className="text-[#868686] mt-2 text-[12px] md:text-[14px] font-[400] font-inter">
+                 {householdAd?.description}
+               </p> 
+              )}
            </div>
           </>
         ): (
@@ -2710,6 +2954,9 @@ const productImage =
        )}
        {fashionAd && (
         <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{fashionAd.amount?.toLocaleString()}</span>
+       )}
+       {householdAd && (
+        <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{householdAd.amount?.toLocaleString()}</span>
        )}
      </div>
      {isNegotiable() && (

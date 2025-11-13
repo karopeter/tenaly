@@ -71,6 +71,8 @@ export default function NotificationPage() {
               displayName = notif.adDetails.laptopTitle;
             } else if (notif.adDetails.condition && notif.adDetails.laptopBrand) {
               displayName = `${notif.adDetails.condition} - ${notif.adDetails.laptopBrand}`;
+            } else if (notif.adDetails.condition && notif.adDetails.householdType) {
+              displayName  = `${notif.adDetails.condition} - ${notif.adDetails.householdType}`;
             }
           }
 
@@ -141,6 +143,7 @@ export default function NotificationPage() {
     const gadgetAdId = notification.gadgetAd?._id;
     const laptopAdId = notification.laptopAd?._id;
     const fashionAdId = notification.fashionAd?._id;
+    const householdAdId = notification.householdAd?._id;
 
     if (notification.adType === 'vehicle' && businessId && carAdId && vehicleAdId) {
       return `/ads/Vehicles/${businessId}/${carAdId}/${vehicleAdId}`;
@@ -161,7 +164,9 @@ export default function NotificationPage() {
     } else if (notification.adType === 'laptop' && businessId && carAdId && laptopAdId) {
       return `/ads/Laptop/${businessId}/${carAdId}/${laptopAdId}`;
     } else if (notification.adType === 'fashion' && businessId && carAdId && fashionAdId) {
-      return `/ads/Fashion/${businessId}/${fashionAdId}/${fashionAdId}`;
+      return `/ads/Fashion/${businessId}/${carAdId}/${fashionAdId}`;
+    } else if (notification.adType === 'household' && businessId && carAdId && householdAdId) {
+      return `/ads/Household/${businessId}/${carAdId}/${householdAdId}`;
     }
     
     // Fallback
@@ -291,6 +296,7 @@ export default function NotificationPage() {
                           notif.adType === 'gadget' ? 'bg-blue-500' :
                           notif.adType === 'laptop' ? 'bg-green-500' :
                           notif.adType === 'fashion' ? 'bg-red-500' :
+                          notif.adType === 'household' ? 'bg-orange-500' : 
                           'bg-gray-500'
                         }`} title={`${notif.adType} ad`}></span>
                       )}
@@ -308,7 +314,7 @@ export default function NotificationPage() {
                         {/* Notification message */}
                         <p className="text-[#525252] font-[400] font-inter text-[12px] md:text-[14px] break-words leading-snug">
                           {notif.message}
-                          {notif.adDetails && (notif.vehicleAd || notif.propertyAd || notif.petAd || notif.agricultureAd || notif.kidAd || notif.serviceAd || notif.equipmentAd || notif.gadgetAd || notif.laptopAd || notif.fashionAd) && (
+                          {notif.adDetails && (notif.vehicleAd || notif.propertyAd || notif.petAd || notif.agricultureAd || notif.kidAd || notif.serviceAd || notif.equipmentAd || notif.gadgetAd || notif.laptopAd || notif.fashionAd || notif.householdAd) && (
                             <span className="ml-1">
                               <Link 
                                 href={getViewAdLink(notif)} 
