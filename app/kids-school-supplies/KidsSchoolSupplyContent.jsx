@@ -136,14 +136,14 @@ export default function KidsSchoolSupplyPostContent() {
         // ✅ Fetch PetsAd draft by carAdId (adjust endpoint when created)
         const kidsResponse = await api.get(`/kids/draft/${idToUse}`);
         
-        if (!kidsResponse.data || !kidsResponse.data.kidsAd) {
+        if (!kidsResponse.data || !kidsResponse.data.kidAd) {
           console.log("⚠️ No KidsAd draft found");
           setIsLoadingDraft(false);
           return;
         }
 
-        const kidsAd = kidsResponse.data.petsAd;
-        console.log("✅ Loaded KidsAd draft:", kidsAd);
+        const kidAd = kidsResponse.data.kidAd;
+        console.log("✅ Loaded KidsAd draft:", kidAd);
 
         // ✅ Also fetch CarAd for images and location
         let carAd = null;
@@ -156,18 +156,18 @@ export default function KidsSchoolSupplyPostContent() {
         }
 
         // ✅ Pre-fill form fields from PetsAd
-        setTitle(kidsAd.title || "");
-        setCondition(kidsAd.condition || "");
-        setColor(kidsAd.color || "");
-        setGender(kidsAd.gender || "");
-        setAgeGroup(kidsAd.ageGroup || "");
-        setAmount(kidsAd.amount?.toString() || "");
-        setNegotiation(kidsAd.negotiation || "");
-        setDescription(kidsAd.description || "");
+        setTitle(kidAd.title || "");
+        setCondition(kidAd.condition || "");
+        setColor(kidAd.color || "");
+        setGender(kidAd.gender || "");
+        setAgeGroup(kidAd.ageGroup || "");
+        setAmount(kidAd.amount?.toString() || "");
+        setNegotiation(kidAd.negotiation || "");
+        setDescription(kidAd.description || "");
 
         // ✅ Set business from either petsAd or carAd
-        const businessId = kidsAd.businessCategory?._id 
-          || kidsAd.businessCategory 
+        const businessId = kidAd.businessCategory?._id 
+          || kidAd.businessCategory 
           || carAd?.businessCategory?._id 
           || carAd?.businessCategory;
         setBusiness(businessId || "");
@@ -176,7 +176,7 @@ export default function KidsSchoolSupplyPostContent() {
         setEditingCarAd({
           carAdId: idToUse,
           businessId: businessId,
-          category: carAd?.category || 'Baby Clothes',
+          category: carAd?.category || 'School Supplies (bags, books, stationery)',
           location: carAd?.location || '',
           images: carAd?.kidsImage || [],
         });
