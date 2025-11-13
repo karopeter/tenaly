@@ -607,7 +607,7 @@ export default function DesktopPostContent() {
 
             <InputField
               label="Color"
-              placeholder="Enter color of Phone"
+              placeholder="Color"
               value={laptopColor}
               onChange={(e) => setLaptopColor(e.target.value)}
             />
