@@ -7,7 +7,6 @@ import Select from "../components/clientOnlySelect";
 import { useAuth } from "../context/AuthContext";
 import PostDropdown from "../components/dropdowns/car-post-dropdown";
 import InputField from "../components/input";
-import MultiSelectDropdown from "../components/dropdowns/MultiSelectDropdown";
 import api from "@/services/api";
 import { toast } from "react-toastify";
 import PromoteAdModal from "../components/PromoteModal/promote-modal";
@@ -159,13 +158,13 @@ export default function PrintingPostContent() {
        setCondition(equipmentAd.condition || "");
        setPowerSource(equipmentAd.powerSource || "");
        setBrand(equipmentAd.brand || "");
-       setUsageType(equipmentAd.usageTypex || "");
+       setUsageType(equipmentAd.usageType || "");
        setAmount(equipmentAd.amount || "");
        setNegotiation(equipmentAd.negotiation || "");
        setDescription(equipmentAd.description || "");
 
         // ✅ Set business from either petsAd or carAd
-        const businessId = serviceAd.businessCategory?._id 
+        const businessId = equipmentAd.businessCategory?._id 
           || equipmentAd.businessCategory 
           || carAd?.businessCategory?._id 
           || carAd?.businessCategory;
