@@ -38,7 +38,7 @@ const routeMap = {
   "Baby Gear (strollers, car seats, carriers)": "/kids-baby-gear",
   "Feeding (bottles, high chairs, breast pumps)": "/kids-baby-feeding",
   "Furniture (cribs, cots, wardrobes)": "/kids-baby-furniture",
-  "Health & Safety (monitors, baby gates)": "/kids-baby-health&safety",
+  "Health & Safety (monitors, baby gates)": "/kids-baby-health-safety",
   "School Supplies (bags, books, stationery)": "/kids-school-supplies",
 
   //Animal & pets routes 

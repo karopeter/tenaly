@@ -165,7 +165,7 @@ export default function MedicalPostContent() {
        setDescription(equipmentAd.description || "");
 
         // ✅ Set business from either petsAd or carAd
-        const businessId = serviceAd.businessCategory?._id 
+        const businessId = equipmentAd.businessCategory?._id 
           || equipmentAd.businessCategory 
           || carAd?.businessCategory?._id 
           || carAd?.businessCategory;

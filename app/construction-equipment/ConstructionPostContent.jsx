@@ -159,13 +159,13 @@ export default function ConstructionPostContent() {
        setCondition(equipmentAd.condition || "");
        setPowerSource(equipmentAd.powerSource || "");
        setBrand(equipmentAd.brand || "");
-       setUsageType(equipmentAd.usageTypex || "");
+       setUsageType(equipmentAd.usageType || "");
        setAmount(equipmentAd.amount || "");
        setNegotiation(equipmentAd.negotiation || "");
        setDescription(equipmentAd.description || "");
 
         // ✅ Set business from either petsAd or carAd
-        const businessId = serviceAd.businessCategory?._id 
+        const businessId = equipmentAd.businessCategory?._id 
           || equipmentAd.businessCategory 
           || carAd?.businessCategory?._id 
           || carAd?.businessCategory;
