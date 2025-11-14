@@ -149,7 +149,7 @@ export default function BookMarkedContent({sellerId}) {
 
   return (
     <>
-      {userAds.map(({ adId, carAd, vehicleAd, propertyAd, petAd, agricultureAd, kidAd, serviceAd, equipmentAd, gadgetAd, laptopAd, fashionAd, householdAd, isSold }) => {
+      {userAds.map(({ adId, carAd, vehicleAd, propertyAd, petAd, agricultureAd, kidAd, serviceAd, equipmentAd, gadgetAd, laptopAd, fashionAd, householdAd, beautyAd, isSold }) => {
         // Determine images array and amount to display
         const images = carAd?.vehicleImage?.length
           ? carAd.vehicleImage
@@ -173,13 +173,15 @@ export default function BookMarkedContent({sellerId}) {
           ? carAd?.fashionImage
           : carAd?.householdImage?.length 
           ? carAd?.householdImage
+          : carAd?.beautyImage?.length 
+          ? carAd?.beautyImage
           : [];
 
         const imageUrl = images.length > 0
           ? images[0]
           : "/placeholder-image.svg";
         
-        const amount = vehicleAd?.amount || propertyAd?.amount || petAd?.amount || agricultureAd?.amount || kidAd?.amount || serviceAd?.amount || equipmentAd?.amount || gadgetAd?.amount ||  laptopAd?.amount || fashionAd?.amount || householdAd?.amount ||    "N/A";
+        const amount = vehicleAd?.amount || propertyAd?.amount || petAd?.amount || agricultureAd?.amount || kidAd?.amount || serviceAd?.amount || equipmentAd?.amount || gadgetAd?.amount ||  laptopAd?.amount || fashionAd?.amount || householdAd?.amount || beautyAd?.amount ||  "N/A";
 
         const mainInfo = vehicleAd
           ? `${vehicleAd.vehicleType} ${vehicleAd.model}`
@@ -203,6 +205,8 @@ export default function BookMarkedContent({sellerId}) {
           ? fashionAd.fashionTitle || fashionAd.fashionType
           : householdAd
           ? householdAd.householdTitle || householdAd.householdType
+          : beautyAd
+          ? beautyAd.beautyTitle || beautyAd.beautyType
           : "";
 
         const location = carAd?.location || "";
@@ -293,6 +297,12 @@ export default function BookMarkedContent({sellerId}) {
             { iconSrc: "/cross-props.svg", text:  householdAd.householdType || "N/A" },
             { iconSrc: "/cross-props.svg", text: householdAd.householdBrand || "N/A" } 
            ]
+           : beautyAd 
+           ? [
+             { iconSrc: "/cross-props.svg", text: beautyAd.beautyTitle || "N/A" },
+            { iconSrc: "/cross-props.svg", text:  beautyAd.beautyType || "N/A" },
+            { iconSrc: "/cross-props.svg", text:  beautyAd.beautyBrand || "N/A" } 
+           ]
           : [];
 
         return (
@@ -321,7 +331,7 @@ export default function BookMarkedContent({sellerId}) {
               )}
 
               {/* Show plan badge if not sold */}
-              {!isSold && (vehicleAd?.plan || propertyAd?.plan || petAd?.plan || agricultureAd?.plan || kidAd?.plan || serviceAd?.plan || equipmentAd?.plan || gadgetAd?.plan || laptopAd?.plan || fashionAd?.plan || householdAd?.plan) && (
+              {!isSold && (vehicleAd?.plan || propertyAd?.plan || petAd?.plan || agricultureAd?.plan || kidAd?.plan || serviceAd?.plan || equipmentAd?.plan || gadgetAd?.plan || laptopAd?.plan || fashionAd?.plan || householdAd?.plan || beautyAd?.plan) && (
                 <div className="absolute bottom-0 left-0 z-30 w-[139px] h-[35px] flex items-center px-4"
                   style={{
                     backgroundImage: `url(${machineImage})`,
@@ -343,6 +353,7 @@ export default function BookMarkedContent({sellerId}) {
                        laptopAd?.plan || 
                        fashionAd?.plan || 
                        householdAd?.plan ||
+                       beautyAd?.plan || 
                       ""}
                     </span>
                   </div>

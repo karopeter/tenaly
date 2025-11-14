@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
 import api from "@/services/api";
-import Link from "next/link";
 import { SellerPhoneDisplay } from "@/app/components/features/sellerPhoneDisplay";
 import MessageSellerButton from "@/app/components/UI/messageSeller";
 import Img from "@/app/components/Image";
@@ -314,39 +313,76 @@ export default function SellerProfile() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {marketProducts.map((item) => {
               const carAdData = item.carAd;
-             const propertyAdData = item.propertyAd;
-            const vehicleAdData = item.vehicleAd;
-
-            const isVehicleAd = !!vehicleAdData;
-            const isPropertyAd = !!propertyAdData; 
-
-            const adData = carAdData;
-
-             if (!adData) return null;
-
-           const adId = item.adId || adData._id;
-
-      const title = isPropertyAd 
-        ? propertyAdData.propertyName || "Property"
-        : `${vehicleAdData.vehicleType || ''} ${vehicleAdData.model || ''}`.trim() || "Vehicle";
+  const propertyAdData = item.propertyAd;
+  const vehicleAdData = item.vehicleAd;
+  const petAdData = item.petAd;
+  const agricultureAdData = item.agricultureAd;
+  const kidsAdData = item.kidsAd;
+  const serviceAdData = item.serviceAd;
+  const equipmentAdData = item.equipmentAd;
+  const gadgetAdData = item.gadgetAd;
+  const laptopAdData = item.laptopAd;
+  const fashionAdData = item.fashionAd;
+  const householdAdData = item.householdAd;
+  const beautyAdData = item.beautyAd;
 
 
-       const description = isPropertyAd 
-        ? propertyAdData.description || "No description available"
-        : vehicleAdData?.description || "No description available"; 
+           if (!carAdData) return null;
 
-      const price = isPropertyAd
-        ? propertyAdData.amount
-        : vehicleAdData.amount;
+  const adId = item.adId || carAdData._id;
 
-        const formattedPrice = price ? `₦${price.toLocaleString()}` : "Price not set";
+  const isVehicleAd = !!vehicleAdData;
+const isPropertyAd = !!propertyAdData;
+const isPetAd = !!petAdData;
+const isFashionAd = !!fashionAdData
 
-      const imageArray = isPropertyAd ? adData.propertyImage : adData.vehicleImage;
-      const imageUrl = (imageArray && imageArray.length > 0) ? imageArray[0] : null;
+  
+  const detailAd = vehicleAdData || propertyAdData || petAdData || agricultureAdData || 
+                 kidsAdData || serviceAdData || equipmentAdData || gadgetAdData || 
+                 laptopAdData || fashionAdData || householdAdData || beautyAdData;
 
-      
-      const location = isPropertyAd ? propertyAdData.propertyAddress : adData.location || "Location not specified";
-      const plan = isPropertyAd ? propertyAdData.plan : vehicleAdData.plan;
+  if (!detailAd) return null;
+
+  // Get title based on ad type
+  const title = vehicleAdData 
+    ? `${vehicleAdData.vehicleType || ''} ${vehicleAdData.model || ''}`.trim() || "Vehicle"
+    : propertyAdData
+    ? propertyAdData.propertyName || "Property"
+    : petAdData
+    ? `${petAdData.petType || ''} ${petAdData.breed || ''}`.trim() || "Pet"
+    : agricultureAdData
+    ? agricultureAdData.title || "Agriculture Product"
+    : kidsAdData
+    ? kidsAdData.title || "Kids Product"
+    : serviceAdData
+    ? serviceAdData.serviceTitle || "Service"
+    : equipmentAdData
+    ? equipmentAdData.equipmentTitle || "Equipment"
+    : gadgetAdData
+    ? gadgetAdData.gadgetTitle || "Gadget"
+    : laptopAdData
+    ? laptopAdData.laptopTitle || "Laptop"
+    : fashionAdData
+    ? fashionAdData.fashionTitle || "Fashion"
+    : householdAdData
+    ? householdAdData.householdTitle || "Household Item"
+    : beautyAdData
+    ? beautyAdData.beautyTitle || "Beauty Product"
+    : "Product";
+
+  const description = detailAd.description || "No description available";
+  const price = detailAd.amount;
+  const formattedPrice = price ? `₦${price.toLocaleString()}` : "Price not set";
+
+  // Get images
+  const imageArray = carAdData.vehicleImage || carAdData.propertyImage || carAdData.petsImage ||
+                     carAdData.agricultureImage || carAdData.kidsImage || carAdData.serviceImage ||
+                     carAdData.equipmentImage || carAdData.gadgetImage || carAdData.laptopImage ||
+                     carAdData.fashionImage || carAdData.householdImage || carAdData.beautyImage || [];
+  const imageUrl = imageArray[0] || null;
+
+  const location = detailAd.propertyAddress || detailAd.location || carAdData.location || "Location not specified";
+  const plan = detailAd.plan;
 
       return (
           <div
@@ -423,6 +459,28 @@ export default function SellerProfile() {
                 {isPropertyAd && propertyAdData.ownershipStatus && (
                   <span className="bg-[#E8E8FF]  font-inter text-[#525252] px-2 py-1 rounded text-xs">
                     {propertyAdData.ownershipStatus}
+                  </span>
+                )}
+
+                {isPetAd && petAdData.petType && (
+                  <span  className="bg-[#E8E8FF]  font-inter text-[#525252] px-2 py-1 rounded text-xs">
+                    {petAdData.petType}
+                  </span>
+                )}
+                {isPetAd && petAdData.breed && (
+                  <span  className="bg-[#E8E8FF]  font-inter text-[#525252] px-2 py-1 rounded text-xs">
+                    {petAdData.breed}
+                  </span>
+                )}
+
+                {isFashionAd && fashionAdData.fashionType && (
+                  <span  className="bg-[#E8E8FF]  font-inter text-[#525252] px-2 py-1 rounded text-xs">
+                    {fashionAdData.fashionType}
+                  </span>
+                )}
+                 {isFashionAd && fashionAdData.fashionTitle && (
+                  <span  className="bg-[#E8E8FF]  font-inter text-[#525252] px-2 py-1 rounded text-xs">
+                    {fashionAdData.fashionTitle}
                   </span>
                 )}
               </div>

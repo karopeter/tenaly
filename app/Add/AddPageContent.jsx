@@ -24,6 +24,7 @@ export default function AddCarPostContent() {
   const [laptopAds, setLaptopAds] = useState([]);
   const [fashionAds, setFashionAds] = useState([]);
   const [householdAds, setHouseholdAds] = useState([]);
+  const [beautyAds, setBeautyAds] = useState([]);
   const [activeTab, setActiveTab] = useState('vehicles'); 
   const [showMenu, setShowMenu] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -116,6 +117,11 @@ export default function AddCarPostContent() {
         );
         setHouseholdAds(householdRes.data.data || []);
 
+        const beautyRes = await api.get(
+          `/beauty/ads/combined-beauty?businessId=${selectedBusiness}&page=1&limit=10`
+        );
+        setBeautyAds(beautyRes.data.data || []);
+
 
         setAdsLoaded(true);
         setLoading(false);
@@ -166,7 +172,7 @@ useEffect(() => {
       setActiveTab(availableTabs[0].id);
     }
   }
-}, [adsLoaded, vehicleAds.length, propertyAds.length, petAds.length, agricultureAds.length, kidAds.length, serviceAds.length, gadgetAds.length, laptopAds.length, fashionAds.length, householdAds.length]);
+}, [adsLoaded, vehicleAds.length, propertyAds.length, petAds.length, agricultureAds.length, kidAds.length, serviceAds.length, gadgetAds.length, laptopAds.length, fashionAds.length, householdAds.length + beautyAds.length]);
 
 
   useEffect(() => {
@@ -392,6 +398,22 @@ const handleEditIncompleteAd = async (carAdId, category) => {
        } catch (householdError) {
           console.log("⚠️ No HouseholdAd draft found, using CarAd Only");
        }
+    } else if (adType === 'beauty') {
+      try {
+        const beautyResponse = await api.get(`/beauty/draft/${actualCarAdId}`);
+        if (beautyResponse.data && beautyResponse.data.beautyAd) {
+          const beautyAd = beautyResponse.data.beautyAd;
+
+          mergedData = {
+            ...carAd,
+            beautyAd,
+            businessCategory: carAd.businessCategory
+          };
+          console.log("Merged Beauty draft data:", mergedData);
+        }
+      } catch (beautyError) {
+        console.log("⚠️ No BeautyAd draft found, using CarAd Only");
+      }
     }
 
     localStorage.setItem("editingCarAdId", actualCarAdId);
@@ -507,6 +529,18 @@ const handleEditIncompleteAd = async (carAdId, category) => {
              'Bathroom Accessories',
              'Garden & Outdoor',
              'Others',
+          ];
+          const beautyCategories = [
+            'Skin Care',
+            'Hair Care',
+            'Makeup & Cosmetics',
+            'Fragrances (Perfume & Body Spray)',
+            'Bath & Body',
+            'Nail Care',
+            'Beauty Tools & Accessories',
+            'Personal Grooming Devices', 
+            'Oral Care',
+            "Men's Grooming",
           ];
      const petRouteMap = {
        "Dogs": "/pets-dogs",
@@ -630,6 +664,19 @@ const handleEditIncompleteAd = async (carAdId, category) => {
       'Garden & Outdoor': '/household-garden-outdoor',
       'Others': '/household-others',
     };
+
+    const beautyRoutMap = {
+      'Skin Care': '/beauty-skin-care',
+      'Hair Care': '/beauty-hair-care',
+      'Makeup & Cosmetics': '/beauty-makeup-cosmetics',
+      'Fragrances (Perfume & Body Spray)': '/beauty-fragrances',
+      'Bath & Body': '/beauty-bath-body',
+      'Nail Care': '/beauty-nail-care',
+      'Beauty Tools & Accessories': '/beauty-tool-accessories',
+      'Personal Grooming Devices': '/beauty-personal-grooming', 
+      'Oral Care': '/beauty-oral-care',
+      "Men's Grooming": '/beauty-men-grooming',
+    }
   
      let targetRoute = "";
     if (vehicleCategories.includes(category?.toLowerCase())) {
@@ -652,6 +699,8 @@ const handleEditIncompleteAd = async (carAdId, category) => {
        targetRoute = fashionRouteMap[category];
     } else if (householdCategories.includes(category)) {
       targetRoute = householdRouteMap[category];
+    } else if (beautyCategories.includes(category)) {
+      targetRoute = beautyRoutMap[category];
     }
      else {
       targetRoute = propertyRouteMap[category] || `/more-property-post?carAdId=${actualCarAdId}`;
@@ -965,6 +1014,31 @@ useEffect(() => {
           prev.filter(({ householdAd, carAd }) => (householdAd?._id || carAd?._id) !== adId)
        );
        toast.success("Household Ad Image Ad deleted successfully.");
+       } catch (carError) {
+         console.error("Delete error:", carError.message);
+         toast.error("Failed to delete ad.");
+       }
+     }
+  };
+
+     const handleBeautyDelete = async (adId) => {
+     const confirmed = window.confirm("Are you sure you want to delete this ad?");
+     if (!confirmed) return;
+
+     try {
+      await api.delete(`/beauty/delete-beauty/${adId}`);
+      setBeautyAds((prev) => 
+        prev.filter(({ beautyAd, carAd }) => (beautyAd?._id || carAd?._id) !== adId)
+      );
+      toast.success("Beauty & Health ad deleted successfully.");
+     } catch (beautyError) {
+       console.warn("Beauty ad delete failed, trying car ad...");
+       try {
+       await api.delete(`/carAdd/delete-car-ad/${adId}`);
+        setBeautyAds((prev) => 
+          prev.filter(({ beautyAd, carAd }) => (beautyAd?._id || carAd?._id) !== adId)
+       );
+       toast.success(" Beauty Ad Image Ad deleted successfully.");
        } catch (carError) {
          console.error("Delete error:", carError.message);
          toast.error("Failed to delete ad.");
@@ -1288,6 +1362,33 @@ useEffect(() => {
      }
   };
 
+   const handleMarkBeautyAsSold = async (beautyId, carAdId) => {
+     const confirmed = window.confirm("Are you sure you want to mark this Beauty ad as sold?");
+     if (!confirmed) return;
+
+     try {
+       setMarkingSold(beautyId);
+       setShowMenu(null);
+
+       await api.patch(`/beauty/mark-beauty-ad-as-sold/${beautyId}`);
+
+       setHouseholdAds((prev) => 
+        prev.map(({ adId, carAd, beautyAd }) => 
+          beautyAd?._id === beautyId
+             ? { adId, carAd, beautyAd: { ...beautyAd, status: "sold" } }
+             : {adId, carAd, beautyAd }
+         )
+      );
+      toast.success("Beauty Ad marked as sold.");
+     } catch (error) {
+       console.error("Error marking Beauty Ad as sold:", error);
+       const message = 
+          error?.response?.data?.message || error?.message || "Failed to mark Beauty as sold.";
+      toast.error(message);
+     } finally {
+      setMarkingSold(null);
+     }
+  };
 
 
 
@@ -1310,7 +1411,7 @@ useEffect(() => {
     }
   }
 
-  const totalAds = vehicleAds.length + propertyAds.length + petAds.length + agricultureAds.length + kidAds.length + serviceAds.length + equipmentAds.length + gadgetAds.length + fashionAds.length + householdAds.length;
+  const totalAds = vehicleAds.length + propertyAds.length + petAds.length + agricultureAds.length + kidAds.length + serviceAds.length + equipmentAds.length + gadgetAds.length + fashionAds.length + householdAds.length + beautyAds.length;
 
   const getAvailableTabs = () => {
     const tabs = [];
@@ -1325,6 +1426,7 @@ useEffect(() => {
     if (laptopAds.length > 0) tabs.push({ id: 'laptop', label: 'Laptop', count: laptopAds.length });
     if (fashionAds.length > 0) tabs.push({ id: 'fashion', label: 'Fashion', count: fashionAds.length });
     if (householdAds.length > 0) tabs.push({ id: 'household', label: 'Household', count: householdAds.length });
+    if (beautyAds.length > 0) tabs.push({ id: 'beauty', label: 'Beauty & Health', count: beautyAds.length });
     return tabs;
   }
 
@@ -4698,6 +4800,305 @@ useEffect(() => {
 
                        <button
                         onClick={() => handleHouseholdDelete(carAd._id)}
+                        className="text-[#CB0D0D] text-[14px] font-[400] font-inter hover:underline"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                </div>
+              )}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+     )}
+   </div>
+ )}
+
+  
+
+     {activeTab === 'beauty' && (
+   <div className="mt-5">
+    {beautyAds.length === 0 ? (
+       <div className="w-full h-[490px] p-6 md:p-10 text-center flex flex-col justify-center items-center">
+        <Img 
+          src="/postAds.svg"
+          width={158}
+          height={158}
+          className="mx-auto mb-4"
+          alt="No Posts"
+        />
+        <p className="font-[500] text-[#868686] text-sm md:text-[14px] font-inter mb-4">
+          No Beauty & Health Ads for this business
+        </p>
+        <div className="flex justify-center">
+           <Link href="/create-add" passHref>
+            <Button className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] transition-all hover:scale-105">
+              <Plus size={20} /> Post an Ad
+            </Button>
+          </Link>
+        </div>
+       </div>  
+     ): (
+      <div className="flex flex-col gap-4">
+        {beautyAds.map(({adId, carAd, beautyAd}) => {
+          const businessId = carAd?.businessCategory?._id || beautyAd?.businessCategory;
+          const beautyId = beautyAd?._id;
+          const isIncomplete = isIncompleteAd(carAd, beautyAd);
+
+          return (
+            <div
+             key={adId}
+             className="flex flex-col md:flex-row justify-between 
+             gap-4 w-full border border-[#EDEDED] rounded-[12px] overflow-visible relative"
+            >
+            <div className="relative w-full md:w-[300px] shrink-0 overflow-hidden">
+              {carAd?.beautyImage?.length > 0 && (
+                <>
+                 <Img 
+                   src={carAd.beautyImage[0]}
+                   alt="Beauty Images Ad"
+                   width={340}
+                   height={210}
+                   className="w-full h-[160px] md:h-full object-cover rounded-[8px]"
+                 />
+
+                 {isIncomplete && (
+                  <div className="absolute top-2 right-2 bg-orange-500 
+                  text-white px-3 py-1 rounded-md text-xs font-semibold z-30 shadow-md">
+                    Incomplete
+                  </div>
+                 )}
+
+                 {beautyAd?.status === "sold" && (
+                  <div className="absolute top-5 left-[-10px] bg-[#F8EFEF] w-[100px] 
+                  md:w-[120px] h-[40px] md:rounded-[8px] rounded-[4px] 
+                  transform -rotate-45 flex items-center justify-center shadow-md z-40">
+                    <Img 
+                      src="/tick-circle.svg"
+                      alt="Tick Circle"
+                      width={16}
+                      height={16}
+                      className="mr-2"
+                    />
+                    <span className="text-[#CB0D0D] text-[12px] md:text-[14px] font-[500] font-inter">
+                     SOLD
+                    </span>
+                  </div>
+                 )}
+                </>
+              )}
+
+              {beautyAd?.plan && !isIncomplete && (
+                <div
+                  className="absolute bottom-0 left-0 z-30 w-[139px] h-[35px] flex items-center px-4"
+                  style={{
+                     backgroundImage: `url(${machineImage})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                 }}
+                >
+                 <div 
+                  className="bg-[#DFDFF9] w-[100px] h-[24px] 
+                  rounded-[4px] border flex justify-center 
+                  items-center gap-2 border-[#2C2CCD]">
+                   <Img src="/medal-star1.svg" alt="Plan" width={24} height={24} />
+                   <span className="text-[#000087] text-[12px] font-[400] font-inter uppercase">
+                      {beautyAd.plan}
+                   </span>
+                  </div>
+                </div>
+              )}
+              </div>
+
+              <div className="flex-1 flex flex-col p-2">
+               <div className="flex justify-between items-start w-full">
+                <div className='flex-1'>
+                  {isIncomplete ? (
+                    <>
+                     <h4 className="text-[#525252] text-[18px] font-[500] font-inter line-clamp-1">
+                      {carAd?.category} - Incomplete Ad
+                    </h4>
+                     <p className="text-orange-600 text-[14px] font-[400] font-inter mt-1">
+                      Please complete your ad details to publish
+                    </p>
+                    </>
+                  ): (
+                    <h4 className="text-[#525252] text-[18px] font-[500] font-inter line-clamp-1">
+                        {beautyAd.beautyTitle} - { beautyAd.condition}
+                      </h4>
+                  )}
+                </div>
+                {!isIncomplete && beautyAd?.amount && (
+                  <div className="flex items-start gap-4">
+                   <div className="text-[#000087] text-[16px] font-[600] font-inter whitespace-nowrap">
+                        ₦{beautyAd.amount.toLocaleString()}
+                      </div>
+                  </div>
+                )}
+              </div>
+
+              {!isIncomplete ? (
+              <>
+                <p className="text-[#8C8C8C] text-[14px] font-[400] font-inter break-words">
+                {beautyAd?.description || "No description provided"}
+                </p>
+                 <div className="flex items-center gap-2 mt-2">
+                      <Img src="/location.svg" alt="Location" width={10} height={13} />
+                      <span className="text-[#8C8C8C] text-[14px] font-[400] font-inter">
+                        {carAd?.location || "Location not specified"}
+                      </span>
+                  </div>
+
+                  <div  className="flex flex-col md:flex-row gap-x-3 items-center justify-between">
+                     <div className='flex flex-wrap gap-3 mt-2'>
+                       {beautyAd?.beautyType && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-[#868686] text-[12px] font-inter">
+                            {beautyAd.beautyType}
+                            </span>
+                          </div>
+                        )}
+                         {beautyAd?.beautyBrand && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-[#868686] text-[12px] font-inter">
+                              {beautyAd.beautyBrand}
+                            </span>
+                          </div>
+                        )}
+
+                     </div>
+                     <div className="relative">
+                      <button 
+                        className="p-2 rounded-full hover:bg-[#F7F7FF] transition"
+                         onClick={() => 
+                          setShowMenu((prev) => (prev === adId ? null : adId))
+                         }
+                        >
+                        <FiMoreHorizontal size={20} color="#767676" />
+                      </button>
+
+                      {showMenu === adId && (
+                        <div 
+                          className="absolute right-0 top-full mt-2 w-40 z-50 bg-white 
+                          border border-[#EDEDED] rounded-lg shadow-lg overflow-hidden">
+                            <button
+                               className="flex items-center w-full px-4 py-3 text-[16px] 
+                               font-inter font-[400] text-[#525252] 
+                               hover:bg-[#F7F7FF] transition-colors"
+                               onClick={() => {
+                                 setShowMenu(null);
+                                 if (businessId && adId && beautyId) {
+                                  router.push(`/ads/Beauty/${businessId}/${adId}/${beautyId}`);
+                                 }
+                               }}
+                            >
+                              <FiEye className="mr-2" size={16} /> 
+                              View Details 
+                            </button>
+
+                            {beautyAd.isDraft ? (
+                              <button  
+                               className="flex items-center w-full px-4 py-3 text-[16px] 
+                               font-inter font-[400] text-[#525252] hover:bg-[#F7F7FF] transition-colors"
+                               onClick={() => handleEditIncompleteAd(carAd._id, carAd.category)}
+                               >
+                                 <Edit className="mr-2 flex-shrink-0" size={16} />
+                                <span className="whitespace-nowrap">Complete Draft</span>
+                              </button>
+                            ): (
+                             <>
+                              {beautyAd?.status === 'rejected' && (
+                                  <button
+                                    className="flex items-center w-full px-4 py-3 text-[16px] font-inter font-[400] text-[#525252] hover:bg-[#F7F7FF] transition-colors"
+                                    onClick={() => handleResubmitAd(carAd._id, 'beauty')}
+                                  >
+                                    <Edit className="mr-3" size={16} />
+                                    Resubmit 
+                                  </button>
+                                )}
+                                  {beautyAd?.status === 'approved' && (
+                                  <button
+                                    className="flex items-center w-full px-4 py-3 text-[16px] 
+                                    whitespace-nowrap font-inter font-[400] text-[#525252]
+                                     hover:bg-[#F7F7FF] transition-colors"
+                                    onClick={() => handleMarkBeautyAsSold(beautyAd?._id, carAd?._id)}
+                                  >
+                                    <FiCheck className="mr-3" size={16} />
+                                    Mark As Sold
+                                  </button>
+                                )}
+                             </>
+                            )}
+
+                               {beautyAd?.status !== 'sold' && (
+                              <button
+                                className="flex items-center w-full px-4 py-2 text-[#CB0D0D] text-[16px] font-[400] 
+                                font-inter hover:bg-[#F7F7FF] border-t border-[#EDEDED]"
+                                onClick={() => {
+                                  setShowMenu(null);
+                                 handleBeautyDelete(beautyAd?._id || carAd?._id);
+                                }}
+                              >
+                                <FiTrash2 className="mr-2" /> Delete
+                              </button>
+                            )}
+                        </div>
+                      )}
+                     </div>
+                  </div>
+                  <StatusBadge
+                    status={beautyAd?.status}
+                    isDraft={beautyAd?.isDraft}
+                    rejectionReason={beautyAd?.rejectionReason}
+                  />
+              </>
+              ): (
+                <div className="mt-3">
+                   <div className="flex items-center gap-2 mb-3">
+                      <Img src="/location.svg" alt="Location" width={10} height={13} />
+                      <span className="text-[#8C8C8C] text-[14px] font-[400] font-inter">
+                        {carAd?.location || "Location not specified"}
+                      </span>
+                    </div>
+
+                    <div className="flexgap-2 mb-3 overflow-x-auto">
+                        {carAd?.beautyImage?.slice(0, 4).map((img, idx) => (
+                        <img 
+                          key={idx} 
+                          src={img} 
+                          alt={`Preview ${idx + 1}`} 
+                          className="w-16 h-16 object-cover rounded border border-gray-200"
+                        />
+                      ))}
+                       {carAd?.beautyImage?.length > 4 && (
+                        <div className="w-16 h-16 bg-gray-100 rounded border border-gray-200 flex items-center justify-center text-gray-600 text-xs">
+                          +{carAd.beautyImage.length - 4}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                       <Button
+                        onClick={() => handleEditIncompleteAd(carAd._id, carAd.category)}
+                        className="flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-[8px] transition-all text-[14px]"
+                      >
+                        <Edit size={16} /> Complete Ad
+                      </Button>
+
+                      <button 
+                        className="text-[#CB0D0D] text-[14px] font-[400] font-inter hover:underline"
+                        onClick={() => {
+                          setShowMenu(null);
+                          handleEditCarAd(carAd._id, carAd.category);
+                        }}
+                      >
+                        Edit
+                      </button>
+
+                       <button
+                        onClick={() => handleBeautyDelete(carAd._id)}
                         className="text-[#CB0D0D] text-[14px] font-[400] font-inter hover:underline"
                       >
                         Delete
