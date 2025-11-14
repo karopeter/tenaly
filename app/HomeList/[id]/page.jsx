@@ -260,10 +260,11 @@ const handleSendOffer = async () => {
      laptopAd,
      fashionAd,
      householdAd,
+     beautyAd,
      business
     } = adData;
   const actualBusinessId = carAd?.businessCategory?._id || carAd?.businessCategory;
-  const sellerId = business?.userId || carAd?.userId || vehicleAd?.userId || propertyAd?.userId || petAd?.userId || agricultureAd?.userId || kidsAd?.userId || serviceAd?.userId || equipmentAd?.userId || gadgetAd?.userId || laptopAd?.userId || fashionAd?.userId || householdAd?.userId;
+  const sellerId = business?.userId || carAd?.userId || vehicleAd?.userId || propertyAd?.userId || petAd?.userId || agricultureAd?.userId || kidsAd?.userId || serviceAd?.userId || equipmentAd?.userId || gadgetAd?.userId || laptopAd?.userId || fashionAd?.userId || householdAd?.userId || beautyAd?.userId;
 
 
   let mainAd = null; 
@@ -300,6 +301,9 @@ const handleSendOffer = async () => {
    } else if (householdAd) {
     mainAd = carAd;
     adDetails = householdAd;
+   } else if (beautyAd) {
+    mainAd = carAd;
+    adDetails = beautyAd;
    }
  
   const businessName = business?.businessName || "Unknown Seller";
@@ -324,9 +328,10 @@ const handleSendOffer = async () => {
   const laptopNeg = laptopAd?.negotiation === "Yes";
   const fashionNeg = fashionAd?.negotiation === "Yes";
   const householdNeg = householdAd?.negotiation === "Yes";
+  const beautyNeg = beautyAd?.negotiation === "Yes";
 
   
-  return vehicleNeg || propertyNeg || petNeg || agricultureNeg || kidsNeg || serviceNeg || equipmentNeg || gadgetNeg || laptopNeg || fashionNeg || householdNeg;
+  return vehicleNeg || propertyNeg || petNeg || agricultureNeg || kidsNeg || serviceNeg || equipmentNeg || gadgetNeg || laptopNeg || fashionNeg || householdNeg || beautyNeg;
 };
 
 
@@ -341,7 +346,8 @@ const productTitle =
   (gadgetAd?.gadgetTitle ? `${gadgetAd.gadgetTitle}` : "") || 
   (laptopAd?.laptopTitle ? `${laptopAd.laptopTitle}` : "") ||
   (fashionAd?.fashionTitle ? `${fashionAd.fashionTitle}` : "") ||
-  (householdAd.householdTitle ? `${householdAd.householdTitle}` :  "") || 
+  (householdAd?.householdTitle ? `${householdAd.householdTitle}` :  "") || 
+  (beautyAd.beautyTitle ? `${beautyAd.beautyTitle}` : "") ||
   (vehicleAd ? `${vehicleAd.vehicleType} ${vehicleAd.model}` : "") ||
   (carAd ? `${carAd.vehicleType} ${carAd.model}` : "");
 
@@ -356,6 +362,7 @@ const productTitle =
        carAd.laptopImage?.length > 0 ? carAd.laptopImage : 
        carAd.fashionImage?.length > 0 ? carAd.fashionImage :
        carAd?.householdImage?.length > 0 ? carAd.householdImage :
+       carAd?.beautyImage?.length > 0 ? carAd.beautyImage :
         carAd.vehicleImage || [])
     : [];
 
@@ -363,7 +370,7 @@ const productTitle =
     const smallImages = mainImageArray.slice(1, 5);
 
     // const productId = mainAd?._id;
-    const productId = vehicleAd?._id || propertyAd?._id || petAd?._id || agricultureAd?._id || kidsAd?._id || serviceAd?._id || equipmentAd?._id || gadgetAd?._id || laptopAd?._id || fashionAd?._id || householdAd?._id;
+    const productId = vehicleAd?._id || propertyAd?._id || petAd?._id || agricultureAd?._id || kidsAd?._id || serviceAd?._id || equipmentAd?._id || gadgetAd?._id || laptopAd?._id || fashionAd?._id || householdAd?._id || beautyAd?._id;
 
 // Pick correct product image
 const productImage =
@@ -377,6 +384,7 @@ const productImage =
    laptopAd?.laptopImage?.[0] || 
    fashionAd?.fashionImage?.[0] ||
    householdAd?.householdImage?.[0] ||
+   beautyAd?.beautyImage?.[0] || 
   vehicleAd?.vehicleImage?.[0] ||
   carAd?.vehicleImage?.[0];
 
@@ -440,7 +448,12 @@ const productImage =
         )}
         {householdAd && (
            <span className="text-[#000087] text-[13px] md:text-[14px] font-[500] font-inter whitespace-nowrap">
-            {householdAd.householdTitle} {householdAd.householdType}
+            {householdAd.householdTitle} {beautyAd.beautyType}
+          </span>
+        )}
+        {beautyAd && (
+          <span className="text-[#000087] text-[13px] md:text-[14px] font-[500] font-inter whitespace-nowrap">
+            {beautyAd.beautyTitle} {beautyAd.householdType}
           </span>
         )}
       </div>
@@ -500,6 +513,11 @@ const productImage =
           {householdAd && (
               <h2 className="text-[#525252] text-[14px] md:text-[18px] font-[500] font-inter">
               {householdAd.householdTitle}
+            </h2>
+          )}
+          {beautyAd && (
+            <h2 className="text-[#525252] text-[14px] md:text-[18px] font-[500] font-inter">
+              {beautyAd.beautyTitle}
             </h2>
           )}
         </div>
@@ -658,6 +676,9 @@ const productImage =
        )}
        {householdAd?.amount && (
         <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{householdAd.amount?.toLocaleString()}</span>
+       )}
+       {beautyAd?.amount && (
+        <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{ beautyAd.amount?.toLocaleString()}</span>
        )}
      </div>
      {isNegotiable() && (
@@ -824,6 +845,17 @@ const productImage =
            Household Details
           </Button>
          )}
+
+         {beautyAd && (
+           <Button
+           className={`py-2 px-4 min-w-[120px] h-[40px] md:h-[44px] rounded-tl-[4px] whitespace-nowrap rounded-tr-[4px] text-center ${
+            activeTab === "car" ? "bg-[#DFDFF9] text-[#000087]" : "bg-gray-200 text-gray-700"
+           }`}
+           onClick={() => setActiveTab("car")}
+          >
+            Beauty & Health Details
+          </Button>
+         )}
    
            {propertyAd && (
             <Button
@@ -924,6 +956,15 @@ const productImage =
               Review 
            </Button>
            )}
+           {beautyAd && (
+             <Button
+            className={`py-2 px-4 min-w-[120px] h-[40px] md:h-[44px] rounded-tl-[4px] whitespace-nowrap rounded-tr-[4px] text-center ${
+               activeTab === "review" ? "bg-[#DFDFF9] text-[#000087]" : "bg-gray-200 text-gray-700"
+             }`}
+              onClick={() => setActiveTab("review")}>
+              Review 
+           </Button>
+           )}
         </div>
       </div>
 
@@ -985,6 +1026,11 @@ const productImage =
               {householdAd && (
                   <h2 className="text-[#525252] text-[14px] md:text-[18px] font-[500] font-inter">
                  {householdAd.householdTitle}
+               </h2>
+              )}
+              {beautyAd && (
+                  <h2 className="text-[#525252] text-[14px] md:text-[18px] font-[500] font-inter">
+                 {beautyAd.beautyTitle}
                </h2>
               )}
 
@@ -1049,6 +1095,11 @@ const productImage =
                   {householdAd && (
                     <span className="text-[#868686] text-[14px] md:text-[14px] font-[400] font-inter whitespace-nowrap">
                       {householdAd.viewCount} Views 
+                    </span>
+                  )}
+                  {beautyAd && (
+                     <span className="text-[#868686] text-[14px] md:text-[14px] font-[400] font-inter whitespace-nowrap">
+                      {beautyAd.viewCount} Views 
                     </span>
                   )}
               </div>
@@ -1144,6 +1195,13 @@ const productImage =
                     text-[#000087] text-[10px] md:text-[12px] 
                     font-inter capitalize font-[500] rounded-[4px]">
                     {householdAd.plan}
+                   </Button>
+                  )}
+                  {beautyAd && (
+                     <Button className="bg-[#DFDFF9] py-2 px-3 
+                    text-[#000087] text-[10px] md:text-[12px] 
+                    font-inter capitalize font-[500] rounded-[4px]">
+                    {beautyAd.plan}
                    </Button>
                   )}
                </div>
@@ -1318,6 +1376,20 @@ const productImage =
               <div>
                 <span className="text-[#868686] text-[10px] md:text-[12px] font-[400] font-inter">
                   Posted on {new Date(householdAd.createdAt).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric"
+                  })}
+               </span>
+               </div>
+              </>
+             )}
+
+             {beautyAd && (
+              <>
+                <div>
+                <span className="text-[#868686] text-[10px] md:text-[12px] font-[400] font-inter">
+                  Posted on {new Date(beautyAd.createdAt).toLocaleDateString("en-US", {
                   year: "numeric",
                   month: "long",
                   day: "numeric"
@@ -2490,6 +2562,140 @@ const productImage =
        )}
      </div>
     )}
+
+      
+          {beautyAd && ( 
+            <div className="bg-[#FAFAFA] md:w-[650px] h-auto md:rounded-[12px] p-8 mt-4">
+              <div className="flex items-center justify-between">
+                <span className="text-[#525252] md:text-[16px] font-inter font-[500]">
+                Beauty & Health Details 
+               </span> 
+
+               <div className="flex items-center space-x-2">
+                  <span className="text-[#000087] text-[16px] font-[400] font-inter">
+                    Show More
+                  </span>
+                    <button 
+                   onClick={() => setShowDetails(!showDetails)} 
+                   aria-expanded={showDetails}>
+                    <Img
+                      src={showDetails ? "/dropup.svg" : "/dropdown.svg"}
+                      alt="Dropdown Icon"
+                      width={8}
+                      height={4}
+                      className="mr-2 mt-[2px] cursor-pointer"
+                    />
+                  </button>
+                </div>
+              </div>
+              {showDetails && (
+  <div className="mt-4">
+    <div className="flex flex-wrap justify-between gap-y-4 gap-x-[4%] max-w-[650px] mx-auto">
+      {beautyAd?.condition && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Condition
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {beautyAd.condition}
+          </span>
+        </div>
+      )}
+      
+      {beautyAd?.beautyBrand && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Beauty Brand
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {beautyAd.beautyBrand}
+          </span>
+        </div>
+      )}
+      
+      {beautyAd?.hairType && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+           Hair Type
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {beautyAd.hairType}
+          </span>
+        </div>
+      )}
+
+      {beautyAd?.gender && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Gender
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {beautyAd.gender}
+          </span>
+        </div>
+      )}
+      
+      {beautyAd?.skinType && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Skin Type
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {beautyAd.skinType}
+          </span>
+        </div>
+      )}
+      
+      {beautyAd?.targetConcern  && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Target Concerns 
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {beautyAd.targetConcern}
+          </span>
+        </div>
+      )}
+      
+      {beautyAd?.fragranceFamily && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+           Fragrance Family 
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {beautyAd.fragranceFamily}
+          </span>
+        </div>
+      )}
+
+       {beautyAd.beautyPowerSource && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+           Power Source 
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {beautyAd.beautyPowerSource}
+          </span>
+        </div>
+      )}
+
+      
+      
+      {beautyAd?.negotiation && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Negotiation
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {beautyAd.negotiation}
+          </span>
+        </div>
+         )}
+        </div>
+        </div>
+       )}
+     </div>
+    )}
            
 
            {propertyAd && (
@@ -2805,6 +3011,11 @@ const productImage =
                  {householdAd?.description}
                </p> 
               )}
+              {beautyAd && (
+               <p className="text-[#868686] mt-2 text-[12px] md:text-[14px] font-[400] font-inter">
+                 {beautyAd?.description}
+               </p> 
+              )}
            </div>
           </>
         ): (
@@ -2957,6 +3168,9 @@ const productImage =
        )}
        {householdAd && (
         <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{householdAd.amount?.toLocaleString()}</span>
+       )}
+       {beautyAd && (
+         <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{beautyAd.amount?.toLocaleString()}</span>
        )}
      </div>
      {isNegotiable() && (

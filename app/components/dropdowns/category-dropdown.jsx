@@ -12,6 +12,7 @@ import GadgetDropdown from "./gadgetDropdown";
 import LaptopDropdown from "./laptopDropdown";
 import FashionDropdown from "./fashionDropdown";
 import HouseholdDropdown from "./HouseholdDropdown";
+import BeautyDropdown from "./BeautyDropdown";
 import Img from "../Image";
 
 export default function MainCategoryDropdown({ value, onChange }) {
@@ -182,6 +183,19 @@ export default function MainCategoryDropdown({ value, onChange }) {
             />
             Household Items
           </div>
+           <div 
+            className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
+             onClick={() => handleTypeSelect("beauty")}
+            >
+              <Img 
+               src="/petsIcon.svg"
+               alt="Pets Icon"
+               width={24}
+               height={24}
+               className="w-5 h-5"
+              />
+             Healthy & Beauty
+          </div>
           <div 
             className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
             onClick={() => {
@@ -286,6 +300,15 @@ export default function MainCategoryDropdown({ value, onChange }) {
           <PetsDropdown onSelect={handleSubSelect} />
         </div>
       )}
+
+     
+      {type === "beauty" && (
+        <div className="absolute top-[52px] left-0 right-0
+         bg-white border border-[#CDCDD7] border-t-0 rounded-b-[4px] z-10 max-h-60 overflow-y-auto">
+          <BeautyDropdown onSelect={handleSubSelect} />
+        </div>
+      )}
+
 
       {type === "gadgets" && (
          <div className="absolute top-[52px] left-0 right-0

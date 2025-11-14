@@ -30,8 +30,8 @@ export default function MarketPlace({ category, search, location }) {
     };
 
     return adsArray.sort((a, b) => {
-      const adA = a.vehicleAd || a.propertyAd || a.petAd || a.agricultureAd || a.kidsAd || a.serviceAd || a.equipmentAd || a.gadgetAd || a.laptopAd || a.fashionAd || a.householdAd;
-      const adB = b.vehicleAd || b.propertyAd || b.petAd || b.agricultureAd || b.kidsAd || b.serviceAd || b.equipmentAd || b.gadgetAd || b.laptopAd || b.fashionAd || b.householdAd;
+      const adA = a.vehicleAd || a.propertyAd || a.petAd || a.agricultureAd || a.kidsAd || a.serviceAd || a.equipmentAd || a.gadgetAd || a.laptopAd || a.fashionAd || a.householdAd || a.beautyAd;
+      const adB = b.vehicleAd || b.propertyAd || b.petAd || b.agricultureAd || b.kidsAd || b.serviceAd || b.equipmentAd || b.gadgetAd || b.laptopAd || b.fashionAd || b.householdAd || b.beautyAd;
 
       if (!adA && !adB) return 0;
       if (!adA) return -1;
@@ -54,7 +54,7 @@ export default function MarketPlace({ category, search, location }) {
   };
 
   const isPremiumAd = (item) => {
-    const ad = item.vehicleAd || item.propertyAd || item.petAd || item.agricultureAd || item.kidsAd || item.serviceAd || item.equipmentAd || item.gadgetAd || item.laptopAd || item.fashionAd || item.householdAd;
+    const ad = item.vehicleAd || item.propertyAd || item.petAd || item.agricultureAd || item.kidsAd || item.serviceAd || item.equipmentAd || item.gadgetAd || item.laptopAd || item.fashionAd || item.householdAd || item.beautyAd;
     if (!ad) return false;
     const premiumPlans = ["premium", "vip", "diamond", "enterprise"];
     return ad.paymentStatus === "success" && premiumPlans.includes(ad.plan);
@@ -213,8 +213,17 @@ const householdNewlyPosted = ads.filter((item) => {
    return diffDays <= 7;
 });
 
+const beautyNewlyPosted = ads.filter((item) => {
+  const ad = item.beautyAd;
+  if (!ad) return false;
+  const createdAt = new Date(ad.createdAt);
+  const now = new Date();
+  const diffDays = (now - createdAt) / (1000 * 60 * 60 * 24);
+  return diffDays <= 7;
+})
+
   const recommendedAds = ads.filter((item) => {
-    const ad = item.vehicleAd || item.propertyAd || item.petAd || item.agricultureAd || item.serviceAd || item.equipmentAd || item.gadgetAd || item.laptopAd || item.fashionAd || item.householdAd;
+    const ad = item.vehicleAd || item.propertyAd || item.petAd || item.agricultureAd || item.serviceAd || item.equipmentAd || item.gadgetAd || item.laptopAd || item.fashionAd || item.householdAd || item.beautyAd;
     if (!ad) return false;
     return ["free", "basic"].includes(ad.plan);
   });
@@ -259,6 +268,7 @@ const householdNewlyPosted = ads.filter((item) => {
     const isLaptopAd = !!item.laptopAd;
     const isFashionAd = !!item.fashionAd;
     const isHouseholdAd = !!item.householdAd;
+    const isBeautyAd  = !!item.beautyAd;
 
     let imageUrl = null;
     let title = "Untitled Ad";
@@ -297,6 +307,8 @@ const householdNewlyPosted = ads.filter((item) => {
    let householdTitle = null;
    let householdCondition = null;
    let householdType = null;
+   let beautyType = null;
+   let beautyCondition = null;
 
     if (isCarAd) {
       imageUrl = item.carAd.vehicleImage?.[0];
@@ -431,6 +443,17 @@ const householdNewlyPosted = ads.filter((item) => {
   plan = item.householdAd?.plan;
   householdType = item.householdAd?.householdType;
   householdCondition = item.householdAd?.condition;
+} else if (isBeautyAd) {
+  imageUrl = item.carAd?.beautyImage?.[0];
+  title = item.beautyAd?.beautyTitle || "Beauty";
+  description = item.beautyAd?.description || "No description available";
+  price = item.beautyAd?.amount 
+    ? `₦${item.beautyAd.amount.toLocaleString()}`
+    : "Price not set.";
+  adLocation = item.carAd?.location || "Unknown";
+  plan = item.beautyAd?.plan;
+  beautyType = item.beautyAd?.beautyType;
+  beautyCondition = item.beautyAd?.condition;
 }
 
     return (
@@ -663,6 +686,21 @@ const householdNewlyPosted = ads.filter((item) => {
          )}
         </>
       )}
+
+      {isBeautyAd && (
+        <>
+          {beautyCondition && (
+         <span className="bg-[#E8E8FF] font-inter whitespace-nowrap text-[#525252] px-2 py-1 rounded text-xs">
+          {beautyCondition}
+         </span>
+         )} 
+          {beautyType && (
+           <span className="bg-[#E8E8FF] font-inter whitespace-nowrap text-[#525252] px-2 py-1 rounded text-xs">
+              {beautyType}
+            </span>
+         )}
+        </>
+      )}
      </div>
       </div>
     </li>
@@ -815,7 +853,20 @@ const householdNewlyPosted = ads.filter((item) => {
         {householdNewlyPosted.length > 0 && (
         <div>
         <h2 className="text-[14px] md:text-[20px] font-inter font-[500] font-normal text-[#2E2E2E] mb-4">
-           Household Items 
+           Household Items  Newly Posted
+        </h2>
+        <ul className="grid gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {householdNewlyPosted.map((item, index) => 
+            renderAdCard(item, index)
+          )}
+        </ul>
+        </div>
+      )}
+
+      {beautyNewlyPosted.length > 0 && (
+         <div>
+        <h2 className="text-[14px] md:text-[20px] font-inter font-[500] font-normal text-[#2E2E2E] mb-4">
+           Health & Beauty Newly Posted
         </h2>
         <ul className="grid gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {householdNewlyPosted.map((item, index) => 

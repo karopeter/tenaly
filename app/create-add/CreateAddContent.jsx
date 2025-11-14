@@ -126,6 +126,18 @@ const routeMap = {
       'Garden & Outdoor': '/household-garden-outdoor',
       'Others': '/household-others',
 
+      // Beauty
+       'Skin Care': '/beauty-skin-care',
+       'Hair Care': '/beauty-hair-care',
+       'Makeup & Cosmetics': '/beauty-makeup-cosmetics',
+      'Fragrances (Perfume & Body Spray)': '/beauty-fragrances',
+      'Bath & Body': '/beauty-bath-body',
+      'Nail Care': '/beauty-nail-care',
+      'Beauty Tools & Accessories': '/beauty-tool-accessories',
+      'Personal Grooming Devices': '/beauty-personal-grooming', 
+      'Oral Care': '/beauty-oral-care',
+      "Men's Grooming": '/beauty-men-grooming',
+
 
   // Standalone categories 
   "Job": "/jobs",
@@ -403,6 +415,19 @@ export default function CreateCarContent() {
       'Garden & Outdoor',
       'Others',
   ];
+
+   const beautyCategories = [
+       'Skin Care',
+       'Hair Care',
+       'Makeup & Cosmetics',
+      'Fragrances (Perfume & Body Spray)',
+      'Bath & Body',
+      'Nail Care',
+      'Beauty Tools & Accessories',
+      'Personal Grooming Devices', 
+      'Oral Care',
+      "Men's Grooming",
+    ];
   
 
   
@@ -432,6 +457,8 @@ export default function CreateCarContent() {
       return { baseCategory: "Services", categoryValue: value };
   } else if (value === 'Available for hire') {
     return { baseCategory: "Hire", categoryValue: value };
+  } else if (beautyCategories.includes(value)) {
+    return { baseCategory: "Beauty", categoryValue: value };
   }
   
   return { baseCategory: "Property", categoryValue: value };
@@ -655,6 +682,7 @@ export default function CreateCarContent() {
     if (category.includes("Produce") || category.includes("Livestock") || category.includes("Farm") || category.includes("Feed") || category.includes("Fertilizers") || category.includes("Agro")) return "Upload Product Images";
     if (category.includes("Baby") || category.includes("Kids") || category.includes("Toys") || category.includes("School")) return "Upload Product Images";
     if (category.includes("Dog") || category.includes("Cat") || category.includes("Bird") || category.includes("Pet") || category.includes("Fish")) return "Upload Pet/Product Images";
+    if (category.includes("Beauty") || category.includes("Skin Care") || category.includes("Hair Care") || category.includes("Nail Cate") || category.includes("Oral Care")) return "Upload Beauty Image"
     if (category === "Equipments & Machineries") return "Upload Equipment Images";
     if (category === "Gadgets") return "Upload Gadget Images";
     if (category === "Fashion") return "Upload Fashion Images";
