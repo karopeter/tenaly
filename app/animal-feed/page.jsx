@@ -4,7 +4,7 @@ import Sidebar from "../components/navbar/sidebar";
 import Content from "./content";
 
 export default function AgricultureProductPost() {
-    const [activeSection, setActiveSection] = useState("Animal Feed");
+    const [activeSection, setActiveSection] = useState("Animal Feed"); // THe prod 
     const [isMobile, setIsMobile] = useState(false);
 
 
