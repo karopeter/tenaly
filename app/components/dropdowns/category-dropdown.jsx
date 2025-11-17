@@ -11,6 +11,7 @@ import EquipmentDropdown from "./equipmentDropdown";
 import GadgetDropdown from "./gadgetDropdown";
 import LaptopDropdown from "./laptopDropdown";
 import FashionDropdown from "./fashionDropdown";
+import ConstructionDropdown from "./ConstructionDropdown";
 import HouseholdDropdown from "./HouseholdDropdown";
 import BeautyDropdown from "./BeautyDropdown";
 import Img from "../Image";
@@ -112,6 +113,21 @@ export default function MainCategoryDropdown({ value, onChange }) {
               />
               Available for hire 
           </div>
+           <div 
+           className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
+           onClick={() => {
+            handleTypeSelect("construction");
+           }}
+           >
+            <Img 
+             src="/construction.svg"
+             alt="Construction Icon"
+             width={24}
+             height={24}
+             className="w-5 h-5"
+            />
+           Building & Construction
+          </div>
           <div 
            className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
            onClick={() => {
@@ -199,7 +215,7 @@ export default function MainCategoryDropdown({ value, onChange }) {
           <div 
             className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
             onClick={() => {
-              handleSubSelect("Job");
+              handleSubSelect("Jobs");
             }}
           >
             <Img 
@@ -209,7 +225,7 @@ export default function MainCategoryDropdown({ value, onChange }) {
              height={24}
              className='w-5 h-5'
             />
-            Job 
+            Jobs
           </div>
           <div 
             className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
@@ -328,6 +344,13 @@ export default function MainCategoryDropdown({ value, onChange }) {
         <div className="absolute top-[52px] left-0 right-0 
         bg-white border border-[#CDCDD7] bordder-t-0 rounded-b-[4px] z-10 max-h-60 overflow-y-auto">
           <FashionDropdown onSelect={handleSubSelect} />
+        </div>
+      )}
+
+      {type === "construction" && (
+        <div className="absolute top-[52px] left-0 right-0 
+        bg-white border border-[#CDCDD7] bordder-t-0 rounded-b-[4px] z-10 max-h-60 overflow-y-auto">
+          <ConstructionDropdown onSelect={handleSubSelect} />
         </div>
       )}
 

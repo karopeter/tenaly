@@ -138,9 +138,22 @@ const routeMap = {
       'Oral Care': '/beauty-oral-care',
       "Men's Grooming": '/beauty-men-grooming',
 
+      // Construction & Building 
+     'Building Material': '/construction-building-materials',
+    'Eletrical Equipment & Tools': '/construction-eletrical-equipment',
+    'Plumbing Material & Fittings': '/construction-plumbing-material',
+    'Paints & Finishes': '/construction-paints-finishes',
+    'Hand Tools': '/construction-hand-tools',
+    'Safety Equipment & Workwear': '/construction-safety-equipments',
+    'Repair & Maintenance Services': '/construction-repair-maintenance',
+    'Construction  Equipment': '/construction-equipment-building',
+    'Roofing Materials': '/construction-roofing',
+    'Flooring & Tiles': '/construction-tiles',
+
+
 
   // Standalone categories 
-  "Job": "/jobs",
+  "Jobs": "/jobs",
   "Available for hire": "/available-for-hire"
 };
 
@@ -428,6 +441,19 @@ export default function CreateCarContent() {
       'Oral Care',
       "Men's Grooming",
     ];
+
+    const constructionCategories = [
+       'Building Material',
+    'Eletrical Equipment & Tools',
+    'Plumbing Material & Fittings',
+    'Paints & Finishes',
+    'Hand Tools',
+    'Safety Equipment & Workwear',
+    'Repair & Maintenance Services',
+    'Construction  Equipment',
+    'Roofing Materials',
+    'Flooring & Tiles',
+    ]
   
 
   
@@ -451,14 +477,16 @@ export default function CreateCarContent() {
     return { baseCategory: "Laptops", categoryValue: value };
   } else if (householdCategories.includes(value)) {
     return { baseCategory: "Household", categoryValue: value };
-  } else if (value === 'Job') {
-    return { baseCategory: "Job", categoryValue: value };
+  } else if (value === 'Jobs') {
+    return { baseCategory: "Jobs", categoryValue: value };
   } else if (servicesCategories.includes(value)) {
       return { baseCategory: "Services", categoryValue: value };
   } else if (value === 'Available for hire') {
     return { baseCategory: "Hire", categoryValue: value };
   } else if (beautyCategories.includes(value)) {
     return { baseCategory: "Beauty", categoryValue: value };
+  } else if (constructionCategories.includes(value)) {
+    return { baseCategory: "Construction", categoryValue: value };
   }
   
   return { baseCategory: "Property", categoryValue: value };
@@ -523,13 +551,6 @@ export default function CreateCarContent() {
       if (link.trim() !== "") {
         formData.append("link", link);
       }
-
-      // uploadedImages.forEach((img) => {
-      //   if (!img.isExisting) {
-      //     // This is a new file upload 
-      //     formData.append("images", img);
-      //   }
-      // });
 
       if (isEditing && editingCarAdId) {
         const newFiles = uploadedImages.filter(img => !img.isExisting);
@@ -683,12 +704,13 @@ export default function CreateCarContent() {
     if (category.includes("Baby") || category.includes("Kids") || category.includes("Toys") || category.includes("School")) return "Upload Product Images";
     if (category.includes("Dog") || category.includes("Cat") || category.includes("Bird") || category.includes("Pet") || category.includes("Fish")) return "Upload Pet/Product Images";
     if (category.includes("Beauty") || category.includes("Skin Care") || category.includes("Hair Care") || category.includes("Nail Cate") || category.includes("Oral Care")) return "Upload Beauty Image"
+    if (category.includes("Construction") ||  category.includes("Building") || category.includes("Plumbing") || category.includes("Paints") || category.includes("Roofing")) return "Upload Construction Images";
     if (category === "Equipments & Machineries") return "Upload Equipment Images";
     if (category === "Gadgets") return "Upload Gadget Images";
     if (category === "Fashion") return "Upload Fashion Images";
     if (category === "Laptops & Computers") return "Upload Product Images";
     if (category === "Household Items") return "Upload Product Images";
-    if (category === "Job") return "Upload Job Images";
+    if (category === "Jobs") return "Upload Job Images";
     if (category === "Services") return "Upload Service Images";
     if (category === "Available for hire") return "Upload Images";
     return "Upload Images";

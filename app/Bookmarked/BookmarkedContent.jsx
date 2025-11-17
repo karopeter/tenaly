@@ -149,7 +149,7 @@ export default function BookMarkedContent({sellerId}) {
 
   return (
     <>
-      {userAds.map(({ adId, carAd, vehicleAd, propertyAd, petAd, agricultureAd, kidAd, serviceAd, equipmentAd, gadgetAd, laptopAd, fashionAd, householdAd, beautyAd, isSold }) => {
+      {userAds.map(({ adId, carAd, vehicleAd, propertyAd, petAd, agricultureAd, kidAd, serviceAd, equipmentAd, gadgetAd, laptopAd, fashionAd, householdAd, beautyAd, constructionAd, jobAd, isSold }) => {
         // Determine images array and amount to display
         const images = carAd?.vehicleImage?.length
           ? carAd.vehicleImage
@@ -175,13 +175,17 @@ export default function BookMarkedContent({sellerId}) {
           ? carAd?.householdImage
           : carAd?.beautyImage?.length 
           ? carAd?.beautyImage
+          : carAd?.constructionImage?.length
+          ? carAd?.constructionImage
+          : carAd?.jobImage?.length
+          ? carAd?.jobImage
           : [];
 
         const imageUrl = images.length > 0
           ? images[0]
           : "/placeholder-image.svg";
         
-        const amount = vehicleAd?.amount || propertyAd?.amount || petAd?.amount || agricultureAd?.amount || kidAd?.amount || serviceAd?.amount || equipmentAd?.amount || gadgetAd?.amount ||  laptopAd?.amount || fashionAd?.amount || householdAd?.amount || beautyAd?.amount ||  "N/A";
+        const amount = vehicleAd?.amount || propertyAd?.amount || petAd?.amount || agricultureAd?.amount || kidAd?.amount || serviceAd?.amount || equipmentAd?.amount || gadgetAd?.amount ||  laptopAd?.amount || fashionAd?.amount || householdAd?.amount || beautyAd?.amount || constructionAd?.amount  || jobAd?.amount ||   "N/A";
 
         const mainInfo = vehicleAd
           ? `${vehicleAd.vehicleType} ${vehicleAd.model}`
@@ -207,6 +211,10 @@ export default function BookMarkedContent({sellerId}) {
           ? householdAd.householdTitle || householdAd.householdType
           : beautyAd
           ? beautyAd.beautyTitle || beautyAd.beautyType
+          : constructionAd 
+          ? constructionAd.constructionTitle || constructionAd.constructionType 
+          : jobAd 
+          ? jobAd.jobTitle || jobAd.jobType 
           : "";
 
         const location = carAd?.location || "";
@@ -303,6 +311,18 @@ export default function BookMarkedContent({sellerId}) {
             { iconSrc: "/cross-props.svg", text:  beautyAd.beautyType || "N/A" },
             { iconSrc: "/cross-props.svg", text:  beautyAd.beautyBrand || "N/A" } 
            ]
+           : constructionAd
+           ? [
+             { iconSrc: "/cross-props.svg", text: constructionAd.constructionTitle || "N/A" },
+            { iconSrc: "/cross-props.svg", text:  constructionAd.constructionType || "N/A" },
+            { iconSrc: "/cross-props.svg", text:  constructionAd.constructionBrand || "N/A" } 
+           ]
+           : jobAd 
+            ? [
+               { iconSrc: "/cross-props.svg", text: jobAd.jobTitle || "N/A" },
+               { iconSrc: "/cross-props.svg", text:  jobAd.jobType || "N/A" },
+               { iconSrc: "/cross-props.svg", text:  jobAd.skils || "N/A" } 
+            ]
           : [];
 
         return (
@@ -331,7 +351,7 @@ export default function BookMarkedContent({sellerId}) {
               )}
 
               {/* Show plan badge if not sold */}
-              {!isSold && (vehicleAd?.plan || propertyAd?.plan || petAd?.plan || agricultureAd?.plan || kidAd?.plan || serviceAd?.plan || equipmentAd?.plan || gadgetAd?.plan || laptopAd?.plan || fashionAd?.plan || householdAd?.plan || beautyAd?.plan) && (
+              {!isSold && (vehicleAd?.plan || propertyAd?.plan || petAd?.plan || agricultureAd?.plan || kidAd?.plan || serviceAd?.plan || equipmentAd?.plan || gadgetAd?.plan || laptopAd?.plan || fashionAd?.plan || householdAd?.plan || beautyAd?.plan || constructionAd?.plan || jobAd?.plan) && (
                 <div className="absolute bottom-0 left-0 z-30 w-[139px] h-[35px] flex items-center px-4"
                   style={{
                     backgroundImage: `url(${machineImage})`,
@@ -354,6 +374,8 @@ export default function BookMarkedContent({sellerId}) {
                        fashionAd?.plan || 
                        householdAd?.plan ||
                        beautyAd?.plan || 
+                       constructionAd?.plan ||
+                       jobAd?.plan || 
                       ""}
                     </span>
                   </div>
