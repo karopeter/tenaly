@@ -261,10 +261,12 @@ const handleSendOffer = async () => {
      fashionAd,
      householdAd,
      beautyAd,
+     constructionAd,
+     jobAd,
      business
     } = adData;
   const actualBusinessId = carAd?.businessCategory?._id || carAd?.businessCategory;
-  const sellerId = business?.userId || carAd?.userId || vehicleAd?.userId || propertyAd?.userId || petAd?.userId || agricultureAd?.userId || kidsAd?.userId || serviceAd?.userId || equipmentAd?.userId || gadgetAd?.userId || laptopAd?.userId || fashionAd?.userId || householdAd?.userId || beautyAd?.userId;
+  const sellerId = business?.userId || carAd?.userId || vehicleAd?.userId || propertyAd?.userId || petAd?.userId || agricultureAd?.userId || kidsAd?.userId || serviceAd?.userId || equipmentAd?.userId || gadgetAd?.userId || laptopAd?.userId || fashionAd?.userId || householdAd?.userId || beautyAd?.userId || constructionAd?.userId || jobAd?.userId;
 
 
   let mainAd = null; 
@@ -304,6 +306,12 @@ const handleSendOffer = async () => {
    } else if (beautyAd) {
     mainAd = carAd;
     adDetails = beautyAd;
+   } else if (constructionAd) {
+    mainAd = carAd;
+    adDetails = constructionAd;
+   } else if (jobAd) {
+    mainAd = carAd;
+    adDetails = jobAd;
    }
  
   const businessName = business?.businessName || "Unknown Seller";
@@ -329,9 +337,11 @@ const handleSendOffer = async () => {
   const fashionNeg = fashionAd?.negotiation === "Yes";
   const householdNeg = householdAd?.negotiation === "Yes";
   const beautyNeg = beautyAd?.negotiation === "Yes";
+  const constructionNeg = constructionAd?.negotiation === "Yes";
+  const jobNeg = jobAd?.negotiation === "Yes";
 
   
-  return vehicleNeg || propertyNeg || petNeg || agricultureNeg || kidsNeg || serviceNeg || equipmentNeg || gadgetNeg || laptopNeg || fashionNeg || householdNeg || beautyNeg;
+  return vehicleNeg || propertyNeg || petNeg || agricultureNeg || kidsNeg || serviceNeg || equipmentNeg || gadgetNeg || laptopNeg || fashionNeg || householdNeg || beautyNeg || constructionNeg || jobNeg;
 };
 
 
@@ -347,8 +357,10 @@ const productTitle =
   (laptopAd?.laptopTitle ? `${laptopAd.laptopTitle}` : "") ||
   (fashionAd?.fashionTitle ? `${fashionAd.fashionTitle}` : "") ||
   (householdAd?.householdTitle ? `${householdAd.householdTitle}` :  "") || 
-  (beautyAd.beautyTitle ? `${beautyAd.beautyTitle}` : "") ||
+  (beautyAd?.beautyTitle ? `${beautyAd.beautyTitle}` : "") ||
+  (constructionAd?.constructionTitle ? `${constructionAd.constructionTitle}` : "") || 
   (vehicleAd ? `${vehicleAd.vehicleType} ${vehicleAd.model}` : "") ||
+  (jobAd ? `${jobAd.jobTitle} ${jobAd.jobType}` : "") || 
   (carAd ? `${carAd.vehicleType} ${carAd.model}` : "");
 
     const mainImageArray = carAd
@@ -363,6 +375,8 @@ const productTitle =
        carAd.fashionImage?.length > 0 ? carAd.fashionImage :
        carAd?.householdImage?.length > 0 ? carAd.householdImage :
        carAd?.beautyImage?.length > 0 ? carAd.beautyImage :
+       carAd?.constructionImage?.length > 0 ? carAd.constructionImage :
+       carAd?.jobImage?.length > 0 ? carAd.jobImage : 
         carAd.vehicleImage || [])
     : [];
 
@@ -370,7 +384,7 @@ const productTitle =
     const smallImages = mainImageArray.slice(1, 5);
 
     // const productId = mainAd?._id;
-    const productId = vehicleAd?._id || propertyAd?._id || petAd?._id || agricultureAd?._id || kidsAd?._id || serviceAd?._id || equipmentAd?._id || gadgetAd?._id || laptopAd?._id || fashionAd?._id || householdAd?._id || beautyAd?._id;
+    const productId = vehicleAd?._id || propertyAd?._id || petAd?._id || agricultureAd?._id || kidsAd?._id || serviceAd?._id || equipmentAd?._id || gadgetAd?._id || laptopAd?._id || fashionAd?._id || householdAd?._id || beautyAd?._id || constructionAd?.id || jobAd?.id;
 
 // Pick correct product image
 const productImage =
@@ -385,6 +399,8 @@ const productImage =
    fashionAd?.fashionImage?.[0] ||
    householdAd?.householdImage?.[0] ||
    beautyAd?.beautyImage?.[0] || 
+   constructionAd?.constructionImage?.[0] || 
+   jobAd?.jobImage?.[0] || 
   vehicleAd?.vehicleImage?.[0] ||
   carAd?.vehicleImage?.[0];
 
@@ -456,6 +472,16 @@ const productImage =
             {beautyAd.beautyTitle} {beautyAd.householdType}
           </span>
         )}
+        {constructionAd && (
+           <span className="text-[#000087] text-[13px] md:text-[14px] font-[500] font-inter whitespace-nowrap">
+            {constructionAd.constructionTitle} {constructionAd.constructionType}
+          </span>
+        )}
+        {jobAd && (
+         <span className="text-[#000087] text-[13px] md:text-[14px] font-[500] font-inter whitespace-nowrap">
+            {jobAd.jobTitle} {jobAd.jobType}
+          </span>
+        )}
       </div>
 
       <div className="mt-5 container mx-auto flex flex-wrap items-center justify-center gap-4">
@@ -520,6 +546,16 @@ const productImage =
               {beautyAd.beautyTitle}
             </h2>
           )}
+           {constructionAd && (
+           <span className="text-[#000087] text-[13px] md:text-[14px] font-[500] font-inter whitespace-nowrap">
+            {constructionAd.constructionTitle} 
+          </span>
+        )}
+        {jobAd && (
+           <span className="text-[#000087] text-[13px] md:text-[14px] font-[500] font-inter whitespace-nowrap">
+            {jobAd.jobTitle} 
+          </span>
+        )}
         </div>
         <div className="flex items-center space-x-3">
         <button
@@ -678,7 +714,13 @@ const productImage =
         <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{householdAd.amount?.toLocaleString()}</span>
        )}
        {beautyAd?.amount && (
-        <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{ beautyAd.amount?.toLocaleString()}</span>
+        <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{beautyAd.amount?.toLocaleString()}</span>
+       )}
+       {constructionAd?.amount && (
+         <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{constructionAd.amount?.toLocaleString()}</span>
+       )}
+        {jobAd?.amount && (
+         <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{jobAd.amount?.toLocaleString()}</span>
        )}
      </div>
      {isNegotiable() && (
@@ -856,6 +898,28 @@ const productImage =
             Beauty & Health Details
           </Button>
          )}
+
+         {constructionAd && (
+           <Button
+           className={`py-2 px-4 min-w-[120px] h-[40px] md:h-[44px] rounded-tl-[4px] whitespace-nowrap rounded-tr-[4px] text-center ${
+            activeTab === "car" ? "bg-[#DFDFF9] text-[#000087]" : "bg-gray-200 text-gray-700"
+           }`}
+           onClick={() => setActiveTab("car")}
+          >
+            Building & Construction
+          </Button>
+         )}
+
+          {jobAd && (
+           <Button
+           className={`py-2 px-4 min-w-[120px] h-[40px] md:h-[44px] rounded-tl-[4px] whitespace-nowrap rounded-tr-[4px] text-center ${
+            activeTab === "car" ? "bg-[#DFDFF9] text-[#000087]" : "bg-gray-200 text-gray-700"
+           }`}
+           onClick={() => setActiveTab("car")}
+          >
+            Job Details 
+          </Button>
+         )}
    
            {propertyAd && (
             <Button
@@ -965,6 +1029,24 @@ const productImage =
               Review 
            </Button>
            )}
+            {constructionAd && (
+             <Button
+            className={`py-2 px-4 min-w-[120px] h-[40px] md:h-[44px] rounded-tl-[4px] whitespace-nowrap rounded-tr-[4px] text-center ${
+               activeTab === "review" ? "bg-[#DFDFF9] text-[#000087]" : "bg-gray-200 text-gray-700"
+             }`}
+              onClick={() => setActiveTab("review")}>
+              Review 
+           </Button>
+           )}
+             {jobAd && (
+             <Button
+            className={`py-2 px-4 min-w-[120px] h-[40px] md:h-[44px] rounded-tl-[4px] whitespace-nowrap rounded-tr-[4px] text-center ${
+               activeTab === "review" ? "bg-[#DFDFF9] text-[#000087]" : "bg-gray-200 text-gray-700"
+             }`}
+              onClick={() => setActiveTab("review")}>
+              Review 
+           </Button>
+           )}
         </div>
       </div>
 
@@ -1033,6 +1115,18 @@ const productImage =
                  {beautyAd.beautyTitle}
                </h2>
               )}
+              {constructionAd && (
+                  <h2 className="text-[#525252] text-[14px] md:text-[18px] font-[500] font-inter">
+                 {constructionAd.constructionTitle}
+               </h2>
+              )}
+
+               {jobAd && (
+                  <h2 className="text-[#525252] text-[14px] md:text-[18px] font-[500] font-inter">
+                 {jobAd.jobTitle}
+               </h2>
+              )}
+
 
               <div className="flex space-x-2">
                  <Img 
@@ -1100,6 +1194,16 @@ const productImage =
                   {beautyAd && (
                      <span className="text-[#868686] text-[14px] md:text-[14px] font-[400] font-inter whitespace-nowrap">
                       {beautyAd.viewCount} Views 
+                    </span>
+                  )}
+                   {constructionAd && (
+                     <span className="text-[#868686] text-[14px] md:text-[14px] font-[400] font-inter whitespace-nowrap">
+                      {constructionAd.viewCount} Views 
+                    </span>
+                  )}
+                    {jobAd && (
+                     <span className="text-[#868686] text-[14px] md:text-[14px] font-[400] font-inter whitespace-nowrap">
+                      {jobAd.viewCount} Views 
                     </span>
                   )}
               </div>
@@ -1202,6 +1306,20 @@ const productImage =
                     text-[#000087] text-[10px] md:text-[12px] 
                     font-inter capitalize font-[500] rounded-[4px]">
                     {beautyAd.plan}
+                   </Button>
+                  )}
+                    {constructionAd && (
+                     <Button className="bg-[#DFDFF9] py-2 px-3 
+                    text-[#000087] text-[10px] md:text-[12px] 
+                    font-inter capitalize font-[500] rounded-[4px]">
+                    {constructionAd.plan}
+                   </Button>
+                  )}
+                   {jobAd && (
+                     <Button className="bg-[#DFDFF9] py-2 px-3 
+                    text-[#000087] text-[10px] md:text-[12px] 
+                    font-inter capitalize font-[500] rounded-[4px]">
+                    {jobAd.plan}
                    </Button>
                   )}
                </div>
@@ -1390,6 +1508,35 @@ const productImage =
                 <div>
                 <span className="text-[#868686] text-[10px] md:text-[12px] font-[400] font-inter">
                   Posted on {new Date(beautyAd.createdAt).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric"
+                  })}
+               </span>
+               </div>
+              </>
+             )}
+
+              {constructionAd && (
+              <>
+                <div>
+                <span className="text-[#868686] text-[10px] md:text-[12px] font-[400] font-inter">
+                  Posted on {new Date(constructionAd.createdAt).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric"
+                  })}
+               </span>
+               </div>
+              </>
+             )}
+
+             
+              {jobAd && (
+              <>
+                <div>
+                <span className="text-[#868686] text-[10px] md:text-[12px] font-[400] font-inter">
+                  Posted on {new Date(jobAd.createdAt).toLocaleDateString("en-US", {
                   year: "numeric",
                   month: "long",
                   day: "numeric"
@@ -2564,7 +2711,7 @@ const productImage =
     )}
 
       
-          {beautyAd && ( 
+      {beautyAd && ( 
             <div className="bg-[#FAFAFA] md:w-[650px] h-auto md:rounded-[12px] p-8 mt-4">
               <div className="flex items-center justify-between">
                 <span className="text-[#525252] md:text-[16px] font-inter font-[500]">
@@ -2695,7 +2842,379 @@ const productImage =
         </div>
        )}
      </div>
+      )}
+
+    {constructionAd && ( 
+            <div className="bg-[#FAFAFA] md:w-[650px] h-auto md:rounded-[12px] p-8 mt-4">
+              <div className="flex items-center justify-between">
+                <span className="text-[#525252] md:text-[16px] font-inter font-[500]">
+                 Building & Construction
+               </span> 
+
+               <div className="flex items-center space-x-2">
+                  <span className="text-[#000087] text-[16px] font-[400] font-inter">
+                    Show More
+                  </span>
+                    <button 
+                   onClick={() => setShowDetails(!showDetails)} 
+                   aria-expanded={showDetails}>
+                    <Img
+                      src={showDetails ? "/dropup.svg" : "/dropdown.svg"}
+                      alt="Dropdown Icon"
+                      width={8}
+                      height={4}
+                      className="mr-2 mt-[2px] cursor-pointer"
+                    />
+                  </button>
+                </div>
+              </div>
+              {showDetails && (
+  <div className="mt-4">
+    <div className="flex flex-wrap justify-between gap-y-4 gap-x-[4%] max-w-[650px] mx-auto">
+      {constructionAd?.condition && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Condition
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {constructionAd.condition}
+          </span>
+        </div>
+      )}
+      
+      {constructionAd?.constructionBrand && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Construction Brand
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {constructionAd.constructionBrand}
+          </span>
+        </div>
+      )}
+      
+      {constructionAd?.constructionUnit && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] `text-[12px] md:text-[14px] font-medium font-inter">
+           Construction Unit
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {constructionAd.constructionUnit}
+          </span>
+        </div>
+      )}
+
+      {constructionAd?.constructionType && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+           Construction Type
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {constructionAd.constructionType}
+          </span>
+        </div>
+      )}
+      
+      {constructionAd?.constructionMaterial && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Construction Material
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {constructionAd.constructionMaterial}
+          </span>
+        </div>
+      )}
+      
+      {constructionAd?.warranty  && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Warranty
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {constructionAd.warranty}
+          </span>
+        </div>
+      )}
+      
+      {constructionAd?.powerRating && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+           Power Rating 
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {constructionAd.powerRating}
+          </span>
+        </div>
+      )}
+
+       {constructionAd.finish && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Finish
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {constructionAd.finish}
+          </span>
+        </div>
+      )}
+
+       {constructionAd.constructionColor && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+           Color
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {constructionAd.constructionColor}
+          </span>
+        </div>
+      )}
+
+       {constructionAd.size && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+           Color
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {constructionAd.size}
+          </span>
+        </div>
+      )}
+
+       {constructionAd.experienceLevel && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+           Experience Level 
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {constructionAd.experienceLevel}
+          </span>
+        </div>
+      )}
+      
+      
+      {constructionAd.constructionAvailability && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+          Availability
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {constructionAd.constructionAvailability}
+          </span>
+        </div>
+      )}
+
+       {constructionAd.bulkPrice.map((item, index) => (
+           <div
+            key={index}
+           className="flex justify-between items-center"
+          >
+           <span className="text-[#525252] font-medium font-inter text-[14px]">
+              {item.quantity} {item.unit}
+            </span>
+            <span className="text-[#000087] font-semibold text-[14px]">
+              ₦{item.amountPerUnit.toLocaleString()}
+            </span>
+            </div>
+          ))}
+      
+      {constructionAd?.negotiation && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Negotiation
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {constructionAd.negotiation}
+          </span>
+        </div>
+         )}
+        </div>
+        </div>
+       )}
+     </div>
     )}
+
+
+            {jobAd && ( 
+            <div className="bg-[#FAFAFA] md:w-[650px] h-auto md:rounded-[12px] p-8 mt-4">
+              <div className="flex items-center justify-between">
+                <span className="text-[#525252] md:text-[16px] font-inter font-[500]">
+                Job 
+               </span> 
+
+               <div className="flex items-center space-x-2">
+                  <span className="text-[#000087] text-[16px] font-[400] font-inter">
+                    Show More
+                  </span>
+                    <button 
+                   onClick={() => setShowDetails(!showDetails)} 
+                   aria-expanded={showDetails}>
+                    <Img
+                      src={showDetails ? "/dropup.svg" : "/dropdown.svg"}
+                      alt="Dropdown Icon"
+                      width={8}
+                      height={4}
+                      className="mr-2 mt-[2px] cursor-pointer"
+                    />
+                  </button>
+                </div>
+              </div>
+              {showDetails && (
+  <div className="mt-4">
+    <div className="flex flex-wrap justify-between gap-y-4 gap-x-[4%] max-w-[650px] mx-auto">
+      {jobAd?.location && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+           Job Loction
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {jobAd.location}
+          </span>
+        </div>
+      )}
+      
+      {jobAd?.jobType && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+           Job Type 
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {jobAd.jobType}
+          </span>
+        </div>
+      )}
+      
+      {jobAd?.companyEmployerName && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] `text-[12px] md:text-[14px] font-medium font-inter">
+           Company Employer Name 
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {jobAd.companyEmployerName}
+          </span>
+        </div>
+      )}
+
+      {jobAd?.experienceLevel && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+           Experience Level 
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {jobAd.experienceLevel}
+          </span>
+        </div>
+      )}
+      
+      {jobAd?.yearOfExperience && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+           Year Of Experience 
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {jobAd.yearOfExperience}
+          </span>
+        </div>
+      )}
+      
+      {jobAd?.genderPreference && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Gender Preference 
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {jobAd.genderPreference}
+          </span>
+        </div>
+      )}
+      
+      {jobAd?.applicationDeadline && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+           Application Deadline 
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {jobAd.applicationDeadline}
+          </span>
+        </div>
+      )}
+
+       {jobAd.skils && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+          Skills 
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {jobAd.skils}
+          </span>
+        </div>
+      )}
+
+       {jobAd.jobLocationType && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+           Location Type
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {jobAd.jobLocationType}
+          </span>
+        </div>
+      )}
+
+       {jobAd.responsibilities && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+           Responsibilities 
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {jobAd.responsibilities}
+          </span>
+        </div>
+      )}
+
+       {jobAd.requirements && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+           Requirements 
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {jobAd.requirements}
+          </span>
+        </div>
+      )}
+      
+      
+      {jobAd.pricingType && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+         Pricing Type 
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {jobAd.pricingType}
+          </span>
+        </div>
+      )}
+
+
+       
+      
+      {jobAd?.negotiation && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Negotiation
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {jobAd.negotiation}
+          </span>
+        </div>
+         )}
+        </div>
+        </div>
+       )}
+     </div>
+    )}
+       
+        
            
 
            {propertyAd && (
@@ -3016,6 +3535,16 @@ const productImage =
                  {beautyAd?.description}
                </p> 
               )}
+              {constructionAd && (
+                 <p className="text-[#868686] mt-2 text-[12px] md:text-[14px] font-[400] font-inter">
+                 {constructionAd?.description}
+               </p>  
+              )}
+               {jobAd && (
+                 <p className="text-[#868686] mt-2 text-[12px] md:text-[14px] font-[400] font-inter">
+                 {jobAd?.description}
+               </p>  
+              )}
            </div>
           </>
         ): (
@@ -3171,6 +3700,12 @@ const productImage =
        )}
        {beautyAd && (
          <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{beautyAd.amount?.toLocaleString()}</span>
+       )}
+       {constructionAd && (
+        <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{constructionAd.amount?.toLocaleString()}</span>
+       )}
+       {jobAd && (
+        <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{jobAd.salaryRange?.toLocaleString()}</span>
        )}
      </div>
      {isNegotiable() && (

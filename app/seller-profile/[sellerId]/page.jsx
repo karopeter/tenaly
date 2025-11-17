@@ -5,7 +5,6 @@ import { SellerPhoneDisplay } from "@/app/components/features/sellerPhoneDisplay
 import MessageSellerButton from "@/app/components/UI/messageSeller";
 import Img from "@/app/components/Image";
 import { SellerImage } from "@/app/components/features/sellerImage";
-import Button from "@/app/components/Button";
 import { useParams } from "next/navigation";
 
 export default function SellerProfile() {
