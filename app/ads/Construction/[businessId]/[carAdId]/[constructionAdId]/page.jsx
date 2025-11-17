@@ -26,7 +26,7 @@ export default function ConstructionDetails() {
         try {
          if (carAdId && carAdId !== "null") {
           const carRes = await api.get(`/carAdd/get-car-byId/${carAdId}`);
-          setCarAd(carRes.data.ad || null);
+          setCarAd(carRes.data.ad || null); // carAds 
          }
          if (constructionAdId && constructionAdId !== "null") {
           const constructionRes = await api.get(`/construction/get-construction/${constructionAdId}`);
