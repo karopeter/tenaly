@@ -611,7 +611,7 @@ export default function SmartWatchesPostContent() {
 
             <InputField
               label="Color"
-              placeholder="Enter color of Phone"
+              placeholder="Enter Color"
               value={gadgetColor}
               onChange={(e) => setGadgetColor(e.target.value)}
             />

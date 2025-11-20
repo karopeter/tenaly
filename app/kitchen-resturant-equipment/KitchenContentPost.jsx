@@ -503,7 +503,7 @@ export default function KitchenResturantPostContent() {
               value={powerSource}
               onChange={setPowerSource}
               options={[
-                "Electic",
+                "Electric",
                 "Fuel",
                 "Manual",
                 "Battery",
