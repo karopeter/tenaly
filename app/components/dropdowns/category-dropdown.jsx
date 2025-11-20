@@ -205,13 +205,13 @@ export default function MainCategoryDropdown({ value, onChange }) {
              onClick={() => handleTypeSelect("beauty")}
             >
               <Img 
-               src="/petsIcon.svg"
+               src="/beauty.svg"
                alt="Pets Icon"
                width={24}
                height={24}
                className="w-5 h-5"
               />
-             Healthy & Beauty
+             Beauty & Health
           </div>
           <div 
             className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
