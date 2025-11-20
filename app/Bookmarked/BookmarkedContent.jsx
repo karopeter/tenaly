@@ -149,7 +149,7 @@ export default function BookMarkedContent({sellerId}) {
 
   return (
     <>
-      {userAds.map(({ adId, carAd, vehicleAd, propertyAd, petAd, agricultureAd, kidAd, serviceAd, equipmentAd, gadgetAd, laptopAd, fashionAd, householdAd, beautyAd, constructionAd, jobAd, isSold }) => {
+      {userAds.map(({ adId, carAd, vehicleAd, propertyAd, petAd, agricultureAd, kidAd, serviceAd, equipmentAd, gadgetAd, laptopAd, fashionAd, householdAd, beautyAd, constructionAd, jobAd, hireAd, isSold }) => {
         // Determine images array and amount to display
         const images = carAd?.vehicleImage?.length
           ? carAd.vehicleImage
@@ -179,13 +179,15 @@ export default function BookMarkedContent({sellerId}) {
           ? carAd?.constructionImage
           : carAd?.jobImage?.length
           ? carAd?.jobImage
+          : carAd?.hireImage?.length 
+          ? carAd.hireImage
           : [];
 
         const imageUrl = images.length > 0
           ? images[0]
           : "/placeholder-image.svg";
         
-        const amount = vehicleAd?.amount || propertyAd?.amount || petAd?.amount || agricultureAd?.amount || kidAd?.amount || serviceAd?.amount || equipmentAd?.amount || gadgetAd?.amount ||  laptopAd?.amount || fashionAd?.amount || householdAd?.amount || beautyAd?.amount || constructionAd?.amount  || jobAd?.amount ||   "N/A";
+        const amount = vehicleAd?.amount || propertyAd?.amount || petAd?.amount || agricultureAd?.amount || kidAd?.amount || serviceAd?.amount || equipmentAd?.amount || gadgetAd?.amount ||  laptopAd?.amount || fashionAd?.amount || householdAd?.amount || beautyAd?.amount || constructionAd?.amount  || jobAd?.salaryRange || hireAd?.salaryRange ||   "N/A";
 
         const mainInfo = vehicleAd
           ? `${vehicleAd.vehicleType} ${vehicleAd.model}`
@@ -215,6 +217,8 @@ export default function BookMarkedContent({sellerId}) {
           ? constructionAd.constructionTitle || constructionAd.constructionType 
           : jobAd 
           ? jobAd.jobTitle || jobAd.jobType 
+          : hireAd
+          ? hireAd.hireTitle || hireAd.jobType
           : "";
 
         const location = carAd?.location || "";
@@ -323,6 +327,12 @@ export default function BookMarkedContent({sellerId}) {
                { iconSrc: "/cross-props.svg", text:  jobAd.jobType || "N/A" },
                { iconSrc: "/cross-props.svg", text:  jobAd.skils || "N/A" } 
             ]
+            : hireAd 
+             ? [
+              { iconSrc: "/cross-props.svg", text: hireAd.jobTitle || "N/A" },
+               { iconSrc: "/cross-props.svg", text: hireAd.jobType || "N/A" },
+               { iconSrc: "/cross-props.svg", text:  hireAd.workMode || "N/A" } 
+             ]
           : [];
 
         return (
@@ -351,7 +361,7 @@ export default function BookMarkedContent({sellerId}) {
               )}
 
               {/* Show plan badge if not sold */}
-              {!isSold && (vehicleAd?.plan || propertyAd?.plan || petAd?.plan || agricultureAd?.plan || kidAd?.plan || serviceAd?.plan || equipmentAd?.plan || gadgetAd?.plan || laptopAd?.plan || fashionAd?.plan || householdAd?.plan || beautyAd?.plan || constructionAd?.plan || jobAd?.plan) && (
+              {!isSold && (vehicleAd?.plan || propertyAd?.plan || petAd?.plan || agricultureAd?.plan || kidAd?.plan || serviceAd?.plan || equipmentAd?.plan || gadgetAd?.plan || laptopAd?.plan || fashionAd?.plan || householdAd?.plan || beautyAd?.plan || constructionAd?.plan || jobAd?.plan || hireAd?.plan) && (
                 <div className="absolute bottom-0 left-0 z-30 w-[139px] h-[35px] flex items-center px-4"
                   style={{
                     backgroundImage: `url(${machineImage})`,
@@ -376,6 +386,7 @@ export default function BookMarkedContent({sellerId}) {
                        beautyAd?.plan || 
                        constructionAd?.plan ||
                        jobAd?.plan || 
+                       hireAd?.plan || 
                       ""}
                     </span>
                   </div>

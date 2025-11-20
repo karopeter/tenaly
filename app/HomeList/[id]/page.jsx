@@ -263,10 +263,11 @@ const handleSendOffer = async () => {
      beautyAd,
      constructionAd,
      jobAd,
+     hireAd,
      business
     } = adData;
   const actualBusinessId = carAd?.businessCategory?._id || carAd?.businessCategory;
-  const sellerId = business?.userId || carAd?.userId || vehicleAd?.userId || propertyAd?.userId || petAd?.userId || agricultureAd?.userId || kidsAd?.userId || serviceAd?.userId || equipmentAd?.userId || gadgetAd?.userId || laptopAd?.userId || fashionAd?.userId || householdAd?.userId || beautyAd?.userId || constructionAd?.userId || jobAd?.userId;
+  const sellerId = business?.userId || carAd?.userId || vehicleAd?.userId || propertyAd?.userId || petAd?.userId || agricultureAd?.userId || kidsAd?.userId || serviceAd?.userId || equipmentAd?.userId || gadgetAd?.userId || laptopAd?.userId || fashionAd?.userId || householdAd?.userId || beautyAd?.userId || constructionAd?.userId || jobAd?.userId || hireAd?.userId;
 
 
   let mainAd = null; 
@@ -312,6 +313,9 @@ const handleSendOffer = async () => {
    } else if (jobAd) {
     mainAd = carAd;
     adDetails = jobAd;
+   } else if (hireAd) {
+    mainAd = carAd;
+    adDetails = hireAd;
    }
  
   const businessName = business?.businessName || "Unknown Seller";
@@ -339,9 +343,10 @@ const handleSendOffer = async () => {
   const beautyNeg = beautyAd?.negotiation === "Yes";
   const constructionNeg = constructionAd?.negotiation === "Yes";
   const jobNeg = jobAd?.negotiation === "Yes";
+  const hireNeg = hireAd?.negotiation === "Yes";
 
   
-  return vehicleNeg || propertyNeg || petNeg || agricultureNeg || kidsNeg || serviceNeg || equipmentNeg || gadgetNeg || laptopNeg || fashionNeg || householdNeg || beautyNeg || constructionNeg || jobNeg;
+  return vehicleNeg || propertyNeg || petNeg || agricultureNeg || kidsNeg || serviceNeg || equipmentNeg || gadgetNeg || laptopNeg || fashionNeg || householdNeg || beautyNeg || constructionNeg || jobNeg || hireNeg;
 };
 
 
@@ -361,6 +366,7 @@ const productTitle =
   (constructionAd?.constructionTitle ? `${constructionAd.constructionTitle}` : "") || 
   (vehicleAd ? `${vehicleAd.vehicleType} ${vehicleAd.model}` : "") ||
   (jobAd ? `${jobAd.jobTitle} ${jobAd.jobType}` : "") || 
+  (hireAd ? `${hireAd.hireTitle} ${hireAd.jobType}` : "") ||
   (carAd ? `${carAd.vehicleType} ${carAd.model}` : "");
 
     const mainImageArray = carAd
@@ -377,6 +383,7 @@ const productTitle =
        carAd?.beautyImage?.length > 0 ? carAd.beautyImage :
        carAd?.constructionImage?.length > 0 ? carAd.constructionImage :
        carAd?.jobImage?.length > 0 ? carAd.jobImage : 
+       carAd?.hireImage?.length > 0 ? carAd.hireImage : 
         carAd.vehicleImage || [])
     : [];
 
@@ -384,7 +391,7 @@ const productTitle =
     const smallImages = mainImageArray.slice(1, 5);
 
     // const productId = mainAd?._id;
-    const productId = vehicleAd?._id || propertyAd?._id || petAd?._id || agricultureAd?._id || kidsAd?._id || serviceAd?._id || equipmentAd?._id || gadgetAd?._id || laptopAd?._id || fashionAd?._id || householdAd?._id || beautyAd?._id || constructionAd?.id || jobAd?.id;
+    const productId = vehicleAd?._id || propertyAd?._id || petAd?._id || agricultureAd?._id || kidsAd?._id || serviceAd?._id || equipmentAd?._id || gadgetAd?._id || laptopAd?._id || fashionAd?._id || householdAd?._id || beautyAd?._id || constructionAd?.id || jobAd?.id || hireAd?._id;
 
 // Pick correct product image
 const productImage =
@@ -401,6 +408,7 @@ const productImage =
    beautyAd?.beautyImage?.[0] || 
    constructionAd?.constructionImage?.[0] || 
    jobAd?.jobImage?.[0] || 
+   hireAd?.hireImage?.[0] ||
   vehicleAd?.vehicleImage?.[0] ||
   carAd?.vehicleImage?.[0];
 
@@ -482,6 +490,11 @@ const productImage =
             {jobAd.jobTitle} {jobAd.jobType}
           </span>
         )}
+        {hireAd && (
+         <span className="text-[#000087] text-[13px] md:text-[14px] font-[500] font-inter whitespace-nowrap">
+            {hireAd.hireTitle} {hireAd.jobType}
+          </span>
+        )}
       </div>
 
       <div className="mt-5 container mx-auto flex flex-wrap items-center justify-center gap-4">
@@ -554,6 +567,11 @@ const productImage =
         {jobAd && (
            <span className="text-[#000087] text-[13px] md:text-[14px] font-[500] font-inter whitespace-nowrap">
             {jobAd.jobTitle} 
+          </span>
+        )}
+        {hireAd && (
+        <span className="text-[#000087] text-[13px] md:text-[14px] font-[500] font-inter whitespace-nowrap">
+            {hireAd.hireTitle} 
           </span>
         )}
         </div>
@@ -721,6 +739,9 @@ const productImage =
        )}
         {jobAd?.amount && (
          <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{jobAd.amount?.toLocaleString()}</span>
+       )}
+       {hireAd?.amount && (
+        <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{hireAd.amount?.toLocaleString()}</span>
        )}
      </div>
      {isNegotiable() && (
@@ -920,6 +941,17 @@ const productImage =
             Job Details 
           </Button>
          )}
+
+         {hireAd && (
+          <Button
+           className={`py-2 px-4 min-w-[120px] h-[40px] md:h-[44px] rounded-tl-[4px] whitespace-nowrap rounded-tr-[4px] text-center ${
+            activeTab === "car" ? "bg-[#DFDFF9] text-[#000087]" : "bg-gray-200 text-gray-700"
+           }`}
+           onClick={() => setActiveTab("car")}
+          >
+            Available Hire Details 
+          </Button>
+         )}
    
            {propertyAd && (
             <Button
@@ -1047,6 +1079,15 @@ const productImage =
               Review 
            </Button>
            )}
+           {hireAd && (
+             <Button
+            className={`py-2 px-4 min-w-[120px] h-[40px] md:h-[44px] rounded-tl-[4px] whitespace-nowrap rounded-tr-[4px] text-center ${
+               activeTab === "review" ? "bg-[#DFDFF9] text-[#000087]" : "bg-gray-200 text-gray-700"
+             }`}
+              onClick={() => setActiveTab("review")}>
+              Review 
+           </Button>
+           )}
         </div>
       </div>
 
@@ -1127,6 +1168,12 @@ const productImage =
                </h2>
               )}
 
+              {hireAd && (
+                <h2 className="text-[#525252] text-[14px] md:text-[18px] font-[500] font-inter">
+                  {hireAd.hireTitle}
+                </h2>
+              )}
+
 
               <div className="flex space-x-2">
                  <Img 
@@ -1204,6 +1251,11 @@ const productImage =
                     {jobAd && (
                      <span className="text-[#868686] text-[14px] md:text-[14px] font-[400] font-inter whitespace-nowrap">
                       {jobAd.viewCount} Views 
+                    </span>
+                  )}
+                  {hireAd && (
+                    <span className="text-[#868686] text-[14px] md:text-[14px] font-[400] font-inter whitespace-nowrap">
+                      {hireAd.viewCount} views
                     </span>
                   )}
               </div>
@@ -1320,6 +1372,13 @@ const productImage =
                     text-[#000087] text-[10px] md:text-[12px] 
                     font-inter capitalize font-[500] rounded-[4px]">
                     {jobAd.plan}
+                   </Button>
+                  )}
+                  {hireAd && (
+                     <Button className="bg-[#DFDFF9] py-2 px-3 
+                    text-[#000087] text-[10px] md:text-[12px] 
+                    font-inter capitalize font-[500] rounded-[4px]">
+                    {hireAd.plan}
                    </Button>
                   )}
                </div>
@@ -1530,13 +1589,26 @@ const productImage =
                </div>
               </>
              )}
-
              
               {jobAd && (
               <>
                 <div>
                 <span className="text-[#868686] text-[10px] md:text-[12px] font-[400] font-inter">
                   Posted on {new Date(jobAd.createdAt).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric"
+                  })}
+               </span>
+               </div>
+              </>
+             )}
+
+              {hireAd && (
+              <>
+                <div>
+                <span className="text-[#868686] text-[10px] md:text-[12px] font-[400] font-inter">
+                  Posted on {new Date(hireAd.createdAt).toLocaleDateString("en-US", {
                   year: "numeric",
                   month: "long",
                   day: "numeric"
@@ -3213,6 +3285,186 @@ const productImage =
        )}
      </div>
     )}
+
+
+               {hireAd && ( 
+            <div className="bg-[#FAFAFA] md:w-[650px] h-auto md:rounded-[12px] p-8 mt-4">
+              <div className="flex items-center justify-between">
+                <span className="text-[#525252] md:text-[16px] font-inter font-[500]">
+                 Available Hire 
+               </span> 
+
+               <div className="flex items-center space-x-2">
+                  <span className="text-[#000087] text-[16px] font-[400] font-inter">
+                    Show More
+                  </span>
+                    <button 
+                   onClick={() => setShowDetails(!showDetails)} 
+                   aria-expanded={showDetails}>
+                    <Img
+                      src={showDetails ? "/dropup.svg" : "/dropdown.svg"}
+                      alt="Dropdown Icon"
+                      width={8}
+                      height={4}
+                      className="mr-2 mt-[2px] cursor-pointer"
+                    />
+                  </button>
+                </div>
+              </div>
+              {showDetails && (
+  <div className="mt-4">
+    <div className="flex flex-wrap justify-between gap-y-4 gap-x-[4%] max-w-[650px] mx-auto">
+      {hireAd?.jobType && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+           Preferred Work Type
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {hireAd.jobType}
+          </span>
+        </div>
+      )}
+      
+      {hireAd?.hireGender && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+           Gender
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {hireAd.hireGender}
+          </span>
+        </div>
+      )}
+      
+      {hireAd?.experienceLevel && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] `text-[12px] md:text-[14px] font-medium font-inter">
+           Experience Level
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {hireAd.experienceLevel}
+          </span>
+        </div>
+      )}
+
+      {hireAd?.workMode  && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+           Work Mode 
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {hireAd.workMode}
+          </span>
+        </div>
+      )}
+      
+      {hireAd?.yearOfExperience && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+           Year Of Experience 
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {hireAd.yearsOfExperience}
+          </span>
+        </div>
+      )}
+      
+      {hireAd?.relationshipStatus && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            RelationShip Status 
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {hireAd.relationshipStatus}
+          </span>
+        </div>
+      )}
+      
+     {hireAd?.portfolioLink && (
+  <div className="flex flex-col w-[48%] md:w-[30%]">
+    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+      Portfolio
+    </span>
+    <a 
+      href={hireAd.portfolioLink} 
+      target="_blank" 
+      rel="noopener noreferrer"
+      className="text-[#000087] mt-2 text-[14px] md:text-[16px] font-medium font-inter underline"
+    >
+      View Portfolio
+    </a>
+  </div>
+)}
+
+     {hireAd?.otherLinks && (
+  <div className="flex flex-col w-[48%] md:w-[30%]">
+    <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+      Other Links
+    </span>
+    <a 
+      href={hireAd.otherLinks} 
+      target="_blank" 
+      rel="noopener noreferrer"
+      className="text-[#000087] mt-2 text-[14px] md:text-[16px] font-medium font-inter underline"
+    >
+      View Links
+    </a>
+  </div>
+)}
+
+       {hireAd?.skills && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+          Skills 
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {hireAd.skills}
+          </span>
+        </div>
+      )}
+
+      {hireAd?.resume && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+       <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+      Resume
+      </span>
+    <a 
+      href={hireAd.resume} 
+      target="_blank" 
+      rel="noopener noreferrer"
+      className="text-[#000087] mt-2 text-[14px] md:text-[16px] font-medium font-inter underline"
+    >
+      View Resume
+    </a>
+  </div>
+)}
+
+    {hireAd?.pricingType && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+           Pricing Type 
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {hireAd.pricingType}
+          </span>
+        </div>
+      )}
+       
+      {hireAd?.negotiation && (
+        <div className="flex flex-col w-[48%] md:w-[30%]">
+          <span className="text-[#868686] text-[12px] md:text-[14px] font-medium font-inter">
+            Negotiation
+          </span>
+          <span className="text-[#525252] mt-2 text-[14px] md:text-[16px] font-medium font-inter">
+            {hireAd.negotiation}
+          </span>
+        </div>
+         )}
+        </div>
+        </div>
+       )}
+     </div>
+    )}
        
         
            
@@ -3545,6 +3797,11 @@ const productImage =
                  {jobAd?.description}
                </p>  
               )}
+              {hireAd && (
+                <p className="text-[#868686] mt-2 text-[12px] md:text-[14px] font-[400] font-inter">
+                  {hireAd?.description}
+                </p>
+              )}
            </div>
           </>
         ): (
@@ -3706,6 +3963,9 @@ const productImage =
        )}
        {jobAd && (
         <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{jobAd.salaryRange?.toLocaleString()}</span>
+       )}
+       {hireAd && (
+        <span className="text-[#525252] text-[24px] font-[500] font-inter">₦{hireAd.salaryRange?.toLocaleString()}</span>
        )}
      </div>
      {isNegotiable() && (

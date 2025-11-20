@@ -30,8 +30,8 @@ export default function MarketPlace({ category, search, location }) {
     };
 
     return adsArray.sort((a, b) => {
-      const adA = a.vehicleAd || a.propertyAd || a.petAd || a.agricultureAd || a.kidsAd || a.serviceAd || a.equipmentAd || a.gadgetAd || a.laptopAd || a.fashionAd || a.householdAd || a.beautyAd || a.constructionAd || a.jobAd;
-      const adB = b.vehicleAd || b.propertyAd || b.petAd || b.agricultureAd || b.kidsAd || b.serviceAd || b.equipmentAd || b.gadgetAd || b.laptopAd || b.fashionAd || b.householdAd || b.beautyAd || b.constructionAd || b.jobAd;
+      const adA = a.vehicleAd || a.propertyAd || a.petAd || a.agricultureAd || a.kidsAd || a.serviceAd || a.equipmentAd || a.gadgetAd || a.laptopAd || a.fashionAd || a.householdAd || a.beautyAd || a.constructionAd || a.jobAd || a.hireAd;
+      const adB = b.vehicleAd || b.propertyAd || b.petAd || b.agricultureAd || b.kidsAd || b.serviceAd || b.equipmentAd || b.gadgetAd || b.laptopAd || b.fashionAd || b.householdAd || b.beautyAd || b.constructionAd || b.jobAd || b.hireAd;
 
       if (!adA && !adB) return 0;
       if (!adA) return -1;
@@ -54,7 +54,7 @@ export default function MarketPlace({ category, search, location }) {
   };
 
   const isPremiumAd = (item) => {
-    const ad = item.vehicleAd || item.propertyAd || item.petAd || item.agricultureAd || item.kidsAd || item.serviceAd || item.equipmentAd || item.gadgetAd || item.laptopAd || item.fashionAd || item.householdAd || item.beautyAd || item.constructionAd || item.jobAd;
+    const ad = item.vehicleAd || item.propertyAd || item.petAd || item.agricultureAd || item.kidsAd || item.serviceAd || item.equipmentAd || item.gadgetAd || item.laptopAd || item.fashionAd || item.householdAd || item.beautyAd || item.constructionAd || item.jobAd || item.hireAd;
     if (!ad) return false;
     const premiumPlans = ["premium", "vip", "diamond", "enterprise"];
     return ad.paymentStatus === "success" && premiumPlans.includes(ad.plan);
@@ -238,10 +238,19 @@ const jobNewlyPosted = ads.filter((item) => {
   const now = new Date();
   const diffDays = (now - createdAt) / (1000 * 60 * 60 * 24);
   return diffDays <= 7;
+});
+
+const hireNewlyPosted = ads.filter((item) => {
+  const ad = item.hireAd;
+  if (!ad) return false;
+  const createdAt = new Date(ad.createdAt);
+  const now = new Date();
+  const diffDays = (now - createdAt) / (1000 * 60 * 60 * 24);
+  return diffDays <= 7;
 })
 
   const recommendedAds = ads.filter((item) => {
-    const ad = item.vehicleAd || item.propertyAd || item.petAd || item.agricultureAd || item.serviceAd || item.equipmentAd || item.gadgetAd || item.laptopAd || item.fashionAd || item.householdAd || item.beautyAd || item.constructionAd || item.jobAd;
+    const ad = item.vehicleAd || item.propertyAd || item.petAd || item.agricultureAd || item.serviceAd || item.equipmentAd || item.gadgetAd || item.laptopAd || item.fashionAd || item.householdAd || item.beautyAd || item.constructionAd || item.jobAd || item.hireAd;
     if (!ad) return false;
     return ["free", "basic"].includes(ad.plan);
   });
@@ -289,6 +298,7 @@ const jobNewlyPosted = ads.filter((item) => {
     const isBeautyAd  = !!item.beautyAd;
     const isConstructionAd = !!item.constructionAd;
     const isJobAd = !!item.jobAd;
+    const isHireAd = !!item.hireAd;
 
     let imageUrl = null;
     let title = "Untitled Ad";
@@ -336,6 +346,9 @@ const jobNewlyPosted = ads.filter((item) => {
    let jobTitle = null;
    let jobType = null;
    let jobLocationType = null;
+   let hireTitle = null;
+   let hireType = null;
+   let workMode = null;
 
     if (isCarAd) {
       imageUrl = item.carAd.vehicleImage?.[0];
@@ -506,6 +519,17 @@ const jobNewlyPosted = ads.filter((item) => {
   plan = item.jobAd?.plan;
   jobType = item.jobAd?.jobType;
   jobLocationType = item.jobAd?.jobLocationType;
+} else if (isHireAd) {
+  imageUrl = item.carAd?.hireImage?.[0];
+  title = item.hireAd?.hireTitle || "Hire Title";
+  description = item.hireAd?.description || "No description";
+ price  = item.hireAd?.salaryRange
+     ? `₦${item.hireAd.salaryRange.toLocaleString()}`
+     : "Salary Not Set.";
+  adLocation = item.carAd?.location || "Unknown";
+  plan = item.hireAd?.plan;
+  hireType = item.hireAd?.jobType;
+  workMode = item.hireAd?.workMode;
 }
 
     return (
@@ -783,6 +807,22 @@ const jobNewlyPosted = ads.filter((item) => {
          )}
         </>
        )}
+
+       
+        {isHireAd && (
+        <>
+         {hireType && (
+        <span className="bg-[#E8E8FF] font-inter whitespace-nowrap text-[#525252] px-2 py-1 rounded text-xs">
+          {hireType}
+         </span>
+         )}
+         {workMode && (
+          <span className="bg-[#E8E8FF] font-inter whitespace-nowrap text-[#525252] px-2 py-1 rounded text-xs">
+           {workMode}
+          </span>
+         )}
+        </>
+       )}
      </div>
       </div>
     </li>
@@ -978,6 +1018,19 @@ const jobNewlyPosted = ads.filter((item) => {
         </h2>
         <ul className="grid gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {jobNewlyPosted.map((item, index) => 
+            renderAdCard(item, index)
+          )}
+        </ul>
+        </div>
+      )}
+
+      {hireNewlyPosted.length > 0 && (
+         <div>
+        <h2 className="text-[14px] md:text-[20px] font-inter font-[500] font-normal text-[#2E2E2E] mb-4">
+           Available Hire Newly Posted
+        </h2>
+        <ul className="grid gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {hireNewlyPosted.map((item, index) => 
             renderAdCard(item, index)
           )}
         </ul>

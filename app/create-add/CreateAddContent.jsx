@@ -150,11 +150,19 @@ const routeMap = {
     'Roofing Materials': '/construction-roofing',
     'Flooring & Tiles': '/construction-tiles',
 
-
-
-  // Standalone categories 
-  "Jobs": "/jobs",
-  "Available for hire": "/available-for-hire"
+      'Hire Tech & IT': '/hire',
+     'Lessons & Trainings': '/hire',
+     'Hire Cleaners': '/hire',
+     'Repairs & Maintenance': '/hire',
+     'Painting & Wall Finishing': '/hire',
+     'Plumbing': '/hire',
+     'Eletrical Wiring & Installation': '/hire',
+     'Furniture Assembly': '/hire',
+     'Beauty & Wellness': '/hire',
+     'Creative & Media': '/hire',
+     'Event Planning for Hire': '/hire',
+     'DJ Services': '/hire',
+     'MC / Host Services': '/hire'
 };
 
   // Helper to reorder array 
@@ -453,7 +461,24 @@ export default function CreateCarContent() {
     'Construction  Equipment',
     'Roofing Materials',
     'Flooring & Tiles',
-    ]
+    ];
+
+
+    const hireCategories = [
+     'Hire Tech & IT',
+     'Lessons & Trainings',
+     'Hire Cleaners',
+     'Repairs & Maintenance',
+     'Painting & Wall Finishing',
+     'Plumbing',
+     'Eletrical Wiring & Installation',
+     'Furniture Assembly',
+     'Beauty & Wellness',
+     'Creative & Media',
+     'Event Planning for Hire',
+     'DJ Services',
+     'MC / Host Services'
+    ];
   
 
   
@@ -481,13 +506,13 @@ export default function CreateCarContent() {
     return { baseCategory: "Jobs", categoryValue: value };
   } else if (servicesCategories.includes(value)) {
       return { baseCategory: "Services", categoryValue: value };
-  } else if (value === 'Available for hire') {
+  } else if (hireCategories.includes(value)) {
     return { baseCategory: "Hire", categoryValue: value };
   } else if (beautyCategories.includes(value)) {
     return { baseCategory: "Beauty", categoryValue: value };
   } else if (constructionCategories.includes(value)) {
     return { baseCategory: "Construction", categoryValue: value };
-  }
+  } 
   
   return { baseCategory: "Property", categoryValue: value };
 };
