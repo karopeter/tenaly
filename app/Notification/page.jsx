@@ -79,6 +79,8 @@ export default function NotificationPage() {
               displayName = `${notif.adDetails.condition} - ${notif.adDetails.constructionType}`;
             } else if (notif.adDetails.companyEmployerName && notif.adDetails.location) {
                displayName = `${notif.adDetails.companyEmployerName} - ${notif.adDetails.location}`;
+            } else if (notif.adDetails.jobType && notif.adDetails.experienceLevel) {
+              displayName = `${notif.adDetails.jobType} - ${notif.adDetails.experienceLevel}`;
             }
           }
 
@@ -153,6 +155,7 @@ export default function NotificationPage() {
     const beautyAdId = notification.beautyAd?._id;
     const constructionAdId = notification.constructionAd?._id;
     const jobAdId = notification.jobAd?._id;
+    const hireAdId = notification.hireAd?._id;
 
     if (notification.adType === 'vehicle' && businessId && carAdId && vehicleAdId) {
       return `/ads/Vehicles/${businessId}/${carAdId}/${vehicleAdId}`;
@@ -182,8 +185,10 @@ export default function NotificationPage() {
       return `/ads/Construction/${businessId}/${carAdId}/${constructionAdId}`;
     } else if (notification.adType === 'job' && businessId && carAdId && jobAdId) {
       return `/ads/Job/${businessId}/${carAdId}/${jobAdId}`;
+    } else if (notification.adType === 'hire' && businessId && carAdId && hireAdId) {
+      return `/ads/Hire/${businessId}/${carAdId}/${hireAdId}`;
     }
-    
+     
     // Fallback
     return "/my-ads";
   };
@@ -315,6 +320,7 @@ export default function NotificationPage() {
                           notif.adType === 'beauty' ? 'bg-pink-600' :
                           notif.adType === 'construction' ? 'bg-orange-500' : 
                           notif.adType === 'job' ? 'bg-red-500' :
+                          notif.adType === 'hire' ? 'bg-green-500' :
                           'bg-gray-500'
                         }`} title={`${notif.adType} ad`}></span>
                       )}
@@ -332,7 +338,7 @@ export default function NotificationPage() {
                         {/* Notification message */}
                         <p className="text-[#525252] font-[400] font-inter text-[12px] md:text-[14px] break-words leading-snug">
                           {notif.message}
-                          {notif.adDetails && (notif.vehicleAd || notif.propertyAd || notif.petAd || notif.agricultureAd || notif.kidAd || notif.serviceAd || notif.equipmentAd || notif.gadgetAd || notif.laptopAd || notif.fashionAd || notif.householdAd || notif.beautyAd || notif.constructionAd || notif.jobAd
+                          {notif.adDetails && (notif.vehicleAd || notif.propertyAd || notif.petAd || notif.agricultureAd || notif.kidAd || notif.serviceAd || notif.equipmentAd || notif.gadgetAd || notif.laptopAd || notif.fashionAd || notif.householdAd || notif.beautyAd || notif.constructionAd || notif.jobAd || notif.hireAd
 
                           ) && (
                             <span className="ml-1">
