@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import DropdownPage from "../components/dropdowns/dropdown-page"; // Ensure correct import path
+import DropdownPage from "../components/dropdowns/dropdown-page"; 
 import TrendingSection from "../components/features/trending-section";
 import MarketPlace from "../components/features/market-place";
 import BuyAnything from "../components/features/buy-anything";
@@ -47,12 +47,15 @@ export default function ProductList() {
               <LocationSearch
                onSearchChange={handleSearchChange}
                onLocationSelect={handleLocationSelect}
+               searchValue={searchQuery}
+               locationValue={selectedLocation}
              />
            </div>
          </section>
       {/* THIS IS THE CRUCIAL PART: Pass onCategoryChange prop */}
       <DropdownPage
         onCategoryChange={handleCategoryChange} 
+        selectedCategory={selectedCategory}
       />
       <div className="md:pr-[104px] md:pl-[104px]">
         <TrendingSection />

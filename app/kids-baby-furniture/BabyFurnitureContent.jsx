@@ -74,6 +74,8 @@ export default function BabyFurniturePostContent() {
  const [color, setColor] = useState("");
  const [gender, setGender] = useState("");
  const [ageGroup, setAgeGroup] = useState("");
+ const [plasticGroup, setPlasticGroup] = useState("");
+ const [woodOptions, setWoodOptions] = useState("");
  const [negotiation, setNegotiation] = useState("");
  const [amount, setAmount] = useState(""); 
   const [business, setBusiness] = useState("");
@@ -160,6 +162,8 @@ export default function BabyFurniturePostContent() {
         setColor(kidAd.color || "");
         setGender(kidAd.gender || "");
         setAgeGroup(kidAd.ageGroup || "");
+        setPlasticGroup(kidAd.plasticGroup || "");
+        setWoodOptions(kidAd.woodOptions || "");
         setAmount(kidAd.amount?.toString() || "");
         setNegotiation(kidAd.negotiation || "");
         setDescription(kidAd.description || "");
@@ -284,6 +288,8 @@ export default function BabyFurniturePostContent() {
       color,
       gender,
       ageGroup,
+      plasticGroup,
+      woodOptions,
       amount: parseFloat(amount),
       negotiation,
       businessCategory: business,
@@ -360,7 +366,7 @@ export default function BabyFurniturePostContent() {
       );
     }
   }, [
-    title, condition, color, gender, ageGroup, negotiation, amount, business, description,
+    title, condition, color, gender, plasticGroup, woodOptions, ageGroup, negotiation, amount, business, description,
     token, login, router, editingCarAd, carAdId, buildPayload
   ]);
 
@@ -530,6 +536,26 @@ export default function BabyFurniturePostContent() {
               "Toddler (1-3 years)",
               "Child (4-7 years)",
               "Older Kids (-12 years)"
+             ]}
+           />
+
+           <PostDropdown
+             label="Plastic Options" 
+             value={plasticGroup}
+             onChange={setPlasticGroup}
+             options={[
+              "Yes",
+              "No"
+             ]}
+           />
+
+           <PostDropdown 
+             label="Wood Options"
+             value={woodOptions}
+             onChange={setWoodOptions}
+             options={[
+              "Yes",
+              "No"
              ]}
            />
             <InputField

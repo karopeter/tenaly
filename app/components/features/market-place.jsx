@@ -66,9 +66,19 @@ export default function MarketPlace({ category, search, location }) {
       setError(null);
       try {
         const params = {};
-        if (category) params.category = category;
-        if (search) params.search = search;
-        if (location) params.location = location;
+       // if (category) params.category = category;
+       if (category && category.trim() !== '') {
+         params.category = category;
+       }
+       if (search && search.trim() !== '') {
+        params.search = search;
+       }
+       if (location && location.trim() !== '') {
+        params.location = location;
+       }
+       console.log("Fetching with params:", params);
+        //if (search) params.search = search;
+        //if (location) params.location = location;
 
         const res = await api.get("/products/get-all-marketproducts", {
           params,

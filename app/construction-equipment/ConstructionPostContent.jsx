@@ -74,6 +74,8 @@ export default function ConstructionPostContent() {
  const [condition, setCondition] = useState("");
  const [powerSource, setPowerSource] = useState("");
  const [brand, setBrand] = useState("");
+ const [fuelType, setFuelType] = useState("");
+ const [yearOfManufacture, setYearOfManufacture] = useState("");
  const [usageType, setUsageType] = useState("");
  const [amount, setAmount] = useState(""); 
   const [negotiation, setNegotiation] = useState("");
@@ -159,6 +161,8 @@ export default function ConstructionPostContent() {
        setCondition(equipmentAd.condition || "");
        setPowerSource(equipmentAd.powerSource || "");
        setBrand(equipmentAd.brand || "");
+       setFuelType(equipmentAd.fuelType || "");
+       setYearOfManufacture(equipmentAd.yearOfManufacture || "");
        setUsageType(equipmentAd.usageType || "");
        setAmount(equipmentAd.amount || "");
        setNegotiation(equipmentAd.negotiation || "");
@@ -284,6 +288,8 @@ export default function ConstructionPostContent() {
       powerSource,
       brand,
       usageType,
+      fuelType,
+      yearOfManufacture,
       amount: parseFloat(amount),
       negotiation,
       businessCategory: business,
@@ -360,7 +366,7 @@ export default function ConstructionPostContent() {
       );
     }
   }, [
-    equipmentTitle, condition, powerSource, brand, usageType, amount, negotiation, business, description,
+    equipmentTitle, condition, powerSource, brand, usageType, fuelType,  yearOfManufacture, amount, negotiation, business, description,
     token, login, router, editingCarAd, carAdId, buildPayload
   ]);
 
@@ -532,6 +538,19 @@ export default function ConstructionPostContent() {
                 "Industrial",
                 "Heavy Duty Use"
               ]}
+            />
+
+            <InputField
+              label="Year of Manufacture"
+              value={yearOfManufacture}
+              placeholder="Enter"
+              onChange={(e) => setYearOfManufacture(e.target.value)}
+            />
+            <InputField 
+               label="Fuel Type"
+               placeholder="Enter"
+              value={fuelType}
+              onChange={(e) => setFuelType(e.target.value)}
             />
             <InputField
               label="Amount"
