@@ -1,13 +1,19 @@
 "use client";
+import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useState } from "react";
 import Img from "../Image";
 import LocationModal from "./locationModal";
 
-export default function LocationSearch({ onSearchChange, onLocationSelect }) {
+export default function LocationSearch({ 
+    onSearchChange, 
+    onLocationSelect, 
+    searchValue, 
+    locationValue 
+}) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedLocation, setSelectedLocation] = useState("Choose location");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState(locationValue || "Choose location");
+  const [searchQuery, setSearchQuery] = useState(searchValue || "");
   const [selectedState, setSelectedState] = useState(null);
   
   const handleLGASelect = ({ state, lga }) => {
@@ -23,6 +29,20 @@ export default function LocationSearch({ onSearchChange, onLocationSelect }) {
     setSearchQuery(query);
     onSearchChange(query); 
   };
+
+  useEffect(() => {
+    if (searchValue !== undefined) setSearchQuery(searchValue);
+  }, [searchValue]);
+
+  useEffect(() => {
+    if (locationValue !== undefined) setSelectedLocation(locationValue || "Choose location");
+  }, [locationValue]);
+
+  // Add clear handles 
+  const clearSearch = () => {
+    setSearchQuery("");
+    onSearchChange("");
+  }
 
   return (
     <div className="flex justify-center items-center space-x-1  w-full mt-10">
@@ -53,6 +73,14 @@ export default function LocationSearch({ onSearchChange, onLocationSelect }) {
           value={searchQuery}
           onChange={handleInputChange}
         />
+         {searchQuery && (
+    <button 
+      onClick={clearSearch}
+      className="absolute right-16 top-1/2 -translate-y-1/2"
+    >
+      <FiX size={16} className="text-gray-400" />
+    </button>
+  )}
         <Img
           src="/search.svg"
           alt="Search"
