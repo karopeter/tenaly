@@ -472,7 +472,7 @@ const productImage =
         )}
         {householdAd && (
            <span className="text-[#000087] text-[13px] md:text-[14px] font-[500] font-inter whitespace-nowrap">
-            {householdAd.householdTitle} {beautyAd.beautyType}
+            {householdAd.householdTitle} {householdAd.householdType}
           </span>
         )}
         {beautyAd && (
