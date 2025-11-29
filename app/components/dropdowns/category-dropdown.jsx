@@ -13,6 +13,7 @@ import LaptopDropdown from "./laptopDropdown";
 import FashionDropdown from "./fashionDropdown";
 import ConstructionDropdown from "./ConstructionDropdown";
 import HouseholdDropdown from "./HouseholdDropdown";
+import JobDropdown from "./jobDropdown";
 import BeautyDropdown from "./BeautyDropdown";
 import HireDropdown from "./HireDropdown";
 import Img from "../Image";
@@ -216,7 +217,7 @@ export default function MainCategoryDropdown({ value, onChange }) {
           <div 
             className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
             onClick={() => {
-              handleSubSelect("Jobs");
+              handleTypeSelect("job");
             }}
           >
             <Img 
@@ -317,6 +318,14 @@ export default function MainCategoryDropdown({ value, onChange }) {
           <HireDropdown onSelect={handleSubSelect} />
         </div>
       )}
+
+       {type === "job" && (
+        <div className="absolute top-[52px] left-0 right-0 bg-white 
+         border border-[#CDCDD7] border-t-0 rounded-b-[4px] z-10 max-h-60 overflow-y-auto">
+          <JobDropdown onSelect={handleSubSelect} />
+        </div>
+      )}
+      
       
 
       {type === "pets" && (

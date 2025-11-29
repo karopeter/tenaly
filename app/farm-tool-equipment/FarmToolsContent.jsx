@@ -447,7 +447,7 @@ export default function FarmToolsContent() {
 
       payload.isDraft = true;
 
-      const res = await api.post("/pets/save-draft", payload);
+      const res = await api.post("/agriculture/save-draft", payload);
 
       const savedPlan = res.data.data?.plan || 'free';
 

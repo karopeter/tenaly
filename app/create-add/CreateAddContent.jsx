@@ -162,7 +162,11 @@ const routeMap = {
      'Creative & Media': '/hire',
      'Event Planning for Hire': '/hire',
      'DJ Services': '/hire',
-     'MC / Host Services': '/hire'
+     'MC / Host Services': '/hire',
+
+     'Jobs': '/jobs',
+     'Jobs for Hire': '/jobs',
+     'Jobs for sale': '/jobs',
 };
 
   // Helper to reorder array 
@@ -463,6 +467,12 @@ export default function CreateCarContent() {
     'Flooring & Tiles',
     ];
 
+    const jobCategories = [
+      'Jobs',
+     'Jobs for Hire',
+     'Jobs for sale',
+    ]
+
 
     const hireCategories = [
      'Hire Tech & IT',
@@ -502,7 +512,7 @@ export default function CreateCarContent() {
     return { baseCategory: "Laptops", categoryValue: value };
   } else if (householdCategories.includes(value)) {
     return { baseCategory: "Household", categoryValue: value };
-  } else if (value === 'Jobs') {
+  } else if (jobCategories.includes(value)) {
     return { baseCategory: "Jobs", categoryValue: value };
   } else if (servicesCategories.includes(value)) {
       return { baseCategory: "Services", categoryValue: value };
