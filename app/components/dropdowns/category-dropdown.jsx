@@ -214,7 +214,7 @@ export default function MainCategoryDropdown({ value, onChange }) {
               />
              Beauty & Health
           </div>
-          <div 
+          {/* <div 
             className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
             onClick={() => {
               handleTypeSelect("job");
@@ -228,7 +228,7 @@ export default function MainCategoryDropdown({ value, onChange }) {
              className='w-5 h-5'
             />
             Jobs
-          </div>
+          </div> */}
           <div 
             className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
             onClick={() => {
@@ -270,7 +270,7 @@ export default function MainCategoryDropdown({ value, onChange }) {
               height={24}
               className="w-5 h-5"
             />
-            Services 
+           Jobs
           </div>
            <div
             className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
