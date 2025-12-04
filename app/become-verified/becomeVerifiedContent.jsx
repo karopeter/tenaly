@@ -12,7 +12,7 @@ import FloatingLabelDropdown from "../components/UI/FloatingDropdown";
 
 export default function BecomeVerifiedContent() {
   const router = useRouter();
-  const { token, isLoggedIn } = useAuth();
+  const { token, isLoggedIn, role } = useAuth();
   
   const [view, setView] = useState("main"); // main, personal, business
   const [loading, setLoading] = useState(false);
@@ -219,7 +219,7 @@ export default function BecomeVerifiedContent() {
         </button>
 
         <h3 className="text-[#525252] text-center font-[600] font-inter text-[20px] mb-6">
-          Become a verified seller
+         {role === "buyer" ? "Become verified" : "Become a verified seller"}
         </h3>
 
         {/* Personal Identity Verification */}
@@ -247,8 +247,19 @@ export default function BecomeVerifiedContent() {
           {!verificationData.personal && <ChevronRight className="w-5 h-5 text-[#525252]" />}
         </div>
 
+        {/* Buyer Specific message */}
+        {role === "buyer" && verificationData.personal?.status === "verified" && (
+          <div className="text-center py-8 text-[#16A34A]">
+            <p className="font-inter text-[14px] font-[500]">
+              You are verified! Your personal identity has been confirmed.
+            </p>
+          </div>
+        )}
+
         {/* Verified Businesses */}
-        {verificationData.businesses.map((business, index) => (
+        {role === "seller" && (
+          <>
+           {verificationData.businesses.map((business, index) => (
           <div
             key={index}
             className="flex items-center justify-between p-4 border border-[#E8E8FF] rounded-lg mb-4"
@@ -301,6 +312,8 @@ export default function BecomeVerifiedContent() {
               Create a business first to verify it.
             </p>
           </div>
+        )}
+          </>
         )}
       </div>
     );

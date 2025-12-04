@@ -11,13 +11,21 @@ export default function SettingsContent() {
   const { logout, verificationStatus, role } = useAuth();
   const [showForgotPassword, setShowForgotPassword] = useState(false);
 
- const shouldShowVerification = 
-   role === "seller" && 
-   !(verificationStatus?.personal === "verified" && 
-    verificationStatus?.business === "verified"
-   );
+//  const shouldShowVerification = 
+//    role === "seller" && 
+//    !(verificationStatus?.personal === "verified" && 
+//     verificationStatus?.business === "verified"
+//    );
 
-  const verificationText = "Become a verified seller";
+const shouldShowVerification = 
+   role === "buyer"
+     ? verificationStatus?.personal !== "verified"
+     : !(verificationStatus?.personal === "verified" && verificationStatus?.business === "verified");
+
+  // const verificationText = "Become a verified seller";
+  const verificationText = role === "buyer" 
+   ? "Become verified"
+   : "Become a verified seller";
   const verificationHref = "/become-verified";
 
   return (
