@@ -75,6 +75,7 @@ export default function HouseholdKitchenwarePostContent() {
   const [condition, setCondition] = useState("");
  const [householdBrand, setHouseholdBrand] = useState("");
  const [householdMaterial, setHouseholdMaterial] = useState("");
+ const [householdPowersource, setHouseholdPowersource] = useState("");
   const [householdColor, setHouseholdColor] = useState("");
   
   const [amount, setAmount] = useState("");
@@ -163,7 +164,9 @@ export default function HouseholdKitchenwarePostContent() {
        setHouseholdTitle(householdAd.householdTitle || "");
        setHouseholdType(householdAd.householdType || "");
        setCondition(householdAd.condition || "");
+       setHouseholdBrand(householdAd.householdBrand || "");
        setHouseholdMaterial(householdAd.householdMaterial || "");
+       setHouseholdPowersource(householdAd.householdPowersource || "");
        setHouseholdColor(householdAd.householdColor || "");
       setAmount(householdAd.amount?.toString() || "");
       setNegotiation(householdAd.negotiation || "");
@@ -286,7 +289,8 @@ export default function HouseholdKitchenwarePostContent() {
       householdTitle,
       householdType,
       condition,
-      householdMaterial,
+      householdBrand,
+      householdPowersource,
       householdColor,
       amount: parseFloat(amount),
       negotiation,
@@ -364,7 +368,7 @@ export default function HouseholdKitchenwarePostContent() {
       );
     }
   }, [
-    householdTitle, householdType, condition, householdMaterial, householdColor, amount, negotiation, business, description,
+    householdTitle, householdType, condition, householdBrand, householdPowersource, householdColor, amount, negotiation, business, description,
     token, login, router, editingCarAd, carAdId, buildPayload
   ]);
 
@@ -531,22 +535,32 @@ export default function HouseholdKitchenwarePostContent() {
             />
 
             <PostDropdown 
-             label="Material"
-             value={householdMaterial}
-             onChange={setHouseholdMaterial}
+             label="Brand"
+             value={householdBrand}
+             onChange={setHouseholdBrand}
              options={[
-              "Stainless Steel",
-              "Aluminum",
-              "Cast Iron",
-              "Ceramic",
-              "Glass",
-              "Plastic",
-              "Wood",
-              "Silicone",
-              "Non-stick",
-              "Enamel",
+              "LG",
+              "Hisense",
+              "Haier Thermocool",
+              "Panasonic",
+              "Binatone",
+              "Scanfrost",
+              "Kenwood",
+              "Philips",
+              "Master Chef",
               "Others"
              ]}
+            />
+
+            <PostDropdown 
+              label="Power Source"
+              value={householdPowersource}
+              onChange={setHouseholdPowersource}
+              options={[
+                "Eletric",
+                "Gas",
+                "Manual"
+              ]}
             />
 
              <InputField 

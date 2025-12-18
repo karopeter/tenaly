@@ -7,7 +7,6 @@ import Select from "../components/clientOnlySelect";
 import { useAuth } from "../context/AuthContext";
 import PostDropdown from "../components/dropdowns/car-post-dropdown";
 import InputField from "../components/input";
-import MultiSelectDropdown from "../components/dropdowns/MultiSelectDropdown";
 import api from "@/services/api";
 import { toast } from "react-toastify";
 import PromoteAdModal from "../components/PromoteModal/promote-modal";

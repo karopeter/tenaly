@@ -71,10 +71,13 @@ export default function IndustryPostContent() {
 
   // Form states
  const [equipmentTitle, setEquipmentTitle] = useState("");
+ const [equipmentType, setEquipmentType] = useState("");
  const [condition, setCondition] = useState("");
  const [powerSource, setPowerSource] = useState("");
  const [brand, setBrand] = useState("");
  const [usageType, setUsageType] = useState("");
+ const [fuelType, setFuelType] = useState("");
+ const [yearOfManufacture, setYearOfManufacture] = useState("");
  const [amount, setAmount] = useState(""); 
   const [negotiation, setNegotiation] = useState("");
   const [business, setBusiness] = useState("");
@@ -156,10 +159,13 @@ export default function IndustryPostContent() {
         }
 
        setEquipmentTitle(equipmentAd.equipmentTitle || "");
+       setEquipmentType(equipmentAd.equipmentType || "");
        setCondition(equipmentAd.condition || "");
        setPowerSource(equipmentAd.powerSource || "");
        setBrand(equipmentAd.brand || "");
        setUsageType(equipmentAd.usageType || "");
+       setFuelType(equipmentAd.fuelType || "");
+       setYearOfManufacture(equipmentAd.yearOfManufacture || "");
        setAmount(equipmentAd.amount || "");
        setNegotiation(equipmentAd.negotiation || "");
        setDescription(equipmentAd.description || "");
@@ -280,10 +286,13 @@ export default function IndustryPostContent() {
   const buildPayload = (planType, useWallet = false) => {
     const payload = {
       equipmentTitle,
+      equipmentType,
       condition,
       powerSource,
       brand,
       usageType,
+      fuelType,
+      yearOfManufacture,
       amount: parseFloat(amount),
       negotiation,
       businessCategory: business,
@@ -360,7 +369,7 @@ export default function IndustryPostContent() {
       );
     }
   }, [
-    equipmentTitle, condition, powerSource, brand, usageType, amount, negotiation, business, description,
+    equipmentTitle, equipmentType, condition, powerSource, brand, usageType, fuelType, yearOfManufacture, amount, negotiation, business, description,
     token, login, router, editingCarAd, carAdId, buildPayload
   ]);
 
@@ -488,6 +497,19 @@ export default function IndustryPostContent() {
               onChange={(e) => setEquipmentTitle(e.target.value)}
             />
             <PostDropdown
+              label="Type"
+              value={equipmentType}
+              onChange={setEquipmentType}
+              option={[
+                "Bulldozer",
+                "Compactor",
+                "Excavator",
+                "Grader",
+                "Asphalt paver",
+                "Wheel loader"
+              ]}
+            />
+            <PostDropdown
               label="Condition"
               value={condition}
               onChange={setCondition}
@@ -531,6 +553,22 @@ export default function IndustryPostContent() {
                 "Small Business Use",
                 "Industrial",
                 "Heavy Duty Use"
+              ]}
+            />
+            <InputField
+              label="Manufacture Year"
+              value={yearOfManufacture}
+              placeholder="Enter manufacture year"
+              onChange={(e) => setYearOfManufacture(e.target.value)}
+            />
+            <PostDropdown 
+              label="Fuel Type"
+              value={fuelType}
+              onChange={setFuelType}
+              options={[
+                "Petrol",
+                "Disel",
+                "Eletric"
               ]}
             />
             <InputField

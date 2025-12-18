@@ -95,12 +95,9 @@ export default function SignInForm({ onClose }) {
         password: form.password
       };
       
-      console.log('Sending login request', payload);
 
       const response = await api.post("/auth/login", payload);
       const { token: authToken, user: userProfile } = response.data;
-      
-      console.log("📥 Login Response:", response.data);
       
       login(userProfile, authToken);
       toast.success("Login successful! Welcome back!");
@@ -140,7 +137,7 @@ export default function SignInForm({ onClose }) {
 
       if (isNewGoogleUser || !profileComplete) {
         // First time Google signup → show Complete Profile
-        toast.success("Welcome! Please complete your profile to continue.");
+        toast.success("Welcome! Please complete your profile to continue."); 
         setCompleteProfileData({ user: userProfile, token: authToken });
       } else {
         // Returning user → normal login

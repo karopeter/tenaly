@@ -71,6 +71,7 @@ export default function KidsBabyGearContent() {
 
   // Form states
  const [title, setTitle] = useState("");
+ const [kidsType, setKidsType] = useState("");
  const [condition, setCondition] = useState("");
  const [color, setColor] = useState("");
  const [gender, setGender] = useState("");
@@ -157,6 +158,7 @@ export default function KidsBabyGearContent() {
 
         // ✅ Pre-fill form fields from PetsAd
         setTitle(kidAd.title || "");
+        setKidsType(kidAd.kidsType || "");
         setCondition(kidAd.condition || "");
         setColor(kidAd.color || "");
         setGender(kidAd.gender || "");
@@ -281,6 +283,7 @@ export default function KidsBabyGearContent() {
   const buildPayload = (planType, useWallet = false) => {
     const payload = {
       title,
+      kidsType,
       condition,
       color,
       gender,
@@ -361,7 +364,7 @@ export default function KidsBabyGearContent() {
       );
     }
   }, [
-    title, condition, color, gender, ageGroup, negotiation, amount, business, description,
+    title, kidsType, condition, color, gender, ageGroup, negotiation, amount, business, description,
     token, login, router, editingCarAd, carAdId, buildPayload
   ]);
 
@@ -487,6 +490,22 @@ export default function KidsBabyGearContent() {
               placeholder="Enter title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
+            />
+            <PostDropdown
+              label="Type"
+              value={kidsType}
+              onChange={setKidsType}
+              options={[
+                "Stroller",
+                "Car Seat",
+                "Baby Carrier",
+                "Baby Walker",
+                "Baby Bouncer",
+                "High Chair",
+                "Baby Swing",
+                "Potty Training Seat",
+                "Others"
+              ]}
             />
             <PostDropdown
               label="Condition"

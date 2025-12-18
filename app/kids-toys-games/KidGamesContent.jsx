@@ -71,6 +71,7 @@ export default function KidsToyAndGamesPostContent() {
 
   // Form states
  const [title, setTitle] = useState("");
+ const [kidsType, setKidsType] = useState("");
  const [condition, setCondition] = useState("");
  const [color, setColor] = useState("");
  const [gender, setGender] = useState("");
@@ -157,6 +158,7 @@ export default function KidsToyAndGamesPostContent() {
 
         // ✅ Pre-fill form fields from PetsAd
         setTitle(kidAd.title || "");
+        setKidsType(kidAd.kidsAd || "");
         setCondition(kidAd.condition || "");
         setColor(kidAd.color || "");
         setGender(kidAd.gender || "");
@@ -281,6 +283,7 @@ export default function KidsToyAndGamesPostContent() {
   const buildPayload = (planType, useWallet = false) => {
     const payload = {
       title,
+      kidsType,
       condition,
       color,
       gender,
@@ -361,7 +364,7 @@ export default function KidsToyAndGamesPostContent() {
       );
     }
   }, [
-    title, condition, color, gender, ageGroup, negotiation, amount, business, description,
+    title, kidsType, condition, color, gender, ageGroup, negotiation, amount, business, description,
     token, login, router, editingCarAd, carAdId, buildPayload
   ]);
 
@@ -487,6 +490,19 @@ export default function KidsToyAndGamesPostContent() {
               placeholder="Enter title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
+            />
+            <PostDropdown
+              label="Type"
+              vaue={kidsType}
+              onChange={setKidsType}
+              options={[
+                "Educational Toys",
+                "Dolls & Plush Toys",
+                "Outdoor Toys",
+                "Board Games",
+                "Puzzles",
+                "Others"
+              ]}
             />
             <PostDropdown
               label="Condition"
