@@ -70,6 +70,7 @@ export default function BabyFurniturePostContent() {
 
   // Form states
  const [title, setTitle] = useState("");
+ const [kidsType, setKidsType] = useState("");
  const [condition, setCondition] = useState("");
  const [color, setColor] = useState("");
  const [gender, setGender] = useState("");
@@ -158,6 +159,7 @@ export default function BabyFurniturePostContent() {
 
         // ✅ Pre-fill form fields from PetsAd
         setTitle(kidAd.title || "");
+        setKidsType(kidAd.kidsType || "");
         setCondition(kidAd.condition || "");
         setColor(kidAd.color || "");
         setGender(kidAd.gender || "");
@@ -284,6 +286,7 @@ export default function BabyFurniturePostContent() {
   const buildPayload = (planType, useWallet = false) => {
     const payload = {
       title,
+      kidsType,
       condition,
       color,
       gender,
@@ -366,7 +369,7 @@ export default function BabyFurniturePostContent() {
       );
     }
   }, [
-    title, condition, color, gender, plasticGroup, woodOptions, ageGroup, negotiation, amount, business, description,
+    title, kidsType, condition, color, gender, plasticGroup, woodOptions, ageGroup, negotiation, amount, business, description,
     token, login, router, editingCarAd, carAdId, buildPayload
   ]);
 
@@ -492,6 +495,22 @@ export default function BabyFurniturePostContent() {
               placeholder="Enter title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
+            />
+            <PostDropdown
+              label="Type"
+              value={kidsType}
+              onChange={setKidsType}
+              options={[
+                "Baby Crib",
+                "Cot",
+                "Baby Bed",
+                "Wardrobe",
+                "Dresser",
+                "Changing Table",
+                "Shelf / Storage Unit",
+                "Kids Study Table",
+                "Others"
+              ]}
             />
             <PostDropdown
               label="Condition"

@@ -71,6 +71,7 @@ export default function ConstructionPostContent() {
 
   // Form states
  const [equipmentTitle, setEquipmentTitle] = useState("");
+ const [equipmentType, setEquipmentType] = useState("");
  const [condition, setCondition] = useState("");
  const [powerSource, setPowerSource] = useState("");
  const [brand, setBrand] = useState("");
@@ -158,6 +159,7 @@ export default function ConstructionPostContent() {
         }
 
        setEquipmentTitle(equipmentAd.equipmentTitle || "");
+       setEquipmentType(equipmentAd.equipmentType || "");
        setCondition(equipmentAd.condition || "");
        setPowerSource(equipmentAd.powerSource || "");
        setBrand(equipmentAd.brand || "");
@@ -284,6 +286,7 @@ export default function ConstructionPostContent() {
   const buildPayload = (planType, useWallet = false) => {
     const payload = {
       equipmentTitle,
+      equipmentType,
       condition,
       powerSource,
       brand,
@@ -366,7 +369,7 @@ export default function ConstructionPostContent() {
       );
     }
   }, [
-    equipmentTitle, condition, powerSource, brand, usageType, fuelType,  yearOfManufacture, amount, negotiation, business, description,
+    equipmentTitle, equipmentType, condition, powerSource, brand, usageType, fuelType,  yearOfManufacture, amount, negotiation, business, description,
     token, login, router, editingCarAd, carAdId, buildPayload
   ]);
 
@@ -493,6 +496,19 @@ export default function ConstructionPostContent() {
               value={equipmentTitle}
               onChange={(e) => setEquipmentTitle(e.target.value)}
             />
+            <PostDropdown 
+             label="Type"
+             value={equipmentType}
+             onChange={setEquipmentType}
+             options={[
+              "Bulldozer",
+              "Compactor",
+              "Excavator",
+              "Grader",
+              "Asphalt paver",
+              "Wheel loader"
+             ]}
+            />
             <PostDropdown
               label="Condition"
               value={condition}
@@ -546,11 +562,15 @@ export default function ConstructionPostContent() {
               placeholder="Enter"
               onChange={(e) => setYearOfManufacture(e.target.value)}
             />
-            <InputField 
-               label="Fuel Type"
-               placeholder="Enter"
+            <PostDropdown
+              label="Fuel Type"
               value={fuelType}
-              onChange={(e) => setFuelType(e.target.value)}
+              onChange={setFuelType}
+              options={[
+                "Petrol",
+                "Diesel",
+                "Eletric"
+              ]}
             />
             <InputField
               label="Amount"

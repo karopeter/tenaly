@@ -71,10 +71,13 @@ export default function CleaningLaundryPostContent() {
 
   // Form states
  const [equipmentTitle, setEquipmentTitle] = useState("");
+ const [equipmentType, setEquipmentType] = useState("");
  const [condition, setCondition] = useState("");
  const [powerSource, setPowerSource] = useState("");
  const [brand, setBrand] = useState("");
  const [usageType, setUsageType] = useState("");
+ const [yearOfManufacture, setYearOfManufacture] = useState("");
+ const [fuelType, setFuelType] = useState("");
  const [amount, setAmount] = useState(""); 
   const [negotiation, setNegotiation] = useState("");
   const [business, setBusiness] = useState("");
@@ -156,10 +159,13 @@ export default function CleaningLaundryPostContent() {
         }
 
        setEquipmentTitle(equipmentAd.equipmentTitle || "");
+       setEquipmentType(equipmentAd.equipmentType || "");
        setCondition(equipmentAd.condition || "");
        setPowerSource(equipmentAd.powerSource || "");
        setBrand(equipmentAd.brand || "");
        setUsageType(equipmentAd.usageType || "");
+       setYearOfManufacture(equipmentAd.yearOfManufacture || "");
+       setFuelType(equipmentAd.fuelType || "");
        setAmount(equipmentAd.amount || "");
        setNegotiation(equipmentAd.negotiation || "");
        setDescription(equipmentAd.description || "");
@@ -280,10 +286,13 @@ export default function CleaningLaundryPostContent() {
   const buildPayload = (planType, useWallet = false) => {
     const payload = {
       equipmentTitle,
+      equipmentType,
       condition,
       powerSource,
       brand,
       usageType,
+      yearOfManufacture,
+      fuelType,
       amount: parseFloat(amount),
       negotiation,
       businessCategory: business,
@@ -360,7 +369,7 @@ export default function CleaningLaundryPostContent() {
       );
     }
   }, [
-    equipmentTitle, condition, powerSource, brand, usageType, amount, negotiation, business, description,
+    equipmentTitle, equipmentType, condition, powerSource, brand, usageType, yearOfManufacture, fuelType, amount, negotiation, business, description,
     token, login, router, editingCarAd, carAdId, buildPayload
   ]);
 
@@ -487,6 +496,19 @@ export default function CleaningLaundryPostContent() {
               value={equipmentTitle}
               onChange={(e) => setEquipmentTitle(e.target.value)}
             />
+            <PostDropdown 
+              label="Type"
+              value={equipmentType}
+              onChange={setEquipmentType}
+              options={[
+                "Bulldozer",
+                "Compactor",
+                "Excavator",
+                "Grader",
+                "Asphalt paver",
+                "Wheel loader"
+              ]}
+            />
             <PostDropdown
               label="Condition"
               value={condition}
@@ -531,6 +553,22 @@ export default function CleaningLaundryPostContent() {
                 "Small Business Use",
                 "Industrial",
                 "Heavy Duty Use"
+              ]}
+            />
+            <InputField 
+              label="Year of Manufacture"
+              value={yearOfManufacture}
+              placeholder="Enter year of manufacture"
+              onChange={(e) => setYearOfManufacture(e.target.value)}
+            />
+            <PostDropdown 
+              label="Fuel Type"
+              value={fuelType}
+              onChange={setFuelType}
+              options={[
+                "Fuel",
+                "Diesel",
+                "Eletric"
               ]}
             />
             <InputField
