@@ -6,12 +6,12 @@ import CommercialSaleContent from "../commercial-sale/CommercialSaleContent";
 import ApartmentSaleContent from "../apartment-sale/ApartmentSaleContent";
 import ApartmentRentContent from "../apartment-rent/ApartmentRentContent";
 import Wallet from "../Wallet/page";
-import Analytics from "../Analytics/page";
 import FrequentlyAskedQuestions from "../Faq/page";
 import Bookmarked from "../Bookmarked/page";
 import Settings from "../Settings/page";    
 import { ArrowLeft } from "lucide-react";
 import AnalyticsContent from "../Analytics/AnalyticsContent";
+import CustomerReviewsContent from "./CustomerReviewsContent";
 
 
 const sectionComponents = {
@@ -24,7 +24,7 @@ const sectionComponents = {
   "Apartment Rent": <ApartmentRentContent />,
   "Analytics":  <AnalyticsContent />,
   "Bookmarked": <Bookmarked />,
-  "Customer Reviews": <AnalyticsContent />,
+  "Customer Reviews": <CustomerReviewsContent />,
   "Pro Sales": <div><h2 className="text-xl font-bold mb-2">Pro Sales</h2><p>Content for Pro Sales not yet implemented.</p></div>,
   "Customer Support": <div><h2 className="text-xl font-bold mb-2">Customer Support</h2><p>Content for Customer Support not yet implemented.</p></div>,
   "Wallet": <Wallet />,
