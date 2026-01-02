@@ -749,10 +749,15 @@ const productImage =
     {showInput ? (
       <div className="relative w-full">
         <input
-          type="number"
+          type="text"
+          inputMode="numeric"
+          pattern="[0-9]"
           placeholder="Enter your offer"
           value={offerAmount}
-          onChange={(e) => setOfferAmount(e.target.value)}
+          onChange={(e) => {
+            const value = e.target.value.replace(/[^0-9]/g, "");
+            setOfferAmount(value);
+          }}
           className="w-full h-[44px] rounded-[8px] px-4 pr-12 border-[1px] focus:outline-none border-[#868686] text-[16px] font-inter"
         />
         <button
@@ -3973,10 +3978,15 @@ const productImage =
     {showInput ? (
       <div className="relative w-full">
         <input
-          type="number"
+          type="text"
+          inputMode="numeric"
+          pattern="[0-9]"
           placeholder="Enter your offer"
           value={offerAmount}
-          onChange={(e) => setOfferAmount(e.target.value)}
+          onChange={(e) => {
+            const value = e.target.value.replace(/[^0-9]/g, "");
+            setOfferAmount(value)
+          }}
           className="w-full h-[44px] rounded-[8px] px-4 pr-12 border-[1px] focus:outline-none border-[#868686] text-[16px] font-inter"
         />
         <button
