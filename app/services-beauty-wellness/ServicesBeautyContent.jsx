@@ -140,20 +140,17 @@ export default function ServicesBeautyPostContent() {
         const servicesResponse = await api.get(`/services/draft/${idToUse}`);
         
         if (!servicesResponse.data || !servicesResponse.data.serviceAd) {
-          console.log("⚠️ No ServicesAd draft found");
           setIsLoadingDraft(false);
           return;
         }
 
         const serviceAd = servicesResponse.data.serviceAd;
-        console.log("✅ Loaded KidsAd draft:", serviceAd);
 
         // ✅ Also fetch CarAd for images and location
         let carAd = null;
         try {
           const carResponse = await api.get(`/carAdd/get-car-byId/${idToUse}`);
           carAd = carResponse.data.ad;
-          console.log("✅ Loaded CarAd:", carAd);
         } catch (carError) {
           console.warn("⚠️ Could not load CarAd:", carError);
         }
@@ -454,7 +451,7 @@ export default function ServicesBeautyPostContent() {
 
       const savedPlan = res.data.data?.plan || 'free';
 
-      toast.success(`Service ad saved as draft with ${savedPlan} plan!`);
+      toast.success(`Job ad saved as draft with ${savedPlan} plan!`);
 
       localStorage.removeItem("editingCarAdId");
       localStorage.removeItem("editingCarAdData");
