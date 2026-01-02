@@ -454,7 +454,7 @@ export default function ServicesMcPostContent() {
 
       const savedPlan = res.data.data?.plan || 'free';
 
-      toast.success(`Service ad saved as draft with ${savedPlan} plan!`);
+      toast.success(`Job ad saved as draft with ${savedPlan} plan!`);
 
       localStorage.removeItem("editingCarAdId");
       localStorage.removeItem("editingCarAdData");
