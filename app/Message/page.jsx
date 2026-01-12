@@ -110,7 +110,7 @@ function MessageContent() {
 
 
         // Fetch other user detasils 
-        const userRes = await api.get(`/profile/users/${otherUserId}`, {
+        const userRes = await api.get(`/profile/user/${otherUserId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -132,7 +132,7 @@ function MessageContent() {
       // if not found in current contaccts, fetch seller by id from backend 
       if (!sellerUser) {
         try {
-          const res = await api.get(`/profile/users/${initialSellerId}`, {
+          const res = await api.get(`/profile/user/${initialSellerId}`, {
             headers: { Authorization: `Bearer ${token}`}
           });
           const u = res.data.user;
