@@ -6,6 +6,7 @@ import Button from "../components/Button";
 import api from "@/services/api";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useAuth } from "../context/AuthContext";
 import { toast } from "react-toastify";
 import { Plus, Edit, Eye, Trash2, Check, AlertCircle } from "lucide-react";
 
@@ -28,6 +29,8 @@ export default function AddCarPostContent() {
   const [constructionAds, setConstructionAds] = useState([]);
   const [jobAds, setJobAds] = useState([]);
   const [hireAds, setHireAds] = useState([]);
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const { verificationStatus, role } = useAuth();
   const [activeTab, setActiveTab] = useState('vehicles'); 
   const [showMenu, setShowMenu] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -207,6 +210,15 @@ useEffect(() => {
   // Helper to check if ad is incomplete
   const isIncompleteAd = (carAd, detailedAd) => {
     return carAd && !detailedAd;
+  };
+
+  const handlePostAdClick = () => {
+    // Check if user is seller and not verified 
+    if (role === "seller" & !verificationStatus.isVerified) {
+      setShowVerificationModal(true);
+    } else {
+      router.push("/create-add");
+    }
   };
   
 
@@ -1854,7 +1866,7 @@ useEffect(() => {
               My Ads
             </h3>
             <Button
-              onClick={() => router.push("/create-add")}
+              onClick={handlePostAdClick}
               className="w-[115px] md:w-[197px] flex items-center justify-center whitespace-nowrap h-[44px] bg-gradient-to-r from-[#00A8DF] to-[#1031AA] rounded-[8px] text-white"
             >
               Post an Ad
@@ -6314,6 +6326,34 @@ useEffect(() => {
      )}
    </div>
  )}
+
+  {/* Verification Modal */}
+  {showVerificationModal && 
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-[12px] p-6 max-w-md mx-4">
+        <h3 className="text-[#525252] font-[600] font-inter text-[18px] mb-3">
+          Complete your verification
+        </h3>
+        <p className="text-[#868686] font-[400] font-inter text-[14px] mb-6">
+           You need to complete your seller verification before you can post listings on Tenaly. This helps build trust with buyers and increases your chances of making successful sales.
+        </p>
+        <div className='flex gap-3 justify-end'>
+          <Button
+           onClick={() => setShowVerificationModal(false)}
+           className="px-6 py-2 bg-gray-200 text-[#525252] rounded-[8px] font-inter font-[500]"
+          >
+             Cancel
+          </Button>
+          <Button
+          onClick={() => router.push("/Settings")}
+          className="px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] font-inter font-[500]"
+        >
+          Proceed to Verification
+        </Button>
+        </div>
+      </div>
+    </div>
+  }
   </div>
   );
 }

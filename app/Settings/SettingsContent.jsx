@@ -51,6 +51,17 @@ const shouldShowVerification =
         </Link>
         )}
 
+        {/* Tier Verification */}
+        <Link 
+         href="/tier-verification"
+         className="flex items-center gap-3 w-full transition mb-2 pb-2 border-b- border-[#EBEBEC]"
+        >
+        <Img src="/tier-icon.svg" alt="Tier icon" width={24} height={24} />
+        <span className="text-[#525252] font-[400] text-[14px] font-inter">
+          Tier Verification 
+        </span>
+        </Link>
+
         {/* Change Password */ }
         <button 
         onClick={() => setShowForgotPassword(true)}
