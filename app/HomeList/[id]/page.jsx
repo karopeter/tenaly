@@ -3861,42 +3861,49 @@ const productImage =
     <div className="flex items-start gap-2 mt-2">
       <span className="w-[5px] h-[5px] md:w-[6px] md:h-[6px] bg-[#868686] rounded-full mt-[6px]"></span>
       <span className="text-[#868686] text-[12px] font-[400] font-inter">
-        Always meet the seller in a public, well-lit place area. Avoid secluded
-        places.
+        Meet in a public, well-lit place and aviod secluded locations when exchanging items or service.
       </span>
     </div>
     <div className="flex items-start gap-2 mt-2">
       <span className="w-[6px] h-[6px] bg-[#868686] rounded-full mt-[6px]"></span>
       <span className="text-[#868686] text-[12px] font-[400] font-inter">
-        Inspect the vehicle thoroughly (the exterior, interior, engine, tires,
-        and others) for any signs of damage.
+        Inspect the item or verify the service carefully before making any payment. 
       </span>
     </div>
     <div className="flex items-start gap-2 mt-2">
       <span className="w-[6px] h-[6px] bg-[#868686] rounded-full mt-[6px]"></span>
       <span className="text-[#868686] text-[12px] font-[400] font-inter">
-        Ensure the seller provides valid registration papers, proof of
-        ownership, and a roadworthiness certificate.
+        Do not send money upfront or share your bank/card details.
       </span>
     </div>
     <div className="flex items-start gap-2 mt-2">
       <span className="w-[6px] h-[6px] bg-[#868686] rounded-full mt-[6px]"></span>
       <span className="text-[#868686] text-[12px] font-[400] font-inter">
-        Do not make full or partial payments before seeing the car and
-        confirming its legitimacy.
+       For high-value items (vehicles, property, electronics, pets, etc.), always request valid documents or proof of ownership.
       </span>
     </div>
     <div className="flex items-start gap-2 mt-2">
       <span className="w-[6px] h-[6px] bg-[#868686] rounded-full mt-[6px]"></span>
       <span className="text-[#868686] text-[12px] font-[400] font-inter">
-        Bring a trusted mechanic to inspect the car for hidden issues before
-        making a decision if you are unsure.
+        For Services, ask for portfolio or previous work to confirm credibility. 
       </span>
     </div>
     <div className="flex items-start gap-2 mt-2">
       <span className="w-[6px] h-[6px] bg-[#868686] rounded-full mt-[6px]"></span>
       <span className="text-[#868686] text-[12px] font-[400] font-inter">
-        If you think this listing is a fraud, kindly report it.
+        keep communication within the platform until you are confident the user is legitimate.
+      </span>
+    </div>
+     <div className="flex items-start gap-2 mt-2">
+      <span className="w-[6px] h-[6px] bg-[#868686] rounded-full mt-[6px]"></span>
+      <span className="text-[#868686] text-[12px] font-[400] font-inter">
+        If an offer feels suspecious, rushed, or "too good to be true," pause and double-check before proceeding.
+      </span>
+    </div>
+    <div className="flex items-start gap-2 mt-2">
+      <span className="w-[6px] h-[6px] bg-[#868686] rounded-full mt-[6px]"></span>
+      <span className="text-[#868686] text-[12px] font-[400] font-inter">
+        Report any listing or user that appears fraudulent or violates our guidelines. Your report helps protect the community.
       </span>
     </div>
     <div className="mt-4">
@@ -4057,44 +4064,51 @@ const productImage =
                  Safety Tips
               </span>
               <div className="flex items-start gap-2 mt-2 ml-4">
-                <span className="w-[10px] h-[6px] bg-[#868686] rounded-full mt-[6px]"></span>
+                <span className="w-[15px] h-[6px] bg-[#868686] rounded-full mt-[6px]"></span>
                 <span className="text-[#868686] md:text-[14px] font-[400] font-inter">
-                  Always meet the seller in a public, well-lit place area.
-                  Avoid secluded places.
-                </span>
-              </div>
-              <div className="flex items-start gap-2 mt-2 ml-4">
-                <span className="w-[14px] h-[6px] bg-[#868686] rounded-full mt-[6px]"></span>
-                <span className="text-[#868686] md:text-[14px] font-[400] font-inter">
-                  Inspect the vehicle&#39;s thoroughly (the exterior, interior, engine, tires
-                  and others) for any signs of damage.
-                </span>
-              </div>
-              <div className="flex items-start gap-2 mt-2 ml-4">
-                <span className="w-[14px] h-[6px] bg-[#868686] rounded-full mt-[6px]"></span>
-                <span className="text-[#868686] md:text-[14px] font-[400] font-inter">
-                  Ensure the seller provides valid registration papers, proof
-                  of ownership, and a roadworthiness certificate.
+                  Meet in a public, well-lit place and aviod secluded locations when exchanging items or services.
                 </span>
               </div>
               <div className="flex items-start gap-2 mt-2 ml-4">
                 <span className="w-[12px] h-[6px] bg-[#868686] rounded-full mt-[6px]"></span>
                 <span className="text-[#868686] md:text-[14px] font-[400] font-inter">
-                  Do not make full or partial payments before seeing the 
-                  car and confirming its legitimacy.
+                  Inspect the items or verify the service carefully before making any payment.
+                </span>
+              </div>
+              <div className="flex items-start gap-2 mt-2 ml-4">
+                <span className="w-[10px] h-[6px] bg-[#868686] rounded-full mt-[6px]"></span>
+                <span className="text-[#868686] md:text-[14px] font-[400] font-inter">
+                 Do not send money upfront or share your bank/card details.
                 </span>
               </div>
               <div className="flex items-start gap-2 mt-2 ml-4">
                 <span className="w-[18px] h-[6px] bg-[#868686] rounded-full mt-[6px]"></span>
                 <span className="text-[#868686] md:text-[14px] font-[400] font-inter">
-                  Bring a Mechanic if Unsure - Have a trusted mechanic
-                  inspect the car for hidden issues before making a decison if you are unsure 
+                  For high-value items (vehicles, property, electronics, pets, etc), always request valid documents or proof of ownership.
                 </span>
               </div>
               <div className="flex items-start gap-2 mt-2 ml-4">
-                <span className="w-[6px] h-[6px] bg-[#868686] rounded-full mt-[6px]"></span>
+                <span className="w-[10px] h-[6px] bg-[#868686] rounded-full mt-[6px]"></span>
                 <span className="text-[#868686] md:text-[14px] font-[400] font-inter">
-                 If you think this listing is a fraud, kindly report it
+                 For services, ask for portfolio or previous work to confirm credibility.
+                </span>
+              </div>
+              <div className="flex items-start gap-2 mt-2 ml-4">
+                <span className="w-[12px] h-[6px] bg-[#868686] rounded-full mt-[6px]"></span>
+                <span className="text-[#868686] md:text-[14px] font-[400] font-inter">
+                 Keep communication within the platform until you are confident the user is legitimate.
+                </span>
+              </div>
+               <div className="flex items-start gap-2 mt-2 ml-4">
+                <span className="w-[15px] h-[6px] bg-[#868686] rounded-full mt-[6px]"></span>
+                <span className="text-[#868686] md:text-[14px] font-[400] font-inter">
+                 If an offer feels suspicious, rushed, or "too good to be true," pause and double-check before proceeding.
+                </span>
+              </div>
+              <div className="flex items-start gap-2 mt-2 ml-4">
+                <span className="w-[15px] h-[6px] bg-[#868686] rounded-full mt-[6px]"></span>
+                <span className="text-[#868686] md:text-[14px] font-[400] font-inter">
+                Report any listing or user that appears fradulent or violates our guidelines. Your report helps protect the community.
                 </span>
               </div>
               <div className="mt-4">

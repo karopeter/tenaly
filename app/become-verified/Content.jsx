@@ -8,8 +8,7 @@ import BecomeVerifiedContent from "./becomeVerifiedContent";
 import Wallet from "../Wallet/page";
 import FrequentlyAskedQuestions from "../Faq/page";
 import Bookmarked from "../Bookmarked/page";
-import Settings from "../Settings/page";    
-import { ArrowLeft } from "lucide-react";
+import Settings from "../Settings/page"; 
 
 
 const sectionComponents = {
