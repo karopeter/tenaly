@@ -107,7 +107,11 @@ const checkVerificationStatus = async (authToken = token) => {
 
      // Normalize role 
      updatedProfile.role = normalizeRole(updatedProfile.role);
-     setProfile(updatedProfile);
+     setProfile({
+        ...updatedProfile,
+        tierLevel: updatedProfile.tierLevel || 0,
+        tierStatus: updatedProfile.tierStatus || {}
+     });
      localStorage.setItem("profile", JSON.stringify(updatedProfile));
 
      if (updatedProfile.isVerified !== undefined) {

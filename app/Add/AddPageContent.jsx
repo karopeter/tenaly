@@ -30,7 +30,7 @@ export default function AddCarPostContent() {
   const [jobAds, setJobAds] = useState([]);
   const [hireAds, setHireAds] = useState([]);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
-  const { verificationStatus, role } = useAuth();
+  const { verificationStatus, role, profile  } = useAuth();
   const [activeTab, setActiveTab] = useState('vehicles'); 
   const [showMenu, setShowMenu] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -213,8 +213,7 @@ useEffect(() => {
   };
 
   const handlePostAdClick = () => {
-    // Check if user is seller and not verified 
-    if (role === "seller" & !verificationStatus.isVerified) {
+    if (role === "seller" && (!profile?.tierLevel || profile.tierLevel < 1)) {
       setShowVerificationModal(true);
     } else {
       router.push("/create-add");
@@ -6345,7 +6344,7 @@ useEffect(() => {
              Cancel
           </Button>
           <Button
-          onClick={() => router.push("/Settings")}
+          onClick={() => router.push("/Settings?tab=tier-verification")} // Navigate to tier tab
           className="px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] font-inter font-[500]"
         >
           Proceed to Verification
