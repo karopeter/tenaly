@@ -25,7 +25,7 @@ const shouldShowVerification =
   // const verificationText = "Become a verified seller";
   const verificationText = role === "buyer" 
    ? "Become verified"
-   : "Become a verified seller";
+   : "Become a verified";
   const verificationHref = "/become-verified";
 
   return (
