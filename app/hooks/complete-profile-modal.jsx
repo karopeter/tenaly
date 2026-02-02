@@ -9,7 +9,7 @@ import { useAuth } from "../context/AuthContext";
 export default function CompleteProfileModal({ user, token, onClose }) {
   const router = useRouter();
   const { login } = useAuth();
-  const [role, setRole] = useState("customer");
+  const [role, setRole] = useState("buyer");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formErrors, setFormErrors] = useState({});
@@ -75,7 +75,7 @@ export default function CompleteProfileModal({ user, token, onClose }) {
             onChange={(e) => setRole(e.target.value)}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:outline-none focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
           > 
-            <option value="customer">I am buying</option>
+            <option value="buyer">I am buying</option>
             <option value="seller">I am selling</option>
           </select>
           {formErrors.role && <p className="text-red-500 text-sm mt-1">{formErrors.role}</p>}
