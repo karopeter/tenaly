@@ -39,7 +39,7 @@ const shouldShowVerification =
       {/* Settings card */}
       <div className="flex flex-col justify-start p-4 items-start bg-[#FFFFFF] w-full rounded-[8px] border border-[#EBEBEC]">
         {/* Become verified */}
-        {shouldShowVerification && (
+        {/* {shouldShowVerification && (
           <Link
           href={verificationHref}
           className="flex items-center gap-3 w-full transition mb-2 pb-2 border-b border-[#EBEBEC]"
@@ -49,7 +49,7 @@ const shouldShowVerification =
             {verificationText}
           </span>
         </Link>
-        )}
+        )} */}
 
         {/* Tier Verification */}
         <Link 
