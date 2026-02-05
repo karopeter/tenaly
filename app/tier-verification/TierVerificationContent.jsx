@@ -14,10 +14,25 @@ export default function TierVerificationContent() {
     const router = useRouter();
     const [activeTier, setActiveTier] = useState(1); // Current tier user is on 
     const [showUpgradeForm, setShowUpgradeForm] = useState(false);
+    const [businesses, setBusinesses] = useState([]);
     const [upgradeToTier, setUpgradingToTier] = useState(null);
     const [tierStatus, setTierStatus] = useState(null);
     const [loading, setLoading] = useState(true);
     const [currentLevel, setCurrentLevel] = useState(0);
+
+    useEffect(() => {
+      fetchTierStatus();
+      fetchBusinesses();
+    }, []);
+
+    const fetchBusinesses = async () => {
+      try {
+       const response = await api.get("/business/my-businesses");
+       setBusinesses(response.data);
+      } catch (error) {
+        console.error("Error fetching businesses:", error);
+      }
+    };
 
      useEffect(() => {
        fetchTierStatus();
@@ -73,11 +88,12 @@ export default function TierVerificationContent() {
 
     //Form state for Tier 3 
     const [tier3Form, setTier3Form] = useState({
-        cacDocument: null,
+        businessId: "",
+        cacNumber: "",
         tinNumber: "",
         businessLicense: null,
         businessLicenseNumber: "",
-        businessName: "",
+        cacDocument: null,
     });
 
     const [uploadedFileName, setUploadedFileName] = useState("");
@@ -230,7 +246,8 @@ export default function TierVerificationContent() {
         e.preventDefault();
        
         const formData = new FormData();
-        formData.append("cacNumber", tier3Form.businessName);
+        formData.append("businessId", tier3Form.businessId); 
+        formData.append("cacNumber", tier3Form.cacNumber);
         formData.append("tinNumber", tier3Form.tinNumber);
         formData.append("businessLicenseNumber", tier3Form.businessLicenseNumber);
         formData.append("cacDocument", tier3Form.cacDocument);
@@ -292,6 +309,7 @@ export default function TierVerificationContent() {
                         </div>
 
                             <FloatingLabelDropdown
+                                 label="Valid means of ID"
                                 value={tier1Form.idType}
                                 onChange={(e) => setTier1Form({...tier1Form, idType: e.target.value})}
                                 className="mb-4"
@@ -468,14 +486,31 @@ export default function TierVerificationContent() {
                       <div>
                         <h3 className="text-[#000087] font-[600] text-[16px]">Business Verification</h3>
                       </div>
-                        <div>
-                            <FloatingLabelInput
-                               label="Corporate Affairs Commision (CAC) Number"
-                                type="text"
-                                value={tier3Form.businessName}
-                                onChange={(e) => setTier3Form({...tier3Form, businessName: e.target.value})}
-                            />
-                        </div>
+                       <div>
+                        <FloatingLabelDropdown
+                          label="Select Business to Verify"
+                          value={tier3Form.businessId}
+                          onChange={(e) => setTier3Form({ ...tier3Form, businessId: e.target.value })}
+                          required
+                        >
+                       {/* <option value="">Select a business</option> */}
+                       {businesses.map((biz) => (
+                        <option key={biz._id} value={biz._id}>
+                          {biz.businessName}
+                        </option>
+                       ))}
+                        </FloatingLabelDropdown>
+                       </div>
+
+                       <div>
+                        <FloatingLabelInput
+                          label="Corporate Affairs Commission (CAC) Number"
+                          type="text"
+                          value={tier3Form.cacNumber}
+                          onChange={(e) => setTier3Form({ ...tier3Form, cacNumber: e.target.value })}
+                          required
+                        />
+                       </div>
 
                         <div>
                             <FloatingLabelInput
@@ -687,6 +722,36 @@ export default function TierVerificationContent() {
                ))}
              </ul>
            </div>
+
+           {/* Show requirement for business Name verified */}
+           {activeTier ===  3 && tierStatus?.tier3?.businessName && (
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              <h4 className="text-[#525252] font-[600] font-inter text-[14px] mb-2">
+                Verified Business 
+              </h4>
+              <div className="flex items-center gap-2 p-3 bg-white rounded-lg border border-gray-200">
+                {tierStatus.tier3.status === "approved" ? (
+                 <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                 </svg>
+                ): (
+                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg> 
+                )}
+                <span className="text-[#525252] font-inter text-[14px]">
+                  {tierStatus.tier3.businessName}
+                </span>
+                <span className={`ml-auto text-xs px-2 py-1 rounded ${
+                  tierStatus.tier3.status === "approved"
+                  ? "bg-green-100 text-green-700"
+                  : "bg-gray-100 text-gray-600"
+                }`}>
+                  {tierStatus.tier3.status === "approved" ? "Verified" : "Pending"}
+                </span>
+              </div>
+            </div>
+           )}
 
            {/* Only show Requirements if NOT Tiers 4 */}
            {activeTier !== 4 && (
