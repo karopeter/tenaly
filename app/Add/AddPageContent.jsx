@@ -213,7 +213,7 @@ useEffect(() => {
   };
 
   const handlePostAdClick = () => {
-    if (role === "seller" && (!profile?.tierLevel || profile.tierLevel < 1)) {
+    if (role === "seller" && (!profile?.tierLevel || profile.tierLevel < 3)) {
       setShowVerificationModal(true);
     } else {
       router.push("/create-add");
@@ -1946,14 +1946,14 @@ useEffect(() => {
                    alt="No Posts"
                   />
                   <p className="font-[500] text-[#868686] text-sm md:text-[14px] font-inter mb-4">
-                   No Vehicle Ads for this business
+                   No Ads for this business
                   </p>
                   <div className="flex justify-center">
-                    <Link href="/create-add" passHref>
-                      <Button className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] transition-all hover:scale-105">
-                        <Plus size={20} /> Post an Ad
-                      </Button>
-                    </Link>
+                    <Button 
+                      onClick={handlePostAdClick}
+                      className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] transition-all hover:scale-105">
+                      <Plus size={20} /> Post an Ad
+                    </Button>
                   </div>
                 </div>
               ): (
@@ -2249,11 +2249,11 @@ useEffect(() => {
                    No property ads for this business 
                  </p>
                  <div className="flex justify-center">
-                  <Link href="/create-add" passHref>
-                    <Button className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] transition-all hover:scale-105">
+                    <Button 
+                    onClick={handlePostAdClick}
+                    className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] transition-all hover:scale-105">
                       <Plus /> Post an Ad
                     </Button>
-                  </Link>
                 </div>
                </div>
              ):(
@@ -2550,11 +2550,11 @@ useEffect(() => {
           No Pet Ads for this business
         </p>
         <div className="flex justify-center">
-          <Link href="/create-add" passHref>
-            <Button className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] transition-all hover:scale-105">
+            <Button 
+            onClick={handlePostAdClick}
+              className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] transition-all hover:scale-105">
               <Plus size={20} /> Post an Ad
             </Button>
-          </Link>
         </div>
       </div>
     ) : (
@@ -2833,11 +2833,11 @@ useEffect(() => {
           No Agriculture & Food Ads for this business
         </p>
         <div className="flex justify-center">
-           <Link href="/create-add" passHref>
-            <Button className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] transition-all hover:scale-105">
+            <Button 
+              onClick={handlePostAdClick}
+              className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] transition-all hover:scale-105">
               <Plus size={20} /> Post an Ad
             </Button>
-          </Link>
         </div>
        </div>  
      ): (
@@ -3120,11 +3120,11 @@ useEffect(() => {
           No Baby & Kids Ads for this business
         </p>
         <div className="flex justify-center">
-           <Link href="/create-add" passHref>
-            <Button className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] transition-all hover:scale-105">
+            <Button
+              onClick={handlePostAdClick}
+              className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] transition-all hover:scale-105">
               <Plus size={20} /> Post an Ad
             </Button>
-          </Link>
         </div>
        </div>  
      ): (
@@ -3406,11 +3406,11 @@ useEffect(() => {
           No Service Ads for this business
         </p>
         <div className="flex justify-center">
-           <Link href="/create-add" passHref>
-            <Button className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] transition-all hover:scale-105">
+            <Button 
+              onClick={handlePostAdClick}
+              className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] transition-all hover:scale-105">
               <Plus size={20} /> Post an Ad
             </Button>
-          </Link>
         </div>
        </div>  
      ): (
@@ -3694,11 +3694,11 @@ useEffect(() => {
           No Equipment Ads for this business
         </p>
         <div className="flex justify-center">
-           <Link href="/create-add" passHref>
-            <Button className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] transition-all hover:scale-105">
+            <Button 
+              onClick={handlePostAdClick}
+              className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] transition-all hover:scale-105">
               <Plus size={20} /> Post an Ad
             </Button>
-          </Link>
         </div>
        </div>  
      ): (
@@ -3982,11 +3982,11 @@ useEffect(() => {
           No Gadget Ads for this business
         </p>
         <div className="flex justify-center">
-           <Link href="/create-add" passHref>
-            <Button className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] transition-all hover:scale-105">
+            <Button 
+              onClick={handlePostAdClick}
+              className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] transition-all hover:scale-105">
               <Plus size={20} /> Post an Ad
             </Button>
-          </Link>
         </div>
        </div>  
      ): (
@@ -4273,11 +4273,11 @@ useEffect(() => {
           No Laptop Ads for this business
         </p>
         <div className="flex justify-center">
-           <Link href="/create-add" passHref>
-            <Button className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] transition-all hover:scale-105">
+            <Button 
+              onClick={handlePostAdClick}
+             className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] transition-all hover:scale-105">
               <Plus size={20} /> Post an Ad
             </Button>
-          </Link>
         </div>
        </div>  
      ): (
@@ -4563,11 +4563,11 @@ useEffect(() => {
           No Fashion Ads for this business
         </p>
         <div className="flex justify-center">
-           <Link href="/create-add" passHref>
-            <Button className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] transition-all hover:scale-105">
+            <Button 
+              onClick={handlePostAdClick}
+              className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] transition-all hover:scale-105">
               <Plus size={20} /> Post an Ad
             </Button>
-          </Link>
         </div>
        </div>  
      ): (
@@ -4854,11 +4854,11 @@ useEffect(() => {
           No Household Item Ads for this business
         </p>
         <div className="flex justify-center">
-           <Link href="/create-add" passHref>
-            <Button className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] transition-all hover:scale-105">
+            <Button 
+              onClick={handlePostAdClick}
+              className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] transition-all hover:scale-105">
               <Plus size={20} /> Post an Ad
             </Button>
-          </Link>
         </div>
        </div>  
      ): (
@@ -5149,11 +5149,11 @@ useEffect(() => {
           No Beauty & Health Ads for this business
         </p>
         <div className="flex justify-center">
-           <Link href="/create-add" passHref>
-            <Button className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] transition-all hover:scale-105">
+            <Button 
+              onClick={handlePostAdClick}
+              className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] transition-all hover:scale-105">
               <Plus size={20} /> Post an Ad
             </Button>
-          </Link>
         </div>
        </div>  
      ): (
@@ -5447,11 +5447,11 @@ useEffect(() => {
           No Building & Construction Ads for this business
         </p>
         <div className="flex justify-center">
-           <Link href="/create-add" passHref>
-            <Button className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] transition-all hover:scale-105">
+            <Button 
+              onClick={handlePostAdClick}
+              className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] transition-all hover:scale-105">
               <Plus size={20} /> Post an Ad
             </Button>
-          </Link>
         </div>
        </div>  
      ): (
@@ -5746,11 +5746,11 @@ useEffect(() => {
           No Job Ads for this business
         </p>
         <div className="flex justify-center">
-           <Link href="/create-add" passHref>
-            <Button className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] transition-all hover:scale-105">
+            <Button 
+             onClick={handlePostAdClick}
+            className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] transition-all hover:scale-105">
               <Plus size={20} /> Post an Ad
             </Button>
-          </Link>
         </div>
        </div>  
      ): (
@@ -6044,11 +6044,11 @@ useEffect(() => {
           No Hire Ads for this business
         </p>
         <div className="flex justify-center">
-           <Link href="/create-add" passHref>
-            <Button className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] transition-all hover:scale-105">
+            <Button 
+               onClick={handlePostAdClick}
+              className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] transition-all hover:scale-105">
               <Plus size={20} /> Post an Ad
             </Button>
-          </Link>
         </div>
        </div>  
      ): (
@@ -6334,7 +6334,7 @@ useEffect(() => {
           Complete your verification
         </h3>
         <p className="text-[#868686] font-[400] font-inter text-[14px] mb-6">
-           You need to complete your seller verification before you can post listings on Tenaly. This helps build trust with buyers and increases your chances of making successful sales.
+          You need to complete Tier 3 verification before you can post listings on Tenaly. This helps builds trust with buyers and increases your chances of making successful sales 
         </p>
         <div className='flex gap-3 justify-end'>
           <Button

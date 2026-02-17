@@ -47,6 +47,7 @@ export default function Sidebar({ isMobile, activeSection, setActiveSection }) {
           image: data.image || "",
           isVerified: data.isVerified || false,
           paidPlan: data.paidPlans?.[0]?.planType || null,
+          tierLevel: data.tierLevel || 0,
         });
       } catch (error) {
         toast.error("Failed to fetch user details:", error.message);
@@ -104,56 +105,78 @@ export default function Sidebar({ isMobile, activeSection, setActiveSection }) {
   return (
     <aside className="flex-shrink-0 w-full md:w-72 mt-4">
       <div className="bg-[#F7F7FF] p-4 rounded-[8px] text-center mb-4">
-        {profileData !== null ? (
-          <>
-            <div className="relative w-20 h-20 mx-auto mb-2">
-              <Img
-                src={profileData?.image || "/profile-circles1.svg"}
-                width={83.33}
-                height={83.33}
-                className="w-20 h-20 rounded-full object-cover"
-                alt="Profile Picture"
-                onError={(e) => {
-                  e.currentTarget.src = "/profile-circles1.svg";
-                }}
-              />
+       {profileData !== null ? (
+        <>
+         <div className="relative mb-2">
+          {/* Profile Photo - Centered */}
+           <div className="flex justify-center">
+             <Img
+               src={profileData.image || "/profile-circles1.svg"}
+               width={83.33}
+               height={83.33}
+               className="w-20 h-20 rounded-full object-cover"
+               alt="Profile Picture"
+               onError={(e) => {
+                e.currentTarget.src = "/profile-circles1.svg";
+               }}
+             />
+           </div>
 
-              {profileData?.isVerified && (
-                <Img
-                  src="/profile-verified.svg"
-                  width={31.67}
-                  height={33.33}
-                  className="absolute top-0 right-0"
-                />
-              )}
+           {/* Tier Badge - Positioned at top right */}
+           {profileData?.tierLevel > 0 && (
+            <div 
+             className="absolute top-2 right-2 text-white rounded-[17px] flex items-center justify-center gap-1 px-2 bg-cover bg-center bg-no-repeat"
+             style={{
+              backgroundImage: `url("/tier-background1.svg")`,
+              width: "60px",
+              height: "28px",
+             }}
+            >
+              <span className="text-white text-[10px] font-[500]">Tier</span>
+              <span
+               className="inline-flex items-center justify-center text-white text-[8px] font-semibold flex-shrink-0"
+               style={{
+                backgroundColor: '#BCD7F657',
+                width: '14px',
+                height: '14px',
+                minWidth: '14px',
+                minHeight: '14px',
+                borderRadius: '50%'
+               }}
+              >
+                {profileData.tierLevel}
+              </span>
             </div>
-            <h3 className="text-[#525252] font-[500] font-inter">
-              {profileData.firstName} {profileData.lastName}
-            </h3>
-            <p className="text-[#868686] text-sm font-[500]">
-              {profileData.createdAt
-                ? `Joined since ${new Date(profileData.createdAt).toLocaleDateString()}`
-                : ""}
-            </p>
+           )}
+           <h3 className="text-[#525252] font-[500] font-inter">
+            {profileData.firstName} {profileData.lastName}
+           </h3>
+           <p className="text-[#868686] text-sm font-medium">
+            {profileData.createdAt
+              ? `Joined since ${new Date(profileData.createdAt).toLocaleDateString()}`
+              : ""}
+           </p>
 
-            {profileData?.paidPlan && role === "seller" && (
-              <>
-                <hr className="my-2 border-t border-[#EDEDED]" />
-                <p className="text-[#868686] text-sm font-[500] flex items-center justify-center gap-2 mt-2">
-                  <Img
-                    src="/plan-crown.svg"
-                    width={20}
-                    height={20}
-                  />
-                  You are on the {" "}
-                  {profileData.paidPlan.charAt(0).toUpperCase() + profileData.paidPlan.slice(1)} plan
-                </p>
-              </>
-            )}
-          </>
-        ) : (
-          <div>Loading...</div>
-        )}
+           {profileData?.paidPlan && role === "seller" && (
+            <>
+             <hr className="my-2 border-t border-[#EDEDED]" />
+             <p className="text-[#868686] text-sm font-medium flex items-center justify-center gap-2 mt-2">
+              <Img 
+                src="/plan-crown.svg"
+                alt="Crown Image"
+                width={20}
+                height={20}
+              />
+              You are on the {" "}
+              {profileData.paidPlan.charAt(0).toUpperCase() + profileData.paidPlan.slice(1)} plan 
+             </p>
+            </>
+           )}
+          </div>
+        </>
+       ): (
+        <div>Loading</div>
+       )}
       </div>
       <div className="bg-[#FAFAFA] border border-[#EDEDED] p-4 rounded-[4px] shadow-sm">
         <nav className="flex flex-col space-y-4">{renderNavItems()}</nav>
