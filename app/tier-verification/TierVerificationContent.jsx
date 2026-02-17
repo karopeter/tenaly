@@ -110,7 +110,12 @@ export default function TierVerificationContent() {
     const tierData = {
         1: {
          title: "Tier 1 - Basic KYC",
-         benefits: ["Lorem Ipsum", "Lorem Ipsum"],
+         benefits: [
+           "Can start selling immediately", 
+           "Access to marketplace visibility",
+           "Builds initial trust vs unverified sellers",
+           "Eligible for standard messaging"
+          ],
          requirements: [
             "Email and phone confirmation",
             "Governement-issued ID"
@@ -119,7 +124,12 @@ export default function TierVerificationContent() {
         },
         2: {
           title: "Tier 2 - Address Verification",
-          benefits: ["Lorem Ipsum", "Lorem Ipsum"],
+          benefits: [
+            "Higher trust that yields higher conversion rate", 
+            "Better visibility in search",
+            "Eligible for escrow transactions",
+            "Lower dispute penalty weighting"
+          ],
           requirements: [
             "Utitlity bill submission",
             "Physical address confirmation"
@@ -128,7 +138,17 @@ export default function TierVerificationContent() {
         },
         3: {
           title: "Tier 3 - Business Verification",
-          benefits: ["Lorem Ipsum", "Lorem Ipsum"],
+          benefits: [
+            "Higher search priority",
+            "Access to paid ads tools",
+            "Access to API integrations",
+            "Eligible for bulk products uploads",
+            "Lower escrow fees (incentive)",
+            "Access to Tenaly logistics partners",
+            "Featured listing eligibility",
+            "Dedicated seller storefront page",
+            "Advanced analytics dashboard"
+          ],
           requirements: [
             "Corporate Affairs Commission (CAC) documents",
             "Tax Identification Number (TIN)",
@@ -140,9 +160,12 @@ export default function TierVerificationContent() {
           title: "Tier 4 - Elite Seller Tier",
           subtitle: "Awarded to top-performing sellers on Tenaly",
           benefits: [
-          "Priority placement in search",
-          "Higher buyer trust",
-          "Eligibility for guaranteed returns"
+            "Top placements in search results",
+            "Higher conversion rate",
+            "Access to promotional campaigns",
+            "Reduced transaction fees",
+            "Faster payouts",
+            "Eligible for Tenaly-backed return guarantee"
           ],
           requirements: [
             "Performance-driven",
@@ -152,10 +175,11 @@ export default function TierVerificationContent() {
            title: "How to unlock Elite Seller status",
            description: "Elite Seller status is automatically awarded based on performance.",
            criteria: [
-            "Maintain consistent sales",
-            "Keep high buyer ratings",
-            "Resolve disputes quickly",
-            "Maintain low cancellation rates"
+            "High rating (e.g 4.7+)",
+            "Low dispute rate",
+            "Fast reponse time",
+            "Sales volume threshold",
+            "Compliance consistency"
            ]
           },
           status: "locked",
@@ -197,6 +221,27 @@ export default function TierVerificationContent() {
 
     const handleSubmitTier1 = async (e) => {
         e.preventDefault();
+
+        // validation 
+        if (!tier1Form.email) {
+          toast.error("Email is required");
+          return;
+        }
+
+        if (!tier1Form.phone) {
+          toast.error("Phone number is required");
+          return;
+        }
+
+        if (!tier1Form.idType) {
+          toast.error("Please select a vlid means of ID");
+          return;
+        }
+
+        if (!tier1Form.idDocument) {
+          toast.error("Please upload your ID document");
+          return;
+        }
        
         const formData = new FormData();
         formData.append("email", tier1Form.email);
@@ -220,8 +265,32 @@ export default function TierVerificationContent() {
 
     const handleSubmitTier2  = async (e) => {
         e.preventDefault();
-      
 
+        if (!tier2Form.state) {
+          toast.error("State is required");
+          return;
+        }
+
+        if (!tier2Form.city) {
+          toast.error("LGA is required");
+          return;
+        }
+
+        if (!tier2Form.address) {
+          toast.error("Address is required");
+          return;
+        }
+
+        if (!tier2Form.town) {
+          toast.error("Town is required");
+          return;
+        }
+
+        if (!tier2Form.utilityBill) {
+          toast.error("Please upload utility bill");
+          return;
+        }
+      
        const formData = new FormData();
        formData.append("state", tier2Form.state);
        formData.append("lga", tier2Form.city);
@@ -244,6 +313,22 @@ export default function TierVerificationContent() {
 
     const handleSubmitTier3 = async (e) => {
         e.preventDefault();
+
+        // Validation 
+        if (!tier3Form.businessId) {
+          toast.error("Please select a business to verify");
+          return;
+        }
+
+        if (!tier3Form.cacNumber) {
+          toast.error("CAC Number is required");
+          return;
+        }
+
+        if (!tier3Form.cacDocument) {
+          toast.error("Please upload your CAC document");
+          return;
+        }
        
         const formData = new FormData();
         formData.append("businessId", tier3Form.businessId); 
@@ -329,7 +414,13 @@ export default function TierVerificationContent() {
                             
                             {!tier1Form.idDocument ? (
                                 <label className="border-2 border-dashed bg-[#F7F7FF] border-[#5555DD] rounded-[8px] p-10 flex flex-col items-center justify-center cursor-pointer  transition">
-                                    <Upload className="text-[#00A8DF] mb-2" size={32} />
+                                    {/* <Upload className="text-[#00A8DF] mb-2" size={32} /> */}
+                                    <Img
+                                      src={'/document-upload.svg'}
+                                      alt="Document Upload Icon"
+                                      width={24}
+                                      height={24}
+                                    />
                                     <span className="text-[#000087] font-inter font-[500] text-[14px]">
                                         Upload Document
                                     </span>
@@ -662,14 +753,41 @@ export default function TierVerificationContent() {
 
        {/* Current Level Display */}
        {currentLevel > 0 && (
-         <div className="w-[404px] mx-auto flex items-center justify-between bg-gradient-to-r from-[#002CAE] to-[#2403B800] rounded-[8px] p-4 mb-4 shadow-tier-leve">
+         <div 
+           className="w-[404px] mx-auto flex items-center justify-between rounded-[8px] p-4 mb-4"
+           style={{
+           backgroundImage: 'linear-gradient(to right, #002CAE, #2403B800), url("/tier-background.svg")',
+           backgroundSize: 'cover',
+           backgroundPosition: 'center',
+           //boxShadow: 'inset 0 2px 8px rgba(186, 186, 186, 0.25), 0 4px 20px rgba(0, 0, 0, 0.14)'
+            // backgroundColor: 'white',
+            // backgroundImage: 'linear-gradient(to right, rgba(0, 44, 174, 0.6), rgba(36, 3, 184, 0)), url("/tierImage.png")',
+            // backgroundBlendMode: 'normal, luminosity',
+           }}
+           >
           <span className="text-white font-[600] text-[16px]">
             Current Level
           </span>
            <Button 
-         className="bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white  w-[105px] h-[45px] rounded-[17px]"
-        >
-        <span className="whitespace-nowrap text-white text-[14px] font-[500]">Tier {currentLevel}</span>
+           className="text-white w-[105px] h-[45px] rounded-[17px] bg-cover bg-center bg-no-repeat"
+           style={{
+            backgroundImage: 'url("/tier-background1.svg")'
+           }}> 
+        <span className="whitespace-nowrap text-white text-[14px] font-[500] relative z-10 flex items-center gap-1">
+          Tier
+          <span
+           className="inline-flex items-center justify-center text-white text-[10px] font-semibold flex-shrink-0"
+           style={{
+             backgroundColor: '#BCD7F657',
+             width: '16px',
+             height: '16px',
+             minWidth: '16px',
+             minHeight: '16px',
+             borderRadius: '50%'
+           }}>
+             {currentLevel}
+          </span>
+         </span>
         </Button>
          </div>
        )}
@@ -677,8 +795,8 @@ export default function TierVerificationContent() {
        {/* Tier Content */}
        <div className="flex flex-col items-center">
          <div className="w-[404px] bg-[#EDEDED] rounded-[4px] p-6">
-           <div className="flex items-start justify-between mb-4">
-             <h3 className="text-[#525252] font-[600] font-inter text-[16px]">
+           <div className="flex items-start justify-between mb-2">
+             <h3 className="text-[#525252] font-semibold font-inter text-[16px]">
                {tierData[activeTier].title}
              </h3>
               {tierData[activeTier].isElite && (
@@ -697,14 +815,14 @@ export default function TierVerificationContent() {
                </span>
               )}
                {tierData[activeTier].status === "rejected" && (
-                <span className="bg-[#CB0D0D] text-white px-3 py-1 rounded-[4px] text-[12px] font-inter font-[500]">
-                 ✗ Rejected
+                <span className="bg-[#CB0D0D] text-[#FFFFFF] px-3 py-1 rounded-[4px] text-[12px] font-inter font-[500]">
+                 Verification Failed 
                </span>
                )}
            </div>
 
            {tierData[activeTier].subtitle && (
-            <p className="text-[#000087] font-[500] text-[14px] mb-4">
+            <p className="text-[#000087] font-medium text-[14px] mb-4">
                {tierData[activeTier].subtitle}
             </p>
            )}
@@ -753,6 +871,7 @@ export default function TierVerificationContent() {
             </div>
            )}
 
+
            {/* Only show Requirements if NOT Tiers 4 */}
            {activeTier !== 4 && (
              <div>
@@ -776,10 +895,10 @@ export default function TierVerificationContent() {
                  {tierData[4].unlockInfo.title}
               </h4>
 
-              <div className="bg-[#E8E8FF] border border-[#5555DD] rounded-[8px] p-3 mb-3">
+              <div className="bg-[#DFDFF9] md:h-[48px] rounded-[4px] p-2  mb-3">
                 <div className="flex items-start gap-2">
                   <span className="text-[#000087] text-[16px]">ℹ️</span>
-                  <p className="text-[#000087] font-inter text-[14px]">
+                  <p className="text-[#000087] font-inter text-[12px]">
                      {tierData[4].unlockInfo.description}
                   </p>
                 </div>
@@ -796,6 +915,39 @@ export default function TierVerificationContent() {
             </div>
            )}
          </div>
+
+           {/* Rejection Reason Section */}
+           {tierData[activeTier].status === "rejected" && tierStatus?.[`tier${activeTier}`]?.rejectionReason && (
+            <div className="w-[404px] mt-4 pt-4 border-t border-gray-300">
+               <h4 className="text-[#525252] font-semibold font-inter text-[14px] mb-3">
+                Documents submitted were rejected
+               </h4>
+
+               <div className="bg-[#F8EFEF] w-full rounded-[8px] p-4 mb-3">
+                <p className="text-[#525252] font-semibold font-inter text-[14px] md:text-[16px] mb-2">
+                  Reason for rejection
+                </p>
+                <p className="text-[#525252] font-medium text-[14px]">
+                    {tierStatus[`tier${activeTier}`].rejectionReason}
+                </p>
+               </div>
+
+               <div className="flex justify-end">
+                 <button 
+                 onClick={() => handleUpgradeClick(activeTier)}
+                 className="flex items-center gap-2 text-[#000087] font-inter font-medium text-[14px] md:text-[16px] hover:underline"
+               >
+                Reapply to Upgrade to Tier {activeTier}
+                 <Img
+                   src='/tier-arrow-right.svg'
+                   alt="Tier Arrow Right icon"
+                   width={24}
+                   height={24}
+                 />
+               </button>
+              </div>
+            </div>
+           )}
 
          {/* Upgrade Button */}
          {activeTier < 4 && (
@@ -815,151 +967,5 @@ export default function TierVerificationContent() {
      )}
        </div>
       </div>
-    )
-    
-    // return (
-    //   <div className="bg-white shadow-phenom rounded-[12px] p-5 md:p-10">
-    //     <h2 className="text-[#525252] font-[600] font-inter text-[20px] mb-6 text-center">
-    //       Tier verification 
-    //     </h2>
-
-    //     {/* Tier Tabs */}
-    //     <div className="flex gap-2 md:gap-4 mb-6 justify-center">
-    //      {[1, 2, 3, 4].map((tier) => (
-    //         <button
-    //           key={tier}
-    //           onClick={() => setActiveTier(tier)}
-    //           className={`px-4 md:px-6 py-2 rounded-[8px] font-inter font-[500] text-[14px] transition ${
-    //              activeTier === tier 
-    //              ? "bg-[#000087] text-white"
-    //              : tier <= activeTier
-    //              ? "bg-[#E8E8E8] text-[#525252] hover:bg-[#D8D8D8]"
-    //              : "bg-[#E8E8E8] text-[#868686] cursor-not-allowed"
-    //           }`}
-    //           disabled={false}
-    //         >
-    //          Tier {tier}
-    //         </button>
-    //      ))}
-    //     </div>
-
-    //     {/* Current Level Display */}
-    //     {currentLevel > 0 && (
-    //       <div className="w-[404px] mx-auto flex items-center justify-between bg-gradient-to-r from-[#002CAE] to-[#2403B800] rounded-[8px] p-4 mb-4 shadow-tier-level">
-    //         <span className="text-white font-[600] text-[16px]">
-    //           Current Level
-    //         </span>
-    //         <Button 
-    //          className="bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white  w-[105px] h-[45px] rounded-[17px]"
-    //         >
-    //         <span className="whitespace-nowrap text-white text-[14px] font-[500]">Tier {currentLevel}</span>
-    //         </Button>
-    //       </div>
-    //     )}
-
-    //     {/* Tier Content */}
-    //    <div className="flex flex-col items-center">
-    //       <div className="w-[404px] bg-[#EDEDED] rounded-[4px] p-6">
-    //      <div className="flex items-start justify-between mb-4">
-    //        <h3 className="text-[#525252] font-[600] font-inter text-[16px]">
-    //         {tierData[activeTier].title}
-    //        </h3>
-    //        {tierData[activeTier].isElite && (
-    //         <span className="bg-[#CB0D0D] text-white px-3 py-1 rounded-[4px] text-[12px] font-inter font-[500] flex items-center gap-1">
-    //            🔒 Locked
-    //         </span>
-    //        )}
-    //        {tierData[activeTier].status === "approved" && (
-    //          <span className="bg-[#4FA544] text-white px-3 py-1 rounded-[4px] text-[12px] font-inter font-[500]">
-    //           Verified
-    //          </span>
-    //        )}
-    //        {tierData[activeTier].status === "pending" && (
-    //          <span className="bg-[#FFA500] text-white px-3 py-1 rounded-[4px] whitespace-nowrap text-[12px] font-inter font-[500]">
-    //            Pending Verification
-    //          </span>
-    //        )}
-    //        {tierData[activeTier].status === "rejected" && (
-    //          <span className="bg-[#CB0D0D] text-white px-3 py-1 rounded-[4px] text-[12px] font-inter font-[500]">
-    //           ✗ Rejected
-    //           </span>
-    //        )}
-    //      </div>
-
-    //      {tierData[activeTier].subtitle && (
-    //      <p className="text-[#000087] font-[500] text-[14px] mb-4">
-    //         {tierData[activeTier].subtitle}
-    //      </p>
-    //      )}
-
-    //      <div className="mb-4">
-    //        <h4 className="text-[#525252] font-[600] font-inter text-[14px] mb-2">
-    //          Benefits 
-    //        </h4>
-    //        <ul className="space-y-1">
-    //         {tierData[activeTier].benefits.map((benefit, idx) => (
-    //           <li key={idx} className="flex items-center gap-2 text-[#525252] font-inter text-[14px]">
-    //             <span className="w-[6px] h-[6px] bg-[#868686] rounded-full"></span>
-    //             {benefit}
-    //           </li>
-    //         ))}
-    //        </ul>
-    //      </div>
-
-    //      <div>
-    //         <h4 className="text-[#525252] font-[600] font-inter text-[14px] mb-2">
-    //            Requirement 
-    //         </h4>
-    //         <ol className="space-y-1">
-    //          {tierData[activeTier].requirements.map((req, idx) => (
-    //             <li key={idx} className="text-[#525252] font-inter text-[14px]">
-    //                {idx + 1}. {req}
-    //             </li>
-    //          ))}
-    //         </ol>
-    //      </div>
-    //     </div>
-    //      {activeTier === 4 && tierData[4].unlockInfo && (
-    //         <div className="mt-4">
-    //          <h4 className="text-[#525252] font-[600] font-inter text-[14px] mb-2">
-    //             {tierData[4].unlockInfo.title}
-    //          </h4>
-
-    //          <div className="bg-[#E8E8FF] border border-[#5555dd] rounded-[8px] p-3 mb-3">
-    //            <div className="flex items-start gap-2">
-    //              <span className="text-[#000087] text-[16px]">ℹ️</span>
-    //              <p className="text-[000087] font-inter text-[14px]">
-    //               {tierData[4].unlockInfo.description}
-    //              </p>
-    //            </div>
-    //         </div>
-
-    //         <ul className="space-y-1">
-    //          {tierData[4].unlockInfo.criteria.map((criterion, idx) => (
-    //             <li key={idx} className="flex items-center gap-2 text-[#525252] font-inter text-[14px]">
-    //               <span className="w-[6px] h-[6px] bg-[#868686] rounded-full"></span>
-    //               {criterion}   
-    //             </li>
-    //          ))}
-    //         </ul>
-    //         </div>
-    //      )}
-    //      {activeTier < 4 && (
-    //       <>
-    //         {/* Only show button if no tier is submitted OR if current tier is approved */}
-    //         {((!tierStatus?.tier1) || 
-    //          (activeTier === 2 && tierStatus?.tier1?.status === "approved" && !tierStatus?.tier2) || 
-    //          (activeTier === 3 && tierStatus?.tier2?.status === "approved" && !tierStatus?.tier3)) && (
-    //           <Button
-    //               onClick={() => handleUpgradeClick(activeTier)}
-    //               className="w-[240px] mx-autp mt-6 h-[48px] bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] font-inter font-[500] text-[14px] mt-6"
-    //             >
-    //              Upgrade to Tier {activeTier}
-    //             </Button>
-    //          )}
-    //       </>
-    //      )}
-    //    </div>
-    //   </div>
-    // );
+    );
 }
