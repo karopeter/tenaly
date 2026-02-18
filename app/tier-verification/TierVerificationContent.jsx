@@ -127,7 +127,7 @@ export default function TierVerificationContent() {
           benefits: [
             "Higher trust that yields higher conversion rate", 
             "Better visibility in search",
-            "Eligible for escrow transactions",
+            {text: "Eligible for escrow transactions", comingSoon: true },
             "Lower dispute penalty weighting"
           ],
           requirements: [
@@ -141,13 +141,13 @@ export default function TierVerificationContent() {
           benefits: [
             "Higher search priority",
             "Access to paid ads tools",
-            "Access to API integrations",
+            { text: "Access to API integrations", comingSoon: true },
             "Eligible for bulk products uploads",
             "Lower escrow fees (incentive)",
-            "Access to Tenaly logistics partners",
+            { text: "Access to Tenaly logistics partners", comingSoon: true },
             "Featured listing eligibility",
             "Dedicated seller storefront page",
-            "Advanced analytics dashboard"
+            { text:  "Advanced analytics dashboard", comingSoon: true }
           ],
           requirements: [
             "Corporate Affairs Commission (CAC) documents",
@@ -832,14 +832,34 @@ export default function TierVerificationContent() {
                Benefits 
              </h4>
              <ul className="space-y-1">
-               {tierData[activeTier].benefits.map((benefit, idx) => (
-                 <li key={idx} className="flex items-center gap-2 text-[#525252] font-inter text-[14px]">
-                   <span className="w-[6px] h-[6px] bg-[#868686] rounded-full"></span>
-                   {benefit}
-                 </li>
-               ))}
-             </ul>
-           </div>
+               {tierData[activeTier].benefits.map((benefit, idx) => {
+                const isObject = typeof benefit === 'object';
+                const text = isObject ? benefit.text : benefit;
+                const showComingSoon = isObject && benefit.comingSoon;
+
+                return (
+                 <li key={idx} className="flex items-center justify-between gap-2 text-[#525252] font-inter text-[14px]">
+                   <div className="flex items-center gap-2">
+                    <span className="w-[6px] h-[6px] bg-[#868686] rounded-full flex-shrink-0"></span>
+                    <span>{text}</span>
+                   </div>
+                   {showComingSoon && (
+                   <span 
+                     className="text-white text-[9px] font-[500] flex items-center justify-center flex-shrink-0 whitespace-nowrap px-2"
+                     style={{
+                      backgroundColor: '#CAA416',
+                      minWidth: '65px',
+                      height: '16px',
+                      borderRadius: '4px'
+                    }}>
+                    Coming soon
+                 </span>
+               )}
+               </li>
+            )
+           })}
+          </ul>
+        </div>
 
            {/* Show requirement for business Name verified */}
            {activeTier ===  3 && tierStatus?.tier3?.businessName && (
