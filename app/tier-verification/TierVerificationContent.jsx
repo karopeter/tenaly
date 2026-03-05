@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { Upload, X, ArrowLeft } from "lucide-react";
 import api from "@/services/api";
 import { toast } from "react-toastify";
+import Tier4UnlockedModal from "../components/UI/Tier4UnlockedModal";
 import FloatingLabelDropdown from "../components/UI/FloatingDropdown";
 import FloatingLabelInput from "../components/UI/FloatingLabelInput";
 
@@ -15,6 +16,7 @@ export default function TierVerificationContent() {
     const [activeTier, setActiveTier] = useState(1); // Current tier user is on 
     const [showUpgradeForm, setShowUpgradeForm] = useState(false);
     const [businesses, setBusinesses] = useState([]);
+    const [showTier4Modal, setShowTier4Modal] = useState(false);
     const [upgradeToTier, setUpgradingToTier] = useState(null);
     const [tierStatus, setTierStatus] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -44,6 +46,10 @@ export default function TierVerificationContent() {
         const response = await api.get("/tier-verification/status");
         setTierStatus(response.data);
         setCurrentLevel(response.data.currentLevel);
+
+        if (response.data.tier4Unlocked) {
+          setShowTier4Modal(true);
+        }
 
         // Set active tier based on status 
        if (response.data.tier3?.status === "approved") {
@@ -986,6 +992,10 @@ export default function TierVerificationContent() {
       </>
      )}
        </div>
+       <Tier4UnlockedModal
+       visible={showTier4Modal}
+       onClose={() => setShowTier4Modal(false)}
+       />
       </div>
     );
 }

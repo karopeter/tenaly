@@ -12,7 +12,7 @@ const allSidebarItems = [
   { label: "Business", icon: "/businessIcon.svg", href: "/Business", roles: ["seller"] },
   { label: "My Ads", icon: "/addKai.svg", href: "/Add", roles: ["seller"] },
   { label: "Analytics", icon: "/chart.svg", href: "/Analytics", roles: ["seller"] },
-  { label: "Bookmarked", icon: "/bookmarkIcon.svg", href: "/Bookmarked", roles: ["buyer", "seller"] },
+  { label: "Bookmarked", icon: "/bookmarkIcon.svg", href: "/Bookmarked", roles: ["buyer"] },
   { label: "Customer Reviews", icon: "/star.svg", href: "/CustomerReviews", roles: ["seller"] },
   { label: "Wallet", icon: "/wallet-money.svg", href: "/Wallet", roles: ["seller"] },
   { label: "Customer Support", icon: "/24-support.svg", href: "/Support", roles: ["buyer", "seller"] },

@@ -110,7 +110,8 @@ const checkVerificationStatus = async (authToken = token) => {
      setProfile({
         ...updatedProfile,
         tierLevel: updatedProfile.tierLevel || 0,
-        tierStatus: updatedProfile.tierStatus || {}
+        tierStatus: updatedProfile.tierStatus || {},
+        tier4Unlocked: updatedProfile.tierStatus?.tier4Unlocked || false,
      });
      localStorage.setItem("profile", JSON.stringify(updatedProfile));
 
