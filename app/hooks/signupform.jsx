@@ -220,7 +220,7 @@ export default function SignUpForm({ onClose }) {
         {/* Phone */}
         <InputField
           name="phone"
-          placeholder="+234 | Enter your phone number"
+          placeholder="Enter your phone number"
           value={form.phone}
           onChange={handleChange}
           error={formErrors.phone}
