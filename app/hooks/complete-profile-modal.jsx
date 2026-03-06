@@ -4,12 +4,13 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import Button from "../components/Button";
 import api from "@/services/api";
+import InputField from "../components/input";
 import { useAuth } from "../context/AuthContext";
 
 export default function CompleteProfileModal({ user, token, onClose }) {
   const router = useRouter();
   const { login } = useAuth();
-  const [role, setRole] = useState("buyer");
+  const [role, setRole] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formErrors, setFormErrors] = useState({});
@@ -44,11 +45,18 @@ export default function CompleteProfileModal({ user, token, onClose }) {
           headers: {
             Authorization: `Bearer ${token}`,
           },
+          
         }
       );
 
       const { token: updatedToken, user: updatedUser } = response.data;
+      console.log("Token being sent:", token);
       onClose(updatedUser, updatedToken);
+      if (updatedUser.role === "seller") {
+        router.push("/Profile");
+      } else {
+        router.push("/Product-List");
+      }
     } catch (error) {
       console.error("Profile update failed:", error);
       toast.error(error.response?.data?.message || "Failed to update profile. Please try again.");
@@ -73,8 +81,9 @@ export default function CompleteProfileModal({ user, token, onClose }) {
             name="role"
             value={role}
             onChange={(e) => setRole(e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:outline-none focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+            className="pt-1 pr-3 pb-1 pl-3 w-[380px] h-[52px] outline-none rounded-[4px] border border-[#CDCDD7] text-sm text-[#525252] bg-white"
           > 
+           <option value="" disabled>Select your role</option>
             <option value="buyer">I am buying</option>
             <option value="seller">I am selling</option>
           </select>
@@ -83,12 +92,12 @@ export default function CompleteProfileModal({ user, token, onClose }) {
         
         <div>
           <label className="block text-sm font-medium text-gray-700">Phone Number</label>
-          <input
+          <InputField
             type="tel"
             name="phoneNumber"
             value={phoneNumber}
             onChange={(e) => setPhoneNumber(e.target.value)}
-            placeholder="+234 | Enter your phone number"
+            placeholder="Enter your phone number"
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:outline-none focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
           />
           {formErrors.phoneNumber && <p className="text-red-500 text-sm mt-1">{formErrors.phoneNumber}</p>}
