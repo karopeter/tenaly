@@ -24,7 +24,7 @@ export default function SignUpForm({ onClose }) {
     phone: "",
     password: "",
     passwordConfirm: "",
-    role: "buyer",
+    role: "",
   });
   const [formErrors, setFormErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
@@ -119,6 +119,7 @@ export default function SignUpForm({ onClose }) {
 
       if (isNewGoogleUser || !profileComplete) {
         toast.success("Google sign-up successful! Please complete your profile.");
+         localStorage.setItem("token", authToken);
         setCompleteProfileData({ user: newUser, token: authToken });
       } else {
         login(newUser, authToken);
@@ -233,8 +234,9 @@ export default function SignUpForm({ onClose }) {
             onChange={handleChange}
             className="pt-1 pr-3 pb-1 pl-3 w-[380px] h-[52px] outline-none rounded-[4px] border border-[#CDCDD7] text-sm text-[#525252] bg-white"
           >
-            <option value="buyer">I am buying</option>
-            <option value="seller">I am selling</option>
+          <option value="" disabled>Select your role</option>
+          <option value="buyer">I am buying</option>
+          <option value="seller">I am selling</option>
           </select>
           {formErrors.role && <p className="text-red-500 text-sm mt-1">{formErrors.role}</p>}
         </div>
