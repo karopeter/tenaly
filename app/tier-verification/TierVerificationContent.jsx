@@ -584,19 +584,19 @@ export default function TierVerificationContent() {
                         <h3 className="text-[#000087] font-[600] text-[16px]">Business Verification</h3>
                       </div>
                        <div>
-                        <FloatingLabelDropdown
-                          label="Select Business to Verify"
-                          value={tier3Form.businessId}
-                          onChange={(e) => setTier3Form({ ...tier3Form, businessId: e.target.value })}
-                          required
-                        >
-                       {/* <option value="">Select a business</option> */}
-                       {businesses.map((biz) => (
-                        <option key={biz._id} value={biz._id}>
-                          {biz.businessName}
-                        </option>
-                       ))}
-                        </FloatingLabelDropdown>
+                       <FloatingLabelDropdown
+                         label="Select a Business to Verify"
+                         value={tier3Form.businessId}
+                         onChange={(e) => setTier3Form({ ...tier3Form,  businessId: e.target.value })}
+                         required
+                       >
+                        <option value="">Select a business</option>
+                        {businesses.map((biz) => (
+                          <option key={biz._id} value={biz._id}>
+                            {biz.businessName}
+                          </option>
+                        ))}
+                       </FloatingLabelDropdown>
                        </div>
 
                        <div>
