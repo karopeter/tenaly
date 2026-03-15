@@ -333,13 +333,8 @@ function MessageContent() {
       setConversations(existingMessages);
 
       // mark message as read 
-      try {
-       await api.get("/messages/mark-all-read", {
-        headers: { Authorization: `Bearer ${token}` },
-       });
-      } catch (err) {
-        console.error("Failed to mark messages as read:", err);
-      }
+       api.get("/messages/mark-all-read")
+       .catch(err => console.warn("mark-all-read failed:", err?.response?.data));
       const messageIds = existingMessages.map(m => m._id);
       emitReadMessage(messageIds, conversation._id);
 
@@ -368,6 +363,39 @@ function MessageContent() {
     setChatRoomId(null);
     // On mobile, if no contacts exist, keep showing the empty state
   };
+
+  const handleAcceptOffer = async (offerId) => {
+     try {
+      await api.post(`/offer/accept-offer/${offerId}`);
+      // Update the message locally so UI replace accepted status 
+      setConversations(prev => 
+        prev.map(msg => 
+          msg.offerDetails?.offerId === offerId 
+            ? { ...msg, offerDetails: { ...mgs.offerDetails, status: "accepted"} }
+            : msg 
+        )
+      );
+      toast.success("offer accepted!");
+     } catch (err) {
+       console.error("Failed to accept offer:", err);
+     }
+  };
+
+  const handleRejectOffer = async (offerId) => {
+     try {
+      await api.post(`/offer/reject-offer/${offerId}`);
+      setConversations(prev => 
+        prev.map(msg => 
+          msg.offerDetails?.offerId === offerId
+            ? { ...msg, offerDetails: { ...msg.offerDetails, status: "rejected"} }
+            : msg
+        )
+      );
+      toast.success("Offer rejected");
+     } catch (error) {
+      console.log("Failed to reject offer:", error);
+     }
+  }
 
   const renderMessages = () => {
     let lastDate = null;
@@ -450,6 +478,52 @@ function MessageContent() {
                     >
                       Download file
                     </a>
+                  )}
+                </div>
+              )}
+
+              {msg.messageType === "offer" && msg.offerDetails && (
+                <div className={`mt-2 p-3 rounded-lg border ${
+                  isFromSelf ? "border-blue-300 bg-blue-400": "border-gray-300 bg-white"
+                }`}>
+                  <p className={`text-xs font-semibold mb-1 ${isFromSelf ? "text-blue-100" : "text--gray-500"}`}>
+                  OFFER 
+                  </p>
+                  <p className={`text-lg font-bold ${isFromSelf ? "text-white" : "text-gray-900"}`}>
+                     ₦{msg.offerDetails.amount?.toLocaleString()}
+                  </p>
+                  {msg.offerDetails.productTitle && (
+                    <p className={`text-xs mt-1 ${isFromSelf ? "text-blue-100" : "text-gray-500"}`}>
+                      for {msg.offerDetails.productTitle}
+                    </p>
+                  )}
+                  {msg.offerDetails.originalPrice && (
+                    <p className={`text-xs ${isFromSelf ? "text-blue-200" : "text-gray-400"}`}>
+                      Listed price: ₦{msg.offerDetails.originalPrice?.toLocaleString()}
+                    </p>
+                  )}
+                  {/* Only show accept/reject to the seller (non-self) and if pending */}
+                  {!isFromSelf && msg.offferDetails.status === "pending" && (
+                      <div className="flex gap-2 mt-3">
+                      <button
+                        onClick={() => handleAcceptOffer(msg.offerDetails.offerId)}
+                        className="flex-1 bg-green-50 hover:bg-green-600 text-white text-xs py-2 px-3 rounded-lg font-medium transition-colors"
+                      >
+                        Accept 
+                      </button>
+                      <button
+                       onClick={() => handleRejectOffer(msg.offerDetails.offerId)}
+                       className="flex-1 bg-red-500 hover:bg-red-600 text-white text-xs py-2 px-3 rounded-lg font-medium transition-colors">
+                        Reject
+                      </button>
+                    </div>
+                  )}
+                  {msg.offerDetails.status !== "pending" && (
+                    <p className={`text-xs mt-2 font-semibold capitalize ${
+                      msg.offerDetails.status === "accepted" ? "text-green-500" : "text-red-500"
+                    }`}>
+                    {msg.offerDetails.status}
+                    </p>
                   )}
                 </div>
               )}
