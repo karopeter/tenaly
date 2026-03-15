@@ -154,21 +154,31 @@ export default function Navbar() {
           <div className="flex gap-2 items-center">
             {isLoggedIn ? (
               <div className="flex items-center gap-2 md:gap-4">
-                <div className="relative">
-                  <Link href="/Message">
-                    <Img
-                      src="/chatIcon.svg"
-                      alt="Chat"
-                      width={44}
-                      height={44}
-                      className="w-[32px] h-[32px] md:w-[44px] md:h-[44px]"
-                    />
-                    {unreadCount > 0 && (
-                      <span className="absolute top-0 right-0 bg-red-600 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
-                        {unreadCount}
-                      </span>
-                    )}
-                  </Link>
+                <div 
+                  className="relative cursor-pointer"
+                  onClick={async () => {
+                    setUnreadCount(0);
+                    try {
+                      await api.get("/messages/mark-all-read");
+                    } catch (err) {
+                      console.error("Failed to mark messages as read:", err);
+                    }
+                  }}
+                >
+                <Link href="/Message">
+                 <Img
+                  src="/chatIcon.svg"
+                  alt="Chat"
+                  width={44}
+                  height={44}
+                  className="w-[32px] h-[32px] md:w-[44px] md:h-[44px]"
+                 />
+                 {unreadCount > 0 && (
+                  <span className="absolute top-0 right-0 bg-red-600 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                    {unreadCount}
+                  </span>
+                 )}
+                </Link>
                 </div>
                 <div className="relative">
                   <Link href="/Notification">

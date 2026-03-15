@@ -332,7 +332,14 @@ function MessageContent() {
         : [];
       setConversations(existingMessages);
 
-      // mark messages as read (if any)
+      // mark message as read 
+      try {
+       await api.get("/messages/mark-all-read", {
+        headers: { Authorization: `Bearer ${token}` },
+       });
+      } catch (err) {
+        console.error("Failed to mark messages as read:", err);
+      }
       const messageIds = existingMessages.map(m => m._id);
       emitReadMessage(messageIds, conversation._id);
 
