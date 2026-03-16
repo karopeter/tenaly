@@ -186,14 +186,14 @@ const handleSendOffer = async () => {
   }
 
   // Validate productId exists before making request
-  if (!productId) {
+  if (!offerProductId) {
     return toast.error("Product information not available");
   }
 
   try {
     setLoading(true);
   
-    const res = await api.post(`/offer/make-offer/${productId}`, { 
+    const res = await api.post(`/offer/make-offer/${offerProductId}`, { 
       offerAmount: parseInt(offerAmount) 
     });
     
@@ -353,15 +353,15 @@ const handleSendOffer = async () => {
  
 const productTitle =
   propertyAd?.propertyName ||
-  petAd?.breed ? `${petAd.breed} - ${petAd.petType}` : "" ||
-  (agricultureAd?.title ? `${agricultureAd.title} ` : "") || 
+  (petAd?.breed ? `${petAd.breed} - ${petAd.petType}` : "") ||
+  (agricultureAd?.title ? `${agricultureAd.title}` : "") || 
   (kidsAd?.title ? `${kidsAd.title}` : "") ||
   (serviceAd?.serviceTitle ? `${serviceAd.serviceTitle}` : "") ||
   (equipmentAd?.equipmentTitle ? `${equipmentAd.equipmentTitle}` : "") ||
   (gadgetAd?.gadgetTitle ? `${gadgetAd.gadgetTitle}` : "") || 
   (laptopAd?.laptopTitle ? `${laptopAd.laptopTitle}` : "") ||
   (fashionAd?.fashionTitle ? `${fashionAd.fashionTitle}` : "") ||
-  (householdAd?.householdTitle ? `${householdAd.householdTitle}` :  "") || 
+  (householdAd?.householdTitle ? `${householdAd.householdTitle}` : "") || 
   (beautyAd?.beautyTitle ? `${beautyAd.beautyTitle}` : "") ||
   (constructionAd?.constructionTitle ? `${constructionAd.constructionTitle}` : "") || 
   (vehicleAd ? `${vehicleAd.vehicleType} ${vehicleAd.model}` : "") ||
@@ -391,7 +391,18 @@ const productTitle =
     const smallImages = mainImageArray.slice(1, 5);
 
     // const productId = mainAd?._id;
-    const productId = vehicleAd?._id || propertyAd?._id || petAd?._id || agricultureAd?._id || kidsAd?._id || serviceAd?._id || equipmentAd?._id || gadgetAd?._id || laptopAd?._id || fashionAd?._id || householdAd?._id || beautyAd?._id || constructionAd?.id || jobAd?.id || hireAd?._id;
+    const productId = 
+    vehicleAd?._id || 
+    propertyAd?._id || 
+    petAd?._id || agricultureAd?._id || kidsAd?._id || 
+    serviceAd?._id || equipmentAd?._id ||
+     gadgetAd?._id || laptopAd?._id || 
+     fashionAd?._id || householdAd?._id || beautyAd?._id ||
+      constructionAd?._id || jobAd?._id || hireAd?._id;
+
+      const offerProductId = adData?.adId?.toString() || carAd?._id?.toString();
+
+
 
 // Pick correct product image
 const productImage =
