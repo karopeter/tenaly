@@ -159,7 +159,7 @@ export default function Navbar() {
                   onClick={async () => {
                     setUnreadCount(0);
                     try {
-                      await api.get("/messages/mark-all-read");
+                      await api.post("/messages/mark-all-read");
                     } catch (err) {
                       console.error("Failed to mark messages as read:", err);
                     }

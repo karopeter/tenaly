@@ -333,7 +333,7 @@ function MessageContent() {
       setConversations(existingMessages);
 
       // mark message as read 
-       api.get("/messages/mark-all-read")
+       api.post("/messages/mark-all-read")
        .catch(err => console.warn("mark-all-read failed:", err?.response?.data));
       const messageIds = existingMessages.map(m => m._id);
       emitReadMessage(messageIds, conversation._id);
@@ -371,7 +371,7 @@ function MessageContent() {
       setConversations(prev => 
         prev.map(msg => 
           msg.offerDetails?.offerId === offerId 
-            ? { ...msg, offerDetails: { ...mgs.offerDetails, status: "accepted"} }
+            ? { ...msg, offerDetails: { ...msg.offerDetails, status: "accepted"} }
             : msg 
         )
       );
@@ -486,7 +486,7 @@ function MessageContent() {
                 <div className={`mt-2 p-3 rounded-lg border ${
                   isFromSelf ? "border-blue-300 bg-blue-400": "border-gray-300 bg-white"
                 }`}>
-                  <p className={`text-xs font-semibold mb-1 ${isFromSelf ? "text-blue-100" : "text--gray-500"}`}>
+                  <p className={`text-xs font-semibold mb-1 ${isFromSelf ? "text-blue-100" : "text-gray-500"}`}>
                   OFFER 
                   </p>
                   <p className={`text-lg font-bold ${isFromSelf ? "text-white" : "text-gray-900"}`}>
@@ -503,11 +503,11 @@ function MessageContent() {
                     </p>
                   )}
                   {/* Only show accept/reject to the seller (non-self) and if pending */}
-                  {!isFromSelf && msg.offferDetails.status === "pending" && (
+                  {!isFromSelf && msg.offferDetails?.status === "pending" && (
                       <div className="flex gap-2 mt-3">
                       <button
                         onClick={() => handleAcceptOffer(msg.offerDetails.offerId)}
-                        className="flex-1 bg-green-50 hover:bg-green-600 text-white text-xs py-2 px-3 rounded-lg font-medium transition-colors"
+                        className="flex-1 bg-green-500 hover:bg-green-600 text-white text-xs py-2 px-3 rounded-lg font-medium transition-colors"
                       >
                         Accept 
                       </button>
@@ -518,7 +518,7 @@ function MessageContent() {
                       </button>
                     </div>
                   )}
-                  {msg.offerDetails.status !== "pending" && (
+                  {msg.offerDetails?.status && msg.offerDetails.status !== "pending" && (
                     <p className={`text-xs mt-2 font-semibold capitalize ${
                       msg.offerDetails.status === "accepted" ? "text-green-500" : "text-red-500"
                     }`}>
@@ -546,7 +546,7 @@ function MessageContent() {
       ) : (
        msg.text
       )}
-    </div>
+           </div>
               <div className={`text-[10px] mt-1 ${isFromSelf ? 'text-blue-100' : 'text-gray-500'}`}>
                 {format(parseISO(msg.createdAt), "hh:mm a")}
               </div>
