@@ -224,10 +224,6 @@ function MessageContent() {
         const [contact] = updated.splice(idx, 1);
         return [contact, ...updated];
      });
-     setLastMessages((prev) => ({
-       ...prev,
-       [selectedUser._id]: text,
-     }));
    };
 
     const handleTyping = (userId) => {
@@ -396,6 +392,7 @@ function MessageContent() {
   };
 
   const handleAcceptOffer = async (offerId) => {
+    console.log("Acceptng offerId:", offerId)
      try {
       await api.post(`/offer/accept-offer/${offerId}`);
       // Update the message locally so UI replace accepted status 
@@ -416,11 +413,11 @@ function MessageContent() {
      try {
       await api.post(`/offer/reject-offer/${offerId}`);
       setConversations(prev => 
-        prev.map(msg => 
-          msg.offerDetails?.offerId === offerId
-            ? { ...msg, offerDetails: { ...msg.offerDetails, status: "rejected"} }
-            : msg
-        )
+       prev.map(msg => 
+         (msg.offerDetails?.offerId?._id || msg.offerDetails?.offerId)?.toString() === offerId?.toString()
+         ? { ...msg, offerDetails: { ...msg.offerDetails, status: "rejected"} }
+         : msg
+       )
       );
       toast.success("Offer rejected");
      } catch (error) {

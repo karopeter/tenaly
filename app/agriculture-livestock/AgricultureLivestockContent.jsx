@@ -94,6 +94,7 @@ export default function AgricultureLivestockContent() {
   const [showModalPromote, setShowModalPromote] = useState(false);
   const [showWalletModal, setShowWalletModal] = useState(false);
   const [showFreeSuccessModal, setShowFreeSuccessModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingCarAd, setEditingCarAd] = useState(null);
   const [isLoadingDraft, setIsLoadingDraft] = useState(false);
 
@@ -350,9 +351,8 @@ const handleRemoveBulkPrice = (index) => {
 
   const submitAd = useCallback(async (planToSubmit, useWallet = false) => {
     try {
+      setIsSubmitting(true);
       const payload = buildPayload(planToSubmit, useWallet);
-
-      // TODO: Update endpoint when pets route is created
       const res = await api.post("/agriculture/create-agriculture-ad", payload);
 
       if (res.data.data?.paymentUrl && !useWallet) {
@@ -399,6 +399,8 @@ const handleRemoveBulkPrice = (index) => {
         error.response?.data?.error ||
         "Something went wrong posting your ad. Please try again."
       );
+    } finally {
+      setIsSubmitting(false);
     }
   }, [title, agricultureType, condition, unit, amount, negotiation, business, description, bulkPrices, token, login, router, editingCarAd, carAdId, buildPayload]);
 
@@ -666,9 +668,18 @@ const handleRemoveBulkPrice = (index) => {
             <Button
               type="button"
               onClick={handlePost}
-              className="w-full md:w-[262px] h-[44px] md:rounded-[8px] font-[500] text-[14px] bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white"
+              disabled={isSubmitting}
+              className="w-full md:w-[262px] h-[44px] md:rounded-[8px] font-[500] text-[14px] bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white disabled:opacity-50"
             >
-              {editingCarAd ? "Complete Ad" : "Post Ad"}
+             {isSubmitting ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                 </svg>
+                 Processing... 
+              </span>
+             ): (editingCarAd ? "Complete Ad" : "Post Ad")}
             </Button>
           </div>
         </form>
@@ -690,6 +701,8 @@ const handleRemoveBulkPrice = (index) => {
               onCancel={postAdForFree}
               onConfirm={promoteAd}
               onClose={() => setShowModalPromote(false)}
+              isLoading={isSubmitting}
+              walletBalance={profile?.walletBalance || 0}
             />
           )}
           

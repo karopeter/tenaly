@@ -9,6 +9,7 @@ export default function PromoteAdModal({
   onConfirm,
   onClose,
   walletBalance = 0,
+  isLoading = false, 
 }) {
   const planDetails = {
     basic: { name: "Basic", amount: 15000, image: "/basic.svg" },
@@ -132,17 +133,35 @@ export default function PromoteAdModal({
         <div className="p-6 pt-0 flex justify-center gap-2 items-center border-t border-[#F0F0F0] bg-white rounded-b-[24px]">
           <Button
             onClick={onCancel}
+            disabled={isLoading}
             className="flex items-center justify-center w-full md:w-[150px] 
             h-[44px] md:h-[52px] rounded-[8px] border border-[#CDCDD7] font-[500] 
             text-[14px] text-[#525252] whitespace-nowrap bg-white hover:bg-gray-50 px-4"
           >
-            No, Post for free
+            {isLoading ? (
+              <span className="flex items-center gap-2">
+               <svg className="animate-spin h-4 w-4 text-[#525252]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+               </svg>
+               Processing...
+              </span>
+            ): "No, Post for free"}
           </Button>
           <Button
             onClick={onConfirm}
+            disabled={isLoading}
             className="md:w-[280px] md:h-[52px] md:rounded-[8px] font-[500] md:text-[14px] whitespace-nowrap bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white hover:opacity-90"
           >
-            {hasWalletFunds ? "Continue to Payment" : "Yes, promote my ad"}
+            {isLoading ? (
+              <span className="flex items-center gap-2">
+                <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                 </svg>
+                 Processing...
+              </span>
+            ) : (hasWalletFunds ? "Continue to Payment" : "Yes, promote my ad")}
           </Button>
         </div>
       </div>

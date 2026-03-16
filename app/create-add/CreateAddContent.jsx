@@ -578,14 +578,6 @@ export default function CreateCarContent() {
         return;
       }
 
-      // Check verification status 
-      if (!user.hasSubmittedVerification) {
-        toast.error("You must submit your personal or business verification before posting ads");
-        router.push("/become-verified");
-        setLoading(false);
-        return;
-      }
-
       const { baseCategory, categoryValue } = getCategoryDetails();
       const formData = new FormData();
       
