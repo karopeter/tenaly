@@ -16,6 +16,7 @@ import {
 import { useAuth } from "../context/AuthContext";
 import api from "@/services/api";
 import { format, isSameDay, parseISO } from "date-fns";
+import { toast } from "react-toastify";
 import { useSearchParams } from "next/navigation";
 
 
@@ -198,18 +199,36 @@ function MessageContent() {
     const socket = initialSocket(token);
     socketRef.current = socket;
 
-    const handleReceiveMessage = (msg) => {
-      setConversations((prev) => {
-        if (prev.some((existingMsg) => existingMsg._id === msg._id)) {
-          return prev;
-        }
-        return [...prev, msg];
-      });
-      setLastMessages((prev) => ({
-        ...prev,
-        [msg.from._id === profile._id ? msg.to._id : msg.from._id]: msg.text,
-      }));
-    };
+   const handleReceiveMessage = (msg) => {
+     setConversations((prev) => {
+       if (prev.some((existingMsg) => existingMsg._id === msg._id)) {
+        return prev;
+       }
+       return [...prev, msg];
+     });
+
+     const fromId = typeof msg.from === 'object' ? msg.from._id?.toString() : msg.from?.toString();
+     const toId = typeof msg.to === 'object' ? msg.to._id?.toString() : msg.to?.toString();
+     const otherUserId = fromId === profile?._id?.toString() ? toId : fromId;
+
+     setLastMessages((prev) => ({
+       ...prev,
+       [otherUserId]: msg.text,
+     }));
+
+     // Bubble contact to top of list 
+     setContacts((prev) => {
+       const idx = prev.findIndex((c) => c._id?.toString() === otherUserId);
+        if (idx <= 0) return prev; // top or not found 
+        const updated = [...prev];
+        const [contact] = updated.splice(idx, 1);
+        return [contact, ...updated];
+     });
+     setLastMessages((prev) => ({
+       ...prev,
+       [selectedUser._id]: text,
+     }));
+   };
 
     const handleTyping = (userId) => {
       if (userId !== profile._id) setTypingUser(userId);
@@ -277,6 +296,18 @@ function MessageContent() {
     // send over socket
     sendMessage(msgData);
     emitStopTyping(chatRoomId);
+
+    setContacts((prev) => {
+      const idx = prev.findIndex((c) => c._id === selectedUser._id);
+      if (idx <= 0) return prev;
+      const updated = [...prev];
+      const [contact] = updated.splice(idx, 1);
+      return [contact, ...updated];
+    });
+    setLastMessages((prev) => ({
+      ...prev,
+      [selectedUser._id]: text,
+    }));
   };
 
   // handleUserClick: create conversation, fetch history, add to contacts immediately
@@ -370,7 +401,7 @@ function MessageContent() {
       // Update the message locally so UI replace accepted status 
       setConversations(prev => 
         prev.map(msg => 
-          msg.offerDetails?.offerId === offerId 
+          (msg.offerDetails?.offerId?._id || msg.offerDetails?.offerId)?.toString() === offerId?.toString()
             ? { ...msg, offerDetails: { ...msg.offerDetails, status: "accepted"} }
             : msg 
         )
@@ -406,8 +437,8 @@ function MessageContent() {
         !lastDate || !isSameDay(parseISO(lastDate), parseISO(msg.createdAt));
       lastDate = msg.createdAt;
 
-      const fromId = typeof msg.from === "object" ? msg.from._id : msg.from;
-      const isFromSelf = fromId === profile?._id;
+      const fromId = typeof msg.from === "object" ? msg.from._id?.toString() : msg.from?.toString();
+      const isFromSelf = fromId === profile?._id?.toString();
 
       const senderImg = isFromSelf
         ? profile?.image || "/profile-circles1.svg"
@@ -503,16 +534,16 @@ function MessageContent() {
                     </p>
                   )}
                   {/* Only show accept/reject to the seller (non-self) and if pending */}
-                  {!isFromSelf && msg.offferDetails?.status === "pending" && (
+                  {!isFromSelf && msg.offerDetails?.status === "pending" && (
                       <div className="flex gap-2 mt-3">
                       <button
-                        onClick={() => handleAcceptOffer(msg.offerDetails.offerId)}
+                        onClick={() => handleAcceptOffer(msg.offerDetails.offerId?._id || msg.offerDetails.offerId)}
                         className="flex-1 bg-green-500 hover:bg-green-600 text-white text-xs py-2 px-3 rounded-lg font-medium transition-colors"
                       >
                         Accept 
                       </button>
                       <button
-                       onClick={() => handleRejectOffer(msg.offerDetails.offerId)}
+                       onClick={() => handleRejectOffer(msg.offerDetails.offerId?._id || msg.offerDetails.offerId)}
                        className="flex-1 bg-red-500 hover:bg-red-600 text-white text-xs py-2 px-3 rounded-lg font-medium transition-colors">
                         Reject
                       </button>
@@ -529,7 +560,7 @@ function MessageContent() {
               )}
 
           <div className="text-sm leading-relaxed">
-         {msg.text && msg.productId && msg.productTitle ? (
+         {msg.messageType !== "offer" && msg.text && msg.productId && msg.productTitle ? (
         <>
          {msg.text.split(`"${msg.productTitle}"`)[0]}
          <Link 
@@ -544,7 +575,7 @@ function MessageContent() {
           {msg.text.split(`"${msg.productTitle}"`)[1]}
        </>
       ) : (
-       msg.text
+        msg.messageType !== "offer" ? msg.text : null
       )}
            </div>
               <div className={`text-[10px] mt-1 ${isFromSelf ? 'text-blue-100' : 'text-gray-500'}`}>
