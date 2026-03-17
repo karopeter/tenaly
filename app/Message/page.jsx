@@ -6,7 +6,6 @@ import Img from "../components/Image";
 import ChatInput from "../components/ChatInput";
 import {
   initialSocket,
-  disconnectSocket,
   joinRoom,
   sendMessage,
   emitTyping,
@@ -414,9 +413,9 @@ function MessageContent() {
       await api.post(`/offer/reject-offer/${offerId}`);
       setConversations(prev => 
        prev.map(msg => 
-         (msg.offerDetails?.offerId?._id || msg.offerDetails?.offerId)?.toString() === offerId?.toString()
-         ? { ...msg, offerDetails: { ...msg.offerDetails, status: "rejected"} }
-         : msg
+       (msg.offerDetails?.offerId?._id || msg.offerDetails?.offerId)?.toString() === offerId?.toString()
+          ? { ...msg, offerDetails: { ...msg.offerDetails, status: "rejected"} }
+          : msg 
        )
       );
       toast.success("Offer rejected");
@@ -532,7 +531,9 @@ function MessageContent() {
                   )}
                   {/* Only show accept/reject to the seller (non-self) and if pending */}
                   {!isFromSelf && msg.offerDetails?.status === "pending" && (
-                      <div className="flex gap-2 mt-3">
+                    <>
+                    <p className="text-green-900 text-xl font-medium">Reply to Accept or Reject this Offer. </p>
+                      {/* <div className="flex gap-2 mt-3">
                       <button
                         onClick={() => handleAcceptOffer(msg.offerDetails.offerId?._id || msg.offerDetails.offerId)}
                         className="flex-1 bg-green-500 hover:bg-green-600 text-white text-xs py-2 px-3 rounded-lg font-medium transition-colors"
@@ -544,7 +545,8 @@ function MessageContent() {
                        className="flex-1 bg-red-500 hover:bg-red-600 text-white text-xs py-2 px-3 rounded-lg font-medium transition-colors">
                         Reject
                       </button>
-                    </div>
+                    </div> */}
+                    </>
                   )}
                   {msg.offerDetails?.status && msg.offerDetails.status !== "pending" && (
                     <p className={`text-xs mt-2 font-semibold capitalize ${
