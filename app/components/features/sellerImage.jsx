@@ -41,7 +41,7 @@ const SellerImage = ({ sellerId }) => {
   if (!sellerDetails) return null;
 
   const verificationStatus = sellerDetails?.verificationStatus || {};
-  const isPersonalVerified = verificationStatus.personal = "verified";
+  const isPersonalVerified = verificationStatus.personal === "verified";
   const isBusinessVerified = verificationStatus.business === "verified";
 
   const showVerifiedBadge = isPersonalVerified || isBusinessVerified;
@@ -62,7 +62,7 @@ const SellerImage = ({ sellerId }) => {
       />
 
       {/* Verified Badge - Only shows if verified */}
-      {showVerifiedBadge && (
+      {isPersonalVerified && (
         <Img 
           src="/profile-verified.svg"
           alt="Verified Badge"

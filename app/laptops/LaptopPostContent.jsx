@@ -284,7 +284,6 @@ export default function LaptopPostContent() {
         login(profileRes.data, token);
       } catch (error) {
         console.error("Failed to revalidate profile:", error);
-        toast.error("Failed to load latest user profile.");
       }
     };
 
@@ -392,22 +391,32 @@ export default function LaptopPostContent() {
     await submitAd("free");
   }, [submitAd]);
 
+  // const promoteAd = useCallback(async () => {
+  //   if (!profile) {
+  //     toast.error("Profile not loaded. Please try again.");
+  //     return;
+  //   }
+
+  //   const planCost = planAmounts[selectedPlan] || 0;
+  //   const walletBalance = profile.walletBalance || 0;
+
+  //   if (walletBalance >= planCost) {
+  //     setShowModalPromote(false);
+  //     setShowWalletModal(true);
+  //   } else {
+  //     await submitAd(selectedPlan, false);
+  //   }
+  // }, [selectedPlan, submitAd, profile]);
+
   const promoteAd = useCallback(async () => {
     if (!profile) {
-      toast.error("Profile not loaded. Please try again.");
+      toast.error('Profile not loaded. Please try again.');
       return;
     }
+    setShowModalPromote(false);
+    setShowModalPromote(true);
+  }, [profile]);
 
-    const planCost = planAmounts[selectedPlan] || 0;
-    const walletBalance = profile.walletBalance || 0;
-
-    if (walletBalance >= planCost) {
-      setShowModalPromote(false);
-      setShowWalletModal(true);
-    } else {
-      await submitAd(selectedPlan, false);
-    }
-  }, [selectedPlan, submitAd, profile]);
 
   const handleWalletPayment = useCallback(async () => {
     await submitAd(selectedPlan, true);
@@ -713,6 +722,7 @@ export default function LaptopPostContent() {
               onCancel={postAdForFree}
               onConfirm={promoteAd}
               onClose={() => setShowModalPromote(false)}
+              walletBalance={profile?.walletBalance || 0}
             />
           )}
           

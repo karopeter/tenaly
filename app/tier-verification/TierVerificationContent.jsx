@@ -3,8 +3,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Img from "../components/Image";
 import Button from "../components/Button";
-import { useState, useEffect } from "react";
-import { Upload, X, ArrowLeft } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { X, ArrowLeft } from "lucide-react";
 import api from "@/services/api";
 import { toast } from "react-toastify";
 import Tier4UnlockedModal from "../components/UI/Tier4UnlockedModal";
@@ -21,6 +21,26 @@ export default function TierVerificationContent() {
     const [tierStatus, setTierStatus] = useState(null);
     const [loading, setLoading] = useState(true);
     const [currentLevel, setCurrentLevel] = useState(0);
+    const [showApprovalModal, setShowApprovalModal] = useState(false);
+    const [approvedTierLevel, setApprovedTierLevel] = useState(false);
+    const prevTierStatusRef = useRef(null);
+
+
+    useEffect(() => {
+      const fetchProfile = async () => {
+         try {
+          const res = await api.get("/profile");
+          setTier1Form(prev => ({
+            ...prev,
+            email: res.data.email || "",
+            phone: res.data.phoneNumber || "",
+          }));
+         } catch (error) {
+           console.error("Error fetching profile:", err);
+         }
+      };
+      fetchProfile();
+    }, [])
 
     useEffect(() => {
       fetchTierStatus();
@@ -38,6 +58,38 @@ export default function TierVerificationContent() {
 
      useEffect(() => {
        fetchTierStatus();
+     }, []);
+
+     useEffect(() => {
+      const interval = setInterval(async () => {
+         try {
+          const response = await api.get("/tier-verification/status");
+          const newStatus = response.data;
+
+          // Compare with previous status to detect new approvals 
+          if (prevTierStatusRef.current) {
+            const prev = prevTierStatusRef.current;
+            if (
+             (newStatus.tier1?.status === "approved" && prev.tier1?.status !== "approved") || 
+             (newStatus.tier2?.status === "approved" && prev.tier2?.status !== "approved") ||
+             (newStatus.tier3?.status === "approved" && prev.tier3?.status !== "approved") 
+            ) {
+              const newlyApprovedTier = 
+                 newStatus.tier3?.status === "approved" && prev.tier3?.status !== "approved" ? 3 :
+                 newStatus.tier2?.status === "approved" && prev.tier2?.status !== "approved" ? 2 : 1;
+
+              setApprovedTierLevel(newlyApprovedTier);
+              setShowApprovalModal(true);
+              setTierStatus(newStatus);
+              setCurrentLevel(newStatus.currentLevel); 
+            }
+          }
+          prevTierStatusRef.current = newStatus;
+         } catch (error) {
+           // silent fail on polling 
+         }
+      }, 1500); // poll every 15 seconds 
+      return () => clearInterval(interval);
      }, []);
 
      const fetchTierStatus = async () => {
@@ -382,7 +434,8 @@ export default function TierVerificationContent() {
                               label="Email"
                                 type="email"
                                 value={tier1Form.email}
-                                onChange={(e) => setTier1Form({...tier1Form, email: e.target.value})}
+                                readOnly 
+                               // onChange={(e) => setTier1Form({...tier1Form, email: e.target.value})}
                                 required
                             />
                         </div>
@@ -393,7 +446,8 @@ export default function TierVerificationContent() {
                                   label="Phone Number"
                                     type="tel"
                                     value={tier1Form.phone}
-                                    onChange={(e) => setTier1Form({...tier1Form, phone: e.target.value})}
+                                    readOnly
+                                    //onChange={(e) => setTier1Form({...tier1Form, phone: e.target.value})}
                                     required
                                 />
                             </div>
@@ -996,6 +1050,37 @@ export default function TierVerificationContent() {
        visible={showTier4Modal}
        onClose={() => setShowTier4Modal(false)}
        />
+
+       {showApprovalModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-[24px] shadow-lg w-[90%] max-w-[460px] mx-4 p-8 flex flex-col items-center text-center">
+            <div className="text-6xl mb-4">🎉</div>
+            <h2 className="text-[#1A1A2E] font-bold text-[22px] mb-3">
+               Congratulations
+            </h2>
+            <p className="text-[#767676] font-normal text-[14px] leading-relaxed mb-8 max-w-[320px]">
+               Your Tier {approvedTierLevel} verification has been approved! You can now start posting listing ads on Tenaly.
+            </p>
+            <div className="flex gap-3 w-full">
+              <button
+               onClick={() => setShowApprovalModal(false)}
+               className="flex-1 h-[52px] rounded-[8px] border border-[#CDCDD7] text-[#525252] font-medium text-[14px]"
+              >
+               Close 
+              </button>
+              <button
+               onClick={() => {
+                 setShowApprovalModal(false); 
+                 router.push("/Add");
+               }}
+               className="flex-1 h-[52px] rounded-[8px] bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white font-medium text-[14px]"
+              >
+               Post Ad 
+              </button>
+            </div>
+          </div>
+        </div>
+       )}
       </div>
     );
 }
