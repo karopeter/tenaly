@@ -7,6 +7,7 @@ import InputField from "../input";
 import { useRouter } from "next/navigation";
 import { Plus, MoreVertical, Loader2, X } from "lucide-react"; // Import X for the remove icon
 import LocationModal from "../UI/locationModal";
+import DropdownPage from "../dropdowns/dropdown-page";
 import api from "@/services/api";
 import { toast } from "react-toastify";
 
@@ -64,6 +65,7 @@ export default function BusinessForm({ initialData, isEditMode, businessId, mode
     const [state, setState] = useState("");
     const [lga, setLga] = useState("");
     const [location, setLocation] = useState("Choose location");
+    const [businessCategory, setBusinessCategory] = useState('');
     const [addresses, setAddresses] = useState([""]);
     const [showMobileMenu, setShowMobileMenu] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -99,9 +101,10 @@ export default function BusinessForm({ initialData, isEditMode, businessId, mode
           businessName,
           aboutBusiness,
           location,
+          businessCategory,
           addresses
         });
-        toast.success("Business added successfully!");
+        toast.success("Business added successfully!", res);
         router.push("/BusinessHours");
       } catch(err) {
         console.error("Add business error:", err);
@@ -172,9 +175,40 @@ export default function BusinessForm({ initialData, isEditMode, businessId, mode
                   placeholder="About Business"
                   value={aboutBusiness}
                   onChange={(e) => setAboutBusiness(e.target.value)}
-                  className="w-full h-[120px] border-[1px] mt-5 border-[#2C2CCD] rounded-[4px] px-3 py-2 bg-white focus:outline-none resize-none"
+                  className="w-full h-[120px] border-[1px] mt-5 border-[#2C2CCD] rounded-[4px] px-3 py-2 bg-white mb-5 focus:outline-none resize-none"
                 >
                 </textarea>
+                <div className="relative w-full mb-5">
+                 <select
+                  value={businessCategory}
+                  onChange={(e) => setBusinessCategory(e.target.value)}
+                  required 
+                 className="w-full h-[52px] mb-5 text-[#525252] border border-[#CDCDD7] rounded-[4px] px-3 focus:outline-none focus:border-[#2C2CCD] bg-white appearance-none cursor-pointer"
+                 style={{ WebKitApperance: 'none', MozApperance: 'none' }}
+                >
+                <option value="">Select Business Category</option>
+                <option value="vehicle">Vehicles</option>
+                <option value="property">Property</option>
+                <option value="agriculture">Agriculture & Food</option>
+                <option value="kids">Baby & Kids</option>
+                <option value="pets">Animals & Pets</option>
+                <option value="services">Services</option>
+                <option value="equipments">Equipments & Machineries</option>
+                <option value="gadgets">Gadgets</option>
+                <option value="laptops">Laptops & Computers</option>
+                <option value="fashions">Fashion</option>
+                <option value="households">Household Items</option>
+                <option value="beauty">Beauty & Health</option>
+                <option value="construction">Building & Construction</option>
+                <option value="job">Jobs</option>
+                <option value="hire">Available for Hire</option>
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-3 flex pt-4">
+                  <svg className="w-4 h-4 text-[#525252]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                 </div>
+                </div>
                <div 
                  onClick={() => setShowLocationModal(true)}
                  className="w-full mt-2 h-[52px]

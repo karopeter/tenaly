@@ -375,22 +375,14 @@ export default function BeautyGroomingPostContent() {
     await submitAd("free");
   }, [submitAd]);
 
-  const promoteAd = useCallback(async () => {
-    if (!profile) {
-      toast.error("Profile not loaded. Please try again.");
-      return;
-    }
-
-    const planCost = planAmounts[selectedPlan] || 0;
-    const walletBalance = profile.walletBalance || 0;
-
-    if (walletBalance >= planCost) {
-      setShowModalPromote(false);
-      setShowWalletModal(true);
-    } else {
-      await submitAd(selectedPlan, false);
-    }
-  }, [selectedPlan, submitAd, profile]);
+ const promoteAd = useCallback(async () => {
+   if (!profile) {
+    toast.error("Profile not loaded. Please try again.");
+    return;
+   }
+   setShowModalPromote(false);
+   setShowWalletModal(true);
+ })
 
   const handleWalletPayment = useCallback(async () => {
     await submitAd(selectedPlan, true);
@@ -400,17 +392,26 @@ export default function BeautyGroomingPostContent() {
     await submitAd(selectedPlan, false);
   }, [selectedPlan, submitAd]);
 
-  const handlePost = useCallback(async () => {
-    if (!profile) {
+ const handlePost = useCallback(async () => {
+     if (!profile) {
       toast.error("You need to be logged in to post an ad.");
       return;
-    }
+     }
 
-    const successfulPaidPlans = profile.paidPlans?.filter(p => p.status === "success");
-    let highestPlan = "free";
-    let highestPlanPriority = 0;
+     let freshProfile = profile;
+     try {
+     const profileRes = await api.get("/profile");
+     login(profileRes.data, token);
+     freshProfile = profileRes.data;
+     } catch (err) {
+      console.error("Failed to refresh profile:", err);
+     }
 
-    if (successfulPaidPlans.length > 0) {
+     const successfulPaidPlans = freshProfile.paidPlans?.filter(p => p.status === "success");
+     let highestPlan = "free";
+     let highestPlanPriority = 0;
+
+     if (successfulPaidPlans?.length > 0) {
       for (const plan of successfulPaidPlans) {
         const planPriority = planHierarchy[plan.planType] || 0;
         if (planPriority > highestPlanPriority) {
@@ -418,21 +419,16 @@ export default function BeautyGroomingPostContent() {
           highestPlan = plan.planType;
         }
       }
-    }
+     }
 
-    console.log("Highest paid plan found:", highestPlan);
-
-    if (highestPlan !== "free") {
-      console.log("Using existing paid plan:", highestPlan);
+     if (highestPlan !== "free") {
       toast.success(`Using your existing ${highestPlan} plan to post this ad.`);
       await submitAd(highestPlan, false);
-    } else {
-      console.log("No paid plans found, showing promote modal");
+     } else {
       setSelectedPlan("basic");
       setShowModalPromote(true);
-      return;
-    }
-  }, [profile, submitAd]);
+     }
+   }, [profile, token, login, submitAd]);
 
   const handleSaveAsDraft = useCallback(async () => {
     try {

@@ -374,10 +374,23 @@ const isFashionAd = !!fashionAdData
   const formattedPrice = price ? `₦${price.toLocaleString()}` : "Price not set";
 
   // Get images
-  const imageArray = carAdData.vehicleImage || carAdData.propertyImage || carAdData.petsImage ||
-                     carAdData.agricultureImage || carAdData.kidsImage || carAdData.serviceImage ||
-                     carAdData.equipmentImage || carAdData.gadgetImage || carAdData.laptopImage ||
-                     carAdData.fashionImage || carAdData.householdImage || carAdData.beautyImage || [];
+  const imageArray = [
+  carAdData.vehicleImage,
+  carAdData.propertyImage,
+  carAdData.petsImage,
+  carAdData.agricultureImage,
+  carAdData.kidsImage,
+  carAdData.serviceImage,
+  carAdData.equipmentImage,
+  carAdData.gadgetImage,
+  carAdData.laptopImage,
+  carAdData.fashionImage,
+  carAdData.householdImage,
+  carAdData.beautyImage,
+  carAdData.constructionImage,
+  carAdData.jobImage,
+  carAdData.hireImage,
+].find(arr => Array.isArray(arr) && arr.length > 0) || [];
   const imageUrl = imageArray[0] || null;
 
   const location = detailAd.propertyAddress || detailAd.location || carAdData.location || "Location not specified";

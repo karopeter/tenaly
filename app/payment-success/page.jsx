@@ -44,7 +44,7 @@ function PostSuccessContent() {
     }
 
     if (!adType || !VERIFY_ENDPOINTS[adType]) {
-      toast.error("Unknown ad type. Please contact support");
+     // toast.error("Unknown ad type. Please contact support");
       router.push("/Add");
       return;
     }
@@ -96,17 +96,19 @@ function PostSuccessContent() {
           <h2 className="text-2xl font-bold text-gray-800 mb-2">Payment Successful!</h2>
           <p className="text-gray-600">Your ad has been posted successfully. Redirecting...</p>
         </>
-      ) : (
+      ) : status === null ? (
+       <p className="text-gray-500">Please wait...</p>
+      ): status === "failed" || status === "error" ? (
         <>
-          <div className="text-red-500 text-6xl mb-4">✗</div>
+         <div className="text-red-500 text-6xl mb-4">✗</div>
           <h2 className="text-2xl font-bold text-gray-800 mb-2">Payment Failed</h2>
           <p className="text-gray-600">
-            {status === "error"
-              ? "An error occurred. Please contact support."
-              : "Payment verification failed. Please contact support."}
-          </p>
+          {status === "error"
+           ? "An error occurred. Please contact support."
+            : "Payment verification failed. Please contact support."}
+        </p>
         </>
-      )}
+      ): null}
     </div>
   </div>
 );

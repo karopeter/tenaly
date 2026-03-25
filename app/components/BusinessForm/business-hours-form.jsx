@@ -173,13 +173,16 @@ export default function BusinessHoursForm() {
       try {
           await api.put(`/business/${businessId}/hours`, payload);
 
-          if (isEditMode) {
-              toast.success("Business Hour updated successfully!");
-              router.push(`/EditBusinessHour?businessId=${businessId}`);
-          } else {
-              toast.success("Business Hours saved successfully!");
-              router.push(`/EditBusinessHour?businessId=${businessId}`);
-          }
+          toast.success("Business Hours saved successfully!");
+          router.push(`/BusinessDelivery?businessI=${businessId}`);
+
+          // if (isEditMode) {
+          //     toast.success("Business Hour updated successfully!");
+          //     router.push(`/EditBusinessHour?businessId=${businessId}`);
+          // } else {
+          //     toast.success("Business Hours saved successfully!");
+          //     router.push(`/EditBusinessHour?businessId=${businessId}`);
+          // }
       } catch (err) {
         const errorMessage = err.response?.data?.message || "Failed to submit. Please try again.";
 

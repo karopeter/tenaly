@@ -42,7 +42,7 @@ const SellerInfo = ({ sellerId }) => {
   if (!sellerDetails) return null;
 
   // ✅ define isVerified from API data
-  const isVerified = !!sellerDetails?.isVerified;
+  const isVerified = sellerDetails?.verificationStatus?.business === 'verified';
 
   const handleCall = () => {
     window.open(`tel:${sellerDetails.phoneNumber}`, "_self");

@@ -325,6 +325,7 @@ const handleSendOffer = async () => {
 
   const businessProfileImage = business?.profileImage || business?.image;
   const isBusinessVerified = business?.isVerified;
+  const isPersonalVerified = business?.isPersonalVerified;
 
   const isNegotiable = () => {
   const vehicleNeg = vehicleAd?.negotiation === "Yes";

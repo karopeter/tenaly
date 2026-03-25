@@ -213,12 +213,13 @@ useEffect(() => {
   };
 
   const handlePostAdClick = () => {
-    if (role === "seller" && (!profile?.tierLevel || profile.tierLevel < 3)) {
+    if (role === "seller" && (!profile?.tierLevel || profile.tierLevel < 1)) {
       setShowVerificationModal(true);
     } else {
       router.push("/create-add");
     }
   };
+
   
 
 const handleEditIncompleteAd = async (carAdId, category) => {
@@ -6334,7 +6335,7 @@ useEffect(() => {
           Complete your verification
         </h3>
         <p className="text-[#868686] font-[400] font-inter text-[14px] mb-6">
-          You need to complete Tier 3 verification before you can post listings on Tenaly. This helps builds trust with buyers and increases your chances of making successful sales 
+         You need to complete at least Tier 1 verification before you can post listings on Tenaly. Tier 2 and Tier 3 are optional but help build more trust with buyers.
         </p>
         <div className='flex gap-3 justify-end'>
           <Button

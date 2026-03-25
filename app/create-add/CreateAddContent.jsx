@@ -9,6 +9,7 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import Button from "../components/Button";
 import { toast } from "react-toastify";
 import api from "@/services/api";
+import Link from "next/link";
 
 const routeMap = {
   "Commercial Property For Rent": "/commercial-rent",
@@ -284,6 +285,7 @@ export default function CreateCarContent() {
         const options = res.data.map((b) => ({
           label: b.businessName,
           value: b._id,
+          businessCategory: b.businessCategory,
         }));
         setBusinesses(options);
         if (options.length === 1) setBusinessId(options[0].value);
@@ -294,20 +296,27 @@ export default function CreateCarContent() {
     fetchBusinesses();
   }, []);
 
-  // const getCategoryDetails = () => {
-  //   if (category.includes(" - ")) {
-  //     const [base, value] = category.split(" - ");
-  //     return {
-  //       baseCategory: base,
-  //       categoryValue: value.trim(),
-  //     };
-  //   }
-  //   const value = category.trim();
-  //   return {
-  //     baseCategory: ["car", "bus", "tricycle"].includes(value) ? "Vehicle" : "Property",
-  //     categoryValue: value,
-  //   };
-  // };
+  useEffect(() => {
+     if (!category || businesses.length === 0) return;
+
+     const categoryType = getCategoryType(
+      category.includes(" - ") ? category.split(" - ")[1].trim() : category.trim()
+     );
+
+     const matchingBusinesses = businesses.filter(
+       (b) => b.businessCategory === categoryType
+     );
+
+     if (matchingBusinesses.length === 1) {
+      // Only one match - auto-select it 
+      setBusinessId(matchingBusinesses[0].value);
+     } else if (matchingBusinesses.length === 0) {
+       setBusinessId("");
+     }
+     // If multiple matches, leave it empty so users can choose 
+  }, [category, businesses]);
+
+ 
 
   const getCategoryDetails = () => {
   if (category.includes(" - ")) {
@@ -515,7 +524,7 @@ export default function CreateCarContent() {
   } else if (jobCategories.includes(value)) {
     return { baseCategory: "Jobs", categoryValue: value };
   } else if (servicesCategories.includes(value)) {
-      return { baseCategory: "Services", categoryValue: value };
+      return { baseCategory: "Jobs", categoryValue: value };
   } else if (hireCategories.includes(value)) {
     return { baseCategory: "Hire", categoryValue: value };
   } else if (beautyCategories.includes(value)) {
@@ -526,6 +535,41 @@ export default function CreateCarContent() {
   
   return { baseCategory: "Property", categoryValue: value };
 };
+
+function getCategoryType(val) {
+  const vehicleCategories = ['car', 'bus', 'tricycle'];
+  const agricultureCategories = ['Fresh Produce (fruits, vegetables, grains)', 'Livestock (poultry, goats, cattle, pigs, etc.)', 'Seeds & Seedlings', 'Animal Feed', 'Fertilizers', 'Farm Tools & Equipment', 'Agro Chemicals (pesticides, herbicides)', 'Farm Services (plowing, irrigation, consultancy)'];
+  const kidsCategories = ['Baby Clothes', 'Kids Clothes', 'Shoes', 'Toys & Games', 'Baby Gear (strollers, car seats, carriers)', 'Feeding (bottles, high chairs, breast pumps)', 'Furniture (cribs, cots, wardrobes)', 'Health & Safety (monitors, baby gates)', 'School Supplies (bags, books, stationery)'];
+  const petsCategories = ['Dogs', 'Cats', 'Birds', 'Fish & Aquarium', 'Small Pets (rabbits, hamsters, guinea pigs)', 'Pet Accessories', 'Pet Food'];
+  const propertyCategories = ['Commercial Property For Rent', 'Commercial Property For Sale', 'House and Apartment Property For Rent', 'House and Apartment Property For Sale', 'Land and Plot For Rent', 'Land and Plot For Sale', 'Short Let Property', 'Event Center And Venues'];
+  const servicesCategories = ['Tech & IT', 'Lessons & Training', 'Cleaning', 'Repairs & Maintenance', 'Painting & Well Finishing', 'Plumbing', 'Electrical Wiring & Installation', 'Furniture Assembly', 'Beauty & Wellness', 'Creative & Media', 'Event Planning & Coordination', 'Dj Services', 'MC / Host Services'];
+  const equipmentsCategories = ['Industrial Machines', 'Construction Equipment', 'Power Tools', 'Manufacturing Equipment', 'Medical & Laboratory Equipment', 'Kitchen & Restaurant Equipment', 'Printing & Packaging Machines', 'Agricultural Machinery', 'Cleaning & Laundry Equipment', 'Office Equipment'];
+  const gadgetsCategories = ['Mobile Phones', 'Tablets', 'Smartwatches', 'Phone Accessories', 'Tablet Accessories', 'Power Banks', 'Chargers & Cables', 'Screen Protectors', 'Pouch', 'Covers', 'Earphones / Headsets'];
+  const laptopCategories = ['Laptops', 'Desktop Computers', 'Computer Accessories', 'Monitors', 'Printers & Scanners', 'Networking Equipment', 'Storage Devices', 'Software', 'Others'];
+  const fashionCategories = ['Clothing', 'Footwear', 'Bags', 'Jewellery', 'Watches', 'Accessories', 'Eyewear (Glasses & Sunglasses)', 'Wedding & Event Wear'];
+  const householdCategories = ['Furniture', 'Home Appliances', 'Kitchen Appliances', 'Home Decor', 'Lighting', 'Bedding & Linen', 'Curtains & Blinds', 'Kitchenware & Cookware', 'Cleaning Equipment', 'Bathroom Accessories', 'Garden & Outdoor'];
+  const beautyCategories = ['Skin Care', 'Hair Care', 'Makeup & Cosmetics', 'Fragrances (Perfume & Body Spray)', 'Bath & Body', 'Nail Care', 'Beauty Tools & Accessories', 'Personal Grooming Devices', 'Oral Care', "Men's Grooming"];
+  const constructionCategories = ['Building Material', 'Eletrical Equipment & Tools', 'Plumbing Material & Fittings', 'Paints & Finishes', 'Hand Tools', 'Safety Equipment & Workwear', 'Repair & Maintenance Services', 'Construction  Equipment', 'Roofing Materials', 'Flooring & Tiles'];
+  const jobCategories = ['Jobs', 'Jobs for Hire', 'Jobs for sale'];
+  const hireCategories = ['Hire Tech & IT', 'Lessons & Trainings', 'Hire Cleaners', 'Repairs & Maintenance', 'Painting & Wall Finishing', 'Plumbing', 'Eletrical Wiring & Installation', 'Furniture Assembly', 'Beauty & Wellness', 'Creative & Media', 'Event Planning for Hire', 'DJ Services', 'MC / Host Services'];
+
+  if (vehicleCategories.includes(val)) return 'vehicle';
+  if (propertyCategories.includes(val)) return 'property';
+  if (agricultureCategories.includes(val)) return 'agriculture';
+  if (kidsCategories.includes(val)) return 'kids';
+  if (petsCategories.includes(val)) return 'pets';
+  if (servicesCategories.includes(val)) return 'job';
+  if (equipmentsCategories.includes(val)) return 'equipments';
+  if (gadgetsCategories.includes(val)) return 'gadgets';
+  if (laptopCategories.includes(val)) return 'laptops';
+  if (fashionCategories.includes(val)) return 'fashions';
+  if (householdCategories.includes(val)) return 'households';
+  if (beautyCategories.includes(val)) return 'beauty';
+  if (constructionCategories.includes(val)) return 'construction';
+  if (jobCategories.includes(val)) return 'job';
+  if (hireCategories.includes(val)) return 'hire';
+  return null;
+}
 
 
   const handleImageUpload = (e) => {
@@ -579,6 +623,24 @@ export default function CreateCarContent() {
       }
 
       const { baseCategory, categoryValue } = getCategoryDetails();
+      const requiredCategoryType  = getCategoryType(categoryValue.trim());
+      const matchingBusinesses = businesses.filter(
+        (b) => b.businessCategory === requiredCategoryType
+      );
+
+      if (matchingBusinesses.length === 0) {
+        toast.error(`You don't have a business registered under "${requiredCategoryType}". Please create one first.`);
+        setLoading(false);
+        return;
+      }
+
+      // verify the selected businessId belongs to a matching business 
+      const selectedBusinessIsValid = matchingBusinesses.some(b => b.value === businessId);
+      if (!selectedBusinessIsValid) {
+        toast.error(`The selected business is not registered under "${requiredCategoryType}". Please select the correct business.`);
+        setLoading(false);
+        return;
+      }
       const formData = new FormData();
       
       formData.append("category", categoryValue);
@@ -676,7 +738,14 @@ export default function CreateCarContent() {
           {/* Category */}
           <div className="mb-4 flex justify-center">
             <div className="w-full md:w-[481px]">
-              <MainCategoryDropdown value={category} onChange={setCategory} />
+              <MainCategoryDropdown 
+               value={category} 
+               onChange={(val) => {
+                setCategory(val);
+                setBusinessId("");
+               }}
+               
+               />
             </div>
           </div>
 
@@ -707,19 +776,39 @@ export default function CreateCarContent() {
           {/* Business selection */}
           <div className="mb-4 flex justify-center">
             <div className="w-full md:w-[481px]">
-              <select
+             {(() => {
+              const categoryType = category
+               ? getCategoryType(category.includes(" - ") ? category.split(" - ")[1].trim() : category.trim())
+               : null;
+               const filteredBusinesses = categoryType
+               ? businesses.filter(b => b.businessCategory === categoryType)
+               : businesses;
+
+              return (
+               <>
+               <select
                 value={businessId}
                 onChange={(e) => setBusinessId(e.target.value)}
                 className="w-full h-[52px] border border-[#CDCDD7] rounded-[4px] px-3 focus:outline-none"
-                required
-              >
+                required>
                 <option value="">Select Business</option>
-                {businesses.map((biz) => (
+                 {filteredBusinesses.map((biz) => (
                   <option key={biz.value} value={biz.value}>
-                    {biz.label}
-                  </option>
-                ))}
+                  {biz.label}
+                 </option>
+               ))}
               </select>
+             {category && categoryType && filteredBusinesses.length === 0 && (
+              <p className="text-[#CB0D0D] text-[13px] mt-2 text-left font-inter">
+               You don't have a business registered under "{categoryType}". Please{" "}
+               <Link href="/Business" className="text-[#1031AA] underline font-[500]">
+                 create one first
+                </Link>.
+              </p>
+               )}
+              </>
+              );
+             })()}
             </div>
           </div>
 

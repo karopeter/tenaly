@@ -284,7 +284,7 @@ export default function MorePostCarContent() {
         login(profileRes.data, token);
       } catch (error) {
         console.error("Failed to revalidate profile:", error);
-        toast.error("Failed to load latest user profile.");
+      //  toast.error("Failed to load latest user profile.");
       }
     };
 
@@ -401,22 +401,32 @@ export default function MorePostCarContent() {
     await submitAd("free");
   }, [submitAd]);
 
-  const promoteAd = useCallback(async () => {
-    if (!profile) {
+  // const promoteAd = useCallback(async () => {
+  //   if (!profile) {
+  //     toast.error("Profile not loaded. Please try again.");
+  //     return;
+  //   }
+
+  //   const planCost = planAmounts[selectedPlan] || 0;
+  //   const walletBalance = profile.walletBalance || 0;
+
+  //   if (walletBalance >= planCost) {
+  //     setShowModalPromote(false);
+  //     setShowWalletModal(true);
+  //   } else {
+  //     await submitAd(selectedPlan, false);
+  //   }
+  // }, [selectedPlan, submitAd, profile]);
+
+   const promoteAd = useCallback(async () => {
+     if (!profile) {
       toast.error("Profile not loaded. Please try again.");
       return;
-    }
+     }
+     setShowModalPromote(false);
+     setShowWalletModal(true);
+   }, [profile]);
 
-    const planCost = planAmounts[selectedPlan] || 0;
-    const walletBalance = profile.walletBalance || 0;
-
-    if (walletBalance >= planCost) {
-      setShowModalPromote(false);
-      setShowWalletModal(true);
-    } else {
-      await submitAd(selectedPlan, false);
-    }
-  }, [selectedPlan, submitAd, profile]);
 
   const handleWalletPayment = useCallback(async () => {
     await submitAd(selectedPlan, true);
@@ -426,17 +436,62 @@ export default function MorePostCarContent() {
     await submitAd(selectedPlan, false);
   }, [selectedPlan, submitAd]);
 
+  // const handlePost = useCallback(async () => {
+  //   if (!profile) {
+  //     toast.error("You need to be logged in to post an ad.");
+  //     return;
+  //   }
+
+  //   const successfulPaidPlans = profile.paidPlans?.filter(p => p.status === "success");
+  //   let highestPlan = "free";
+  //   let highestPlanPriority = 0;
+
+  //   if (successfulPaidPlans.length > 0) {
+  //     for (const plan of successfulPaidPlans) {
+  //       const planPriority = planHierarchy[plan.planType] || 0;
+  //       if (planPriority > highestPlanPriority) {
+  //         highestPlanPriority = planPriority;
+  //         highestPlan = plan.planType;
+  //       }
+  //     }
+  //   }
+
+  //   console.log("Highest paid plan found:", highestPlan);
+
+  //   if (highestPlan !== "free") {
+  //     console.log("Using existing paid plan:", highestPlan);
+  //     toast.success(`Using your existing ${highestPlan} plan to post this ad.`);
+  //     await submitAd(highestPlan, false);
+  //   } else {
+  //     console.log("No paid plans found, showing promote modal");
+  //     setSelectedPlan("basic");
+  //     setShowModalPromote(true);
+  //     return;
+  //   }
+  // }, [profile, submitAd]);
+
+
   const handlePost = useCallback(async () => {
     if (!profile) {
-      toast.error("You need to be logged in to post an ad.");
+      toast.error('You need to be logged in to post an ad.');
       return;
     }
 
-    const successfulPaidPlans = profile.paidPlans?.filter(p => p.status === "success");
+    // fetch fresh profile before checking paid plans 
+    let freshProfile = profile;
+    try {
+     const profileRes = await api.get("/profile");
+     login(profileRes.data, token);
+     freshProfile = profileRes.data;
+    } catch (err) {
+     console.error("Failed to refresh profile:", err);
+    }
+
+    const successfulPaidPlans = freshProfile.paidPlans?.filter(p => p.status === "success");
     let highestPlan = "free";
     let highestPlanPriority = 0;
 
-    if (successfulPaidPlans.length > 0) {
+    if (successfulPaidPlans?.length > 0) {
       for (const plan of successfulPaidPlans) {
         const planPriority = planHierarchy[plan.planType] || 0;
         if (planPriority > highestPlanPriority) {
@@ -446,19 +501,14 @@ export default function MorePostCarContent() {
       }
     }
 
-    console.log("Highest paid plan found:", highestPlan);
-
     if (highestPlan !== "free") {
-      console.log("Using existing paid plan:", highestPlan);
       toast.success(`Using your existing ${highestPlan} plan to post this ad.`);
       await submitAd(highestPlan, false);
     } else {
-      console.log("No paid plans found, showing promote modal");
       setSelectedPlan("basic");
       setShowModalPromote(true);
-      return;
     }
-  }, [profile, submitAd]);
+  }, [profile, token, login, submitAd]);
 
   const handleSaveAsDraft = useCallback(async () => {
     try {
@@ -724,6 +774,7 @@ export default function MorePostCarContent() {
               onCancel={postAdForFree}
               onConfirm={promoteAd}
               onClose={() => setShowModalPromote(false)}
+              walletBalance={profile?.walletBalance ||0}
             />
           )}
           

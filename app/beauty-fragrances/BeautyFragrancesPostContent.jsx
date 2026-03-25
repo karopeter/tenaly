@@ -400,17 +400,60 @@ export default function BeautyFragrancePostContent() {
     await submitAd(selectedPlan, false);
   }, [selectedPlan, submitAd]);
 
-  const handlePost = useCallback(async () => {
-    if (!profile) {
+  // const handlePost = useCallback(async () => {
+  //   if (!profile) {
+  //     toast.error("You need to be logged in to post an ad.");
+  //     return;
+  //   }
+
+  //   const successfulPaidPlans = profile.paidPlans?.filter(p => p.status === "success");
+  //   let highestPlan = "free";
+  //   let highestPlanPriority = 0;
+
+  //   if (successfulPaidPlans.length > 0) {
+  //     for (const plan of successfulPaidPlans) {
+  //       const planPriority = planHierarchy[plan.planType] || 0;
+  //       if (planPriority > highestPlanPriority) {
+  //         highestPlanPriority = planPriority;
+  //         highestPlan = plan.planType;
+  //       }
+  //     }
+  //   }
+
+  //   console.log("Highest paid plan found:", highestPlan);
+
+  //   if (highestPlan !== "free") {
+  //     console.log("Using existing paid plan:", highestPlan);
+  //     toast.success(`Using your existing ${highestPlan} plan to post this ad.`);
+  //     await submitAd(highestPlan, false);
+  //   } else {
+  //     console.log("No paid plans found, showing promote modal");
+  //     setSelectedPlan("basic");
+  //     setShowModalPromote(true);
+  //     return;
+  //   }
+  // }, [profile, submitAd]);
+ 
+   const handlePost = useCallback(async () => {
+     if (!profile) {
       toast.error("You need to be logged in to post an ad.");
       return;
-    }
+     }
 
-    const successfulPaidPlans = profile.paidPlans?.filter(p => p.status === "success");
-    let highestPlan = "free";
-    let highestPlanPriority = 0;
+     let freshProfile = profile;
+     try {
+     const profileRes = await api.get("/profile");
+     login(profileRes.data, token);
+     freshProfile = profileRes.data;
+     } catch (err) {
+      console.error("Failed to refresh profile:", err);
+     }
 
-    if (successfulPaidPlans.length > 0) {
+     const successfulPaidPlans = freshProfile.paidPlans?.filter(p => p.status === "success");
+     let highestPlan = "free";
+     let highestPlanPriority = 0;
+
+     if (successfulPaidPlans?.length > 0) {
       for (const plan of successfulPaidPlans) {
         const planPriority = planHierarchy[plan.planType] || 0;
         if (planPriority > highestPlanPriority) {
@@ -418,21 +461,17 @@ export default function BeautyFragrancePostContent() {
           highestPlan = plan.planType;
         }
       }
-    }
+     }
 
-    console.log("Highest paid plan found:", highestPlan);
-
-    if (highestPlan !== "free") {
-      console.log("Using existing paid plan:", highestPlan);
+     if (highestPlan !== "free") {
       toast.success(`Using your existing ${highestPlan} plan to post this ad.`);
       await submitAd(highestPlan, false);
-    } else {
-      console.log("No paid plans found, showing promote modal");
+     } else {
       setSelectedPlan("basic");
       setShowModalPromote(true);
-      return;
-    }
-  }, [profile, submitAd]);
+     }
+   }, [profile, token, login, submitAd]);
+
 
   const handleSaveAsDraft = useCallback(async () => {
     try {

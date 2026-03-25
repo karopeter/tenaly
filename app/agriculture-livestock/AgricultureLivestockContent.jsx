@@ -245,10 +245,22 @@ export default function AgricultureLivestockContent() {
     const fetchBusinesses = async () => {
       try {
         const res = await api.get("/business/my-businesses");
-        const options = res.data.map((b) => ({
-          label: b.businessName,
+        const allOptions = res.data.map((b) => ({
+          label: b.businessName, 
           value: b._id,
-        }));
+          businessCateory: b.businessCategory,
+        }))
+        // Only show agriculture business 
+        const agricultureOptions = allOptions.filter(b => b.businessCategory === 'agriculture');
+        setBusinessOptions(agricultureOptions);
+
+        if (agricultureOptions.length === 0) {
+          toast.error("You don't have a business registered under 'Agriculture'. Please create one first.");
+        }
+        // const options = res.data.map((b) => ({
+        //   label: b.businessName,
+        //   value: b._id,
+        // }));
         setBusinessOptions(options);
       } catch (error) {
         console.error("Failed to fetch businesses", error);
