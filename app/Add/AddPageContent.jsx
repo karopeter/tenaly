@@ -6337,15 +6337,9 @@ useEffect(() => {
         <p className="text-[#868686] font-[400] font-inter text-[14px] mb-6">
          You need to complete at least Tier 1 verification before you can post listings on Tenaly. Tier 2 and Tier 3 are optional but help build more trust with buyers.
         </p>
-        <div className='flex gap-3 justify-end'>
+        <div className='flex justify-center'>
           <Button
-           onClick={() => setShowVerificationModal(false)}
-           className="px-6 py-2 bg-gray-200 text-[#525252] rounded-[8px] font-inter font-[500]"
-          >
-             Cancel
-          </Button>
-          <Button
-          onClick={() => router.push("/Settings?tab=tier-verification")} // Navigate to tier tab
+          onClick={() => router.push("/tier-verification")} 
           className="px-6 py-2 bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] font-inter font-[500]"
         >
           Proceed to Verification

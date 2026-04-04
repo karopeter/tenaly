@@ -36,7 +36,7 @@ export default function TierVerificationContent() {
             phone: res.data.phoneNumber || "",
           }));
          } catch (error) {
-           console.error("Error fetching profile:", err);
+           console.error("Error fetching tier status:", error);
          }
       };
       fetchProfile();
@@ -1031,19 +1031,19 @@ export default function TierVerificationContent() {
 
          {/* Upgrade Button */}
          {activeTier < 4 && (
-      <>
+         <>
         {/* Only show button if no tier is submitted OR if current tier is approved */}
-        {((!tierStatus?.tier1) || 
-         (activeTier === 2 && tierStatus?.tier1?.status === "approved" && !tierStatus?.tier2) || 
+        {((activeTier === 1 && !tierStatus?.tier1) ||
+         (activeTier === 2 && tierStatus?.tier1?.status === "approved" && !tierStatus?.tier2) ||
          (activeTier === 3 && tierStatus?.tier2?.status === "approved" && !tierStatus?.tier3)) && (
           <Button
-              onClick={() => handleUpgradeClick(activeTier)}
-              className="w-[240px] mx-auto mt-6 h-[48px] bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] font-inter font-[500] text-[14px]"
-            >
-             Upgrade to Tier {activeTier}
-            </Button>
-         )}
-      </>
+           onClick={() => handleUpgradeClick(activeTier)}
+           className="w-[240px] mx-auto mt-6 h-[48px] bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white rounded-[8px] font-inter font-[500] text-[14px]"
+          >
+          Upgrade to Tier {activeTier}
+        </Button>
+      )}
+     </>
      )}
        </div>
        <Tier4UnlockedModal

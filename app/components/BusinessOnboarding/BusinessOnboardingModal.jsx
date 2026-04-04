@@ -24,14 +24,7 @@ export default function BusinessOnbardingModal({ onClose, onContinue }) {
         </p>
 
         {/* Buttons */}
-        <div className="flex justify-end gap-3">
-          <Button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 rounded-[6px] border border-gray-300 text-gray-700 bg-white whitespace-nowrap hover:bg-gray-100"
-          >
-            Skip for now
-          </Button>
+        <div className="flex justify-center">
           <Button
             type="button"
             onClick={onContinue}
