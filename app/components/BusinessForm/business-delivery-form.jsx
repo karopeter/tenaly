@@ -404,7 +404,7 @@ const handleSubmit = async () => {
               <button
                 onClick={() => {
                  setShowSuccessModal(false);
-                 localStorag.setItem('showVerificationModal', 'true');
+                 localStorage.setItem('showVerificationModal', 'true');
                  router.push('/Add');
                }}
                className="flex-1 w-full md:w-[300px] h-[52px] rounded-[8px] bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white font-[500] text-[14px]">
