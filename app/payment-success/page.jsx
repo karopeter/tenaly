@@ -34,7 +34,7 @@ function PostSuccessContent() {
    const verifyPayment = async () => {
     setVerifying(true);
 
-    const reference = searchParams.get("ref");
+    const reference = searchParams.get("reference") ||  searchParams.get("trxref") || searchParams.get("ref");
     const adType = searchParams.get("adType");
 
     if (!reference) {
@@ -52,8 +52,16 @@ function PostSuccessContent() {
     try {
       const endpoint = VERIFY_ENDPOINTS[adType](reference);
       const res = await api.get(endpoint);
+      console.log("Payment verify response:", res.data);
 
-      if (res.data.success || res.data.status === "success" || res.data.message?.includes("verified")) {
+      if (
+        res.data.success === true ||
+        res.data.status === "success" || 
+        res.data.paymentStatus === "success" ||
+        res.data.data?.status === "success" ||
+        res.data.message?.toLowerCase().includes("success") || 
+        res.data.message?.toLowerCase().includes("verified")
+      ) {
         setStatus("success");
         toast.success("Payment successful! Your ad has been posted.");
 
