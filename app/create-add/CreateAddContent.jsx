@@ -92,6 +92,11 @@ const routeMap = {
     'Covers': '/gadget-covers',
     'Earphones / Headsets': '/gadget-earphones-headsets',
 
+    // Vehicles 
+    'car': "/more-post-vehicle", 
+    'bus': "/more-post-vehicle", 
+    'tricycle': "/more-post-vehicle",
+
     // Laptops & Computers
      'Laptops': '/laptops',
     'Desktop Computers': '/desktop-computers',

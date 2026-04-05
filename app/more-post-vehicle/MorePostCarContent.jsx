@@ -64,7 +64,7 @@ export default function MorePostCarContent() {
   const searchParams = useSearchParams();
   const { profile, token, login } = useAuth();
 
-  const carAdId = searchParams.get('carAdId');
+  const carAdId = searchParams.get('carAdId') || null;
 
   const planHierarchy = {
     free: 0,
