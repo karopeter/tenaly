@@ -1,10 +1,6 @@
 "use client";
-import { useState, useEffect } from "react";
-import Img from "../Image";
-import Button from "../Button";
-import BusinessLink from "../navbar/business.link";
 import { Plus, MoreVertical, MapPin, Clock, Pencil } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import api from "@/services/api";
 import { toast } from "react-toastify";
 import { PencilIcon } from "@heroicons/react/24/solid";

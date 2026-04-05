@@ -219,9 +219,10 @@ export default function AddBusinessHourss() {
 
       <div className="flex-1 md:px-4 md:px-0 mt-10 md:mt-0">
         <div className="bg-white md:border md:border-[#EDEDED] p-0 md:p-4 rounded-lg w-full">
+          <h2 className="text-[#525252] font-medium text-lg">Business hour</h2>
           {businesses.length === 0 ? (
             <>
-              <div className="mt-20">
+              <div className="mt-5">
                 <Img
                   src="/postAds.svg"
                   width={158}

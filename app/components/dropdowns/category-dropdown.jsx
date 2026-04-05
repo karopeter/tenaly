@@ -74,7 +74,7 @@ export default function MainCategoryDropdown({ value, onChange }) {
       {open && !type && (
         <div 
           className="absolute top-[52px] left-0 right-0 bg-white border border-[#CDCDD7] border-t-0 rounded-b-[4px] z-10 max-h-60 overflow-y-auto">
-            <div 
+            {/* <div 
             className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
             onClick={() => handleTypeSelect("agriculture")}
             >
@@ -86,8 +86,8 @@ export default function MainCategoryDropdown({ value, onChange }) {
               className="w-5 h-5"
              />
              Agriculture & Food 
-          </div>
-          <div 
+          </div> */}
+          {/* <div 
             className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
              onClick={() => handleTypeSelect("pets")}
             >
@@ -99,8 +99,8 @@ export default function MainCategoryDropdown({ value, onChange }) {
                className="w-5 h-5"
               />
               Animal & Pets
-          </div>
-          <div 
+          </div> */}
+          {/* <div 
             className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
             onClick={() => {
               handleTypeSelect("hire");
@@ -114,8 +114,8 @@ export default function MainCategoryDropdown({ value, onChange }) {
                 className="w-5 h-5"
               />
               Available for hire 
-          </div>
-           <div 
+          </div> */}
+           {/* <div 
            className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
            onClick={() => {
             handleTypeSelect("construction");
@@ -129,8 +129,8 @@ export default function MainCategoryDropdown({ value, onChange }) {
              className="w-5 h-5"
             />
            Building & Construction
-          </div>
-          <div 
+          </div> */}
+          {/* <div 
            className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
            onClick={() => {
             handleTypeSelect("equipments");
@@ -144,8 +144,8 @@ export default function MainCategoryDropdown({ value, onChange }) {
              className="w-5 h-5"
             />
             Equipments & Machineries 
-          </div>
-          <div 
+          </div> */}
+          {/* <div 
             className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
             onClick={() => handleTypeSelect("kids")}
             >
@@ -157,8 +157,8 @@ export default function MainCategoryDropdown({ value, onChange }) {
                className="w-5 h-5" 
              />
              For Kids 
-          </div>
-          <div 
+          </div> */}
+          {/* <div 
            className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
            onClick={() => {
             handleTypeSelect("fashion");
@@ -172,7 +172,7 @@ export default function MainCategoryDropdown({ value, onChange }) {
              className="w-5 h-5"
            />
            Fashion
-          </div>
+          </div> */}
           <div 
             className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
             onClick={() => {
@@ -188,7 +188,7 @@ export default function MainCategoryDropdown({ value, onChange }) {
              />
              Gadgets 
           </div>
-          <div 
+          {/* <div 
            className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
            onClick={() => handleTypeSelect("households")}
            >
@@ -200,8 +200,8 @@ export default function MainCategoryDropdown({ value, onChange }) {
               className="w-5 h-5"
             />
             Household Items
-          </div>
-           <div 
+          </div> */}
+           {/* <div 
             className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
              onClick={() => handleTypeSelect("beauty")}
             >
@@ -213,7 +213,7 @@ export default function MainCategoryDropdown({ value, onChange }) {
                className="w-5 h-5"
               />
              Beauty & Health
-          </div>
+          </div> */}
           {/* <div 
             className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
             onClick={() => {
@@ -257,7 +257,7 @@ export default function MainCategoryDropdown({ value, onChange }) {
             />
             Property
           </div>
-          <div 
+          {/* <div 
             className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
             onClick={() => {
               handleTypeSelect("services");
@@ -271,7 +271,7 @@ export default function MainCategoryDropdown({ value, onChange }) {
               className="w-5 h-5"
             />
            Jobs
-          </div>
+          </div> */}
            <div
             className="px-3 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
             onClick={() => handleTypeSelect("vehicle")}

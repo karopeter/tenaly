@@ -189,19 +189,19 @@ export default function BusinessForm({ initialData, isEditMode, businessId, mode
                 <option value="">Select Business Category</option>
                 <option value="vehicle">Vehicles</option>
                 <option value="property">Property</option>
-                <option value="agriculture">Agriculture & Food</option>
-                <option value="kids">Baby & Kids</option>
+                {/* <option value="agriculture">Agriculture & Food</option> */}
+                {/* <option value="kids">Baby & Kids</option>
                 <option value="pets">Animals & Pets</option>
                 <option value="services">Services</option>
-                <option value="equipments">Equipments & Machineries</option>
+                <option value="equipments">Equipments & Machineries</option> */}
                 <option value="gadgets">Gadgets</option>
                 <option value="laptops">Laptops & Computers</option>
-                <option value="fashions">Fashion</option>
+                {/* <option value="fashions">Fashion</option>
                 <option value="households">Household Items</option>
                 <option value="beauty">Beauty & Health</option>
                 <option value="construction">Building & Construction</option>
                 <option value="job">Jobs</option>
-                <option value="hire">Available for Hire</option>
+                <option value="hire">Available for Hire</option> */}
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-3 flex pt-4">
                   <svg className="w-4 h-4 text-[#525252]" fill="none" stroke="currentColor" viewBox="0 0 24 24">

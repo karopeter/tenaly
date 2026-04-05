@@ -5,6 +5,7 @@ import { Inter } from "next/font/google";
 import { Work_Sans  } from "next/font/google";
 import { AuthProvider } from "./context/AuthContext";
 import Navbar from "./components/navbar/navbar";
+import AccountSetupBanner from "./components/UI/AccountSetupBanner";
 import Footer from "./components/footer/footer";
 import { ToastContainer } from "react-toastify";
 import { usePathname } from "next/navigation";
@@ -44,6 +45,7 @@ function MainLayout({ children }) {
   return (
     <>
       {!isLandingPage && <Navbar />}
+      {!isLandingPage && <AccountSetupBanner />}
       <div className="min-h-screen">{children}</div>
       {!isLandingPage && <Footer />}
     </>

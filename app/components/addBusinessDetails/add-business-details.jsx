@@ -4,19 +4,16 @@ import Button from "../Button";
 import Img from "../Image";
 import { Plus, MoreVertical } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "react-toastify";
 import api from "@/services/api";
 import BusinessLink from "../navbar/business.link";
-import { toast } from "react-toastify";
-
 import BusinessDetailsList from "../business/businessDetailsList";
 
 export default function AddBusinessDetails() {
     const searchParams = useSearchParams();
     const mode = searchParams.get("mode") || "same";
     const businessId = searchParams.get("businessId");
-    const [businessDetails, setBusinessDetails] = useState([]);
     const [businesses, setBusinesses] = useState([]);
-    const [selectedBusiness, setSelectedBusiness] = useState(null);
     const [loading, setLoading] = useState(true);
     const [showMobileMenu, setShowMobileMenu] = useState(false);
     const router = useRouter();
@@ -90,6 +87,7 @@ export default function AddBusinessDetails() {
        )}
         <div className="flex-1 md:px-4 md:px-0 mt-10 md:mt-0">
           <div className="bg-white md:border md:border-[#EDEDED] p-0 md:p-4 rounded-lg w-full">
+            <h2 className="text-[#525252] font-medium text-lg">Business Details</h2>
               {businesses.length === 0 ? (
                  <>
                    <div className="mt-20">

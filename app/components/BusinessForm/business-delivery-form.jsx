@@ -2,7 +2,6 @@
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeftIcon } from "@heroicons/react/24/solid";
 import BusinessLink from "../navbar/business.link";
 import Button from "../Button";
 import { MoreVertical } from "lucide-react";
@@ -65,6 +64,14 @@ export default function BusinessDeliveryForm() {
 
     fetchBusiness();
   }, [businessId]);
+
+  useEffect(() => {
+    const shouldShow = localStorage.getItem('showVerificationModal');
+    if (shouldShow === 'true') {
+      localStorage.removeItem('showVerificationModal');
+      setShowVerificationModal(true);
+    }
+  }, []);
 
   const handleChange = (id, field, value) => {
     const updatedState = {
@@ -393,23 +400,15 @@ const handleSubmit = async () => {
               Your business has been added successfully and your business is now live. Start posting ads to showcase your products or services and reach more customers.
             </p>
 
-            <div className="flex gap-3 w-full mt-4">
-              <button
-               onClick={() => {
-                setShowSuccessModal(false);
-                router.push('/Business');
-              }}
-               className="flex-1 h-[52px] rounded-[8px] border border-[#CDCDD7] text-[#525252] font-[500] text-[14px]"
-              >
-                Cancel
-              </button>
+            <div className="flex justify-center mt-4">
               <button
                 onClick={() => {
                  setShowSuccessModal(false);
+                 localStorag.setItem('showVerificationModal', 'true');
                  router.push('/Add');
                }}
-               className="flex-1 h-[52px] rounded-[8px] bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white font-[500] text-[14px]">
-                Post Ad
+               className="flex-1 w-full md:w-[300px] h-[52px] rounded-[8px] bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white font-[500] text-[14px]">
+                Continue 
                </button>
             </div>
           </div>
