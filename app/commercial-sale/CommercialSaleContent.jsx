@@ -103,7 +103,7 @@ export default function CommercialSaleContent() {
   const router = useRouter();
 
   const searchParams = useSearchParams();
-  const carAdId = searchParams.get('carAdId');
+  const carAdId = searchParams.get('carAdId') || null;
 
   const planHierarchy = {
     free: 0,

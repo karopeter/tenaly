@@ -92,7 +92,7 @@ export default function NetworkPostContent() {
   const [editingCarAd, setEditingCarAd] = useState(null);
   const [isLoadingDraft, setIsLoadingDraft] = useState(false);
 
-  const carAdId = searchParams.get('carAdId');
+  const carAdId = searchParams.get('carAdId') || null;
 
   const planHierarchy = {
     free: 0,

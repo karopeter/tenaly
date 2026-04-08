@@ -9,8 +9,6 @@ import PostDropdown from "../components/dropdowns/car-post-dropdown";
 import InputField from "../components/input";
 import api from "@/services/api";
 import { toast } from "react-toastify";
-import Img from "../components/Image";
-import MultiSelectdropdown from "../components/dropdowns/MultiSelectDropdown";
 import PromoteAdModal from "../components/PromoteModal/promote-modal";
 import WalletPaymentModal from "../components/WalletModal/walletModal";
 import FreeSuccessModal from "../components/free-success-modal";
@@ -101,7 +99,7 @@ export default function ChargerCablesPostContent() {
   const [editingCarAd, setEditingCarAd] = useState(null);
   const [isLoadingDraft, setIsLoadingDraft] = useState(false);
 
-  const carAdId = searchParams.get('carAdId');
+  const carAdId = searchParams.get('carAdId') || null;
 
   const planHierarchy = {
     free: 0,
