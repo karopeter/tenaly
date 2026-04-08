@@ -107,7 +107,7 @@ export default function CommercialRentContent() {
     const router = useRouter();
 
      const searchParams = useSearchParams();
-      const carAdId = searchParams.get('carAdId');
+      const carAdId = searchParams.get('carAdId') || null;
 
     // Define plan hierarchy
     const planHierarchy = {

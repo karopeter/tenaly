@@ -109,7 +109,7 @@ export default function EventCenterContent() {
      const router = useRouter();
 
      const searchParams = useSearchParams();
-     const carAdId = searchParams.get('carAdId');
+     const carAdId = searchParams.get('carAdId') || null;
      
      const handleGoBack  = () => router.back();
 

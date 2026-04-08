@@ -111,7 +111,7 @@ export default function  LandRentContent() {
   const { profile, token, login } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const carAdId = searchParams.get('carAdId');
+  const carAdId = searchParams.get('carAdId') || null;
 
    const handleGoBack  = () => router.back();
 
