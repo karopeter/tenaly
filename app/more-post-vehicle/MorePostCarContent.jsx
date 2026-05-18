@@ -59,6 +59,8 @@ export default function MorePostCarContent() {
   const [mounted, setMounted] = useState(false);
   const [editingCarAd, setEditingCarAd] = useState(null);
   const [isLoadingDraft, setIsLoadingDraft] = useState(false);
+  const [isPosting, setIsPosting] = useState(false);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -244,6 +246,11 @@ export default function MorePostCarContent() {
           value: b._id,
         }));
         setBusinessOptions(options);
+        const savedBusinessId = localStorage.getItem('selectedBusinessId');
+        if (savedBusinessId) {
+          setBusiness(savedBusinessId);
+          localStorage.removeItem('selectedBusinessId');
+        }
       } catch (error) {
         console.error("Failed to fetch businesses", error);
         toast.error("Failed to load business categories.");
@@ -401,23 +408,6 @@ export default function MorePostCarContent() {
     await submitAd("free");
   }, [submitAd]);
 
-  // const promoteAd = useCallback(async () => {
-  //   if (!profile) {
-  //     toast.error("Profile not loaded. Please try again.");
-  //     return;
-  //   }
-
-  //   const planCost = planAmounts[selectedPlan] || 0;
-  //   const walletBalance = profile.walletBalance || 0;
-
-  //   if (walletBalance >= planCost) {
-  //     setShowModalPromote(false);
-  //     setShowWalletModal(true);
-  //   } else {
-  //     await submitAd(selectedPlan, false);
-  //   }
-  // }, [selectedPlan, submitAd, profile]);
-
    const promoteAd = useCallback(async () => {
      if (!profile) {
       toast.error("Profile not loaded. Please try again.");
@@ -436,55 +426,24 @@ export default function MorePostCarContent() {
     await submitAd(selectedPlan, false);
   }, [selectedPlan, submitAd]);
 
-  // const handlePost = useCallback(async () => {
-  //   if (!profile) {
-  //     toast.error("You need to be logged in to post an ad.");
-  //     return;
-  //   }
+const handlePost = useCallback(async () => {
+  if (isPosting) return;
+  if (!profile) {
+    toast.error('You need to be logged in to post an ad.');
+    return;
+  }
 
-  //   const successfulPaidPlans = profile.paidPlans?.filter(p => p.status === "success");
-  //   let highestPlan = "free";
-  //   let highestPlanPriority = 0;
+  setIsPosting(true);
 
-  //   if (successfulPaidPlans.length > 0) {
-  //     for (const plan of successfulPaidPlans) {
-  //       const planPriority = planHierarchy[plan.planType] || 0;
-  //       if (planPriority > highestPlanPriority) {
-  //         highestPlanPriority = planPriority;
-  //         highestPlan = plan.planType;
-  //       }
-  //     }
-  //   }
-
-  //   console.log("Highest paid plan found:", highestPlan);
-
-  //   if (highestPlan !== "free") {
-  //     console.log("Using existing paid plan:", highestPlan);
-  //     toast.success(`Using your existing ${highestPlan} plan to post this ad.`);
-  //     await submitAd(highestPlan, false);
-  //   } else {
-  //     console.log("No paid plans found, showing promote modal");
-  //     setSelectedPlan("basic");
-  //     setShowModalPromote(true);
-  //     return;
-  //   }
-  // }, [profile, submitAd]);
-
-
-  const handlePost = useCallback(async () => {
-    if (!profile) {
-      toast.error('You need to be logged in to post an ad.');
-      return;
-    }
-
+  try {
     // fetch fresh profile before checking paid plans 
     let freshProfile = profile;
     try {
-     const profileRes = await api.get("/profile");
-     login(profileRes.data, token);
-     freshProfile = profileRes.data;
+      const profileRes = await api.get("/profile");
+      login(profileRes.data, token);
+      freshProfile = profileRes.data;
     } catch (err) {
-     console.error("Failed to refresh profile:", err);
+      console.error("Failed to refresh profile:", err);
     }
 
     const successfulPaidPlans = freshProfile.paidPlans?.filter(p => p.status === "success");
@@ -508,9 +467,14 @@ export default function MorePostCarContent() {
       setSelectedPlan("basic");
       setShowModalPromote(true);
     }
-  }, [profile, token, login, submitAd]);
+  } finally {
+    setIsPosting(false);
+  }
+}, [profile, token, login, submitAd, isPosting]);
 
   const handleSaveAsDraft = useCallback(async () => {
+    if (isSavingDraft) return;
+    setIsSavingDraft(true);
     try {
       const payload = buildPayload('free', false);
       delete payload.plan;
@@ -531,8 +495,10 @@ export default function MorePostCarContent() {
     } catch (error) {
       console.error("Draft saved error:", error);
       toast.error(error.response?.data?.error || "Failed to save draft!");
+    } finally {
+      setIsSavingDraft(false);
     }
-  }, [buildPayload, router]);
+  }, [buildPayload, router, isSavingDraft]);
 
   if (isLoadingDraft) {
     return (
@@ -741,18 +707,30 @@ export default function MorePostCarContent() {
               <Button
               type="button"
               onClick={handleSaveAsDraft}
-              className="w-full md:w-[200px] h-[44px] md:rounded-[8px] font-[500] text-[14px] border border-[#CDCDD7] text-[#525252]"
+              disabled={isSavingDraft}
+              className="w-full md:w-[200px] h-[44px] md:rounded-[8px] font-[500] text-[14px] border border-[#CDCDD7] text-[#525252] disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Save as Draft
+             {isSavingDraft ? (
+              <span className="flex items-center justify-center gap-2">
+                 <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500"></span>
+                 Saving...
+              </span>
+             ): "Save as Draft"}
             </Button>
             )}
 
             <Button
               type="button"
               onClick={handlePost}
-              className="w-full md:w-[262px] h-[44px] md:rounded-[8px] font-[500] text-[14px] bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white"
+              disabled={isPosting}
+              className="w-full md:w-[262px] h-[44px] md:rounded-[8px] font-[500] text-[14px] bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white disabled:opacity-60 disabled:cursor-not-allowed"
             >
-            {editingCarAd ? "Complete Ad" : "Post Ad"}
+            {isPosting ? (
+              <span className="flex items-center justify-center gap-2">
+                <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+                Processing...
+              </span>
+            ): editingCarAd ? "Complete Ad": "Post Ad"}
             </Button>
           </div>
         </form>

@@ -306,7 +306,7 @@ const InputField = ({ name, value, onChange, placeholder, error }) => (
       value={value}
       onChange={onChange}
       placeholder={placeholder}
-      className="pt-1 pr-3 pb-1 pl-3 w-[380px] h-[52px] outline-none rounded-[4px] border border-[#CDCDD7] text-sm placeholder:text-[#CDCDD7]"
+      className="pt-1 pr-3 pb-1 pl-3 w-[380px] h-[52px] outline-none rounded-[4px] border border-[#CDCDD7] text-sm text-[#525252] placeholder:text-[#CDCDD7]"
     />
     {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
   </div>
@@ -321,7 +321,7 @@ const PasswordInput = ({ name, value, onChange, placeholder, show, toggle, error
       placeholder={placeholder}
       onChange={onChange}
       value={value}
-      className="pt-1 pr-3 pb-1 pl-3 w-[380px] h-[52px] outline-none rounded-[4px] border border-[#CDCDD7] text-sm placeholder:text-[#CDCDD7]"
+      className="pt-1 pr-3 pb-1 pl-3 w-[380px] h-[52px] outline-none rounded-[4px] border border-[#CDCDD7] text-sm text-[#525252] placeholder:text-[#CDCDD7]"
     />
     <button type="button" onClick={toggle} className="absolute right-4 top-1/2 transform -translate-y-1/2">
       {show ? <EyeSlashIcon className="w-5 h-5 text-[#525252]" /> : <EyeIcon className="w-5 h-5 text-[#525252]" />}

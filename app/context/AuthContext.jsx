@@ -52,8 +52,9 @@ useEffect(() => {
       refreshProfile(storedToken);
       checkVerificationStatus(storedToken);
     } catch (err) {
-      console.error("Error parsing stored profile:", err);
-      localStorage.removeItem("profile"); // cleanup bad profile
+      console.error("Error parsing stored profile", err);
+      localStorage.removeItem("profile");
+      localStorage.removeItem("token");
     }
   }
 
@@ -87,7 +88,11 @@ const checkVerificationStatus = async (authToken = token) => {
       hasSubmitted: updatedProfile.hasSubmittedVerification || updatedProfile.isVerified,
     }));
   } catch (error) {
-    console.error("Error fetching profile verification status:", error);
+    if (error.response?.status === 401) {
+      logout();
+    } else {
+      console.error("Error fetching profile verification status:", error);
+    }
   }
 };
 
@@ -123,7 +128,11 @@ const checkVerificationStatus = async (authToken = token) => {
        }));
      }
      } catch (error) {
-       console.error("Error refreshing profile:", error);
+       if (error.response?.status === 401) {
+        logout();
+       } else { 
+         console.error("Error refreshing profile:", error);
+       }
      }
   };
 

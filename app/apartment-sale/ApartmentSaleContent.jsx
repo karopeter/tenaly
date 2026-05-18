@@ -19,10 +19,8 @@ import {
    ownershipStatusOptions,
     parkingSpaceOptions, 
     propertyConditionOptions, 
-    propertyDurationOptions, 
     propertyFacilities, 
-    serviceChargeOptions,
-    shortletPropertyFacilities
+    serviceChargeOptions
   } from "../lib/propertyData";
   import { useAuth } from "../context/AuthContext";
 import { negotiationOptions } from "../lib/carData";
@@ -106,14 +104,13 @@ export default function ApartmentSaleContent() {
   const [propertyFacility, setPropertyFacility] = useState("");
   const [businessCategory, setBusinessCategory] = useState("");
   const [description, setDescription] = useState("");
-  const [hasPromoted, setHasPromoted] = useState(false);
-  const [showModal, setShowModal] = useState(false);
   const [showFreeCommercialPropertySuccessModal, setShowFreeCommercialPropertyModal] = useState(false);
   const [showModalPromote, setShowModalPromote] = useState(false);
   const [showWalletModal, setShowWalletModal] = useState(false);
-
   const [editingCarAd, setEditingCarAd] = useState(null);
   const [isLoadingDraft, setIsLoadingDraft] = useState(false);
+  const [isPosting, setIsPosting] = useState(false);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
 
   // New state to track if the component has mounted 
   const [mounted, setMounted] = useState(false);
@@ -164,20 +161,17 @@ export default function ApartmentSaleContent() {
       const propertyResponse = await api.get(`/property/draft/${idToUse}`);
 
       if (!propertyResponse.data || !propertyResponse.data.propertyAd) {
-        console.log("⚠️ No PropertyAd draft found");
         setIsLoadingDraft(false);
         return;
       }
 
       const propertyAd = propertyResponse.data.propertyAd;
-      console.log("✅ Loaded PropertyAd draft:", propertyAd);
 
       // Also fetch CarAd for images and location
       let carAd = null;
       try {
        const carResponse = await api.get(`/carAdd/${idToUse}`);
        carAd = carResponse.data;
-       console.log("✅ Loaded CarAd:", carAd);
       } catch (carError) {
          console.warn("⚠️ Could not load CarAd:", carError);
       }
@@ -222,7 +216,6 @@ export default function ApartmentSaleContent() {
        setIsLoadingDraft(false);
 
       } catch (error) {
-         console.error("❌ Error loading property draft:", error);
          toast.error("Failed to load draft. Starting fresh.");
 
          // clear invalid data 
@@ -268,9 +261,12 @@ export default function ApartmentSaleContent() {
           value: b._id,
         }));
         setBusinessOptions(options);
-        console.log("Fetched Business Options:", options);
+        const savedBusinessId = localStorage.getItem('selectedBusinessId');
+        if (savedBusinessId) {
+          setBusiness(savedBusinessId);
+          localStorage.removeItem('selectedBusinessId');
+        }
       } catch (error) {
-        console.error("Failed to fetch businesses", error);
         toast.error("Failed to load business categories.");
       }
     };
@@ -329,9 +325,9 @@ export default function ApartmentSaleContent() {
       propertyType,
       furnishing: furnishing || null,
       propertyCondition: propertyCondition || null,
-      propertyFacilities: Array.isArray(propertyFacilities)
-          ? propertyFacilities.map((f) => (typeof f === "string" ? f : f.name))
-          : [],
+      propertyFacilities: Array.isArray(selectedFacilities) 
+         ? selectedFacilities.map((f) => (typeof f === "string" ? f : f.name))
+         : [],
       parking: parking || null,
       squareMeter: squareMeter?.trim() || null,
       ownershipStatus: ownershipStatus || null,
@@ -458,7 +454,6 @@ export default function ApartmentSaleContent() {
       setShowModalPromote(false);
       setShowWalletModal(true);
     } else {
-      // Directly proceed to Paystack payment
       await submitAd(selectedPlan, false);
     }
   }, [selectedPlan, submitAd, profile]);
@@ -472,18 +467,20 @@ export default function ApartmentSaleContent() {
   }, [selectedPlan, submitAd]);
  
 const handlePost = useCallback(async () => {
+  if (isPosting) return;
   if (!profile) {
     toast.error("You need to be logged in to post an ad.");
     return;
   }
 
-  // Validate required fields
+  setIsPosting(true);
+
+  try {
+   // Validate required fields
   if (!propertyName || !propertyAddress || !propertyType || !amount) {
     toast.error("Please fill in all required fields.");
     return;
   }
-
-  console.log("Current profile paid plans:", profile.paidPlans);
 
   const successfulPaidPlans = profile.paidPlans?.filter(p => p.status === "success") || [];
   let highestPlan = "free";
@@ -500,26 +497,26 @@ const handlePost = useCallback(async () => {
     }
   }
 
-  console.log("Highest paid plan found:", highestPlan);
-
   // If user has any successful paid plan, use it directly
   if (highestPlan !== "free") {
-    console.log("Using existing paid plan:", highestPlan);
     toast.success(`Post created successfully Using your existing ${highestPlan} plan to post this ad.`);
     await submitAd(highestPlan, false);
   } else {
-    // User has no paid plans, show promote modal
-    console.log("No paid plans found, showing promote modal");
     setSelectedPlan("basic");
     setShowModalPromote(true);
+   }
+  } finally {
+    setIsPosting(true);
   }
-}, [profile, submitAd, propertyName, propertyAddress, propertyType, amount]);
+}, [profile, submitAd, propertyName, propertyAddress, propertyType, amount, isPosting]);
 
   const onPlanSelect = (plan) => {
     setSelectedPlan(plan);
   };
 
     const handleSaveAsDraft = useCallback(async () => {
+      if (isSavingDraft) return;
+      setIsSavingDraft(true);
      try {
       const payload = buildPayload('free', false);
       delete payload.plan; // Remove plan 
@@ -538,10 +535,11 @@ const handlePost = useCallback(async () => {
   
       router.push("/Add");
      } catch (error) {
-      console.error("Draft save error:", error);
       toast.error(error.response?.data?.error || "Failed to save draft");
+     } finally {
+      setIsSavingDraft(false);
      }
-  }, [buildPayload, router]);
+  }, [buildPayload, router, isSavingDraft]);
 
 
    if (isLoadingDraft) {
@@ -599,7 +597,7 @@ const handlePost = useCallback(async () => {
 
           {/* Section 5 */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <MultiSelectDropdown label="Property facilities" value={propertyFacilities} onChange={setPropertyFacility} options={propertyFacilities} />
+            <MultiSelectDropdown label="Property facilities" value={selectedFacilities} onChange={setSelectedFacilities} options={propertyFacilities} />
             <PostDropdown label="Bedrooms" value={numberOfBedrooms} onChange={setNumberOfBedrooms} options={apartmentRentBedroomNumberOptions} />
           </div>
 
@@ -669,17 +667,28 @@ const handlePost = useCallback(async () => {
              <Button 
               type="button"
               onClick={handleSaveAsDraft}
-              className="w-full md:w-[200px] h-[44px] md:rounded-[8px] 
-                      font-[500] text-[14px] border border-[#CDCDD7] text-[#525252]">
-              Save as Draft
+              disabled={isSavingDraft}
+              className="w-full md:w-[200px] h-[44px] md:rounded-[8px] font-[500] text-[14px] border border-[#CDCDD7] text-[#525252] disabled:opacity-60 disabled:cursor-not-allowed">
+              {isSavingDraft ? (
+                <span className="flex items-center justify-center">
+                  <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500"></span>
+                  Saving...
+                </span>
+              ): "Save as Draft"}
             </Button>
            )}
             <Button
               type="button"
               onClick={handlePost}
-              className="w-full md:w-[262px] h-[44px] rounded-[8px] font-[500] text-[14px] text-white bg-gradient-to-r from-[#00A8DF] to-[#1031AA]"
+              disabled={isPosting}
+              className="w-full md:w-[262px] h-[44px] md:rounded-[8px] font-[500] text-[14px] bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white disabled:opacity-60 disabled:cursor-not-allowed"
             >
-             {editingCarAd ? "Complete Ad" : " Post Ad"}
+             {isPosting ? (
+              <span className="flex items-center justify-center">
+                <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+                Processing...
+              </span>
+             ): editingCarAd ? "Complete Ad" : "Post Ad"}
             </Button>
           </div>
         </form>
@@ -722,7 +731,7 @@ const handlePost = useCallback(async () => {
       )}
       {showFreeCommercialPropertySuccessModal && (
         <FreePropertySuccessModal
-          onClose={() => showFreeCommercialPropertySuccessModal(false)}
+          onClose={() => showFreeCommercialPropertySuccessModal(true)}
         />
       )}        
       </>

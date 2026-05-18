@@ -88,7 +88,7 @@ export default function TierVerificationContent() {
          } catch (error) {
            // silent fail on polling 
          }
-      }, 1500); // poll every 15 seconds 
+      }, 15000); // poll every 15 seconds 
       return () => clearInterval(interval);
      }, []);
 
@@ -1059,7 +1059,7 @@ export default function TierVerificationContent() {
                Congratulations
             </h2>
             <p className="text-[#767676] font-normal text-[14px] leading-relaxed mb-8 max-w-[320px]">
-               Your Tier {approvedTierLevel} verification has been approved! You can now start posting listing ads on Tenaly.
+               Your Tier {approvedTierLevel} verification has been approved! You are now eligible to post your first listing Ad on Tenaly.
             </p>
             <div className="flex gap-3 w-full">
               <button
@@ -1071,7 +1071,7 @@ export default function TierVerificationContent() {
               <button
                onClick={() => {
                  setShowApprovalModal(false); 
-                 router.push("/Add");
+                 router.push("/create-add");
                }}
                className="flex-1 h-[52px] rounded-[8px] bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white font-medium text-[14px]"
               >

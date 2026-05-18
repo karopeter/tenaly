@@ -89,7 +89,6 @@ export default function CommercialSaleContent() {
   const [businessCategory, setBusinessCategory] = useState("");
   const [description, setDescription] = useState("");
   const [propertyFacility, setPropertyFacility] = useState(""); // ✅ Added back
-
   const [selectedPlan, setSelectedPlan] = useState("basic");
   const [showFreeCommercialPropertySuccessModal, setShowFreeCommercialPropertyModal] = useState(false);
   const [showModalPromote, setShowModalPromote] = useState(false);
@@ -98,6 +97,7 @@ export default function CommercialSaleContent() {
   const [editingCarAd, setEditingCarAd] = useState(null);
   const [isLoadingDraft, setIsLoadingDraft] = useState(false);
   const [isPosting, setIsPosting] = useState(false);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
 
   const { profile, token, login } = useAuth();
   const router = useRouter();
@@ -245,7 +245,11 @@ export default function CommercialSaleContent() {
           value: b._id,
         }));
         setBusinessOptions(options);
-        console.log("Fetched Business Options:", options);
+        const savedBusinessId = localStorage.getItem('selectedBusinessId');
+        if (savedBusinessId) {
+         setBusiness(savedBusinessId);
+         localStorage.removeItem('selectedBusinessId');
+        }
       } catch (error) {
         console.error("Failed to fetch businesses", error);
         toast.error("Failed to load business categories.");
@@ -437,17 +441,20 @@ export default function CommercialSaleContent() {
   }, [selectedPlan, submitAd]);
 
   const handlePost = useCallback(async () => {
+    if (isPosting) return;
     if (!profile) {
       toast.error("You need to be logged in to post an ad.");
       return;
     }
 
-    if (!propertyName || !propertyAddress || !propertyType || !amount) {
+    setIsPosting(true);
+
+   try {
+     // Validate required fields
+     if (!propertyName || !propertyAddress || !propertyType || !amount) {
       toast.error("Please fill in all required fields.");
       return;
     }
-
-    console.log("Current profile paid plans:", profile.paidPlans);
 
     const successfulPaidPlans = profile.paidPlans?.filter(p => p.status === "success") || [];
     let highestPlan = "free";
@@ -463,18 +470,17 @@ export default function CommercialSaleContent() {
       }
     }
 
-    console.log("Highest paid plan found:", highestPlan);
-
     if (highestPlan !== "free") {
-      console.log("Using existing paid plan:", highestPlan);
       toast.success(`Using your existing ${highestPlan} plan to post this ad.`);
       await submitAd(highestPlan, false);
     } else {
-      console.log("No paid plans found, showing promote modal");
       setSelectedPlan("basic");
       setShowModalPromote(true);
     }
-  }, [profile, submitAd, propertyName, propertyAddress, propertyType, amount]);
+    } finally {
+     setIsPosting(false);
+    }
+  }, [profile, submitAd, propertyName, propertyAddress, propertyType, amount, isPosting]);
 
   const handleGoBack = () => router.back();
 
@@ -483,6 +489,8 @@ export default function CommercialSaleContent() {
   };
 
   const handleSaveAsDraft = useCallback(async () => {
+    if (isSavingDraft) return;
+    setIsSavingDraft(true);
     try {
       const payload = buildPayload('free', false);
       delete payload.plan;
@@ -503,8 +511,10 @@ export default function CommercialSaleContent() {
     } catch (error) {
       console.error("Draft save error:", error);
       toast.error(error.response?.data?.error || "Failed to save draft");
+    } finally {
+      setIsSavingDraft(false);
     }
-  }, [buildPayload, router]);
+  }, [buildPayload, router, isSavingDraft]);
 
   if (isLoadingDraft) {
     return (
@@ -667,18 +677,30 @@ export default function CommercialSaleContent() {
              <Button
               type="button"
               onClick={handleSaveAsDraft}
-              className="w-full md:w-[200px] h-[44px] md:rounded-[8px] font-[500] text-[14px] border border-[#CDCDD7] text-[#525252]"
+              disabled={isSavingDraft}
+              className="w-full md:w-[200px] h-[44px] md:rounded-[8px] font-[500] text-[14px] border border-[#CDCDD7] text-[#525252] disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Save as Draft
+             {isSavingDraft ? (
+              <span className="flex items-center justify-center">
+                 <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500"></span>
+                 Saving...
+              </span>
+             ): "Save as Draft"}
             </Button>
            )}
 
             <Button
               type="button"
               onClick={handlePost}
-              className="w-full md:w-[262px] h-[44px] md:rounded-[8px] font-[500] text-[14px] bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white"
+              disabled={isPosting}
+              className="w-full md:w-[262px] h-[44px] md:rounded-[8px] font-[500] text-[14px] bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {editingCarAd ? "Complete Ad" : "Post Ad"}
+             {isPosting ? (
+              <span className="flex items-center justify-center gap-2">
+                <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+                Processing...
+              </span>
+             ): editingCarAd ? "Complete Ad" : "Post Ad"}
             </Button>
           </div>
         </form>
@@ -719,7 +741,7 @@ export default function CommercialSaleContent() {
           )}
           {showFreeCommercialPropertySuccessModal && (
             <FreePropertySuccessModal
-              onClose={() => setShowFreeCommercialPropertyModal(false)}
+              onClose={() => setShowFreeCommercialPropertySuccessModal(true)}
             />
           )}
         </>
