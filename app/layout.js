@@ -3,7 +3,7 @@ import "./globals.css";
 import Script from "next/script";
 import { Inter } from "next/font/google";
 import { Work_Sans  } from "next/font/google";
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 import Navbar from "./components/navbar/navbar";
 import AccountSetupBanner from "./components/UI/AccountSetupBanner";
 import Footer from "./components/footer/footer";
@@ -40,12 +40,13 @@ export default function RootLayout({ children }) {
 
 function MainLayout({ children }) {
   const pathname = usePathname();
+  const { loading } = useAuth();
   const isLandingPage = pathname === "/";
 
   return (
     <>
       {!isLandingPage && <Navbar />}
-      {!isLandingPage && <AccountSetupBanner />}
+      {!isLandingPage && !loading && <AccountSetupBanner />}
       <div className="min-h-screen">{children}</div>
       {!isLandingPage && <Footer />}
     </>

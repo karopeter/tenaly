@@ -14,6 +14,7 @@ export default function AccountSetupBanner() {
     hasTierVerification: false,
   });
   const [isComplete, setIsComplete] = useState(false);
+  const [bannerLoading, setBannerLoading] = useState(true);
 
   useEffect(() => {
     if (!isLoggedIn || role !== 'seller') return;
@@ -39,15 +40,16 @@ export default function AccountSetupBanner() {
         };
         setSetupStatus(status);
         setIsComplete(Object.values(status).every(Boolean));
+        setBannerLoading(false);
       } catch {
-        // silent fail
+        setBannerLoading(false);
       }
     };
     checkSetup();
   }, [isLoggedIn, role]);
 
   // Only show for sellers who haven't completed setup
-  if (!isLoggedIn || role !== 'seller' || isComplete) return null;
+ if (!isLoggedIn || role !== 'seller' || isComplete || bannerLoading) return null;
 
   const steps = [
     {

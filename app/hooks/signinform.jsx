@@ -11,7 +11,6 @@ import SignUpModal from "./signup-modal";
 import CompleteProfileModal from "./complete-profile-modal";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import { useAuth } from "../context/AuthContext";
-import ResetPasswordModal from "./resett-password-modal";
 import BusinessOnbardingModal from "../components/BusinessOnboarding/BusinessOnboardingModal";
 import api from "@/services/api";
 
@@ -105,7 +104,7 @@ export default function SignInForm({ onClose }) {
 
       // Redirect logic based on the user's role
       if (userProfile.role === "seller") {
-        router.push("/Profile");
+        router.push("/Add");
       } else {
         router.push("/Product-List");
       }
@@ -145,7 +144,7 @@ export default function SignInForm({ onClose }) {
         toast.success("Google authentication successful! Welcome back!");
 
         if (userProfile.role === "seller") {
-          router.push("/Profile");
+          router.push("/Add");
         } else {
           router.push("/Product-List");
         }

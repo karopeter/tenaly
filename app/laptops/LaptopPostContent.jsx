@@ -97,6 +97,8 @@ export default function LaptopPostContent() {
   const [showFreeSuccessModal, setShowFreeSuccessModal] = useState(false);
   const [editingCarAd, setEditingCarAd] = useState(null);
   const [isLoadingDraft, setIsLoadingDraft] = useState(false);
+  const [isPosting, setIsPosting] = useState(false);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
 
   const carAdId = searchParams.get('carAdId') || null;
 
@@ -125,11 +127,6 @@ export default function LaptopPostContent() {
         idToUse 
       });
 
-    //   if (!idToUse || adType !== 'pets') {
-    //     console.log("⚠️ No pets draft to load");
-    //     return;
-    //   }
-
     if (!carAdIdFromQuery && !carAdIdFromStorage) {
       console.log("⚠️ No draft to load - creating new ad");
       return; 
@@ -155,13 +152,11 @@ export default function LaptopPostContent() {
       }   
          
       const laptopAd = laptopResponse.data.laptopAd;
-      console.log("✅ Loaded LaptopAd draft:", laptopAd);
          
      let carAd = null;
         try {
          const carResponse = await api.get(`/carAdd/get-car-byId/${idToUse}`);
          carAd = carResponse.data.ad;
-         console.log("✅ Loaded CarAd:", carAd);
         } catch (carError) {
           console.warn("⚠️ Could not load CarAd:", carError);
         }
@@ -200,7 +195,6 @@ export default function LaptopPostContent() {
       toast.success("Draft loaded successfully! Complete your ad details.");
       setIsLoadingDraft(false);
     } catch (error) {
-       console.error("❌ Error loading draft:", error);
        toast.error("Failed to load draft. Starting fresh.");
                  
         // Clear invalid data
@@ -244,8 +238,12 @@ export default function LaptopPostContent() {
           value: b._id,
         }));
         setBusinessOptions(options);
+        const savedBusinessId = localStorage.getItem('selectedBusinessId');
+        if (savedBusinessId) {
+          setBusiness(savedBusinessId);
+          localStorage.removeItem('selectedBusinessId');
+        }
       } catch (error) {
-        console.error("Failed to fetch businesses", error);
         toast.error("Failed to load business categories.");
       }
     };
@@ -270,7 +268,6 @@ export default function LaptopPostContent() {
 
     fetchBusinesses();
     loadPaystack().catch(error => {
-      console.error(error);
       toast.error("Failed to load payment gateway script.");
     });
   }, [mounted]);
@@ -319,13 +316,10 @@ export default function LaptopPostContent() {
     const storedCarAdId = localStorage.getItem('editingCarAdId');
     if (storedCarAdId) {
       payload.carAdId = storedCarAdId;
-      console.log("✅ Including carAdId from localStorage:", storedCarAdId);
     } else if (editingCarAd?.carAdId) {
       payload.carAdId = editingCarAd.carAdId;
-      console.log("✅ Including carAdId from editingCarAd state:", editingCarAd.carAdId);
     } else if (carAdId) {
-      payload.carAdId = carAdId;
-      console.log("✅ Including carAdId from query params:", carAdId);
+      payload.carAdId = carAdId;  
     }
 
     return payload;
@@ -376,7 +370,6 @@ export default function LaptopPostContent() {
         login(profileRes.data, token);
       }
     } catch (error) {
-      console.error("Ad submission error:", error.response?.data || error.message);
       toast.error(
         error.response?.data?.error ||
         "Something went wrong posting your ad. Please try again."
@@ -420,11 +413,15 @@ export default function LaptopPostContent() {
   }, [selectedPlan, submitAd]);
 
   const handlePost = useCallback(async () => {
+    if (isPosting) return;
     if (!profile) {
       toast.error("You need to be logged in to post an ad.");
       return;
     }
 
+    setIsPosting(true);
+
+    try {
     const successfulPaidPlans = profile.paidPlans?.filter(p => p.status === "success");
     let highestPlan = "free";
     let highestPlanPriority = 0;
@@ -439,21 +436,22 @@ export default function LaptopPostContent() {
       }
     }
 
-    console.log("Highest paid plan found:", highestPlan);
-
     if (highestPlan !== "free") {
-      console.log("Using existing paid plan:", highestPlan);
       toast.success(`Using your existing ${highestPlan} plan to post this ad.`);
       await submitAd(highestPlan, false);
     } else {
-      console.log("No paid plans found, showing promote modal");
       setSelectedPlan("basic");
       setShowModalPromote(true);
       return;
     }
-  }, [profile, submitAd]);
+    } finally {
+     setIsPosting(true);
+    }
+  }, [profile, submitAd, isPosting]);
 
   const handleSaveAsDraft = useCallback(async () => {
+    if (isSavingDraft) return;
+    setIsSavingDraft(true);
     try {
       const payload = buildPayload('free', false);
       delete payload.plan;
@@ -475,10 +473,11 @@ export default function LaptopPostContent() {
 
       router.push("/Add");
     } catch (error) {
-      console.error("Draft saved error:", error);
       toast.error(error.response?.data?.error || "Failed to save draft!");
+    } finally {
+      setIsSavingDraft(false);
     }
-  }, [buildPayload, router]);
+  }, [buildPayload, router, setIsSavingDraft]);
 
   if (isLoadingDraft) {
     return (
@@ -682,18 +681,30 @@ export default function LaptopPostContent() {
               <Button
                 type="button"
                 onClick={handleSaveAsDraft}
-                className="w-full md:w-[200px] h-[44px] md:rounded-[8px] font-[500] text-[14px] border border-[#CDCDD7] text-[#525252]"
+                disabled={isSavingDraft}
+                className="w-full md:w-[200px] h-[44px] md:rounded-[8px] font-[500] text-[14px] border border-[#CDCDD7] text-[#525252] disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                Save as Draft
+               {isSavingDraft ? (
+                <span className="flex items-center justify-center">
+                  <span className="animate-spin rounded-full h-4 w-4 border border-b-2 border-gray-500"></span>
+                  Saving...
+                </span>
+               ): "Save as Draft"}
               </Button>
             )}
 
             <Button
               type="button"
               onClick={handlePost}
-              className="w-full md:w-[262px] h-[44px] md:rounded-[8px] font-[500] text-[14px] bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white"
+              disabled={isPosting}
+              className="w-full md:w-[262px] h-[44px] md:rounded-[8px] font-[500] text-[14px] bg-gradient-to-r from-[#00A8DF] to-[#1031AA] text-white disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {editingCarAd ? "Complete Ad" : "Post Ad"}
+            {isPosting ? (
+              <span className="flex items-center justify-center">
+                <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+                Processing...
+              </span>
+            ): editingCarAd ? "Complete Ad" : "Post Ad"}
             </Button>
           </div>
         </form>
@@ -733,7 +744,7 @@ export default function LaptopPostContent() {
           
           {showFreeSuccessModal && (
             <FreeSuccessModal
-              onClose={() => setShowFreeSuccessModal(false)}
+              onClose={() => setShowFreeSuccessModal(true)}
             />
           )}
         </>

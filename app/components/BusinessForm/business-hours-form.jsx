@@ -4,6 +4,8 @@ import BusinessLink from "../navbar/business.link";
 import api from "@/services/api";
 import { MoreVertical, Loader2 } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
+import DeliveryPromptModal from "../UI/DeliveryPromptModal";
+import BusinessSuccessModal from "../UI/BusinessSuccessModal";
 import Img from "../Image";
 import { toast } from "react-toastify";
 
@@ -19,6 +21,8 @@ export default function BusinessHoursForm() {
   const mode = searchParams.get("mode");
   const [isEditMode, setIsEditMode] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [showDeliveryPrompt, setShowDeliveryPrompt] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const [openingTime, setOpeningTime] = useState("");
   const [closingTime, setClosingTime] = useState("");
@@ -174,15 +178,8 @@ export default function BusinessHoursForm() {
           await api.put(`/business/${businessId}/hours`, payload);
 
           toast.success("Business Hours saved successfully!");
-          router.push(`/BusinessDelivery?businessI=${businessId}`);
-
-          // if (isEditMode) {
-          //     toast.success("Business Hour updated successfully!");
-          //     router.push(`/EditBusinessHour?businessId=${businessId}`);
-          // } else {
-          //     toast.success("Business Hours saved successfully!");
-          //     router.push(`/EditBusinessHour?businessId=${businessId}`);
-          // }
+          setShowDeliveryPrompt(true);
+          //router.push(`/BusinessDelivery?businessI=${businessId}`);
       } catch (err) {
         const errorMessage = err.response?.data?.message || "Failed to submit. Please try again.";
 
@@ -195,6 +192,16 @@ export default function BusinessHoursForm() {
       } finally {
         setIsSubmitting(false); // End loading for submission
       }
+    };
+
+    const handleDeliveryYes = () => {
+      setShowDeliveryPrompt(false);
+      router.push(`/BusinessDelivery?businessId=${businessId}`);
+    };
+
+    const handleDeliveryNo = () => {
+      setShowDeliveryPrompt(false);
+      setShowSuccessModal(true);
     };
 
     if (loading) {
@@ -483,6 +490,18 @@ export default function BusinessHoursForm() {
           </div>
         </div>
       </div>
+      {showDeliveryPrompt && (
+        <DeliveryPromptModal 
+          onYes={handleDeliveryYes}
+          onNo={handleDeliveryNo}
+        />
+      )}
+
+      {showSuccessModal && (
+        <BusinessSuccessModal 
+          onClose={() => setShowSuccessModal(false)}
+        />
+      )}
       </>
     );
 }

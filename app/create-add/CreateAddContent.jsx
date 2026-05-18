@@ -291,6 +291,7 @@ export default function CreateCarContent() {
           label: b.businessName,
           value: b._id,
           businessCategory: b.businessCategory,
+          location: b.location,
         }));
         setBusinesses(options);
         if (options.length === 1) setBusinessId(options[0].value);
@@ -313,11 +314,17 @@ export default function CreateCarContent() {
      );
 
      if (matchingBusinesses.length === 1) {
-      // Only one match - auto-select it 
       setBusinessId(matchingBusinesses[0].value);
+      if (matchingBusinesses[0].location) {
+        setLocation(matchingBusinesses[0].location);
+        const [selectedState, selectedLga] = matchingBusinesses[0].location.split(", ");
+        setState(selectedState || "");
+        setLga(selectedLga || "");
+      }
      } else if (matchingBusinesses.length === 0) {
        setBusinessId("");
-     }
+       setLocation("Choose location");
+    }
      // If multiple matches, leave it empty so users can choose 
   }, [category, businesses]);
 
@@ -709,6 +716,7 @@ function getCategoryType(val) {
        // Navigate to appropriate route
     const route = routeMap[categoryValue.trim()] || routeMap[categoryValue] || "";
     if (route) {
+      localStorage.setItem('selectedBusinessId', businessId);
       router.push(route);
     } else if (baseCategory === "Vehicle") {
       router.push("/more-post-vehicle");
@@ -793,7 +801,16 @@ function getCategoryType(val) {
                <>
                <select
                 value={businessId}
-                onChange={(e) => setBusinessId(e.target.value)}
+                onChange={(e) => {
+                  const selected = filteredBusinesses.find(b => b.value === e.target.value);
+                  setBusinessId(e.target.value);
+                  if (selected?.location) {
+                    setLocation(selected.location);
+                    const [selectedState, selectedLga] = selected.location.split(", ");
+                    setState(selectedState || "");
+                    setLga(selectedLga || "");
+                  }
+                }}
                 className="w-full h-[52px] border border-[#CDCDD7] rounded-[4px] px-3 focus:outline-none"
                 required>
                 <option value="">Select Business</option>
